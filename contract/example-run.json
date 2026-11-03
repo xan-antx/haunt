@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-20-listener-pay-bill",
+  "ghost": "listener",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the user submits a valid payment THE system SHALL show a confirmation",
+    "successCheck": "The page shows the text 'Payment received'"
+  },
+  "site": { "name": "Lantern Bills demo", "url": "http://localhost:3000", "commit": "abc1234" },
+  "startedAt": "2026-11-20T00:00:05Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Link, Lantern Bills home",
+      "thought": "I'm looking for the pay button.",
+      "screenshot": "shots/001.png",
+      "focusBox": { "x": 40, "y": 18, "w": 120, "h": 32 },
+      "waitMs": 120
+    }
+  ],
+  "findings": [
+    {
+      "type": "unlabeled_button",
+      "step": 7,
+      "title": "The pay button has no name",
+      "evidence": "The screen reader only says 'button'",
+      "screenshot": "shots/007.png"
+    }
+  ]
+}

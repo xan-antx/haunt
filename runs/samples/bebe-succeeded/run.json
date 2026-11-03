@@ -1,0 +1,85 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-03-bebe-pay-bill",
+  "ghost": "bebe",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the user submits a valid payment THE system SHALL show a confirmation",
+    "successCheck": "The page shows the text 'Payment received'"
+  },
+  "site": { "name": "Lantern Bills demo", "url": "http://localhost:3000", "commit": "def5678" },
+  "startedAt": "2026-11-03T14:35:42Z",
+  "result": "succeeded",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Click",
+      "spoken": "Pay your bill",
+      "thought": "I can see the 'Pay your bill' link clearly at 200% zoom. I'll click it.",
+      "screenshot": "shots/001.png",
+      "focusBox": { "x": 80, "y": 116, "w": 280, "h": 64 },
+      "waitMs": 200
+    },
+    {
+      "n": 2,
+      "page": "/bill",
+      "action": "Scroll",
+      "spoken": "Current bill",
+      "thought": "The page loaded slowly on 3G. Now I need to find the payment form.",
+      "screenshot": "shots/002.png",
+      "focusBox": { "x": 0, "y": 0, "w": 0, "h": 0 },
+      "waitMs": 1200
+    },
+    {
+      "n": 3,
+      "page": "/bill",
+      "action": "Click",
+      "spoken": "Enter amount",
+      "thought": "I found the payment field, but some of the helper text is in English only.",
+      "screenshot": "shots/003.png",
+      "focusBox": { "x": 120, "y": 480, "w": 360, "h": 72 },
+      "waitMs": 150
+    },
+    {
+      "n": 4,
+      "page": "/bill",
+      "action": "Type",
+      "spoken": "87.50",
+      "thought": "Entering the bill amount. The text is large enough to read comfortably.",
+      "screenshot": "shots/004.png",
+      "focusBox": { "x": 120, "y": 480, "w": 360, "h": 72 },
+      "waitMs": 300
+    },
+    {
+      "n": 5,
+      "page": "/bill",
+      "action": "Click",
+      "spoken": "Pay now",
+      "thought": "The button text is clear and direct. I'll click to complete payment.",
+      "screenshot": "shots/005.png",
+      "focusBox": { "x": 120, "y": 580, "w": 200, "h": 80 },
+      "waitMs": 400
+    },
+    {
+      "n": 6,
+      "page": "/bill",
+      "action": "Wait",
+      "spoken": "Payment received",
+      "thought": "Success! The confirmation message appeared clearly.",
+      "screenshot": "shots/006.png",
+      "focusBox": { "x": 120, "y": 300, "w": 400, "h": 100 },
+      "waitMs": 100
+    }
+  ],
+  "findings": [
+    {
+      "type": "untranslated",
+      "step": 3,
+      "title": "Helper text not available in Hindi or Punjabi",
+      "evidence": "The payment field shows English-only helper text 'Due by November 15' even though the main interface supports multilingual users",
+      "screenshot": "shots/003.png"
+    }
+  ]
+}

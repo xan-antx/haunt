@@ -1,0 +1,122 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-03-listener-pay-bill",
+  "ghost": "listener",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the user submits a valid payment THE system SHALL show a confirmation",
+    "successCheck": "The page shows the text 'Payment received'"
+  },
+  "site": { "name": "Lantern Bills demo", "url": "http://localhost:3000", "commit": "def5678" },
+  "startedAt": "2026-11-03T14:22:15Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Link, Lantern Bills home",
+      "thought": "I need to find the bill payment section.",
+      "screenshot": "shots/001.png",
+      "focusBox": { "x": 40, "y": 18, "w": 120, "h": 32 },
+      "waitMs": 150
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Link, Pay your bill",
+      "thought": "This sounds promising. I'll follow this link.",
+      "screenshot": "shots/002.png",
+      "focusBox": { "x": 40, "y": 58, "w": 140, "h": 32 },
+      "waitMs": 120
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Page loading",
+      "thought": "Navigating to the payment page.",
+      "screenshot": "shots/003.png",
+      "focusBox": { "x": 40, "y": 58, "w": 140, "h": 32 },
+      "waitMs": 800
+    },
+    {
+      "n": 4,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Heading level 1, Current bill",
+      "thought": "Good, I'm on the bill page. Looking for the amount and payment form.",
+      "screenshot": "shots/004.png",
+      "focusBox": { "x": 60, "y": 120, "w": 300, "h": 48 },
+      "waitMs": 150
+    },
+    {
+      "n": 5,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Text, Your bill is $87.50",
+      "thought": "I know the amount now. Need to find where to enter payment.",
+      "screenshot": "shots/005.png",
+      "focusBox": { "x": 60, "y": 180, "w": 220, "h": 28 },
+      "waitMs": 200
+    },
+    {
+      "n": 6,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Edit text",
+      "thought": "This might be the payment amount field, but no label was announced.",
+      "screenshot": "shots/006.png",
+      "focusBox": { "x": 60, "y": 240, "w": 180, "h": 36 },
+      "waitMs": 100
+    },
+    {
+      "n": 7,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Button",
+      "thought": "A button with no name. Is this the pay button? I can't tell.",
+      "screenshot": "shots/007.png",
+      "focusBox": { "x": 60, "y": 290, "w": 100, "h": 40 },
+      "waitMs": 180
+    },
+    {
+      "n": 8,
+      "page": "/bill",
+      "action": "Enter",
+      "spoken": "Dialog, Payment confirmation",
+      "thought": "A dialog opened. Let me explore what's here.",
+      "screenshot": "shots/008.png",
+      "focusBox": { "x": 200, "y": 150, "w": 400, "h": 300 },
+      "waitMs": 150
+    },
+    {
+      "n": 9,
+      "page": "/bill",
+      "action": "Tab",
+      "spoken": "Button, Confirm",
+      "thought": "I'll try to confirm the payment, but I can't tab away from this dialog.",
+      "screenshot": "shots/009.png",
+      "focusBox": { "x": 250, "y": 380, "w": 120, "h": 40 },
+      "waitMs": 500
+    }
+  ],
+  "findings": [
+    {
+      "type": "unlabeled_button",
+      "step": 7,
+      "title": "The pay button has no accessible name",
+      "evidence": "The screen reader only announces 'Button' without any label or description",
+      "screenshot": "shots/007.png"
+    },
+    {
+      "type": "focus_trap",
+      "step": 9,
+      "title": "Cannot escape the payment confirmation dialog",
+      "evidence": "Tab key cycles only within the dialog, no way to close it with keyboard",
+      "screenshot": "shots/009.png"
+    }
+  ]
+}
