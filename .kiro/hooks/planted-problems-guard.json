@@ -3,12 +3,11 @@
   "hooks": [
     {
       "name": "Planted problems guard",
-      "trigger": "PostFileSave",
+      "trigger": "Stop",
       "description": "Run the tests proving the six planted problems still exist.",
-      "matcher": "demo-site[\\\\/]src[\\\\/]",
       "action": {
         "type": "command",
-        "command": "node .kiro/hooks/scripts/run-check.mjs \"Planted problems tests\" demo-site npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts",
+        "command": "node .kiro/hooks/scripts/planted-problems-guard.mjs",
         "timeout": 180
       }
     }
