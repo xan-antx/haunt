@@ -18,7 +18,7 @@ test.afterEach(() => {
 });
 
 async function openHome(page: Page) {
-  await page.goto('/#/');
+  await page.goto('/haunt/#/');
   await expect(page.locator('main h1')).toBeVisible();
 }
 

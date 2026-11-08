@@ -33,10 +33,11 @@ function contentSecurityPolicy(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, isPreview }) => ({
   plugins: [react(), contentSecurityPolicy()],
-  // Relative base so the built site works from any static host path.
-  base: './',
+  // GitHub project page: production lives under /haunt/. `vite preview` serves that
+  // production build, so it uses the same base. Dev keeps normal paths.
+  base: command === 'build' || isPreview ? '/haunt/' : '/',
   server: {
     port: 3001,
     strictPort: true,
@@ -55,4 +56,4 @@ export default defineConfig({
     exclude: ['node_modules/**', 'dist/**', 'e2e/**', 'test-results/**'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
   },
-});
+}));

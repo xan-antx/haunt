@@ -29,7 +29,7 @@ test.afterEach(() => {
 });
 
 async function open(page: Page, hash: string) {
-  await page.goto(`/${hash}`);
+  await page.goto(`/haunt/${hash}`);
   await expect(page.locator('main h1')).toBeVisible();
 }
 
@@ -43,18 +43,18 @@ test.describe('deep links', () => {
     await expect(timeline.locator('[aria-current="step"]')).toHaveCount(1);
     await expect(timeline.locator('[aria-current="step"]')).toHaveAccessibleName('Step 9, finding: Keyboard trap');
     await page.waitForTimeout(1800);
-    expect(page.url()).toBe(`${ORIGIN}/#/run/${L}/step/9`);
+    expect(page.url()).toBe(`${ORIGIN}/haunt/#/run/${L}/step/9`);
   });
 
   test('#/run/:key replaces the URL with step 1', async ({ page }) => {
     await open(page, `#/run/${B}`);
-    await expect(page).toHaveURL(`${ORIGIN}/#/run/${B}/step/1`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${B}/step/1`);
   });
 
   test('Start here opens the Listener trap', async ({ page }) => {
     await open(page, '#/');
     await page.getByRole('link', { name: 'Start here' }).click();
-    await expect(page).toHaveURL(`${ORIGIN}/#/run/${L}/step/9`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/9`);
     await expect(page.locator('main h1')).toBeFocused();
   });
 });
@@ -112,7 +112,7 @@ test.describe('keyboard', () => {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
     await expect(page.locator('#main-content')).toBeFocused();
-    await expect(page).toHaveURL(`${ORIGIN}/#/graveyard`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/graveyard`);
   });
 
   test('Ghost Cam controls work by keyboard and keep focus', async ({ page }) => {
@@ -120,10 +120,10 @@ test.describe('keyboard', () => {
     const forward = page.getByRole('button', { name: 'Step forward' });
     await forward.focus();
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(`${ORIGIN}/#/run/${L}/step/2`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/2`);
     await expect(forward).toBeFocused();
     await page.keyboard.press('Space');
-    await expect(page).toHaveURL(`${ORIGIN}/#/run/${L}/step/3`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/3`);
   });
 });
 

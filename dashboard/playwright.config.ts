@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // End-to-end checks against the built site served by `npm run preview` on port 3001.
+// The production build lives under /haunt/, so the specs open /haunt/#/... paths.
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -16,7 +17,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm run build && npm run preview',
-    url: 'http://localhost:3001/',
+    url: 'http://localhost:3001/haunt/',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },

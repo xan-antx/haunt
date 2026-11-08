@@ -3,9 +3,8 @@
   "hooks": [
     {
       "name": "Translation keeper",
-      "trigger": "PostFileSave",
-      "description": "After the English translation file is saved, add missing keys to the Punjabi and Hindi files.",
-      "matcher": "demo-site[\\\\/]public[\\\\/]locales[\\\\/]en[\\\\/]translation\\.json$",
+      "trigger": "Manual",
+      "description": "Run after editing English strings: add missing keys to the Punjabi and Hindi files.",
       "action": {
         "type": "agent",
         "prompt": "demo-site/public/locales/en/translation.json was just saved. Compare its keys (flattened, dotted paths) with demo-site/public/locales/pa/translation.json and demo-site/public/locales/hi/translation.json. Add every key that is missing from pa or hi, with a natural translation (Punjabi in Gurmukhi script, Hindi in Devanagari), keeping the same nested structure and the {{placeholders}} unchanged. Do NOT add these deliberately untranslated keys: payBillButton, validation.cardNumber, validation.expiry, validation.cvv. They must stay missing (planted problem 6). Do not remove or change existing keys. Edit files only with the file editing tools. In your reply, list every new translation (file, key, English source, new text) so a human can review it. If nothing is missing, say so."

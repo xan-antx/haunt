@@ -29,7 +29,7 @@ const cssWidth = (width: number, zoom: number) => Math.max(MIN_CSS_WIDTH, Math.r
 
 async function open(page: Page, width: number, zoom: number): Promise<Locator> {
   await page.setViewportSize({ width: cssWidth(width, zoom), height: Math.round(HEIGHT / zoom) });
-  await page.goto(`/${HASH}`);
+  await page.goto(`/haunt/${HASH}`);
   await expect(page.locator('main h1')).toBeVisible();
   // The Provenance_Panel is collapsed by default on the Ghost Cam; open it.
   await page.getByRole('button', { name: 'Where this run came from' }).click();

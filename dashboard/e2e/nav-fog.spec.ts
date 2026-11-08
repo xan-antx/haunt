@@ -42,7 +42,7 @@ test.afterEach(() => {
 });
 
 async function open(page: Page, hash: string) {
-  await page.goto(`/${hash}`);
+  await page.goto(`/haunt/${hash}`);
   await expect(page.locator('main h1')).toBeVisible();
   // The Haunted Map and Ghost Cam links appear once the runs have loaded.
   await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Ghost Cam' })).toBeVisible();

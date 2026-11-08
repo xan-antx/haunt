@@ -48,7 +48,7 @@ async function settle(page: Page) {
 
 /** Opens a Ghost Cam step and waits until everything has settled. */
 async function openCam(page: Page, hash: string) {
-  await page.goto(`/${hash}`);
+  await page.goto(`/haunt/${hash}`);
   await expect(page.locator('main h1')).toBeVisible();
   for (const area of AREAS) await expect(page.locator(`[data-cam-area="${area}"]`)).toBeVisible();
   await expect(page.locator(PROVENANCE)).toBeVisible();

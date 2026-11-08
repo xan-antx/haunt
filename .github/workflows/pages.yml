@@ -19,9 +19,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
 
@@ -35,6 +35,11 @@ jobs:
         run: npm ci
         working-directory: demo-site
 
+      # Fails the deploy if any of the six planted problems disappears.
+      - name: Test demo-site planted problems
+        run: npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts
+        working-directory: demo-site
+
       - name: Build demo-site
         run: npm run build
         working-directory: demo-site
@@ -42,26 +47,23 @@ jobs:
       - name: Copy demo-site into site folder
         run: cp -r demo-site/dist/. _site/lantern-bills/
 
-      # --- TODO: Dashboard -> site root (/) ---
-      # Add the dashboard here later. Its build must use base "/haunt/" and
-      # its output must be copied into _site/ (the root), e.g.:
-      #
-      # - name: Install dashboard dependencies
-      #   run: npm ci
-      #   working-directory: dashboard
-      # - name: Build dashboard
-      #   run: npm run build
-      #   working-directory: dashboard
-      # - name: Copy dashboard into site root
-      #   run: cp -r dashboard/dist/. _site/
-      #
-      # Copying into _site/ merges with the existing lantern-bills folder, so
-      # the dashboard build must not output its own "lantern-bills" folder.
-      # --- end dashboard placeholder ---
+      # --- Dashboard -> site root (/haunt/) ---
+      # The dashboard build uses base "/haunt/" (see dashboard/vite.config.ts).
+      # Copying into _site/ merges with the existing lantern-bills folder.
+      - name: Install dashboard dependencies
+        run: npm ci
+        working-directory: dashboard
 
-      - uses: actions/configure-pages@v5
+      - name: Build dashboard
+        run: npm run build
+        working-directory: dashboard
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Copy dashboard into site root
+        run: cp -r dashboard/dist/. _site/
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -73,4 +75,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

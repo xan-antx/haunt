@@ -23,7 +23,7 @@ test.afterEach(() => {
 });
 
 async function open(page: Page, hash: string) {
-  await page.goto(`/${hash}`);
+  await page.goto(`/haunt/${hash}`);
   await expect(page.locator('main h1')).toBeVisible();
 }
 
@@ -113,7 +113,7 @@ test.describe('long spoken transcript', () => {
 
     for (let n = 1; n <= LONG_STEPS; n++) {
       if (n > 1) await page.keyboard.press('Enter');
-      await expect(page).toHaveURL(`${ORIGIN}/#/run/${L}/step/${n}`);
+      await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/${n}`);
       await expect(region.locator('li')).toHaveCount(n);
       expect(await currentFullyVisible(), `Current_Line fully visible at step ${n}`).toBe(true);
     }
@@ -166,7 +166,7 @@ test.describe('spoken transcript', () => {
 
     for (let n = 1; n <= 9; n++) {
       if (n > 1) await page.keyboard.press('Enter');
-      await expect(page).toHaveURL(`${ORIGIN}/#/run/${L}/step/${n}`);
+      await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/${n}`);
       await expect(lines, `line count at step ${n}`).toHaveCount(n);
       // One line per step, in order. Repeated texts would appear once per step, never merged.
       await expect(texts).toHaveText(SPOKEN.slice(0, n));

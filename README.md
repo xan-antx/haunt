@@ -8,8 +8,8 @@ Haunt sends three synthetic "ghost" users into a website to finish a task, then 
 
 **Live links**
 
-- Live dashboard: TODO
-- Live demo site (Lantern Bills): TODO
+- Live dashboard: https://xan-antx.github.io/haunt/
+- Live demo site (Lantern Bills): https://xan-antx.github.io/haunt/lantern-bills/
 
 **Run it locally (about 60 seconds).** You need a current Node.js LTS. The repo has no root `package.json`, so install and run each app in its own folder. Use two terminals.
 
