@@ -46,11 +46,29 @@ export function Transcript({ run, step }: { run: Run; step: Step }) {
   const listener = run.ghost === 'listener';
   const lines = buildTranscript(run, step.n);
 
+  // The Current_Line is pinned to the bottom. The pin is set on every step change and kept while
+  // the box or its lines change size (fonts loading, window resize, flex layout settling), so the
+  // newest line stays visible. It is released only when the user scrolls away from the bottom.
+  const pinned = useRef(true);
+
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    pinned.current = true;
     el.scrollTop = el.scrollHeight - el.clientHeight;
   }, [step.n]);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const pin = () => {
+      if (pinned.current) el.scrollTop = el.scrollHeight - el.clientHeight;
+    };
+    const observer = new ResizeObserver(pin);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
@@ -59,6 +77,10 @@ export function Transcript({ run, step }: { run: Run; step: Step }) {
       role="region"
       aria-label={listener ? 'Spoken transcript' : 'Thought transcript'}
       tabIndex={overflowing ? 0 : undefined}
+      onScroll={(event) => {
+        const el = event.currentTarget;
+        pinned.current = el.scrollHeight - el.clientHeight - el.scrollTop <= 2;
+      }}
       onKeyDown={scrollKeys('y')}
       data-testid="transcript"
     >

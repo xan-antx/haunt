@@ -5,37 +5,38 @@
   overflow-x: auto;
 }
 
+/* The frame fills its column and the image keeps its natural aspect ratio, so the frame is
+   always exactly the size of what is drawn and FocusGlow's width-based scale stays aligned.
+   In fit mode the Ghost Cam sizes the column from --cam-shot-max (design.md, Ghost Cam layout),
+   so the height needs no cap here. */
 .frame {
   position: relative;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
+  min-height: var(--cam-shot-max, 0px);
   border-radius: var(--radius);
+  background: var(--surface);
   overflow: hidden;
-}
-
-/* --cam-shot-max is set by the Ghost Cam in fit mode only; without it there is no height cap.
-   The cap goes on the frame (16:10 Placeholder) or the image (natural ratio), so the frame is
-   always exactly the size of what is drawn and FocusGlow's width-based scale stays aligned. */
-.placeholderFrame {
-  width: min(100%, calc(var(--cam-shot-max, 100vw) * 1.6));
 }
 
 .image {
   display: block;
-  max-width: 100%;
-  max-height: var(--cam-shot-max, none);
-  width: auto;
+  width: 100%;
   height: auto;
 }
 
 .placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--placeholder);
+}
+
+/* The label strip under the grey box. Its height is --cam-caption-h in fit mode. */
+.caption {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  padding: var(--space-4);
-  background: var(--placeholder);
+  height: var(--cam-caption-h, 2.25rem);
+  background: var(--surface);
   color: var(--text);
   text-align: center;
   font-size: 1.1rem;

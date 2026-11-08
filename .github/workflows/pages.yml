@@ -1,0 +1,76 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let a running deploy finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Final site layout:  _site/                (site root)
+      #                     _site/lantern-bills/  (demo site)
+      - name: Prepare site folder
+        run: mkdir -p _site/lantern-bills
+
+      # --- Demo site -> /lantern-bills/ ---
+      - name: Install demo-site dependencies
+        run: npm ci
+        working-directory: demo-site
+
+      - name: Build demo-site
+        run: npm run build
+        working-directory: demo-site
+
+      - name: Copy demo-site into site folder
+        run: cp -r demo-site/dist/. _site/lantern-bills/
+
+      # --- TODO: Dashboard -> site root (/) ---
+      # Add the dashboard here later. Its build must use base "/haunt/" and
+      # its output must be copied into _site/ (the root), e.g.:
+      #
+      # - name: Install dashboard dependencies
+      #   run: npm ci
+      #   working-directory: dashboard
+      # - name: Build dashboard
+      #   run: npm run build
+      #   working-directory: dashboard
+      # - name: Copy dashboard into site root
+      #   run: cp -r dashboard/dist/. _site/
+      #
+      # Copying into _site/ merges with the existing lantern-bills folder, so
+      # the dashboard build must not output its own "lantern-bills" folder.
+      # --- end dashboard placeholder ---
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

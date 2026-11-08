@@ -22,6 +22,16 @@
   text-overflow: ellipsis;
 }
 
+/* Errored run: the amber warning style, never the failure red. The ⚠ icon and the text carry
+   the meaning, so the color is not the only signal. */
+.warning {
+  border-left-color: var(--amber);
+}
+
+.warningIcon {
+  color: var(--amber);
+}
+
 .lead {
   font-weight: 700;
 }

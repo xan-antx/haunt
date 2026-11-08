@@ -7,6 +7,8 @@ import { stuckNotice } from '../model/stuckNotice';
 // Oracle written from the requirement text, not from the implementation.
 const GHOST_NAME: Record<GhostId, string> = { listener: 'The Listener', phantom: 'The Phantom', bebe: 'Bebe' };
 const GAVE_UP = 'gave up here';
+const GAVE_UP_MERGED = ' and gave up.';
+const ERROR_TEXT = 'This run stopped because of an error, so its findings may be incomplete.';
 const TRAPPED = 'got trapped here';
 const PROBLEM = 'hit a problem here';
 
@@ -97,12 +99,19 @@ describe('Feature: haunt-dashboard, Property 13: One merged Stuck_Notice per ste
         for (const step of run.steps) {
           const found = run.findings.filter((f) => f.step === step.n);
           const gaveUp = run.result === 'gave_up' && step.n === last;
+          const errored = run.result === 'error' && step.n === last;
           const notice = stuckNotice(run, step);
 
+          if (found.length === 0 && errored) {
+            expect(notice!.lines).toEqual([ERROR_TEXT]);
+            expect(notice!.tone).toBe('warning');
+            continue;
+          }
           if (found.length === 0 && !gaveUp) {
             expect(notice).toBeNull();
             continue;
           }
+          expect(notice!.tone).toBe('stuck');
           expect(notice).not.toBeNull();
           const { lines, fullText } = notice!;
           expect(lines.length).toBeGreaterThanOrEqual(1);
@@ -112,9 +121,12 @@ describe('Feature: haunt-dashboard, Property 13: One merged Stuck_Notice per ste
           const all = lines.join('\n');
           const name = GHOST_NAME[run.ghost];
 
-          // "gave up here": once in line 1 when the run gave up at its last step, otherwise never.
-          expect(countOf(lines[0]!, GAVE_UP)).toBe(gaveUp ? 1 : 0);
-          expect(countOf(all, GAVE_UP)).toBe(gaveUp ? 1 : 0);
+          // Give-up wording appears once, in line 1, when the run gave up at its last step, otherwise
+          // never: "<Ghost> gave up here." alone, or "... and gave up." after a finding's lead.
+          const phrase = found.length > 0 ? GAVE_UP_MERGED : GAVE_UP;
+          expect(countOf(lines[0]!, phrase)).toBe(gaveUp ? 1 : 0);
+          expect(countOf(all, phrase)).toBe(gaveUp ? 1 : 0);
+          expect(countOf(all, GAVE_UP)).toBe(gaveUp && found.length === 0 ? 1 : 0);
 
           if (found.length > 0) {
             const trapped = run.ghost === 'listener' && found[0]!.type === 'focus_trap';

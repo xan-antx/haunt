@@ -32,6 +32,30 @@ test.describe('home heading', () => {
     await expect(page.locator('header [data-haunt-logo]')).toHaveCount(1);
     await expect(page.locator('h1')).toHaveCount(1);
   });
+
+  for (const width of [1280, 1536, 1920]) {
+    test(`the Tagline wraps into evenly filled lines at ${width} px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 864 });
+      await openHome(page);
+      const widths = await page.evaluate(() => {
+        const h1 = document.querySelector('main h1')!;
+        const range = document.createRange();
+        range.selectNodeContents(h1);
+        const byTop = new Map<number, number>();
+        for (const r of Array.from(range.getClientRects())) {
+          if (r.width < 1) continue;
+          const key = Math.round(r.top);
+          byTop.set(key, (byTop.get(key) ?? 0) + r.width);
+        }
+        return Array.from(byTop.values());
+      });
+      if (widths.length > 1) {
+        const longest = Math.max(...widths);
+        const shortest = Math.min(...widths);
+        expect(shortest / longest, `line widths ${widths.join(', ')}`).toBeGreaterThan(0.6);
+      }
+    });
+  }
 });
 
 test.describe('home hero', () => {

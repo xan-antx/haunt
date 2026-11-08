@@ -61,7 +61,7 @@ describe('Stuck_Notice', () => {
     const notices = screen.getAllByTestId('stuck-notice');
     expect(notices).toHaveLength(1);
     expect(notices[0]).toHaveTextContent('got trapped here');
-    expect(notices[0]).toHaveTextContent('gave up here');
+    expect(notices[0]).toHaveTextContent('and gave up.');
     expect(screen.getAllByTestId('stuck-notice-slot')).toHaveLength(1);
   });
 

@@ -31,7 +31,7 @@ export function initI18n(instance: I18nInstance, options: { bindReact?: boolean 
       caches: [],
     },
     backend: {
-      loadPath: '/locales/{{lng}}/translation.json',
+      loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/translation.json`,
     },
     interpolation: {
       escapeValue: false, // React already escapes

@@ -15,10 +15,10 @@ describe('stuckNotice with the samples', () => {
     const run = listenerRun();
     const notice = stuckNotice(run, stepOf(run, 9));
     expect(notice).not.toBeNull();
-    expect(notice!.lines[0]).toBe('The Listener got trapped here and gave up here.');
+    expect(notice!.lines[0]).toBe('The Listener got trapped here and gave up.');
     const finding = run.findings.find((f) => f.step === 9)!;
     expect(notice!.lines).toEqual([
-      'The Listener got trapped here and gave up here.',
+      'The Listener got trapped here and gave up.',
       `${FINDING_LABELS.focus_trap.label}: ${finding.title}`,
       finding.evidence,
     ]);
@@ -69,5 +69,14 @@ describe('stuckNotice with the samples', () => {
       `${FINDING_LABELS[base.type].label}: ${base.title} (+2 more at this step)`,
     );
     expect(notice!.lines[2]).toBe(base.evidence);
+  });
+
+  it('shows the amber error notice on the last step of an errored run', () => {
+    const run: Run = { ...listenerRun(), result: 'error', findings: [] };
+    const last = run.steps[run.steps.length - 1]!;
+    const notice = stuckNotice(run, last);
+    expect(notice!.lines).toEqual(['This run stopped because of an error, so its findings may be incomplete.']);
+    expect(notice!.tone).toBe('warning');
+    expect(stuckNotice(run, stepOf(run, 1))).toBeNull();
   });
 });

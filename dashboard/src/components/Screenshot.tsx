@@ -62,7 +62,7 @@ export function Screenshot({ run, step }: { run: Run; step: Step }) {
 
   return (
     <div className={styles.scroller}>
-      <div ref={frameRef} className={showImage ? styles.frame : `${styles.frame} ${styles.placeholderFrame}`}>
+      <div ref={frameRef} className={styles.frame}>
         {showImage ? (
           <img
             key={url}
@@ -76,8 +76,13 @@ export function Screenshot({ run, step }: { run: Run; step: Step }) {
             onError={() => setFailedUrl(url)}
           />
         ) : (
-          <div className={styles.placeholder} role="img" aria-label={`No screenshot for step ${step.n}`}>
-            <span aria-hidden="true">No screenshot for step {step.n}</span>
+          <div role="img" aria-label={`No screenshot for step ${step.n}`}>
+            {/* The grey 16:10 box is the focus-box reference area. The label sits in its own
+                caption strip under it, so the label and the glow can never overlap. */}
+            <div className={styles.placeholder} />
+            <div className={styles.caption} aria-hidden="true">
+              No screenshot for step {step.n}
+            </div>
           </div>
         )}
         {step.focusBox && scale > 0 && <FocusGlow box={step.focusBox} scale={scale} />}

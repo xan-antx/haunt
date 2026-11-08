@@ -59,7 +59,7 @@ describe('Ghost Cam panels', () => {
     await openStep(LISTENER, 9);
     const notices = screen.getAllByTestId('stuck-notice');
     expect(notices).toHaveLength(1);
-    expect(screen.getByText('The Listener got trapped here and gave up here.')).toBeInTheDocument();
+    expect(screen.getByText('The Listener got trapped here and gave up.')).toBeInTheDocument();
     expect(notices[0]!.textContent).toContain('Cannot escape the payment confirmation dialog');
     expect(screen.queryByRole('heading', { name: 'The Listener got trapped here.' })).not.toBeInTheDocument();
   });

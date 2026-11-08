@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// Ghost Cam layout (Req 10.24–10.26, 10.28, 10.29, 10.31–10.34, 18.8): everything above the
-// fold, the collapsed Provenance_Panel and the footer fit the screen with no page scroll, nothing
-// moves between steps, and narrow or zoomed screens stack the areas in reading order.
+// Ghost Cam layout (Req 10.20, 10.24–10.26, 10.28, 10.29, 10.31–10.35, 18.8): the Run_Summary,
+// both panels, the Stuck_Notice, the Control_Row and the timeline fit the screen (the footer and
+// the collapsed Provenance_Panel may sit below the fold), nothing moves between steps, and narrow
+// or zoomed screens stack the areas in reading order.
 
 const ORIGIN = 'http://localhost:3001';
 type Sample = { ghost: string; key: string; steps: number; hash: (n: number) => string; findingStep: number };
@@ -114,27 +115,20 @@ for (const viewport of FIT_VIEWPORTS) {
           const scrollY = await page.evaluate(() => window.scrollY);
           expect(scrollY, `step ${n}: page has not scrolled`).toBe(0);
 
-          const { innerHeight, scrollHeight } = await page.evaluate(() => ({
-            innerHeight: window.innerHeight,
-            scrollHeight: document.documentElement.scrollHeight,
-          }));
-          expect(scrollHeight, `step ${n}: document is not taller than the viewport`).toBeLessThanOrEqual(innerHeight);
+          const innerHeight = await page.evaluate(() => window.innerHeight);
 
           const all = await boxes(page);
           const timeline = all.find((b) => b.name === 'timeline')!;
           const provenance = all.find((b) => b.name === 'provenance')!;
-          const footer = await boxOf(page, 'footer');
 
+          // The footer and the Provenance_Panel may sit below the fold; the six areas may not.
           for (const b of all) {
             expect(b.bottom - b.top, `step ${n}: ${b.name} has height`).toBeGreaterThan(0);
+            if (b.name === 'provenance') continue;
             expect(b.bottom, `step ${n}: ${b.name} bottom is within the ${innerHeight} px viewport`).toBeLessThanOrEqual(
               innerHeight,
             );
           }
-          expect(footer.height, `step ${n}: footer has height`).toBeGreaterThan(0);
-          expect(footer.top + footer.height, `step ${n}: footer bottom is within the viewport`).toBeLessThanOrEqual(
-            innerHeight,
-          );
 
           // Provenance_Panel is collapsed on load and sits below the timeline.
           expect(provenance.top, `step ${n}: Provenance_Panel starts below the timeline`).toBeGreaterThanOrEqual(
@@ -217,6 +211,77 @@ test.describe('Ghost Cam layout stability', () => {
             `${name} ${edge} at step ${n} matches step 1 within 1 px`,
           ).toBeLessThanOrEqual(1);
         }
+      }
+    }
+  });
+
+  for (const s of SAMPLES) {
+    test(`${s.ghost}: the newest transcript line is visible at the last step`, async ({ page }) => {
+      await openCam(page, s.hash(s.steps));
+      const result = await page.evaluate((sel) => {
+        const box = document.querySelector(sel)!.getBoundingClientRect();
+        const items = Array.from(document.querySelectorAll(`${sel} li`));
+        const inside = (el: Element) => {
+          const r = el.getBoundingClientRect();
+          return r.height > 0 && r.top >= box.top - 1 && r.bottom <= box.bottom + 1;
+        };
+        const current = document.querySelector(`${sel} li[aria-current="step"]`);
+        return {
+          currentText: current?.textContent ?? '',
+          currentVisible: current ? inside(current) : false,
+          lastText: items[items.length - 1]?.textContent ?? '',
+          visibleCount: items.filter(inside).length,
+        };
+      }, TRANSCRIPT);
+      expect(result.currentText, 'Current_Line is the last line').toBe(result.lastText);
+      expect(result.currentText).toContain(`Step ${s.steps}`);
+      expect(result.currentVisible, 'newest line is fully inside the Transcript_Viewport').toBe(true);
+      expect(result.visibleCount, 'at least six lines are visible').toBeGreaterThanOrEqual(Math.min(6, s.steps));
+    });
+
+    test(`${s.ghost}: the screenshot and transcript area is at least 380 px tall and the panels match`, async ({
+      page,
+    }) => {
+      await openCam(page, s.hash(s.steps));
+      const shot = await boxOf(page, '[data-cam-area="shot"]');
+      const panel = await boxOf(page, '[data-cam-area="panel"]');
+      const transcript = await boxOf(page, TRANSCRIPT);
+      expect(shot.height, 'screenshot area height').toBeGreaterThanOrEqual(380);
+      expect(panel.height, 'panel area height').toBeGreaterThanOrEqual(380);
+      expect(transcript.height, 'transcript height').toBeGreaterThanOrEqual(6 * 24);
+      expect(Math.abs(shot.height - panel.height), 'screenshot and panel are the same height').toBeLessThanOrEqual(1);
+
+      // The screenshot fills its column: the gap between it and the panel is only the grid gap.
+      const frame = await boxOf(page, '[data-cam-area="shot"] > div > div');
+      expect(panel.left - (frame.left + frame.width), 'no empty gap beside the screenshot').toBeLessThanOrEqual(40);
+    });
+  }
+
+  test('The Listener: the waveform stays inside the Spoken_Panel', async ({ page }) => {
+    await openCam(page, LISTENER.hash(LISTENER.steps));
+    const wave = await boxOf(page, '[data-testid="waveform"]');
+    const panel = await boxOf(page, '[data-cam-area="panel"] section');
+    expect(wave.top + wave.height, 'waveform bottom is within the panel').toBeLessThanOrEqual(panel.top + panel.height + 0.5);
+    expect(wave.top, 'waveform is below the transcript').toBeGreaterThanOrEqual(
+      (await boxOf(page, TRANSCRIPT)).top + (await boxOf(page, TRANSCRIPT)).height - 1,
+    );
+  });
+
+  test('The Placeholder label never overlaps the focus glow', async ({ page }) => {
+    for (const s of SAMPLES) {
+      for (let n = 1; n <= s.steps; n++) {
+        await openCam(page, s.hash(n));
+        const rects = await page.evaluate(() => {
+          const caption = Array.from(document.querySelectorAll('[data-cam-area="shot"] div')).find((el) =>
+            (el.textContent ?? '').startsWith('No screenshot for step') && el.children.length === 0,
+          );
+          const glow = document.querySelector('[data-testid="focus-glow"]');
+          if (!caption || !glow) return null;
+          const c = caption.getBoundingClientRect();
+          const g = glow.getBoundingClientRect();
+          return { captionTop: c.top, glowBottom: g.bottom };
+        });
+        if (rects) expect(rects.glowBottom, `${s.ghost} step ${n}: glow ends above the label`).toBeLessThanOrEqual(rects.captionTop + 0.5);
       }
     }
   });

@@ -10,9 +10,19 @@ export function StuckNotice({ run, step }: { run: Run; step: Step }) {
   return (
     <div className={styles.slot} data-cam-area="notice" data-testid="stuck-notice-slot">
       {notice && (
-        <div className={styles.notice} data-testid="stuck-notice" title={notice.fullText}>
+        <div
+          className={`${styles.notice} ${notice.tone === 'warning' ? styles.warning : ''}`}
+          data-testid="stuck-notice"
+          data-tone={notice.tone}
+          title={notice.fullText}
+        >
           {notice.lines.map((line, i) => (
             <p key={i} className={i === 0 ? styles.lead : undefined} title={line}>
+              {notice.tone === 'warning' && (
+                <span className={styles.warningIcon} aria-hidden="true">
+                  ⚠{' '}
+                </span>
+              )}
               {line}
             </p>
           ))}

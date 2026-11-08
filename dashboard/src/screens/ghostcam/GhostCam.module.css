@@ -362,16 +362,24 @@
   padding: var(--space-2) var(--space-4);
 }
 
-/* Fit mode: at 1280×900 and larger (100% zoom on 1920×1080), the Run_Summary, screenshot,
-   panel, controls and timeline fit in the viewport (Req 10.24). The right column is absolutely
+/* Fit mode: at 1280×800 and larger (including 1536×864, a 1920×1080 screen at 125% scaling), the
+   Run_Summary, screenshot, panel, notice, controls and timeline fit in the viewport (Req 10.24). The right column is absolutely
    filled, so it spans the screenshot and controls rows without adding height to them, and the
    transcript takes whatever height is left and scrolls inside itself. */
 @media (min-width: 1280px) and (min-height: 800px) {
+  /* At 1536×864 (1920×1080 at 125% scaling) the footer and the Provenance_Panel may sit below
+     the fold; everything above them stays on screen (Req 10.24). */
   .cam {
     /* The stage and the right column share this one height, so no height depends on the
        step, the transcript line count or the Stuck_Notice (Req 10.24, 10.31, 10.33). */
-    --cam-shot-max: calc(100vh - 34rem);
-    grid-template-columns: minmax(0, 1fr) minmax(22rem, 26rem);
+    --cam-shot-max: calc(100vh - 26rem);
+    --cam-caption-h: 2.25rem;
+    /* The screenshot column is exactly as wide as a 16:10 screenshot of the available height,
+       so the image fills its column and no gap opens beside it. The transcript column takes
+       the rest, and is never narrower than 24rem. */
+    grid-template-columns:
+      minmax(0, min(calc((var(--cam-shot-max) - var(--cam-caption-h)) * 1.6), calc(100% - 24rem - var(--space-5))))
+      minmax(0, 1fr);
     grid-template-areas:
       'summary  summary'
       'shot     panel'
@@ -507,10 +515,46 @@
     flex: none;
   }
 
+  /* The waveform is slimmer in fit mode and the panel clips anything that would stick out. */
+  .waveform {
+    height: 32px;
+    margin-top: var(--space-2);
+  }
+
+  .spoken {
+    padding: var(--space-3) var(--space-4);
+    overflow: hidden;
+  }
+
+  .bubble {
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .panelHeading {
+    margin: 0 0 var(--space-2);
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .spokenLines {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+
+  .thoughtLines {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .lines {
+    gap: var(--space-1);
+  }
+
+  /* At least six one-line Transcript lines stay visible (Req 10.20). */
   .transcript {
     flex: 1 1 0;
     height: auto;
-    min-height: 6rem;
+    min-height: 12rem;
     overflow-y: auto;
   }
 

@@ -1,9 +1,31 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
+// GitHub Pages serves static files only, so a direct link or reload on /autopay
+// would 404. Emit a copy of index.html for every client-side route so each one
+// is a real page (HTTP 200). Keep in sync with the routes in src/App.tsx.
+const ROUTES = ['autopay', 'confirmation']
+
+function spaRouteFallbacks(): Plugin {
+  return {
+    name: 'spa-route-fallbacks',
+    apply: 'build',
+    enforce: 'post', // run after Vite has emitted index.html
+    generateBundle(_options, bundle) {
+      const index = bundle['index.html']
+      if (!index || index.type !== 'asset') return
+      for (const route of ROUTES) {
+        this.emitFile({ type: 'asset', fileName: `${route}/index.html`, source: index.source })
+      }
+    },
+  }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
+// Dev and tests use "/"; the production build is hosted under /lantern-bills/.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/lantern-bills/' : '/',
+  plugins: [react(), spaRouteFallbacks()],
   server: {
     port: 3000,
     strictPort: true,
@@ -21,4 +43,4 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
   },
-})
+}))
