@@ -1,0 +1,294 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  align-items: flex-start;
+  margin-bottom: var(--space-5);
+}
+
+.headerText {
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.ghostDescription {
+  color: var(--text-muted);
+}
+
+.mission {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.mission > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, max-content) 1fr;
+  gap: var(--space-1) var(--space-4);
+}
+
+@media (max-width: 36rem) {
+  .mission > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mission dt {
+  font-weight: 700;
+}
+
+.mission dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Screenshot on the left, the ghost's panel on the right; stacked under 900 px. */
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.left,
+.right {
+  min-width: 0;
+}
+
+.panelHeading {
+  font-size: 1.5rem;
+}
+
+.spoken {
+  background: var(--spoken-bg);
+  color: var(--spoken-text);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.spoken :focus-visible {
+  outline-color: var(--spectral);
+}
+
+.spokenText {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  color: var(--spoken-text);
+  min-height: 2.8em;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 64px;
+  margin-top: var(--space-4);
+}
+
+.bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  background: var(--ghost-listener);
+  border-radius: 2px;
+}
+
+.thought {
+  position: relative;
+  padding-bottom: var(--space-6);
+}
+
+.bubble {
+  background: var(--surface);
+  border: 2px solid var(--spectral);
+  border-radius: 2.5rem;
+  padding: var(--space-5) var(--space-6);
+}
+
+.thoughtText {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.bubbleDotLarge,
+.bubbleDotSmall {
+  position: absolute;
+  background: var(--surface);
+  border: 2px solid var(--spectral);
+  border-radius: 50%;
+}
+
+.bubbleDotLarge {
+  left: 2.5rem;
+  bottom: 0.9rem;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.bubbleDotSmall {
+  left: 1.5rem;
+  bottom: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.stepInfo {
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: 1.1rem;
+}
+
+.callouts {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* Red is a fill only, with white text and a light border. */
+.endCallout {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--failure);
+  color: var(--on-failure);
+  border: 2px solid var(--text);
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.callout {
+  background: var(--surface);
+  border-left: 6px solid var(--bone);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+}
+
+.calloutHeading {
+  font-size: 1.5rem;
+}
+
+.calloutType {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.calloutIcon {
+  width: 1rem;
+  height: 1.25rem;
+  fill: var(--bone);
+}
+
+.calloutTitle {
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.controlIcon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.voice {
+  margin: var(--space-4) 0;
+}
+
+.voiceNote {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+}
+
+.sectionHeading {
+  font-size: 1.5rem;
+  margin-top: var(--space-6);
+}
+
+.timelineWrap {
+  margin-top: var(--space-5);
+}
+
+.timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timelineItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 8rem;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 2px solid var(--text-muted);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.findingMark {
+  border-color: var(--bone);
+}
+
+.currentMark {
+  background: var(--spectral);
+  color: var(--bg);
+  border-color: var(--spectral);
+  font-weight: 700;
+}
+
+.miniTombstone {
+  width: 0.8rem;
+  height: 1rem;
+  fill: var(--bone);
+  stroke: var(--bg);
+  stroke-width: 1;
+}
+
+.markLabel {
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.warnings {
+  margin-top: var(--space-5);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+}

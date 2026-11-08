@@ -1,0 +1,141 @@
+.pickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  margin: var(--space-5) 0;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.picker label {
+  font-weight: 700;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.summary {
+  min-width: 0;
+}
+
+.summaryLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.warning {
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--amber);
+  border-left-width: 8px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* No after run yet: a neutral, dashed note. Not a failure, so no red. */
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 2px dashed var(--text-muted);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* A failure state: red fill, white text, light border. */
+.error {
+  padding: var(--space-3) var(--space-4);
+  background: var(--failure);
+  color: var(--on-failure);
+  border: 2px solid var(--text);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1em 0.6em 0.1em 0.4em;
+  border-radius: var(--radius);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.exorcisedBadge {
+  border: 2px dashed var(--spectral);
+}
+
+.still_hauntingBadge {
+  border: 2px solid var(--amber);
+}
+
+.new_hauntingBadge {
+  background: var(--failure);
+  color: var(--on-failure);
+  border: 2px solid var(--text);
+}
+
+.not_reachedBadge {
+  border: 2px dotted var(--text-muted);
+  color: var(--text-muted);
+}
+
+.icon {
+  width: 1.3em;
+  height: 1.3em;
+  flex: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Exorcised: a ghost fading out. */
+.exorcised {
+  fill: none;
+  stroke: var(--spectral);
+  stroke-dasharray: 2 2;
+}
+
+/* Still haunting: a solid ghost with an amber outline. */
+.still_haunting {
+  fill: var(--spectral);
+  stroke: var(--amber);
+}
+
+/* New haunting: a ghost with a "+" mark. */
+.new_haunting {
+  fill: var(--on-failure);
+  stroke: var(--on-failure);
+}
+
+.plus {
+  fill: none;
+  stroke-width: 2.4;
+}
+
+/* Not reached: fog. */
+.not_reached {
+  fill: none;
+  stroke: var(--text-muted);
+}
+
+.note {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+}

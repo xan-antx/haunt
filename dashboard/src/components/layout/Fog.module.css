@@ -1,0 +1,33 @@
+.fog {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+.dense {
+  opacity: 0.25;
+}
+
+.layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+}
+
+.second {
+  top: 15%;
+}
+
+.stopInner {
+  stop-color: var(--spectral);
+  stop-opacity: 1;
+}
+
+.stopOuter {
+  stop-color: var(--spectral);
+  stop-opacity: 0;
+}

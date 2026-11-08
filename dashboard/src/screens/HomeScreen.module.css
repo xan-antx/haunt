@@ -1,0 +1,94 @@
+.hero {
+  margin-bottom: var(--space-6);
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: radial-gradient(ellipse at 20% 0%, var(--surface), var(--bg) 70%);
+  border: 2px solid var(--surface);
+}
+
+.title {
+  font-size: 3rem;
+  font-style: italic;
+  color: var(--amber);
+}
+
+.tagline {
+  font-size: 1.15rem;
+  max-width: 40rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4) var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.section {
+  margin-top: var(--space-6);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+  gap: var(--space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 2rem;
+}
+
+.meta {
+  color: var(--text-muted);
+}
+
+.ghosts {
+  list-style: none;
+  margin: var(--space-4) 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.ghostRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.ghostText {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.ghostText p {
+  margin: 0 0 var(--space-1);
+}
+
+.ghostName {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.ghostResult {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mapLink {
+  font-weight: 700;
+}

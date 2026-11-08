@@ -1,0 +1,87 @@
+.wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lit {
+  background: var(--amber);
+  color: var(--bg);
+  border: 2px solid var(--amber);
+}
+
+.lit:hover {
+  text-decoration: underline;
+}
+
+.unlit {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 2px dashed var(--text-muted);
+  cursor: not-allowed;
+}
+
+.candle {
+  width: 1.4rem;
+  height: 2.4rem;
+  flex: none;
+  overflow: visible;
+}
+
+/* The lit candle sits in a dark holder so its amber flame shows against the amber button. */
+.lit .candle {
+  background: var(--bg);
+  border-radius: 999px;
+  padding: 3px 4px;
+  width: 1.9rem;
+}
+
+.flame {
+  fill: var(--amber);
+}
+
+.wick {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.unlit .wick {
+  stroke: var(--text-muted);
+}
+
+.wax {
+  fill: var(--bone);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.unlit .wax {
+  fill: var(--surface);
+  stroke: var(--text-muted);
+}
+
+.smoke {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.reason {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}

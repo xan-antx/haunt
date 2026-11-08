@@ -36,6 +36,7 @@ React with Vite for both:
 - Running npm commands (`npm install`, `npm run dev`, etc.)
 - Running npx commands
 - Running node commands
+- Running read-only git commands (`git status`, `git diff`, `git log`)
 - Other runtime operations that require a shell
 
 **Never use the terminal for**:
@@ -44,4 +45,4 @@ React with Vite for both:
 - Writing content to files
 - Appending to files
 
-- Use built-in tools to read, list and search files. Use the terminal only for npm, npx and node commands. Never use PowerShell commands like Get-ChildItem, Select-String or Get-Content.
+- Use built-in tools to read, list and search files. Use the terminal only for npm, npx and node commands, and for read-only git commands (`git status`, `git diff`, `git log`). Never run git commands that change the repository (commit, checkout, reset, push and similar) unless asked. Never use PowerShell commands like Get-ChildItem, Select-String or Get-Content.

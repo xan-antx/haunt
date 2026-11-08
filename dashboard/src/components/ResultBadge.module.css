@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1em 0.7em 0.1em 0.5em;
+  border-radius: var(--radius);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.success {
+  border: 2px solid var(--spectral);
+  color: var(--text);
+}
+
+/* Red is a fill only, with white text and a 2 px light border (red on surface is 2.79:1). */
+.failure {
+  background: var(--failure);
+  color: var(--on-failure);
+  border: 2px solid var(--text);
+}
+
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

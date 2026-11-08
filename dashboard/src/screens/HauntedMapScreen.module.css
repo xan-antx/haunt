@@ -1,0 +1,92 @@
+.filter {
+  margin: var(--space-5) 0;
+}
+
+/* A floor plan: rooms share walls in a grid. */
+.plan {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 4px solid var(--bone);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.room {
+  position: relative;
+  min-width: 0;
+  min-height: 14rem;
+  padding: var(--space-5);
+  outline: 2px solid var(--bone);
+  outline-offset: -1px;
+  overflow: hidden;
+}
+
+.roomName {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+}
+
+/* Text stays above the fog so its contrast is unchanged. */
+.unvisited > :not(.roomFog) {
+  position: relative;
+  z-index: 1;
+}
+
+.unvisited {
+  outline-style: dashed;
+}
+
+.roomFog {
+  z-index: 0;
+}
+
+.notVisited {
+  font-weight: 700;
+  font-style: italic;
+}
+
+.label {
+  margin: var(--space-3) 0 var(--space-2);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.badges,
+.spots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.spot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+  border-radius: 999px;
+  border: 2px solid var(--spectral);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.spot:hover {
+  text-decoration: underline;
+}
+
+/* Cold spot: a frost circle. */
+.frost {
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--spectral) 0%, var(--spectral) 35%, var(--ghost-listener) 100%);
+  border: 2px solid var(--spectral);
+  box-shadow: 0 0 10px 2px var(--spectral);
+}

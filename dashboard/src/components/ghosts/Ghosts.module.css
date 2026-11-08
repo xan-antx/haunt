@@ -1,0 +1,94 @@
+.character {
+  display: inline-block;
+  flex: none;
+  overflow: visible;
+}
+
+.listener {
+  --accent: var(--ghost-listener);
+}
+
+.phantom {
+  --accent: var(--ghost-phantom);
+}
+
+.bebe {
+  --accent: var(--ghost-bebe);
+}
+
+.body {
+  fill: var(--spectral);
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.face {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.eye {
+  fill: var(--bg);
+}
+
+.accentStroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.accentFill {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.bubble {
+  fill: var(--bone);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.bubbleText {
+  fill: var(--bone-ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* On bone tombstones the pale accents are too light, so badges use bone ink. */
+.onBone {
+  --accent: var(--bone-ink);
+}
+
+.onBone.badge {
+  color: var(--bone-ink);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1em 0.6em 0.1em 0.4em;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+}

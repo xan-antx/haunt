@@ -1,0 +1,47 @@
+/* The screenshot area is the only place allowed to scroll sideways. */
+.scroller {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.frame {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.placeholderFrame {
+  width: 100%;
+}
+
+.image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  padding: var(--space-4);
+  background: var(--placeholder);
+  color: var(--text);
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Spectral glow: where the ghost's focus is on the screenshot. */
+.glow {
+  position: absolute;
+  border: 3px solid var(--spectral);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 18px 4px var(--spectral);
+  pointer-events: none;
+}

@@ -1,0 +1,97 @@
+.table {
+  margin-top: var(--space-5);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.table th[scope='col'] {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.25rem;
+}
+
+.mission {
+  font-weight: 400;
+  min-width: 12rem;
+}
+
+.requirement {
+  display: block;
+  font-weight: 700;
+}
+
+.goal,
+.id {
+  display: block;
+  color: var(--text-muted);
+}
+
+.changed {
+  display: block;
+  margin-top: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-left: 4px solid var(--amber);
+}
+
+.runs {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.notYet {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.1em 0.6em 0.1em 0.4em;
+  border: 2px dotted var(--text-muted);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-dasharray: 2 2;
+}
+
+/* On narrow screens each mission becomes a stacked card. Roles keep the table semantics. */
+@media (max-width: 44rem) {
+  .table,
+  .table tbody,
+  .table tr,
+  .table th,
+  .table td {
+    display: block;
+  }
+
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .table tr {
+    padding: var(--space-3) 0;
+    border-bottom: 2px solid var(--bg);
+  }
+
+  .table td {
+    border-bottom: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    margin-bottom: var(--space-1);
+  }
+}

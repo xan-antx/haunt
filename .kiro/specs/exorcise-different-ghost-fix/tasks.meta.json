@@ -1,0 +1,309 @@
+{
+  "pbtResults": {
+    "1. Write bug condition exploration tests": {
+      "status": "passed",
+      "failingExample": "Exploration tests failed on unfixed code as expected, confirming the bug. (1) compareRuns(listener pay-bill, phantom pay-bill), minimal shrunk runs with no findings: returned { rows: [], differentGhosts: true } instead of { error: 'different_ghosts' }. (2) defaultAfter(run-0 listener pay-bill, [run-0 listener pay-bill, run-1 phantom pay-bill]) returned run-1 (phantom): \"expected 'phantom' to be 'listener'\". (3) Screen /exorcise/2026-11-03-listener-pay-bill/2026-11-03-bebe-pay-bill rendered the status table: Exorcised, Exorcised, New haunting. (4) /exorcise with samples only: Before run was 2026-11-03-listener-pay-bill (cross-ghost default pair with Bebe), not 2026-11-03-bebe-pay-bill, and no \"No after run yet\" text. (5) After picker for the Listener before run included 2026-11-03-bebe-pay-bill. Edge case (different mission and ghost) passed: the different-missions alert still shows.",
+      "lastRunTimestamp": 1794120482832
+    },
+    "2. Write preservation property tests (BEFORE implementing the fix)": {
+      "status": "passed",
+      "lastRunTimestamp": 1794120579382
+    },
+    "3.6 Verify the bug condition exploration tests now pass": {
+      "status": "passed",
+      "lastRunTimestamp": 1794121151006
+    },
+    "3.7 Verify the preservation tests still pass": {
+      "status": "passed",
+      "lastRunTimestamp": 1794121197459
+    }
+  },
+  "executionHistory": {
+    "1. Write bug condition exploration tests": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381563
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120393566
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120505002
+      }
+    ],
+    "2. Write preservation property tests (BEFORE implementing the fix)": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381602
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120513575
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120603316
+      }
+    ],
+    "3.1 Refuse different ghosts in the model and add `afterCandidates`": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381640
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120616668
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120733140
+      }
+    ],
+    "3.2 Choose defaults only from same-ghost pairs and add the `?before=` state": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381684
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120733430
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120866945
+      }
+    ],
+    "3.3 Fix the Before and After pickers": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381742
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120878913
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120967288
+      }
+    ],
+    "3.4 Show the before run alone or the different-ghosts message, with no table": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381771
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121021327
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121112158
+      }
+    ],
+    "3.5 Add the `.notice` style": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381813
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120968025
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121021249
+      }
+    ],
+    "3.6 Verify the bug condition exploration tests now pass": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381845
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121121127
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121167779
+      }
+    ],
+    "3.7 Verify the preservation tests still pass": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381874
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794121168603
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125054063
+      }
+    ],
+    "4.1 Rewrite the buggy Exorcise screen tests": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381908
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125066403
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125197648
+      }
+    ],
+    "4.2 Rewrite the buggy model unit test": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381936
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125198145
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125295694
+      }
+    ],
+    "4.3 Extend Property 1 with `afterCandidates` and update Property 5": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120381968
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125297407
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125391510
+      }
+    ],
+    "4.4 Add screen tests for the new states": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120382015
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125391786
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125479785
+      }
+    ],
+    "4.5 Add the accessibility check for the new state": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120382051
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125480497
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125544711
+      }
+    ],
+    "4.6 Add the end-to-end assertion": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120382088
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125545396
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125613165
+      }
+    ],
+    "5. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794120382125
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125613730
+      },
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125721179
+      }
+    ],
+    "3. Fix Exorcise comparing runs by different ghosts": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125054197
+      }
+    ],
+    "4. Rewrite the tests that encode the buggy behavior and extend coverage": [
+      {
+        "executionId": "70aa748d-e9bf-4384-8fac-2fe18be6922e",
+        "chatSessionId": "sess_b74b6ecd-c12e-4d68-8264-726d3b36e865",
+        "timestamp": 1794125613250
+      }
+    ]
+  }
+}

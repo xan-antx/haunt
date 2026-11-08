@@ -1,0 +1,104 @@
+/*
+ * All keyframes live inside prefers-reduced-motion: no-preference, so nothing moves unless
+ * the user's setting allows it. Without it, every ambient element shows as a still image.
+ * Limits (.kiro/steering/dashboard-design.md):
+ *   fog drift     translateX over 90 s, linear, infinite, opacity at most 0.25
+ *   candle flicker opacity 0.92 to 1.0 and scale 1 to 3 %, irregular 3 to 4 s cycle
+ *   ghost float   translateY ±6 px over 6 s, ease-in-out
+ *   focus glow    opacity 0.7 to 1.0 over 2.5 s
+ * Nothing flashes more than three times a second: the fastest cycle here is 2.5 s.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes haunt-fog-drift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes haunt-candle-flicker {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    17% {
+      opacity: 0.95;
+      transform: scale(1.02);
+    }
+    31% {
+      opacity: 1;
+      transform: scale(1.01);
+    }
+    52% {
+      opacity: 0.92;
+      transform: scale(1.03);
+    }
+    68% {
+      opacity: 0.97;
+      transform: scale(1.01);
+    }
+    83% {
+      opacity: 0.93;
+      transform: scale(1.02);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes haunt-ghost-float {
+    0%,
+    100% {
+      transform: translateY(-6px);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes haunt-glow-pulse {
+    0%,
+    100% {
+      opacity: 0.7;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .motion-fog-layer {
+    animation: haunt-fog-drift 90s linear infinite;
+  }
+
+  .motion-fog-layer.motion-fog-slow {
+    animation-duration: 90s;
+    animation-direction: reverse;
+  }
+
+  /* Irregular cycle: two flames never line up because their durations differ. */
+  .motion-flame {
+    transform-origin: 50% 100%;
+    transform-box: fill-box;
+    animation: haunt-candle-flicker 3.4s ease-in-out infinite;
+  }
+
+  .motion-flame.motion-flame-alt {
+    animation-duration: 3.9s;
+  }
+
+  .motion-float {
+    animation: haunt-ghost-float 6s ease-in-out infinite;
+  }
+
+  .motion-glow-pulse {
+    animation: haunt-glow-pulse 2.5s ease-in-out infinite;
+  }
+
+  .motion-waveform-bar {
+    transition: height 300ms ease-in-out, y 300ms ease-in-out;
+  }
+}

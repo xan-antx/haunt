@@ -1,0 +1,48 @@
+/*
+ * Design tokens. The only file with color values. Mirrored in tokens.ts for the contrast test.
+ * Source of truth: .kiro/steering/dashboard-design.md
+ */
+:root {
+  /* Colors */
+  --bg: #1a1816;
+  --surface: #2a2522;
+  --text: #ece6dc;
+  --text-muted: #b8ae9f;
+  --amber: #f2a83b;
+  --spectral: #dcebff;
+  --bone: #e6dcc6;
+  --bone-ink: #2b2420;
+  --bone-ink-muted: #5a4e44;
+  --failure: #c0392b;
+  --on-failure: #ffffff;
+  --placeholder: #55504a;
+  --spoken-bg: #000000;
+  --spoken-text: #f4f8ff;
+  --ghost-listener: #8fc8ff;
+  --ghost-phantom: #8fe0bf;
+  --ghost-bebe: #d4b6ff;
+
+  /* Fonts (system fallbacks keep text readable while the bundled fonts load) */
+  --font-heading: 'IM Fell English', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius: 0.5rem;
+  --radius-lg: 1rem;
+
+  /* Focus ring: 3 px spectral outline with a 2 px offset */
+  --focus-width: 3px;
+  --focus-offset: 2px;
+  --focus-color: var(--spectral);
+
+  --content-width: 72rem;
+}

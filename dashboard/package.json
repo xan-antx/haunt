@@ -1,0 +1,42 @@
+{
+  "name": "haunt-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Haunt dashboard: replays ghost runs and shows where they got stuck",
+  "type": "module",
+  "scripts": {
+    "collect-runs": "tsx scripts/collect-runs.ts",
+    "predev": "npm run collect-runs",
+    "dev": "vite",
+    "prebuild": "npm run collect-runs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest --run",
+    "test:properties": "vitest --run -t \"Feature: haunt-dashboard, Property\"",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/im-fell-english": "^5.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^24.19.2",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.2.1",
+    "axe-core": "^4.14.0",
+    "fast-check": "^4.10.2",
+    "jsdom": "^30.1.3",
+    "tsx": "^4.23.15",
+    "vitest": "^5.1.0"
+  }
+}
