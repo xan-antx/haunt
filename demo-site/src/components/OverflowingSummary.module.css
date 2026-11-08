@@ -1,0 +1,49 @@
+.summary {
+  background-color: var(--color-background);
+  border: 2px solid var(--color-border-strong);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-left: auto;
+}
+
+.heading {
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  color: var(--color-text-light);
+}
+
+.amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* Problem 5: clipping at narrow viewports (200% zoom on a 1280px display). */
+@media (max-width: 640px) {
+  .summary {
+    width: 180px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /* Only the total may be clipped; the heading and label stay readable. */
+  .heading,
+  .label {
+    white-space: normal;
+  }
+
+  .amount {
+    font-size: 2.5rem;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 641px) {
+  .summary {
+    width: auto;
+    min-width: 260px;
+    max-width: 100%;
+  }
+}

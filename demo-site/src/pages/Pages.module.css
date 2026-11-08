@@ -1,0 +1,86 @@
+.pageHeading {
+  margin-bottom: 1rem;
+}
+
+.paragraph {
+  margin-bottom: 1rem;
+}
+
+.backLink {
+  display: inline-block;
+  padding: 0.5rem 0;
+  font-weight: 600;
+}
+
+.section {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.sectionHeading {
+  margin-bottom: 0.75rem;
+}
+
+.detailsList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.detailsList dt {
+  font-weight: 600;
+}
+
+.detailsList dd {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.formWide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paymentError {
+  color: var(--color-error);
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.success {
+  border-left: 6px solid var(--color-success);
+}
+
+.autopayLink {
+  display: inline-block;
+  padding: 0.5rem 0;
+  font-weight: 600;
+}

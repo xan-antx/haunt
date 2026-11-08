@@ -1,0 +1,135 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  position: relative;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.heading {
+  margin-bottom: 1rem;
+  padding-right: 2.5rem;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.optionLabel {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.optionText {
+  font-weight: 600;
+}
+
+.optionDescription {
+  color: var(--color-text-light);
+  font-size: 0.9375rem;
+}
+
+.learnMore {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.explanation {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: var(--color-primary-light);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+}
+
+.explanation[hidden] {
+  display: none;
+}
+
+.total {
+  margin-bottom: 1.25rem;
+}
+
+/* Problem 2: both of these are mouse-only (tabIndex={-1} in the component). */
+.continueButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.continueButton:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background-color: var(--color-primary-light);
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

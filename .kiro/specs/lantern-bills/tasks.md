@@ -6,7 +6,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
 
 ## Tasks
 
-- [ ] 1. Initialize project structure and dependencies
+- [x] 1. Initialize project structure and dependencies
   - Create demo-site/ directory in workspace
   - Initialize npm project with package.json
   - Install React 18, React DOM, TypeScript, Vite as dependencies
@@ -15,42 +15,42 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Create directory structure: src/, public/, src/components/, src/pages/, src/hooks/, src/utils/, src/i18n/, src/types/, public/locales/
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 2. Configure build tooling and TypeScript
-  - [ ] 2.1 Create Vite configuration
+- [x] 2. Configure build tooling and TypeScript
+  - [x] 2.1 Create Vite configuration
     - Write vite.config.ts with React plugin, dev server on port 3000 (strictPort: true), build output to dist/
     - Configure preview server to use port 3000
     - _Requirements: 1.2, 1.3_
   
-  - [ ] 2.2 Create TypeScript configuration
+  - [x] 2.2 Create TypeScript configuration
     - Write tsconfig.json with strict mode, ES2020 target, React JSX support
     - Configure module resolution for bundler
     - _Requirements: 1.1_
   
-  - [ ] 2.3 Add package.json scripts
+  - [x] 2.3 Add package.json scripts
     - Add scripts: "dev", "build", "preview", "test", "test:watch", "test:properties"
     - Configure "dev" script to run vite
     - Configure "build" script to run tsc && vite build
     - _Requirements: 1.2, 1.6_
 
-- [ ] 3. Create translation files
-  - [ ] 3.1 Create complete English translation file
+- [x] 3. Create translation files
+  - [x] 3.1 Create complete English translation file
     - Create public/locales/en/translation.json with all required keys
     - Include keys: pageTitle, payBillButton, billDetails.*, paymentForm.*, validation.*, modal.*, payment.*, confirmation.*, autopay.*, banner.alt, summary.total, autopayLink
     - _Requirements: 9.1_
   
-  - [ ] 3.2 Create incomplete Punjabi translation file
+  - [x] 3.2 Create incomplete Punjabi translation file
     - Create public/locales/pa/translation.json
     - Deliberately omit: payBillButton, validation.cardNumber, validation.expiry, validation.cvv
     - Include all other keys with Punjabi translations
     - _Requirements: 9.2, 9.4, 9.6_
   
-  - [ ] 3.3 Create incomplete Hindi translation file
+  - [x] 3.3 Create incomplete Hindi translation file
     - Create public/locales/hi/translation.json
     - Deliberately omit: payBillButton, validation.cardNumber, validation.expiry, validation.cvv
     - Include all other keys with Hindi translations
     - _Requirements: 9.3, 9.5, 9.7_
 
-- [ ] 4. Set up i18n configuration
+- [x] 4. Set up i18n configuration
   - Create src/i18n/config.ts with i18next initialization
   - Configure HttpBackend to load from /locales/{{lng}}/translation.json
   - Configure LanguageDetector with order: ['querystring', 'navigator']
@@ -59,14 +59,14 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Disable React suspense for simpler error handling
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.6, 3.7_
 
-- [ ] 5. Create TypeScript type definitions
+- [x] 5. Create TypeScript type definitions
   - Create src/types/index.ts
   - Define interfaces: Bill, PaymentFormData, PaymentFormValidation, PaymentResult, SupportedLanguage, LanguageConfig, CardValidationErrors
   - Export SAMPLE_BILL constant with account ACC-2024-7891, amount 2490.00
   - _Requirements: 2.1, 2.13_
 
-- [ ] 6. Implement utility functions
-  - [ ] 6.1 Create validation utilities
+- [x] 6. Implement utility functions
+  - [x] 6.1 Create validation utilities
     - Create src/utils/validation.ts
     - Implement validateCardNumber: check ≥13 digits, numeric only, return ValidationResult
     - Implement validateExpiry: check MM/YY format, month 01-12, not in past, return ValidationResult
@@ -74,7 +74,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Export ValidationResult interface with isValid and optional error message
     - _Requirements: 2.5, 6.1, 6.2, 6.3_
   
-  - [ ] 6.2 Create currency and payment utilities
+  - [x] 6.2 Create currency and payment utilities
     - Create src/utils/currency.ts with formatCurrency and calculateTotal functions
     - Create src/utils/payment.ts with processPayment async function
     - Implement 800ms delay in processPayment
@@ -82,15 +82,15 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Calculate total based on addOnIncluded flag (₹99 add-on)
     - _Requirements: 2.7, 2.8, 2.9, 2.10, 2.11_
 
-- [ ] 7. Create custom React hooks
-  - [ ] 7.1 Create useLanguage hook
+- [x] 7. Create custom React hooks
+  - [x] 7.1 Create useLanguage hook
     - Create src/hooks/useLanguage.tsx
     - Implement URL query parameter detection (?lang=)
     - Synchronize document.documentElement.lang with i18n.language
     - Return currentLanguage and changeLanguage
     - _Requirements: 3.6, 3.7, 10.11_
   
-  - [ ] 7.2 Create usePaymentForm hook
+  - [x] 7.2 Create usePaymentForm hook
     - Create src/hooks/usePaymentForm.tsx
     - Manage formData state (cardNumber, expiry, cvv, cardholderName)
     - Manage errors state and touched fields tracking
@@ -98,18 +98,18 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Call validation utilities on field blur
     - _Requirements: 2.3, 2.4, 2.5_
 
-- [ ] 8. Checkpoint - Verify foundation setup
+- [x] 8. Checkpoint - Verify foundation setup
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Create standard accessible components
-  - [ ] 9.1 Create Button component
+- [x] 9. Create standard accessible components
+  - [x] 9.1 Create Button component
     - Create src/components/common/Button.tsx
     - Implement semantic button with proper focus indicators
     - Support variants: primary, secondary
     - Accept optional ariaLabel prop
     - _Requirements: 10.1, 10.2, 10.4_
   
-  - [ ] 9.2 Create FormField component
+  - [x] 9.2 Create FormField component
     - Create src/components/common/FormField.tsx
     - Implement label associated with input via htmlFor/id
     - Support aria-invalid when error present
@@ -117,14 +117,14 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Render error in role="alert" region for screen reader announcement
     - _Requirements: 10.1, 10.2, 10.3_
   
-  - [ ] 9.3 Create global styles
+  - [x] 9.3 Create global styles
     - Create src/index.css with CSS reset, color contrast variables, focus indicators
     - Define CSS custom properties: --color-primary, --color-error, --color-success, --color-text, --color-border
     - Ensure all colors meet WCAG 2.1 Level AA contrast ratios (4.5:1 for normal text, 3:1 for large text)
     - Style focus-visible with 3px outline
     - _Requirements: 10.3, 10.4_
 
-- [ ] 10. Implement Problem Component 1: UnlabeledPayButton
+- [x] 10. Implement Problem Component 1: UnlabeledPayButton
   - Create src/components/UnlabeledPayButton.tsx
   - Render button element with only SVG icon (arrow or chevron), no text content
   - Deliberately omit: aria-label, aria-labelledby, title attributes
@@ -133,7 +133,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Create src/components/UnlabeledPayButton.module.css for styling
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 11. Implement Problem Component 2: TrappingProtectionModal
+- [x] 11. Implement Problem Component 2: TrappingProtectionModal
   - Create src/components/TrappingProtectionModal.tsx with TypeScript interface TrappingProtectionModalProps
   - Render dialog with role="dialog" and aria-label
   - Implement focus management: move focus to checkbox on open
@@ -148,7 +148,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Create src/components/TrappingProtectionModal.module.css
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11_
 
-- [ ] 12. Implement Problem Component 3: SilentCardErrors
+- [x] 12. Implement Problem Component 3: SilentCardErrors
   - Create src/components/SilentCardErrors.tsx with CardValidationErrors interface
   - Render error messages as plain div/span elements with red text
   - Deliberately omit: role="alert", aria-live, aria-describedby, aria-invalid
@@ -157,7 +157,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Create src/components/SilentCardErrors.module.css with .error-text style
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8_
 
-- [ ] 13. Implement Problem Component 4: LateBanner
+- [x] 13. Implement Problem Component 4: LateBanner
   - Create src/components/LateBanner.tsx
   - Render img element with no explicit height/width attributes
   - Use setTimeout to delay src setting by exactly 1500ms
@@ -166,7 +166,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Create src/components/LateBanner.module.css with no space reservation
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 14. Implement Problem Component 5: OverflowingSummary
+- [x] 14. Implement Problem Component 5: OverflowingSummary
   - Create src/components/OverflowingSummary.tsx accepting amount prop
   - Render bordered box with padding
   - Create src/components/OverflowingSummary.module.css
@@ -175,11 +175,11 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
   - Ensure last 1-2 characters clip at narrow viewport
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 15. Checkpoint - Verify all problem components isolated
+- [x] 15. Checkpoint - Verify all problem components isolated
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Create page components
-  - [ ] 16.1 Create AutopayPage
+- [x] 16. Create page components
+  - [x] 16.1 Create AutopayPage
     - Create src/pages/AutopayPage.tsx
     - Display h1 heading "Set Up Autopay"
     - Display "Autopay coming soon" message
@@ -187,16 +187,16 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Use useLanguage hook and useTranslation for multilingual support
     - _Requirements: 7.6, 7.7, 7.8, 10.7_
   
-  - [ ] 16.2 Create ConfirmationPage
+  - [x] 16.2 Create ConfirmationPage
     - Create src/pages/ConfirmationPage.tsx
-    - Display h1 heading "Payment Successful"
+    - Display h1 heading "Payment received"
     - Render element with data-haunt="payment-success" attribute
     - Read totalCharged and addOnIncluded from useLocation state
     - Display total charged amount using formatCurrency
     - Use useLanguage hook and useTranslation
     - _Requirements: 2.9, 2.10, 2.11, 2.12, 10.7_
   
-  - [ ] 16.3 Create BillPage
+  - [x] 16.3 Create BillPage
     - Create src/pages/BillPage.tsx
     - Render LateBanner component at top
     - Render Autopay_Link (appears after banner loads, positioned where button was)
@@ -208,7 +208,7 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Use usePaymentForm hook
     - _Requirements: 2.1, 2.2, 7.4, 7.5, 10.7, 10.8, 10.9_
   
-  - [ ] 16.4 Implement PaymentForm within BillPage
+  - [x] 16.4 Implement PaymentForm within BillPage
     - Within BillPage, create PaymentForm component/section
     - Render four FormField components for card inputs
     - Render SilentCardErrors component with validation errors
@@ -219,41 +219,41 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Handle magic failure card with role="alert" error message
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9_
 
-- [ ] 17. Set up routing and App component
+- [x] 17. Set up routing and App component
   - Create src/App.tsx with BrowserRouter and Routes
   - Define three routes: "/" → BillPage, "/autopay" → AutopayPage, "/confirmation" → ConfirmationPage
   - Import and call useLanguage hook at App level
   - _Requirements: 2.1, 7.6, 10.9_
 
-- [ ] 18. Create application entry point
+- [x] 18. Create application entry point
   - Create src/main.tsx
   - Import i18n config (to initialize i18next)
   - Import index.css
   - Render App component to root element
   - _Requirements: 1.1, 1.2_
 
-- [ ] 19. Create sample data file
+- [x] 19. Create sample data file
   - Create src/data/sampleBill.ts (optional helper file)
   - Export SAMPLE_BILL constant if not already in types/index.ts
   - _Requirements: 2.1, 2.13_
 
-- [ ] 20. Checkpoint - Verify application runs
+- [x] 20. Checkpoint - Verify application runs
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 21. Set up testing infrastructure
-  - [ ] 21.1 Configure Vitest
+- [x] 21. Set up testing infrastructure
+  - [x] 21.1 Configure Vitest
     - Create vitest.config.ts or add test config to vite.config.ts
     - Configure jsdom environment
     - Set up @testing-library/jest-dom matchers
     - _Requirements: 1.6_
   
-  - [ ] 21.2 Create test setup file
+  - [x] 21.2 Create test setup file
     - Create src/setupTests.ts
     - Import @testing-library/jest-dom
     - Configure i18next for tests (fixed language, synchronous loading)
     - _Requirements: 1.6_
   
-  - [ ] 21.3 Create fast-check generators
+  - [x] 21.3 Create fast-check generators
     - Create src/__tests__/generators.ts
     - Implement validPaymentDataArbitrary for valid form data
     - Implement invalidPaymentDataArbitrary with at least one invalid field
@@ -262,15 +262,15 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Implement browserLanguageArbitrary (en/pa/hi variants + unsupported)
     - _Requirements: Testing Strategy from Design_
 
-- [ ]* 22. Write unit tests for utilities
-  - [ ]* 22.1 Write validation utility unit tests
+- [x]* 22. Write unit tests for utilities
+  - [x]* 22.1 Write validation utility unit tests
     - Create src/utils/__tests__/validation.test.ts
     - Test validateCardNumber with valid/invalid inputs
     - Test validateExpiry with past/future dates, invalid months
     - Test validateCVV with valid/invalid lengths
     - _Requirements: 6.1, 6.2, 6.3_
   
-  - [ ]* 22.2 Write currency and payment utility unit tests
+  - [x]* 22.2 Write currency and payment utility unit tests
     - Create src/utils/__tests__/currency.test.ts and payment.test.ts
     - Test formatCurrency output format
     - Test calculateTotal with/without add-on
@@ -278,8 +278,8 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Test 800ms delay behavior
     - _Requirements: 2.7, 2.8, 2.9_
 
-- [ ]* 23. Write property-based tests for payment flow
-  - [ ]* 23.1 Write property test for valid form submission
+- [x]* 23. Write property-based tests for payment flow
+  - [x]* 23.1 Write property test for valid form submission
     - Create src/__tests__/properties/payment-flow.properties.test.tsx
     - **Property 1: Valid Form Submission Triggers Modal**
     - **Validates: Requirements 2.4**
@@ -287,199 +287,199 @@ This implementation plan breaks down the Lantern Bills feature into discrete cod
     - Run with numRuns: 100
     - _Requirements: 2.4_
   
-  - [ ]* 23.2 Write property test for invalid form submission
+  - [x]* 23.2 Write property test for invalid form submission
     - **Property 2: Invalid Form Submission Shows Errors**
     - **Validates: Requirements 2.5**
     - Use invalidPaymentDataArbitrary, submit form, verify errors shown, no modal
     - _Requirements: 2.5_
   
-  - [ ]* 23.3 Write property test for modal focus management
+  - [x]* 23.3 Write property test for modal focus management
     - **Property 3: Modal Focus Management**
     - **Validates: Requirements 2.6**
     - Open modal, verify focus moves to checkbox
     - _Requirements: 2.6_
   
-  - [ ]* 23.4 Write property test for non-failure cards
+  - [x]* 23.4 Write property test for non-failure cards
     - **Property 4: Non-Failure Cards Succeed**
     - **Validates: Requirements 2.9, 2.12**
     - Generate valid cards excluding 4000000000000002, verify success and data-haunt attribute
     - _Requirements: 2.9, 2.12_
   
-  - [ ]* 23.5 Write property test for total calculation
+  - [x]* 23.5 Write property test for total calculation
     - **Property 5: Total Calculation Correctness**
     - **Validates: Requirements 2.10, 2.11**
     - Test with checkbox checked → ₹2,589.00, unchecked → ₹2,490.00
     - _Requirements: 2.10, 2.11_
   
-  - [ ]* 23.6 Write property test for bill data invariance
+  - [x]* 23.6 Write property test for bill data invariance
     - **Property 6: Bill Data Invariance**
     - **Validates: Requirements 2.13**
     - Multiple loads, verify account and amount unchanged
     - _Requirements: 2.13_
 
-- [ ]* 24. Write property-based tests for language support
-  - [ ]* 24.1 Write property test for language detection
+- [x]* 24. Write property-based tests for language support
+  - [x]* 24.1 Write property test for language detection
     - Create src/__tests__/properties/language.properties.test.tsx
     - **Property 7: Language Detection and Fallback**
     - **Validates: Requirements 3.2, 3.3, 3.4**
     - Use browserLanguageArbitrary, verify correct language or fallback to English
     - _Requirements: 3.2, 3.3, 3.4_
   
-  - [ ]* 24.2 Write property test for URL language override
+  - [x]* 24.2 Write property test for URL language override
     - **Property 8: URL Language Override**
     - **Validates: Requirements 3.6, 3.7**
     - Test ?lang= parameter with valid/invalid values
     - _Requirements: 3.6, 3.7_
   
-  - [ ]* 24.3 Write property test for missing translation fallback
+  - [x]* 24.3 Write property test for missing translation fallback
     - **Property 15: Missing Translation Fallback**
     - **Validates: Requirements 9.4, 9.5, 9.6, 9.7, 9.8**
     - Switch to pa/hi, verify Pay_Bill_Button and validation errors in English
     - _Requirements: 9.4, 9.5, 9.6, 9.7, 9.8_
 
-- [ ]* 25. Write property-based tests for modal behavior
-  - [ ]* 25.1 Write property test for checkbox default state
+- [x]* 25. Write property-based tests for modal behavior
+  - [x]* 25.1 Write property test for checkbox default state
     - Create src/__tests__/properties/modal.properties.test.tsx
     - **Property 9: Checkbox Default State**
     - **Validates: Requirements 5.4, 5.5**
     - Open modal multiple times, verify checkbox always checked by default
     - _Requirements: 5.4, 5.5_
   
-  - [ ]* 25.2 Write property test for keyboard trap
+  - [x]* 25.2 Write property test for keyboard trap
     - **Property 10: Keyboard Trap Cycling**
     - **Validates: Requirements 5.6**
     - Simulate Tab/Shift+Tab, verify focus cycles only between checkbox and Learn_More_Link
     - _Requirements: 5.6_
 
-- [ ]* 26. Write property-based tests for validation errors
-  - [ ]* 26.1 Write property test for field validation display
+- [x]* 26. Write property-based tests for validation errors
+  - [x]* 26.1 Write property test for field validation display
     - Create src/__tests__/properties/validation.properties.test.tsx
     - **Property 11: Field Validation Error Display**
     - **Validates: Requirements 6.1, 6.2, 6.3**
     - Blur invalid fields, verify errors appear within 100ms
     - _Requirements: 6.1, 6.2, 6.3_
   
-  - [ ]* 26.2 Write property test for multiple simultaneous errors
+  - [x]* 26.2 Write property test for multiple simultaneous errors
     - **Property 12: Multiple Simultaneous Errors**
     - **Validates: Requirements 6.8**
     - Multiple invalid fields, verify all errors display simultaneously
     - _Requirements: 6.8_
 
-- [ ]* 27. Write property-based tests for layout and responsive behavior
-  - [ ]* 27.1 Write property test for layout shift magnitude
+- [x]* 27. Write property-based tests for layout and responsive behavior
+  - [x]* 27.1 Write property test for layout shift magnitude
     - Create src/__tests__/properties/layout.properties.test.tsx
     - **Property 13: Layout Shift Magnitude**
     - **Validates: Requirements 7.4**
     - Measure button position before/after banner load, verify ≥100px shift
     - _Requirements: 7.4_
   
-  - [ ]* 27.2 Write property test for content clipping
+  - [x]* 27.2 Write property test for content clipping
     - **Property 14: Content Clipping at Narrow Viewport**
     - **Validates: Requirements 8.2, 8.3**
     - Use narrowViewportArbitrary, verify content clips and no scroll
     - _Requirements: 8.2, 8.3_
 
-- [ ]* 28. Write property-based tests for accessibility
-  - [ ]* 28.1 Write property test for keyboard interaction equivalence
+- [x]* 28. Write property-based tests for accessibility
+  - [x]* 28.1 Write property test for keyboard interaction equivalence
     - Create src/__tests__/properties/accessibility.properties.test.tsx
     - **Property 16: Keyboard Interaction Equivalence**
     - **Validates: Requirements 10.5**
     - Test keyboard activation (Enter/Space) equals mouse click for accessible elements
     - _Requirements: 10.5_
   
-  - [ ]* 28.2 Write property test for single h1 per page
+  - [x]* 28.2 Write property test for single h1 per page
     - **Property 17: Single H1 Per Page**
     - **Validates: Requirements 10.7**
     - Render each page, verify exactly one h1
     - _Requirements: 10.7_
   
-  - [ ]* 28.3 Write property test for descriptive page titles
+  - [x]* 28.3 Write property test for descriptive page titles
     - **Property 18: Descriptive Page Titles**
     - **Validates: Requirements 10.10**
     - Verify document.title contains descriptive text for each page
     - _Requirements: 10.10_
   
-  - [ ]* 28.4 Write property test for HTML lang synchronization
+  - [x]* 28.4 Write property test for HTML lang synchronization
     - **Property 19: HTML Lang Attribute Synchronization**
     - **Validates: Requirements 10.11**
     - Change language, verify html lang attribute updates
     - _Requirements: 10.11_
 
-- [ ]* 29. Write unit tests for problem components
-  - [ ]* 29.1 Write UnlabeledPayButton verification tests
+- [x]* 29. Write unit tests for problem components
+  - [x]* 29.1 Write UnlabeledPayButton verification tests
     - Create src/components/__tests__/UnlabeledPayButton.test.tsx
     - Verify button has no accessible name (empty string)
     - Verify button is keyboard focusable and clickable
     - _Requirements: 4.2, 4.3_
   
-  - [ ]* 29.2 Write TrappingProtectionModal verification tests
+  - [x]* 29.2 Write TrappingProtectionModal verification tests
     - Create src/components/__tests__/TrappingProtectionModal.test.tsx
     - Verify Tab never reaches Continue/Close controls
     - Verify Escape doesn't close modal
     - Verify checkbox checked by default on open
     - _Requirements: 5.6, 5.8, 5.9_
   
-  - [ ]* 29.3 Write SilentCardErrors verification tests
+  - [x]* 29.3 Write SilentCardErrors verification tests
     - Create src/components/__tests__/SilentCardErrors.test.tsx
     - Verify errors lack aria-live, role="alert", aria-describedby
     - Verify errors are visible in DOM
     - _Requirements: 6.5, 6.6, 6.7_
   
-  - [ ]* 29.4 Write LateBanner verification tests
+  - [x]* 29.4 Write LateBanner verification tests
     - Create src/components/__tests__/LateBanner.test.tsx
     - Verify image loads after delay
     - Verify no min-height or aspect-ratio set
     - _Requirements: 7.1, 7.2_
   
-  - [ ]* 29.5 Write OverflowingSummary verification tests
+  - [x]* 29.5 Write OverflowingSummary verification tests
     - Create src/components/__tests__/OverflowingSummary.test.tsx
     - Verify content clips at ≤640px viewport
     - Verify no horizontal scroll available
     - _Requirements: 8.2, 8.3_
   
-  - [ ]* 29.6 Write translation file verification tests
+  - [x]* 29.6 Write translation file verification tests
     - Create src/__tests__/translations.test.ts
     - Verify en translation file has all keys
     - Verify pa/hi files lack specific keys (payBillButton, validation.*)
     - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ]* 30. Write integration tests for complete flows
-  - [ ]* 30.1 Write smoke test for app rendering
+- [x]* 30. Write integration tests for complete flows
+  - [x]* 30.1 Write smoke test for app rendering
     - Create src/__tests__/App.test.tsx
     - Render app, verify Bill_Page displays with account number and amount
     - _Requirements: 1.3, 2.1_
   
-  - [ ]* 30.2 Write end-to-end payment flow test
+  - [x]* 30.2 Write end-to-end payment flow test
     - Fill form with valid data, submit, confirm in modal, verify confirmation page
     - Test with add-on checked and unchecked
     - _Requirements: 2.1 through 2.12_
   
-  - [ ]* 30.3 Write autopay navigation test
+  - [x]* 30.3 Write autopay navigation test
     - Click Autopay_Link, verify AutopayPage displays, click back link
     - _Requirements: 7.6, 7.7, 7.8_
 
-- [ ] 31. Final checkpoint - Verify all tests pass
+- [x] 31. Final checkpoint - Verify all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 32. Create HTML entry point
+- [x] 32. Create HTML entry point
   - Create index.html in project root with div#root
   - Link to src/main.tsx
   - Set appropriate meta tags (charset, viewport)
   - _Requirements: 1.1, 1.2_
 
-- [ ] 33. Verify dev server starts on port 3000
+- [x] 33. Verify dev server starts on port 3000
   - Test npm run dev command
   - Verify application responds at http://localhost:3000
   - Verify port conflict error if 3000 is occupied
   - _Requirements: 1.2, 1.3, 1.5_
 
-- [ ] 34. Verify production build works
+- [x] 34. Verify production build works
   - Run npm run build
   - Verify dist/ directory created with static assets
   - Test preview server
   - _Requirements: 1.6_
 
-- [ ] 35. Final integration verification
+- [x] 35. Final integration verification
   - Manually test all six problem components are present and broken as specified
   - Verify all non-problem features are accessible
   - Test in multiple languages (en, pa, hi)

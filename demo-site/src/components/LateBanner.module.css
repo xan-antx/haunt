@@ -1,0 +1,15 @@
+/* Deliberately no min-height, aspect-ratio or placeholder before the image loads. */
+.banner {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Applies only after the src is set: keeps the shift at 100px or more even at
+ * very narrow widths, where a scaled 1200x300 image would be shorter than that.
+ */
+.loaded {
+  min-height: 120px;
+  object-fit: cover;
+}

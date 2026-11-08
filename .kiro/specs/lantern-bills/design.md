@@ -314,7 +314,7 @@ interface OverflowingSummaryProps {
     "close": "Close"
   },
   "confirmation": {
-    "success": "Payment Successful",
+    "success": "Payment received",
     "charged": "Total charged"
   },
   "autopay": {
@@ -940,7 +940,7 @@ export default i18n;
     "failed": "Payment failed. Please try a different card."
   },
   "confirmation": {
-    "heading": "Payment Successful",
+    "heading": "Payment received",
     "message": "Your payment has been processed successfully.",
     "charged": "Total charged",
     "accountNumber": "Account Number",
@@ -997,7 +997,7 @@ export default i18n;
     "failed": "ਭੁਗਤਾਨ ਅਸਫਲ ਰਿਹਾ। ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੱਖਰਾ ਕਾਰਡ ਅਜ਼ਮਾਓ।"
   },
   "confirmation": {
-    "heading": "ਭੁਗਤਾਨ ਸਫਲ",
+    "heading": "ਭੁਗਤਾਨ ਪ੍ਰਾਪਤ ਹੋਇਆ",
     "message": "ਤੁਹਾਡਾ ਭੁਗਤਾਨ ਸਫਲਤਾਪੂਰਵਕ ਪ੍ਰੋਸੈਸ ਕੀਤਾ ਗਿਆ ਹੈ।",
     "charged": "ਕੁੱਲ ਚਾਰਜ ਕੀਤਾ ਗਿਆ",
     "accountNumber": "ਖਾਤਾ ਨੰਬਰ",
@@ -1054,7 +1054,7 @@ export default i18n;
     "failed": "भुगतान विफल रहा। कृपया एक अलग कार्ड आज़माएं।"
   },
   "confirmation": {
-    "heading": "भुगतान सफल",
+    "heading": "भुगतान प्राप्त हुआ",
     "message": "आपका भुगतान सफलतापूर्वक प्रोसेस किया गया है।",
     "charged": "कुल चार्ज किया गया",
     "accountNumber": "खाता संख्या",

@@ -1,0 +1,72 @@
+{
+  "pageTitle": "Lantern Bills - Pay Your Electricity Bill",
+  "payBillButton": "Pay this bill",
+  "billDetails": {
+    "heading": "Your Electricity Bill",
+    "accountNumber": "Account Number",
+    "amountDue": "Amount Due",
+    "dueDate": "Due Date"
+  },
+  "paymentForm": {
+    "heading": "Payment Information",
+    "cardNumber": "Card Number",
+    "cardNumberPlaceholder": "1234 5678 9012 3456",
+    "expiry": "Expiry Date",
+    "expiryPlaceholder": "MM/YY",
+    "cvv": "CVV",
+    "cvvPlaceholder": "123",
+    "cardholderName": "Cardholder Name",
+    "cardholderNamePlaceholder": "Name on card"
+  },
+  "validation": {
+    "cardNumber": "Please enter a valid card number",
+    "expiry": "Please enter a valid expiry date",
+    "cvv": "Please enter a valid CVV",
+    "cardholderName": "Please enter the cardholder name",
+    "required": "This field is required"
+  },
+  "modal": {
+    "protectHeading": "Protect your payment",
+    "addOnText": "Payment protection for ₹99",
+    "addOnDescription": "Get a refund if your payment fails due to a technical issue.",
+    "learnMore": "Learn more",
+    "learnMoreExpanded": "Payment protection covers you against technical failures during the payment process. If your payment fails due to a system error, you'll receive a full refund within 3-5 business days.",
+    "continue": "Continue",
+    "close": "Close",
+    "processing": "Processing payment..."
+  },
+  "payment": {
+    "failed": "Payment failed. Please try a different card.",
+    "processing": "Processing your payment..."
+  },
+  "confirmation": {
+    "heading": "Payment received",
+    "success": "Your payment has been processed successfully.",
+    "charged": "Total charged",
+    "transactionId": "Transaction ID",
+    "thankYou": "Thank you for your payment!",
+    "backToBill": "Back to bill"
+  },
+  "autopay": {
+    "heading": "Set Up Autopay",
+    "comingSoon": "Autopay coming soon",
+    "description": "Automatic payments will be available soon. Check back later to set up recurring payments.",
+    "backToBill": "Back to bill"
+  },
+  "banner": {
+    "alt": "Lantern Bills - Your trusted electricity provider"
+  },
+  "summary": {
+    "heading": "Payment Summary",
+    "total": "Total Amount",
+    "billAmount": "Bill Amount",
+    "addOn": "Payment Protection"
+  },
+  "autopayLink": "Set up autopay",
+  "accessibility": {
+    "loading": "Loading",
+    "closeDialog": "Close dialog",
+    "required": "required",
+    "optional": "optional"
+  }
+}

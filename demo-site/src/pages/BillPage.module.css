@@ -1,0 +1,37 @@
+.bannerWrap {
+  position: relative;
+}
+
+/*
+ * The Autopay link is placed at the top of the banner wrapper. Before the banner
+ * loads, the Pay button sits at this same position; after the shift the link
+ * is where the button used to be.
+ */
+.autopayLink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1.5rem;
+  background-color: #ffffff;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.autopayLink:hover {
+  background-color: var(--color-primary-light);
+}
+
+.payRow {
+  margin-bottom: 1.25rem;
+}
+
+.heading {
+  margin-bottom: 1rem;
+}
