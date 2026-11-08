@@ -1,0 +1,751 @@
+{
+  "pbtResults": {
+    "23.3 Write property test for transcript lines in `src/__tests__/transcript.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794129216073
+    },
+    "26.2 Write property test for Outcome_Line in `src/__tests__/outcome.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794129277516
+    },
+    "28.2 Write property test for the name filter in `scripts/__tests__/propertyTestPattern.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794129441028
+    },
+    "23.4 Write property test for transcript fading in `src/__tests__/transcript.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794129597061
+    }
+  },
+  "executionHistory": {
+    "23.1 Add the transcript fade tokens": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869724
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128885472
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129057031
+      }
+    ],
+    "23.2 Write `src/model/transcript.ts` with `buildTranscript(run, currentN)` and `fadeLevel(distance)`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869781
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128886197
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129057156
+      }
+    ],
+    "23.3 Write property test for transcript lines in `src/__tests__/transcript.properties.test.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869842
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129136852
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129338480
+      }
+    ],
+    "23.4 Write property test for transcript fading in `src/__tests__/transcript.properties.test.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869896
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129541559
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129962508
+      }
+    ],
+    "23.5 Write `src/hooks/useScrollOverflow.ts` with `useScrollOverflow(ref, axis)` and `scrollKeys(axis)`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869948
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128887377
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129057229
+      }
+    ],
+    "23.6 Build the `Transcript` component and use it in the Spoken_Panel and Thought_Panel": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128869999
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129136766
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129339640
+      }
+    ],
+    "23.7 Write unit tests for `buildTranscript` and the `Transcript` component": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870062
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129541993
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129962639
+      }
+    ],
+    "23.8 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870119
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130337406
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130431561
+      }
+    ],
+    "24.1 Reorder the Ghost Cam DOM in `src/screens/GhostCamScreen.tsx`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870180
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129542356
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129963552
+      }
+    ],
+    "24.2 Add fit mode and stacked mode CSS": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870230
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130042938
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130233160
+      }
+    ],
+    "24.3 Write a unit test for Ghost Cam DOM order": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870289
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130242224
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130329297
+      }
+    ],
+    "24.4 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870343
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130438551
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130534504
+      }
+    ],
+    "25.1 Fix the fog layer clamp in `src/components/layout/Fog.module.css`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870404
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128888168
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129058441
+      }
+    ],
+    "25.2 Add a `blend(fg, bg, alpha)` helper to `src/styles/tokens.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870561
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129137262
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129340556
+      }
+    ],
+    "25.3 Extend the contrast test with the fog blend pairs": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870643
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130043751
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130233295
+      }
+    ],
+    "25.4 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870715
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130543422
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130598540
+      }
+    ],
+    "26.1 Write `src/model/outcome.ts` with `outcomeLine(run)`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870787
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128888930
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129059161
+      }
+    ],
+    "26.2 Write property test for Outcome_Line in `src/__tests__/outcome.properties.test.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870866
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129138071
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129341605
+      }
+    ],
+    "26.3 Add `recentRuns(runs, count)` to `src/model/haunts.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128870983
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129075819
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129126382
+      }
+    ],
+    "26.4 Make the logo the single h1 and show the Outcome_Line in `src/screens/HomeScreen.tsx`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871077
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129138948
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129342643
+      }
+    ],
+    "26.5 Add the wide layout and the \"Recent ghost walks\" side panel": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871138
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129543609
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129964358
+      }
+    ],
+    "26.6 Write unit tests for `outcomeLine`, `recentRuns` and Home": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871205
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130044937
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130234456
+      }
+    ],
+    "26.7 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871269
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130605684
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130692610
+      }
+    ],
+    "27.1 Put the command in a horizontal scroll box in `src/components/ProvenancePanel.tsx` and `ProvenancePanel.module.css`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871345
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129356831
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129529418
+      }
+    ],
+    "27.2 Make copying exact and the failure path clear": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871419
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129544092
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129965217
+      }
+    ],
+    "27.3 Write unit tests for the Provenance_Panel": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871497
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130045751
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130235213
+      }
+    ],
+    "27.4 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871570
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130699057
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130741027
+      }
+    ],
+    "28.1 Write `scripts/propertyTestPattern.ts` with `PROPERTY_TEST_PATTERN` and `isPropertyTestName`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871640
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129075982
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129127023
+      }
+    ],
+    "28.2 Write property test for the name filter in `scripts/__tests__/propertyTestPattern.properties.test.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871721
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129357797
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129530632
+      }
+    ],
+    "28.3 Write `scripts/test-properties.ts` and point the `test:properties` script at it": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871795
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129359004
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129531869
+      }
+    ],
+    "28.4 Widen the Vitest `include` in `vite.config.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871864
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129359705
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129532637
+      }
+    ],
+    "28.5 Write unit tests for `decideExit` and the Vitest config": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128871931
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794129979300
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130036322
+      }
+    ],
+    "28.6 Run `npm run test:properties` in dashboard/ and confirm it runs Properties 1–12 of `haunt-dashboard` and both `exorcise-different-ghost-fix` Property_Tests, with no other tests executed": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872000
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130748324
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130817747
+      }
+    ],
+    "28.7 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872081
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130824888
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130884973
+      }
+    ],
+    "29.1 Add Ghost Cam layout checks in `e2e/ghostcam-layout.spec.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872158
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130892538
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131025073
+      }
+    ],
+    "29.2 Add Nav_Fog width checks in `e2e/nav-fog.spec.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872224
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130893315
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131026199
+      }
+    ],
+    "29.3 Add Reproduce_Command checks in `e2e/reproduce.spec.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872294
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130894542
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131027392
+      }
+    ],
+    "29.4 Add Transcript checks in `e2e/transcript.spec.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872364
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130895706
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131028199
+      }
+    ],
+    "29.5 Add Home checks in `e2e/home.spec.ts`": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872435
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130896339
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131028999
+      }
+    ],
+    "29.6 Run `npm run build` and then `npm run test:e2e` once in dashboard/, and fix real failures in the dashboard code": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794128872498
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131035902
+      },
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131885969
+      }
+    ],
+    "23. Ghost Cam Transcript": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130431683
+      }
+    ],
+    "24. Ghost Cam layout fit at 1920×1080 and Provenance_Panel below the timeline": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130534592
+      }
+    ],
+    "25. Nav_Fog full width fix": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130598641
+      }
+    ],
+    "26. Home: logo h1, card h2s, Outcome_Line and wide layout": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130692716
+      }
+    ],
+    "27. Reproduce_Command without mid-word breaks": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130741117
+      }
+    ],
+    "28. Widen `npm run test:properties` to every spec": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794130885080
+      }
+    ],
+    "29. Playwright end-to-end checks for the amendment": [
+      {
+        "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
+        "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
+        "timestamp": 1794131886069
+      }
+    ]
+  }
+}

@@ -51,6 +51,11 @@ export function groupHaunts(runs: Run[]): Haunt[] {
   return haunts.sort((a, b) => Date.parse(b.latestStartedAt) - Date.parse(a.latestStartedAt));
 }
 
+/** At most `count` runs, newest first by startedAt. Does not mutate `runs`. */
+export function recentRuns(runs: readonly Run[], count: number): Run[] {
+  return [...runs].sort(byStartedAtDesc).slice(0, Math.max(0, count));
+}
+
 export interface StartHere {
   runKey: string;
   step: number;

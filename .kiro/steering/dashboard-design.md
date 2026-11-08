@@ -29,6 +29,11 @@ Ratios were computed with the WCAG 2.1 relative luminance formula. Thresholds: 4
 | `--failure` | `#c0392b` | Failure fills only | `#ffffff` text on it 5.44; against `--bg` 3.26; against `--surface` 2.79 (fails, see rules) |
 | `--placeholder` | `#55504a` | Missing-screenshot box | `--text` on it 6.43 |
 | `--spoken-bg` | `#000000` | The Listener's spoken panel | `--spoken-text` `#f4f8ff` 19.72; waveform `--ghost-listener` 11.87 |
+| `--spoken-fade-1` | `#c8ccd4` | Spoken transcript line 1 step before the current line | on `--spoken-bg` 13.04 |
+| `--spoken-fade-2` | `#a0a4ab` | Spoken transcript line 2 steps before the current line | on `--spoken-bg` 8.39 |
+| `--spoken-fade-3` | `#85898f` | Spoken transcript lines 3 or more steps before the current line (floor) | on `--spoken-bg` 5.97 |
+| `--thought-fade-1` | `#cbc5bc` | Thought transcript line 1 step before the current line | on `--surface` 8.84 |
+| `--thought-fade-3` | `#aca69d` | Thought transcript lines 3 or more steps before the current line (floor) | on `--surface` 6.27 |
 | `--ghost-listener` | `#8fc8ff` | The Listener's accent | on `--bg` 10.01 |
 | `--ghost-phantom` | `#8fe0bf` | The Phantom's accent | on `--bg` 11.45 |
 | `--ghost-bebe` | `#d4b6ff` | Bebe's accent | on `--bg` 10.06 |
@@ -39,6 +44,7 @@ Rules:
 - A `--failure` fill placed on `--surface` always gets a 2 px `--text` border, because red against the surface is only 2.79:1.
 - Focus ring: a 3 px `--spectral` outline with a 2 px offset, so it sits against `--bg` or `--surface` (at least 12.5:1). Inside bone tombstones, the ring uses `--bone-ink` (11.21:1).
 - Never convey a status by color alone. Every result, finding, exorcise status and coverage cell has text plus an icon or shape.
+- Ghost Cam transcript lines fade with these tokens, never with opacity, so each ratio is exact. Spoken panel (on `--spoken-bg`): current line `--spoken-text` 19.72, then `--spoken-fade-1` 13.04, `--spoken-fade-2` 8.39, `--spoken-fade-3` 5.97. Thought panel (on `--surface`): current line `--text` 12.21, then `--thought-fade-1` 8.84, `--text-muted` 6.92, `--thought-fade-3` 6.27. Each level must be lower than the one before it and at least 4.5:1. The current line's highlight never relies on color alone (it also has a left border and a ▸ marker).
 - Any new color pair must be added to the contrast test with its ratio, and must pass AA before use.
 
 ## Fonts

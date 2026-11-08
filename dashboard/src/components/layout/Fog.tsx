@@ -8,10 +8,11 @@ import styles from './Fog.module.css';
 export function Fog({ className, dense = false }: { className?: string; dense?: boolean }) {
   const id = useId().replace(/:/g, '');
   return (
-    <div className={[styles.fog, dense ? styles.dense : '', className ?? ''].filter(Boolean).join(' ')} aria-hidden="true">
+    <div className={[styles.fog, dense ? styles.dense : '', className ?? ''].filter(Boolean).join(' ')} aria-hidden="true" data-fog="">
       {[0, 1].map((layer) => (
         <svg
           key={layer}
+          data-fog-layer=""
           className={`${styles.layer} ${layer === 1 ? styles.second : ''} motion-fog-layer ${layer === 1 ? 'motion-fog-slow' : ''}`}
           viewBox="0 0 400 100"
           preserveAspectRatio="none"

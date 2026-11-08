@@ -146,7 +146,11 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   useEffect(() => {
     const id = `${run.key}:${step.n}`;
     if (announcedFor.current !== null && announcedFor.current !== id) {
-      announce(`Step ${step.n}: ${run.ghost === 'listener' ? step.spoken : step.thought}`);
+      // Only the new step; Earlier_Lines in the Transcript are never re-announced.
+      const listener = run.ghost === 'listener';
+      const text = listener ? step.spoken : step.thought;
+      const said = typeof text === 'string' && text.trim() !== '' ? text : `nothing was ${listener ? 'spoken' : 'thought'}`;
+      announce(`Step ${step.n}: ${said}`);
     }
     announcedFor.current = id;
   }, [announce, run.key, run.ghost, step.n, step.spoken, step.thought]);
@@ -163,9 +167,11 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
     }
   };
 
+  // DOM order is the reading order at every size (Req 10.26). Each direct child of `.cam`
+  // is one grid area: summary, shot, panel, controls, timeline, rest.
   return (
-    <>
-      <div className={styles.header}>
+    <div className={styles.cam}>
+      <div className={`${styles.header} ${styles.summary}`} data-cam-area="summary">
         <GhostCharacter ghost={run.ghost} size={96} floating={playing} />
         <div className={styles.headerText}>
           <ScreenHeading title={`Step ${step.n} of ${run.steps.length} · ${ghost.name} · Ghost Cam`}>
@@ -195,82 +201,89 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
         </div>
       </div>
 
-      <div className={styles.stage}>
-        <div className={styles.left}>
-          <Screenshot run={run} step={step} />
-        </div>
-        <div className={styles.right}>
+      <div className={styles.left} data-cam-area="shot">
+        <Screenshot run={run} step={step} />
+      </div>
+
+      <div className={styles.right} data-cam-area="panel">
+        <div className={styles.rightInner}>
           {run.ghost === 'listener' ? (
-            <SpokenPanel step={step} playing={playing} />
+            <SpokenPanel run={run} step={step} playing={playing} />
           ) : (
-            <ThoughtPanel ghost={run.ghost} step={step} />
+            <ThoughtPanel run={run} step={step} />
           )}
+          <FindingCallouts run={run} step={step} isLast={step.n === last.n} />
         </div>
       </div>
 
-      <p className={styles.stepInfo}>
-        <strong>
-          Step {step.n} of {run.steps.length}
-        </strong>
-        <span aria-hidden="true"> · </span>
-        <span>{step.page}</span>
-        <span aria-hidden="true"> · </span>
-        <span>{step.action}</span>
-        <span aria-hidden="true"> · </span>
-        <span>waited {formatSeconds(step.waitMs)}</span>
-        {playing && (
-          <>
-            <span aria-hidden="true"> · </span>
-            <span>Playing</span>
-          </>
+      <div className={styles.controlsArea} data-cam-area="controls">
+        <p className={styles.stepInfo}>
+          <strong>
+            Step {step.n} of {run.steps.length}
+          </strong>
+          <span aria-hidden="true"> · </span>
+          <span>{step.page}</span>
+          <span aria-hidden="true"> · </span>
+          <span>{step.action}</span>
+          <span aria-hidden="true"> · </span>
+          <span>waited {formatSeconds(step.waitMs)}</span>
+          {playing && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>Playing</span>
+            </>
+          )}
+        </p>
+
+        <Controls
+          playing={playing}
+          atFirst={atFirst}
+          atLast={atLast}
+          onTogglePlay={togglePlay}
+          onBack={() => {
+            setPlaying(false);
+            goTo(run.steps[index - 1]!.n);
+          }}
+          onForward={() => {
+            setPlaying(false);
+            goTo(run.steps[index + 1]!.n);
+          }}
+        />
+
+        {run.ghost === 'listener' && <VoiceToggle step={step} />}
+      </div>
+
+      <div className={styles.timelineArea} data-cam-area="timeline">
+        <Timeline
+          steps={run.steps}
+          findings={run.findings}
+          current={step.n}
+          onSelect={(target) => {
+            setPlaying(false);
+            goTo(target);
+          }}
+        />
+      </div>
+
+      {/* Provenance_Panel stays after the Timeline (Req 10.25). */}
+      <div className={styles.rest} data-cam-area="rest">
+        {run.warnings.length > 0 && (
+          <details className={styles.warnings}>
+            <summary>Notes about this run file ({run.warnings.length})</summary>
+            <ul>
+              {run.warnings.map((w, i) => (
+                <li key={i}>
+                  <code>{w.path}</code>: {w.message}
+                </li>
+              ))}
+            </ul>
+          </details>
         )}
-      </p>
 
-      <FindingCallouts run={run} step={step} isLast={step.n === last.n} />
-
-      <Controls
-        playing={playing}
-        atFirst={atFirst}
-        atLast={atLast}
-        onTogglePlay={togglePlay}
-        onBack={() => {
-          setPlaying(false);
-          goTo(run.steps[index - 1]!.n);
-        }}
-        onForward={() => {
-          setPlaying(false);
-          goTo(run.steps[index + 1]!.n);
-        }}
-      />
-
-      {run.ghost === 'listener' && <VoiceToggle step={step} />}
-
-      <Timeline
-        steps={run.steps}
-        findings={run.findings}
-        current={step.n}
-        onSelect={(target) => {
-          setPlaying(false);
-          goTo(target);
-        }}
-      />
-
-      {run.warnings.length > 0 && (
-        <details className={styles.warnings}>
-          <summary>Notes about this run file ({run.warnings.length})</summary>
-          <ul>
-            {run.warnings.map((w, i) => (
-              <li key={i}>
-                <code>{w.path}</code>: {w.message}
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
-
-      <h2 className={styles.sectionHeading}>Where this run came from</h2>
-      <ProvenancePanel run={run} />
-    </>
+        <h2 className={styles.sectionHeading}>Where this run came from</h2>
+        <ProvenancePanel run={run} />
+      </div>
+    </div>
   );
 }
 

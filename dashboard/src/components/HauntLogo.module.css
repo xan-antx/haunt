@@ -1,0 +1,19 @@
+.mark {
+  width: 0.6em;
+  height: 1em;
+  flex: none;
+  overflow: visible;
+}
+
+.flame {
+  fill: var(--amber);
+}
+
+.wick {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.wax {
+  fill: var(--bone);
+}

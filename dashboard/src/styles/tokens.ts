@@ -15,6 +15,11 @@ export const COLORS = {
   placeholder: '#55504a',
   spokenBg: '#000000',
   spokenText: '#f4f8ff',
+  spokenFade1: '#c8ccd4',
+  spokenFade2: '#a0a4ab',
+  spokenFade3: '#85898f',
+  thoughtFade1: '#cbc5bc',
+  thoughtFade3: '#aca69d',
   ghostListener: '#8fc8ff',
   ghostPhantom: '#8fe0bf',
   ghostBebe: '#d4b6ff',
@@ -63,7 +68,22 @@ export const COLOR_PAIRS: ColorPair[] = [
   { fg: 'ghostListener', bg: 'surface', kind: 'text', ratio: 8.57, use: 'The Listener accent on cards' },
   { fg: 'ghostPhantom', bg: 'surface', kind: 'text', ratio: 9.8, use: 'The Phantom accent on cards' },
   { fg: 'ghostBebe', bg: 'surface', kind: 'text', ratio: 8.61, use: 'Bebe accent on cards' },
+  // Transcript fade levels 0–3. Level 0 is the current line; level 3 is the floor.
+  { fg: 'spokenText', bg: 'spokenBg', kind: 'text', ratio: 19.72, use: 'Spoken transcript, current line (fade 0)' },
+  { fg: 'spokenFade1', bg: 'spokenBg', kind: 'text', ratio: 13.04, use: 'Spoken transcript, fade 1' },
+  { fg: 'spokenFade2', bg: 'spokenBg', kind: 'text', ratio: 8.39, use: 'Spoken transcript, fade 2' },
+  { fg: 'spokenFade3', bg: 'spokenBg', kind: 'text', ratio: 5.97, use: 'Spoken transcript, fade 3 (floor)' },
+  { fg: 'text', bg: 'surface', kind: 'text', ratio: 12.21, use: 'Thought transcript, current line (fade 0)' },
+  { fg: 'thoughtFade1', bg: 'surface', kind: 'text', ratio: 8.84, use: 'Thought transcript, fade 1' },
+  { fg: 'textMuted', bg: 'surface', kind: 'text', ratio: 6.92, use: 'Thought transcript, fade 2' },
+  { fg: 'thoughtFade3', bg: 'surface', kind: 'text', ratio: 6.27, use: 'Thought transcript, fade 3 (floor)' },
 ];
+
+/** Transcript fade colors by level (index 0 = current line), per panel. */
+export const TRANSCRIPT_FADES = {
+  spoken: { bg: 'spokenBg', levels: ['spokenText', 'spokenFade1', 'spokenFade2', 'spokenFade3'] },
+  thought: { bg: 'surface', levels: ['text', 'thoughtFade1', 'textMuted', 'thoughtFade3'] },
+} as const satisfies Record<string, { bg: ColorToken; levels: readonly [ColorToken, ColorToken, ColorToken, ColorToken] }>;
 
 /** WCAG 2.1 relative luminance. */
 export function luminance(hex: string): number {
@@ -79,6 +99,22 @@ export function luminance(hex: string): number {
 export function contrastRatio(a: string, b: string): number {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * `fg` alpha-composited over `bg` at `alpha` (0..1), as lowercase `#rrggbb`.
+ * Each channel is `round(fg * alpha + bg * (1 - alpha))`. Used to get the color
+ * behind text drawn over a translucent layer, such as the Nav_Fog.
+ */
+export function blend(fg: string, bg: string, alpha: number): string {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(i, i + 2), 16);
+  return (
+    '#' +
+    [1, 3, 5]
+      .map((i) => Math.round(channel(fg, i) * alpha + channel(bg, i) * (1 - alpha)))
+      .map((v) => v.toString(16).padStart(2, '0'))
+      .join('')
+  );
 }
 
 export const THRESHOLDS: Record<PairKind, number> = { text: 4.5, large: 3, ui: 3 };

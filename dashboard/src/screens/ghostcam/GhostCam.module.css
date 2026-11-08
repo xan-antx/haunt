@@ -49,23 +49,72 @@
   gap: var(--space-2);
 }
 
-/* Screenshot on the left, the ghost's panel on the right; stacked under 900 px. */
-.stage {
+/* Ghost Cam grid. Each direct child is one area, in DOM (reading) order.
+   Stacked mode (the default): screenshot 3fr and the ghost's panel 2fr from 900 to 1279 px,
+   one column under 900 px, and the page scrolls vertically.
+   Fit mode for 1280×900 and larger is at the end of this file (design.md, Ghost Cam layout). */
+.cam {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: var(--space-5);
+  grid-template-areas:
+    'summary  summary'
+    'shot     panel'
+    'controls controls'
+    'timeline timeline'
+    'rest     rest';
+  column-gap: var(--space-5);
   align-items: start;
 }
 
-@media (max-width: 900px) {
-  .stage {
+@media (max-width: 899.98px) {
+  .cam {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'summary'
+      'shot'
+      'panel'
+      'controls'
+      'timeline'
+      'rest';
+  }
+
+  .right {
+    margin-top: var(--space-5);
   }
 }
 
-.left,
-.right {
+.cam > * {
   min-width: 0;
+}
+
+.summary {
+  grid-area: summary;
+}
+
+.left {
+  grid-area: shot;
+}
+
+.right {
+  grid-area: panel;
+}
+
+.rightInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.controlsArea {
+  grid-area: controls;
+}
+
+.timelineArea {
+  grid-area: timeline;
+}
+
+.rest {
+  grid-area: rest;
 }
 
 .panelHeading {
@@ -83,11 +132,88 @@
   outline-color: var(--spectral);
 }
 
-.spokenText {
-  font-size: 1.6rem;
+/* Transcript: one line per step, Current_Line last. Scrolls inside itself only.
+   In stacked mode it is capped at half the viewport so it never fills the page. */
+.transcript {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 50vh;
+}
+
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* Every line has a 4 px left border so text does not shift when the marker moves. */
+.line {
+  border-left: 4px solid transparent;
+  padding-left: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.line[aria-current='step'] {
+  border-left-color: var(--spectral);
+  font-weight: 700;
+}
+
+.line[aria-current='step']::before {
+  content: '▸';
+  margin-right: var(--space-2);
+}
+
+.lineStep {
+  font-size: 0.85em;
+  margin-right: var(--space-2);
+}
+
+.emptyText {
+  font-style: italic;
+}
+
+.spokenLines {
+  font-size: 1.25rem;
   line-height: 1.4;
+}
+
+/* Fade levels are solid token colors, never opacity, so each contrast ratio is exact. */
+.spokenLines .fade0 {
   color: var(--spoken-text);
-  min-height: 2.8em;
+}
+
+.spokenLines .fade1 {
+  color: var(--spoken-fade-1);
+}
+
+.spokenLines .fade2 {
+  color: var(--spoken-fade-2);
+}
+
+.spokenLines .fade3 {
+  color: var(--spoken-fade-3);
+}
+
+.thoughtLines {
+  font-size: 1.1rem;
+}
+
+.thoughtLines .fade0 {
+  color: var(--text);
+}
+
+.thoughtLines .fade1 {
+  color: var(--thought-fade-1);
+}
+
+.thoughtLines .fade2 {
+  color: var(--text-muted);
+}
+
+.thoughtLines .fade3 {
+  color: var(--thought-fade-3);
 }
 
 .waveform {
@@ -115,11 +241,6 @@
   border: 2px solid var(--spectral);
   border-radius: 2.5rem;
   padding: var(--space-5) var(--space-6);
-}
-
-.thoughtText {
-  font-size: 1.25rem;
-  margin: 0;
 }
 
 .bubbleDotLarge,
@@ -291,4 +412,120 @@
   background: var(--surface);
   border-radius: var(--radius);
   padding: var(--space-2) var(--space-4);
+}
+
+/* Fit mode: at 1280×900 and larger (100% zoom on 1920×1080), the Run_Summary, screenshot,
+   panel, controls and timeline fit in the viewport (Req 10.24). The right column is absolutely
+   filled, so it spans the screenshot and controls rows without adding height to them, and the
+   transcript takes whatever height is left and scrolls inside itself. */
+@media (min-width: 1280px) and (min-height: 900px) {
+  .cam {
+    /* 40rem: the Listener's voice toggle and note make its controls row about 120 px taller
+       than Bebe's, so the screenshot gives up that height to keep the timeline in view. */
+    --cam-shot-max: calc(100vh - 40rem);
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 26rem);
+    grid-template-areas:
+      'summary  summary'
+      'shot     panel'
+      'controls panel'
+      'timeline timeline'
+      'rest     rest';
+    gap: var(--space-4) var(--space-5);
+  }
+
+  .right {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .rightInner {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The panel section, and the thought bubble inside it, pass the free height to the transcript. */
+  .spoken,
+  .thought,
+  .bubble {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .panelHeading,
+  .waveform,
+  .callouts {
+    flex: none;
+  }
+
+  .transcript {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .callouts {
+    margin-bottom: 0;
+  }
+
+  /* Compact Run_Summary: same elements in the same order, a 64 px ghost, the h1 and
+     description in the first column and the mission list in the second. */
+  .summary {
+    margin-bottom: 0;
+    align-items: center;
+  }
+
+  .summary > svg {
+    flex: none;
+    width: calc(64px * 130 / 160);
+    height: 64px;
+  }
+
+  .headerText {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 0 var(--space-5);
+    align-items: center;
+  }
+
+  .headerText > h1 {
+    grid-column: 1;
+    margin: 0;
+  }
+
+  .ghostDescription {
+    grid-column: 1;
+    margin: 0;
+  }
+
+  .mission {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-1) var(--space-5);
+  }
+
+  .mission > div {
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0 var(--space-3);
+  }
+
+  .stepInfo {
+    margin-top: 0;
+  }
+
+  .controls,
+  .voice {
+    margin-bottom: 0;
+  }
+
+  .timelineWrap {
+    margin-top: 0;
+  }
+
+  .timelineWrap .sectionHeading {
+    margin-top: 0;
+  }
 }

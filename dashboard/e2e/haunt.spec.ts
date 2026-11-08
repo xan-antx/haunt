@@ -38,7 +38,10 @@ test.describe('deep links', () => {
     await open(page, `#/run/${L}/step/9`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ghost Cam: The Listener');
     await expect(page.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false');
-    await expect(page.locator('[aria-current="step"]')).toHaveAccessibleName('Step 9, finding: Keyboard trap');
+    // Scoped to the Timeline: the current Transcript line also has aria-current="step" (Req 10.18).
+    const timeline = page.getByRole('region', { name: 'Timeline' });
+    await expect(timeline.locator('[aria-current="step"]')).toHaveCount(1);
+    await expect(timeline.locator('[aria-current="step"]')).toHaveAccessibleName('Step 9, finding: Keyboard trap');
     await page.waitForTimeout(1800);
     expect(page.url()).toBe(`${ORIGIN}/#/run/${L}/step/9`);
   });

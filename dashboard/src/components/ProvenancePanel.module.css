@@ -12,13 +12,13 @@
 
 .list > div {
   display: grid;
-  grid-template-columns: minmax(7rem, max-content) 1fr;
+  grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr);
   gap: var(--space-1) var(--space-4);
 }
 
 @media (max-width: 36rem) {
   .list > div {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -38,13 +38,32 @@
   gap: var(--space-2) var(--space-3);
 }
 
-.code {
-  display: block;
-  flex: 1 1 18rem;
+/* The command scrolls sideways inside this box, so the page never does (Req 5.7). */
+/* The box's basis is the command's own width, so when the command and the copy button do not
+   both fit on one line the button wraps below and the box gets the whole line. On wide screens
+   the command then fits without scrolling (Req 5.11); on narrow ones it shrinks and scrolls. */
+.commandBox {
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: var(--space-2) var(--space-3);
   background: var(--bg);
   border-radius: var(--radius);
-  white-space: pre-wrap;
-  word-break: break-all;
+}
+
+/* Focus ring from the steering rules: 3 px --spectral outline, 2 px offset, on --surface. */
+.commandBox:focus-visible {
+  outline: var(--focus-width) solid var(--spectral);
+  outline-offset: var(--focus-offset);
+}
+
+/* Lines break only at newlines in the command, never mid-word (Req 5.6). */
+.code {
+  display: block;
+  width: max-content;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
 }

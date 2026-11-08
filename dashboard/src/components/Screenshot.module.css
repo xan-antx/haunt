@@ -12,13 +12,18 @@
   overflow: hidden;
 }
 
+/* --cam-shot-max is set by the Ghost Cam in fit mode only; without it there is no height cap.
+   The cap goes on the frame (16:10 Placeholder) or the image (natural ratio), so the frame is
+   always exactly the size of what is drawn and FocusGlow's width-based scale stays aligned. */
 .placeholderFrame {
-  width: 100%;
+  width: min(100%, calc(var(--cam-shot-max, 100vw) * 1.6));
 }
 
 .image {
   display: block;
   max-width: 100%;
+  max-height: var(--cam-shot-max, none);
+  width: auto;
   height: auto;
 }
 

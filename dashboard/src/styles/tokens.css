@@ -18,6 +18,12 @@
   --placeholder: #55504a;
   --spoken-bg: #000000;
   --spoken-text: #f4f8ff;
+  /* Transcript fade levels (Ghost Cam). Solid colors, never opacity, so each ratio is exact. */
+  --spoken-fade-1: #c8ccd4;
+  --spoken-fade-2: #a0a4ab;
+  --spoken-fade-3: #85898f;
+  --thought-fade-1: #cbc5bc;
+  --thought-fade-3: #aca69d;
   --ghost-listener: #8fc8ff;
   --ghost-phantom: #8fe0bf;
   --ghost-bebe: #d4b6ff;

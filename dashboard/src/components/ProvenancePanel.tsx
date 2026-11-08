@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import type { Run } from '../data/types';
+import { scrollKeys, useScrollOverflow } from '../hooks/useScrollOverflow';
 import { formatLocalDateTime } from '../model/format';
 import { reproduceCommand } from '../model/reproduce';
 import { useAnnounce } from './layout/LiveRegion';
@@ -17,20 +18,35 @@ function selectText(element: HTMLElement | null): void {
   selection.addRange(range);
 }
 
-export function ProvenancePanel({ run, heading = 'Where this run came from' }: { run: Run; heading?: string }) {
+export function ProvenancePanel({
+  run,
+  heading = 'Where this run came from',
+  commandLabel = 'Reproduce command',
+}: {
+  run: Run;
+  heading?: string;
+  /** Accessible name of the command box. Must be unique when a screen shows more than one panel. */
+  commandLabel?: string;
+}) {
   const announce = useAnnounce();
   const commandRef = useRef<HTMLElement>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const overflowing = useScrollOverflow(box, 'x');
   const command = reproduceCommand(run);
 
+  // Copies `command` from this render, never the DOM text, so layout can't add or remove characters.
+  // The button is never disabled: on failure the text is selected so it can be copied by hand.
   const copy = async () => {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('no clipboard');
       await navigator.clipboard.writeText(command);
-      announce('Command copied');
     } catch {
       selectText(commandRef.current);
       announce("Couldn't copy. Select the command and copy it yourself.");
+      return;
     }
+    // Only reached once writeText has resolved.
+    announce('Command copied');
   };
 
   return (
@@ -58,9 +74,19 @@ export function ProvenancePanel({ run, heading = 'Where this run came from' }: {
         <div>
           <dt>Reproduce</dt>
           <dd className={styles.command}>
-            <code ref={commandRef} className={styles.code}>
-              {command}
-            </code>
+            {/* Scrolls sideways so the command never breaks mid-word; focusable only while it can scroll. */}
+            <div
+              ref={box}
+              className={styles.commandBox}
+              role="region"
+              aria-label={commandLabel}
+              tabIndex={overflowing ? 0 : undefined}
+              onKeyDown={scrollKeys('x')}
+            >
+              <code ref={commandRef} className={styles.code}>
+                {command}
+              </code>
+            </div>
             <button type="button" className="button" onClick={() => void copy()}>
               Copy command
             </button>

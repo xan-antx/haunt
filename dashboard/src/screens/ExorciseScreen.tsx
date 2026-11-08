@@ -71,7 +71,11 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
         {run.mission.goal} · {plural(run.findings.length, 'finding')} ·{' '}
         <Link to={stepPath(run.key, 1)}>Watch in the Ghost Cam</Link>
       </p>
-      <ProvenancePanel run={run} heading={`${heading}: where this run came from`} />
+      <ProvenancePanel
+        run={run}
+        heading={`${heading}: where this run came from`}
+        commandLabel={`Reproduce command, ${heading}`}
+      />
     </section>
   );
 }

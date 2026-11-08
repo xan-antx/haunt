@@ -2,15 +2,23 @@
 
 import { Link } from 'react-router-dom';
 import { CandleButton } from '../components/CandleButton';
-import { GhostCharacter } from '../components/ghosts/Ghosts';
+import { GhostBadge, GhostCharacter } from '../components/ghosts/Ghosts';
+import { HauntLogo } from '../components/HauntLogo';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ResultBadge } from '../components/ResultBadge';
 import { runFilePath } from '../components/RunErrorPanel';
 import { useAllRuns } from '../data/hooks';
-import type { InvalidRun } from '../data/types';
+import type { InvalidRun, Run } from '../data/types';
 import { formatDate, plural } from '../model/format';
-import { GHOSTS, resultSentence } from '../model/ghosts';
-import { groupHaunts, startHereTarget, startHereUnavailableReason, type Haunt } from '../model/haunts';
+import { GHOST_ORDER, GHOSTS, resultSentence } from '../model/ghosts';
+import { outcomeLine } from '../model/outcome';
+import {
+  groupHaunts,
+  recentRuns,
+  startHereTarget,
+  startHereUnavailableReason,
+  type Haunt,
+} from '../model/haunts';
 import { mapPath, restlessPath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './HomeScreen.module.css';
@@ -19,9 +27,9 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
   return (
     <li className={styles.card}>
       <article aria-labelledby={`haunt-${haunt.siteKey}`}>
-        <h3 id={`haunt-${haunt.siteKey}`} className={styles.cardTitle}>
+        <h2 id={`haunt-${haunt.siteKey}`} className={styles.cardTitle}>
           {haunt.siteName}
-        </h3>
+        </h2>
         <p className={styles.meta}>
           <span>
             Last haunted <time dateTime={haunt.latestStartedAt}>{formatDate(haunt.latestStartedAt)}</time>
@@ -39,10 +47,10 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
                 <GhostCharacter ghost={summary.ghost} size={72} floating />
                 <div className={styles.ghostText}>
                   <p className={styles.ghostName}>{ghost.name}</p>
-                  <p className={styles.ghostResult}>
-                    <span>{resultSentence(summary.ghost, latest.result)}.</span>{' '}
+                  <div className={styles.ghostResult}>
+                    <p className={styles.outcome}>{outcomeLine(latest)}</p>
                     <ResultBadge result={latest.result} />
-                  </p>
+                  </div>
                   <p>
                     <Link to={stepPath(latest.key, 1)}>Watch {ghost.name} in the Ghost Cam</Link>
                   </p>
@@ -72,6 +80,53 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
         </p>
       </article>
     </li>
+  );
+}
+
+function RecentWalks({ runs }: { runs: Run[] }) {
+  const recent = recentRuns(runs, 6);
+  return (
+    <aside aria-labelledby="recent-heading" className={styles.recent}>
+      <h2 id="recent-heading" className={styles.recentTitle}>
+        Recent ghost walks
+      </h2>
+      <ul className={styles.recentList}>
+        {recent.map((run) => {
+          const name = GHOSTS[run.ghost].name;
+          const date = formatDate(run.startedAt);
+          return (
+            <li key={run.key} className={styles.recentItem}>
+              <p className={styles.recentGhost}>
+                <GhostBadge ghost={run.ghost} />
+              </p>
+              <p className={styles.meta}>
+                <span>{run.site.name}</span>
+                <span aria-hidden="true"> · </span>
+                <time dateTime={run.startedAt}>{date}</time>
+              </p>
+              <p>{outcomeLine(run)}</p>
+              <p>
+                <Link to={stepPath(run.key, 1)}>
+                  Watch {name} in the Ghost Cam
+                  <span className="visually-hidden">
+                    {' '}
+                    ({run.site.name}, {date})
+                  </span>
+                </Link>
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+      <h3 className={styles.countsTitle}>Runs per ghost</h3>
+      <ul className={styles.counts}>
+        {GHOST_ORDER.map((ghost) => (
+          <li key={ghost}>
+            {GHOSTS[ghost].name}: {plural(runs.filter((r) => r.ghost === ghost).length, 'run')}
+          </li>
+        ))}
+      </ul>
+    </aside>
   );
 }
 
@@ -105,8 +160,9 @@ export function HomeScreen() {
   return (
     <>
       <div className={styles.hero}>
-        <ScreenHeading title="Home" className={styles.title}>
-          Haunt
+        <ScreenHeading title="Home" className={styles.logo}>
+          <HauntLogo />
+          <span>Haunt</span>
         </ScreenHeading>
         <p className={styles.tagline}>
           Three ghost users tried to get things done on our sites. Here is where they got stuck.
@@ -127,30 +183,31 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {haunts.length === 0 ? (
-        <section className="panel" aria-labelledby="empty-heading">
-          <h2 id="empty-heading">No ghosts have walked here yet</h2>
-          <p>
-            Run files go in the <code>runs/</code> folder at the top of the project. Each run is a folder with a{' '}
-            <code>run.json</code> file and its screenshots, at any depth (for example{' '}
-            <code>runs/samples/listener-gave-up/run.json</code>).
-          </p>
-          <p>
-            Then run <code>npm run dev</code> in <code>dashboard/</code> again to collect them.
-          </p>
-        </section>
-      ) : (
-        <section aria-labelledby="haunts-heading" className={styles.section}>
-          <h2 id="haunts-heading" className="visually-hidden">
-            Haunted sites
-          </h2>
-          <ul className={styles.cards}>
-            {haunts.map((haunt) => (
-              <HauntCard key={haunt.siteKey} haunt={haunt} />
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* DOM order is reading and tab order: cards, then the side panel (Req 7.13, 18.1). */}
+      <div className={styles.body}>
+        {haunts.length === 0 ? (
+          <section className="panel" aria-labelledby="empty-heading">
+            <h2 id="empty-heading">No ghosts have walked here yet</h2>
+            <p>
+              Run files go in the <code>runs/</code> folder at the top of the project. Each run is a folder with a{' '}
+              <code>run.json</code> file and its screenshots, at any depth (for example{' '}
+              <code>runs/samples/listener-gave-up/run.json</code>).
+            </p>
+            <p>
+              Then run <code>npm run dev</code> in <code>dashboard/</code> again to collect them.
+            </p>
+          </section>
+        ) : (
+          <section aria-label="Haunted sites" className={styles.sites}>
+            <ul className={styles.cards}>
+              {haunts.map((haunt) => (
+                <HauntCard key={haunt.siteKey} haunt={haunt} />
+              ))}
+            </ul>
+          </section>
+        )}
+        {runs.length > 0 && <RecentWalks runs={runs} />}
+      </div>
 
       <RestlessFiles invalid={invalid} />
     </>

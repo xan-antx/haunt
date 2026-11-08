@@ -51,7 +51,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}', 'scripts/**/*.{test,spec}.ts'],
+    include: ['**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**', 'test-results/**'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
   },
 });

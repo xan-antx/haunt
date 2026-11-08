@@ -14,6 +14,10 @@
   position: absolute;
   top: 0;
   left: 0;
+  /* The global `img, svg { max-width: 100% }` rule would clamp this layer to the header's width,
+     so the translateX(-50%) drift would leave the right side bare. The header's overflow: hidden
+     clips the extra width, so the page never scrolls sideways. Never use 100vw here. */
+  max-width: none;
   width: 200%;
   height: 100%;
 }

@@ -10,6 +10,8 @@ Test data is the two sample runs in `runs/samples/`: `listener-gave-up/run.json`
 
 The allowed `ghost`, `result` and finding `type` values are defined in `contract/run-format.md`. The dashboard uses exactly those values.
 
+Verification process: after each change, the House Builder runs `npm run build` and the unit tests (`npm test`) in `dashboard/`. The slower Playwright end-to-end tests (`npm run test:e2e`) run once at the end of a batch of changes. Tests are never weakened or deleted to make them pass.
+
 ## Glossary
 
 - **Dashboard**: The web application in `dashboard/`.
@@ -27,8 +29,16 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 - **Cold_Spot**: A step where a ghost got stuck: a step referenced by a finding, or the last step of a Run whose result is `gave_up` or `error`.
 - **Tombstone**: The Graveyard's visual card for one finding.
 - **Ghost_Cam**: The dual-view step-by-step replay of one Run.
-- **Spoken_Panel**: The Ghost_Cam's right-hand panel for The Listener, showing spoken text on black with a waveform.
-- **Thought_Panel**: The Ghost_Cam's right-hand panel for other ghosts, showing thought text.
+- **Spoken_Panel**: The Ghost_Cam's right-hand panel for The Listener, showing a Transcript of spoken text on black with a waveform.
+- **Thought_Panel**: The Ghost_Cam's right-hand panel for The Phantom and Bebe, showing a Transcript of thought text.
+- **Transcript**: The running list of lines in the Spoken_Panel or Thought_Panel: one line per step from step 1 up to and including the current step, in step order, with the current step's line last.
+- **Current_Line**: The Transcript line for the current step.
+- **Earlier_Line**: Any Transcript line other than the Current_Line.
+- **Run_Summary**: The Ghost_Cam's header showing the Run's ghost, mission goal, requirement and result.
+- **Provenance_Panel**: The panel titled "Where this run came from", showing `startedAt`, `site.commit`, `site.url` and the Reproduce_Command.
+- **Nav_Fog**: The fog band drawn behind the top navigation.
+- **Outcome_Line**: The plain-words sentence on a Home haunt card that says what happened to one ghost in its most recent Run of that Haunt.
+- **Property_Test**: A fast-check test whose `describe` name starts with `Feature: <spec name>, Property`, for any spec in `.kiro/specs/` (for example `Feature: haunt-dashboard, Property 5` or `Feature: exorcise-different-ghost-fix, Property 1`).
 - **Approximate_Voice**: Optional playback of spoken text through the browser's built-in `speechSynthesis` API.
 - **Séance_Question**: One of four fixed questions: "Why did you give up?", "Where did you get stuck?", "What did you hear?", "What would have helped?".
 - **Finding_Match_Key**: The pair (finding `type`, `page` of the finding's step) used to match findings between two Runs.
@@ -51,6 +61,10 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 5. WHEN `dashboard/dist/` is served by any static file host, THE Dashboard SHALL display all screens and Runs without any backend service.
 6. WHEN a developer runs `npm run preview`, THE Dashboard SHALL serve the built site on port 3001.
 7. THE Dashboard SHALL NOT start, call or bundle the ghost engine.
+8. WHEN a developer runs `npm run test:properties` in `dashboard/`, THE Dashboard's test runner SHALL run every Property_Test in a test file under `dashboard/` once and then exit without entering watch mode. This includes Property_Tests for every spec name, such as `haunt-dashboard` and `exorcise-different-ghost-fix`, and any Property_Test added later for a new spec without changing the command. Property_Tests in other folders, such as `demo-site/`, are out of scope for this command.
+9. WHEN a developer runs `npm run test:properties` in `dashboard/`, THE Dashboard's test runner SHALL NOT execute any test whose `describe` name does not start with `Feature: <spec name>, Property`, and SHALL NOT run the Playwright end-to-end tests. Every executed test is therefore a Property_Test.
+10. IF one or more Property_Tests fail during `npm run test:properties`, THEN THE Dashboard's test runner SHALL exit with a non-zero exit code and name each failing Property_Test in its output. If every Property_Test passes, it SHALL exit with exit code 0.
+11. IF `npm run test:properties` finds zero Property_Tests to run, THEN THE Dashboard's test runner SHALL exit with a non-zero exit code and an error indicating that no Property_Tests ran, instead of reporting success.
 
 ### Requirement 2: Collecting runs
 
@@ -109,6 +123,12 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 3. WHEN the Dashboard shows a Run, THE Dashboard SHALL show the Reproduce_Command: `git checkout <site.commit>` followed by `npx haunt run --ghost <ghost> --mission <mission.id> --url <site.url>`.
 4. THE Dashboard SHALL generate the Reproduce_Command in exactly one function, so the template can change when the engine's command line is final.
 5. WHEN the user activates the copy control next to the Reproduce_Command, THE Dashboard SHALL copy the command to the clipboard and announce "Command copied" through a polite live region.
+6. THE Provenance_Panel SHALL display the Reproduce_Command with line breaks only at newline characters in the command text, so that no word, flag, quoted value or URL is split across lines at any viewport width from 320 to 2560 CSS pixels and any zoom level from 100% to 400%.
+7. WHEN the rendered Reproduce_Command is wider than its box, THE Provenance_Panel SHALL let the command scroll horizontally inside the box, and the page SHALL have no horizontal scrolling (document width no greater than the viewport width) at any viewport width from 320 to 2560 CSS pixels and any zoom level from 100% to 400%.
+8. WHEN the Reproduce_Command box can scroll, THE Provenance_Panel SHALL include the box in the Tab order, give the box an accessible name that identifies it as the reproduce command, show the Dashboard's focus ring on the box while it has focus, and scroll the box left and right with the Left and Right arrow keys while it has focus, so that both the first and last characters of the command can be brought into view.
+9. WHEN the user copies the Reproduce_Command, THE Dashboard SHALL copy exactly the string returned by the function in criterion 4, character for character, with no line breaks, spaces or other characters added or removed, regardless of the box's width, scroll position or zoom level.
+10. IF the clipboard write fails or the browser does not allow clipboard access, THEN THE Dashboard SHALL announce through the polite live region that the command could not be copied, SHALL NOT announce "Command copied", and SHALL keep the Reproduce_Command visible and the copy control enabled so the user can retry or select the text by hand.
+11. WHILE the Reproduce_Command fits inside its box without scrolling, THE Provenance_Panel SHALL leave the box out of the Tab order, and SHALL re-check whether the box can scroll when the viewport width or zoom level changes.
 
 ### Requirement 6: Shareable URLs
 
@@ -133,7 +153,7 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 #### Acceptance Criteria
 
 1. THE Home screen SHALL show one Haunt per distinct `site.name`.
-2. WHEN showing a Haunt, THE Home screen SHALL show each ghost that visited it with that ghost's character, name and result in words (for example "Bebe made it through" or "The Listener gave up").
+2. WHEN showing a Haunt, THE Home screen SHALL show one entry per distinct `ghost` value among the Haunt's Runs, each with that ghost's character, name, a result badge and an Outcome_Line (criteria 14 to 19), where the badge and the Outcome_Line both come from that ghost's most recent Run in the Haunt, meaning the Run with the latest `startedAt`.
 3. WHEN showing a Haunt, THE Home screen SHALL show the total number of findings across its Runs and the date of its most recent Run.
 4. WHEN showing a Haunt, THE Home screen SHALL link to its Haunted Map and to each of its Runs' Ghost_Cam.
 5. THE Home screen SHALL show a "Start here" button that opens the Ghost_Cam at the step of a `focus_trap` finding in a Listener Run, choosing the most recent such Run.
@@ -141,6 +161,16 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 7. THE Home screen SHALL show a "Summon a live ghost" button that is marked unavailable with `aria-disabled="true"`, stays reachable by keyboard, does nothing when activated, and shows the visible text "Coming soon: live ghosts are not connected yet".
 8. WHEN Invalid_Runs exist, THE Home screen SHALL list them in a "Restless files" section with each file path and a link to its errors.
 9. WHEN no valid Runs exist, THE Home screen SHALL show an empty state that explains where run files go.
+10. THE Home screen SHALL show the word "Haunt" once in the hero, as the logo, with no second visible "Haunt" heading.
+11. THE Home screen SHALL have exactly one h1 whose accessible name is "Haunt", provided either by the logo itself or by a visually hidden heading, and the haunt card headings SHALL remain h2.
+12. WHILE the viewport is 1280 CSS pixels wide or wider, THE Home screen SHALL use the width to the right of the haunt cards for content, either by placing haunt cards in two or more columns or by showing a side panel with run information, so no empty column wider than one haunt card remains beside the cards.
+13. WHILE the viewport is narrower than 1280 CSS pixels, THE Home screen SHALL keep the haunt cards in reading order and meet the zoom and 320 CSS pixel rules in Requirement 18.
+14. WHEN showing an Outcome_Line for a Run whose result is `succeeded` and that has at least one step, THE Home screen SHALL show the text "Made it through in N steps", where N is the number of entries in the Run's steps array, using "step" instead of "steps" when N is 1 (for example "Made it through in 6 steps"), whatever findings the Run has.
+15. WHEN showing an Outcome_Line for a Run whose result is `gave_up` and at least one finding has a `step` equal to the `n` of the Run's last step (the step with the highest `n`), THE Home screen SHALL build the Outcome_Line from the first such finding in the Run's findings array order, using that finding type's label from the single finding-label table (Requirement 9.4) and N as the last step's `n`, as follows: for `focus_trap`, "Trapped by a " followed by the label with its first letter lowercased, then " at step N" (giving "Trapped by a keyboard trap at step 9"); for each of the other seven types, "Stuck at step N: " followed by the label exactly as written in the table (for example "Stuck at step 5: Text cut off").
+16. WHEN showing an Outcome_Line for a Run whose result is `gave_up`, that has at least one step, and that has no finding whose `step` equals the `n` of its last step, THE Home screen SHALL show the text "Gave up at step N", where N is the `n` of the Run's last step (for example "Gave up at step 4").
+17. WHEN showing an Outcome_Line for a Run whose result is `error` and that has at least one step, THE Home screen SHALL show the text "Stopped by a technical error at step N", where N is the `n` of the Run's last step (for example "Stopped by a technical error at step 3"), whatever findings the Run has.
+18. THE Home screen SHALL show each Outcome_Line as visible text that is not identical to the text of the result badge beside it and that, except under criterion 19, contains the step count or step number defined in criteria 14 to 17.
+19. IF the Run's steps array is empty, THEN THE Home screen SHALL show the Outcome_Line "No steps were recorded" for any result, in place of the text from criteria 14 to 17.
 
 ### Requirement 8: Haunted Map
 
@@ -178,8 +208,8 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 1. THE Ghost_Cam SHALL show the current step's screenshot on the left and the ghost's panel on the right, stacking vertically on narrow screens with the screenshot first.
 2. WHEN the current step has a focusBox, THE Ghost_Cam SHALL draw a glowing outline at the focusBox position, scaled from screenshot pixels to the displayed image size.
 3. IF the current step's screenshot is missing or fails to load, THEN THE Ghost_Cam SHALL show a grey Placeholder with the text "No screenshot for step <n>" at a 16:10 aspect ratio, and SHALL draw the focusBox over it scaled against a 1280 by 800 reference size.
-4. WHEN the Run's ghost is The Listener, THE Ghost_Cam SHALL show the Spoken_Panel: a black panel showing the current step's `spoken` text and a simple waveform derived from that text.
-5. WHEN the Run's ghost is not The Listener, THE Ghost_Cam SHALL show the Thought_Panel with the current step's `thought` text.
+4. WHEN the Run's ghost is The Listener, THE Ghost_Cam SHALL show the Spoken_Panel: a black panel showing a Transcript of the `spoken` text of every step from step 1 up to and including the current step, and a simple waveform derived from the Current_Line's text that is shown still, without animation, while Reduced_Motion is set (Requirement 17.2).
+5. WHEN the Run's ghost is The Phantom or Bebe, THE Ghost_Cam SHALL show the Thought_Panel with a Transcript of the `thought` text of every step from step 1 up to and including the current step.
 6. THE Ghost_Cam SHALL show the step number, page, action and wait time for the current step.
 7. THE Ghost_Cam SHALL provide Play, Pause, Step forward and Step back controls, each operable by keyboard.
 8. WHILE playing, THE Ghost_Cam SHALL advance one step every 1500 milliseconds and SHALL pause at the last step.
@@ -189,7 +219,19 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 12. WHEN the current step has a finding, THE Ghost_Cam SHALL show the finding's plain-words type, title and evidence, using result-specific copy such as "The Listener got trapped here."
 13. WHEN the current step is the last step of a `gave_up` Run, THE Ghost_Cam SHALL show "<Ghost> gave up here."
 14. WHEN the current step changes, THE Ghost_Cam SHALL announce the step number and the spoken or thought text through a polite live region, and SHALL NOT move keyboard focus.
-15. THE Ghost_Cam SHALL show the Run's mission goal, requirement, result and provenance (Requirement 5).
+15. THE Ghost_Cam SHALL show the Run_Summary (mission goal, requirement and result) and the Provenance_Panel (Requirement 5).
+16. THE Transcript SHALL contain exactly one line per step from step 1 to the current step, in ascending step order, with the Current_Line last, and SHALL keep repeated texts (for example several "Button" lines) as separate lines.
+17. THE Transcript SHALL show each line's step number in text next to the line.
+18. THE Transcript SHALL highlight the Current_Line with a visible marker or outline in addition to any color change, and SHALL mark the Current_Line as current for assistive technology.
+19. THE Transcript SHALL show Earlier_Lines progressively dimmer the further they are from the Current_Line, so that no line has higher contrast than any line after it and the Current_Line has the highest contrast, while every Transcript line keeps at least 4.5:1 contrast against the panel background (Requirement 18.5).
+20. WHEN the current step changes, THE Transcript SHALL show the Current_Line fully visible at the bottom of the panel's visible area, scrolling inside the panel when the lines exceed its height, without scrolling the page and without moving keyboard focus.
+21. WHEN the Transcript's lines exceed the panel height, THE Transcript SHALL be reachable with the Tab key, have an accessible name that identifies it as the spoken or thought transcript, and scroll with the Up Arrow and Down Arrow keys so every earlier line can be brought into view.
+22. WHEN the user moves to a different step by Step back, Step forward, a timeline mark or playback, THE Transcript SHALL show only the lines from step 1 up to and including the new current step.
+23. WHEN the current step changes, THE Ghost_Cam SHALL keep the live-region announcement of criterion 14 limited to the new step, without re-announcing Earlier_Lines.
+24. WHILE the viewport is 1920 by 1080 CSS pixels at 100% zoom, THE Ghost_Cam SHALL fit the Run_Summary, the screenshot, the Spoken_Panel or Thought_Panel, the step controls and the timeline within the viewport height, without vertical page scrolling to reach any of them, for both sample Runs.
+25. THE Ghost_Cam SHALL place the Provenance_Panel below the timeline in both visual order and reading order.
+26. WHILE the viewport is narrower than 900 CSS pixels or zoomed to 200%, THE Ghost_Cam SHALL allow vertical page scrolling, keep the order Run_Summary, screenshot, panel, step controls, timeline, Provenance_Panel, and SHALL NOT require horizontal page scrolling at widths down to 320 CSS pixels (Requirement 18).
+27. IF a step's `spoken` text (for The Listener) or `thought` text (for The Phantom or Bebe) is missing or empty, THEN THE Transcript SHALL still show a line for that step, with its step number, whose text states that nothing was spoken or thought at that step, and that line SHALL count toward the one-line-per-step rule of criterion 16.
 
 ### Requirement 11: Approximate voice
 
@@ -274,6 +316,10 @@ The allowed `ghost`, `result` and finding `type` values are defined in `contract
 4. THE Dashboard SHALL give each decorative spooky element a documented meaning, listed in the design document.
 5. THE Dashboard SHALL follow `.kiro/steering/dashboard-design.md`, which holds the design rules (colors and contrast ratios, fonts, ghost characters, spooky element meanings, motion limits). Where it conflicts with this document, the steering file takes precedence.
 6. THE Dashboard copy SHALL be playful but clear, stating plainly what happened (for example "Bebe gave up here.").
+7. THE Nav_Fog SHALL span the full viewport width on every Dashboard screen, with its left edge at the left edge of the viewport and its right edge at the right edge of the viewport (excluding any vertical scrollbar), each within 1 CSS pixel, at viewport widths of 320, 768, 1280, 1920 and 2560 CSS pixels and at 200% browser zoom.
+8. THE Nav_Fog SHALL span the full viewport width without causing horizontal page scrolling: at each viewport width and zoom level listed in criterion 7, the page's scrollable width SHALL NOT exceed the viewport width (Requirement 18.8).
+9. WHEN the viewport width or browser zoom level changes, THE Nav_Fog SHALL meet criteria 7 and 8 at the new size without a page reload.
+10. THE Nav_Fog SHALL NOT block pointer or keyboard access to any navigation item, and every navigation item's text SHALL keep at least 4.5:1 contrast against the Nav_Fog behind it (Requirement 18.5).
 
 ### Requirement 17: Motion
 

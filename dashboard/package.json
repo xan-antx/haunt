@@ -12,7 +12,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest --run",
-    "test:properties": "vitest --run -t \"Feature: haunt-dashboard, Property\"",
+    "test:properties": "tsx scripts/test-properties.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
