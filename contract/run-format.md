@@ -11,7 +11,12 @@ The version of this JSON format. Currently `1`. Allows the dashboard to handle f
 A unique identifier for this test run, typically formatted as `YYYY-MM-DD-ghost-mission`. Example: `2026-11-20-listener-pay-bill`
 
 **ghost** (string)  
-The name of the accessibility persona that performed this test. Example: `listener` for a screen reader user.
+The accessibility persona that performed this test. Exactly one of:
+- `listener` - The Listener, who uses only a screen reader and the keyboard
+- `phantom` - The Phantom, who browses on slow 3G with an old phone
+- `bebe` - Bebe, who uses 200% zoom, reads Punjabi or Hindi, and is wary of tricky wording
+
+Any other value is invalid.
 
 **mission** (object)  
 Describes what the ghost was trying to accomplish:
@@ -30,10 +35,12 @@ Information about the website being tested:
 ISO 8601 timestamp when the test run began. Example: `2026-11-20T00:00:05Z`
 
 **result** (string)  
-The outcome of the test run. Possible values:
+The outcome of the test run. Exactly one of:
+- `succeeded` - The mission was completed successfully
 - `gave_up` - The ghost could not complete the mission
-- `success` - The mission was completed successfully
 - `error` - A technical error prevented completion
+
+Any other value is invalid.
 
 ## Steps Array
 
@@ -72,7 +79,17 @@ How many milliseconds the ghost waited after this action before continuing.
 Accessibility issues discovered during the test. Each finding contains:
 
 **type** (string)  
-Category of the issue. Examples: `unlabeled_button`, `missing_alt`, `keyboard_trap`, `poor_contrast`
+Category of the issue. Exactly one of:
+- `unlabeled_button` - A button with no accessible name
+- `focus_trap` - Keyboard focus cannot leave an area
+- `unannounced_error` - An error message is shown but not announced to a screen reader
+- `slow_wait` - The ghost had to wait too long for the page to respond
+- `misclick` - The ghost activated the wrong element, for example after a layout shift
+- `cut_off_text` - Text is clipped and cannot be read, for example at 200% zoom
+- `untranslated` - Text is not available in the user's language
+- `dark_pattern` - Wording or design that pushes the user into a choice they didn't intend
+
+Any other value is invalid.
 
 **step** (number)  
 Which step number revealed this issue.
