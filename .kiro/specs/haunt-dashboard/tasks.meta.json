@@ -15,6 +15,10 @@
     "23.4 Write property test for transcript fading in `src/__tests__/transcript.properties.test.ts`": {
       "status": "passed",
       "lastRunTimestamp": 1794129597061
+    },
+    "30.2 Write property test for the Stuck_Notice in `src/__tests__/stuckNotice.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794139574099
     }
   },
   "executionHistory": {
@@ -745,6 +749,340 @@
         "executionId": "2e486a3e-024d-4351-adc0-c7e454f7fced",
         "chatSessionId": "sess_3097aa22-f771-4d23-89f3-b2095f8ad621",
         "timestamp": 1794131886069
+      }
+    ],
+    "30.1 Write `src/model/stuckNotice.ts` with `stuckNotice(run, step)`": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380245
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139400347
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139506213
+      }
+    ],
+    "30.2 Write property test for the Stuck_Notice in `src/__tests__/stuckNotice.properties.test.ts`": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380331
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139513200
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139677094
+      }
+    ],
+    "30.3 Write unit tests for `stuckNotice` with the samples": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380437
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139513313
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139676975
+      }
+    ],
+    "30.4 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380532
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139995524
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140071565
+      }
+    ],
+    "31.1 Reorder `src/screens/GhostCamScreen.tsx` and use one Stuck_Notice": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380590
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139513944
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139677914
+      }
+    ],
+    "31.2 Make the Run_Summary two lines": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380657
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139685819
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139810174
+      }
+    ],
+    "31.3 Make the Provenance_Panel a disclosure on the Ghost Cam": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380723
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139399526
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139506323
+      }
+    ],
+    "31.4 Rewrite the fit and stacked CSS in `GhostCam.module.css`, `Screenshot.module.css` and the new notice and summary styles": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380795
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139816531
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139904167
+      }
+    ],
+    "31.5 Write unit tests for the new Ghost Cam structure": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380868
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139912038
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139994833
+      }
+    ],
+    "31.6 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380928
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140078883
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140126783
+      }
+    ],
+    "32.1 Make the Tagline the h1 and keep the logo only in the Top_Navigation": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139380993
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139400720
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139506546
+      }
+    ],
+    "32.2 Build `src/components/HeroGhosts.tsx` and use it in the Hero": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381074
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139514306
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139678400
+      }
+    ],
+    "32.3 Add the hero float to `src/styles/motion.css`": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381151
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139685941
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139810589
+      }
+    ],
+    "32.4 Update and add unit tests for Home": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381225
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139816831
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139904254
+      }
+    ],
+    "32.5 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381329
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140133609
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140180848
+      }
+    ],
+    "33.1 Rewrite `e2e/ghostcam-layout.spec.ts` for the new layout": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381419
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140186379
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140319515
+      }
+    ],
+    "33.2 Update `e2e/transcript.spec.ts` and `e2e/home.spec.ts`": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381485
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140187070
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140320198
+      }
+    ],
+    "34. Final end-to-end run": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794139381565
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140326184
+      },
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140656226
+      }
+    ],
+    "30. Stuck_Notice model": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140071669
+      }
+    ],
+    "31. Ghost Cam one-screen layout": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140126875
+      }
+    ],
+    "32. Home hero": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140180951
+      }
+    ],
+    "33. Update the Playwright specs (write only, do not run yet)": [
+      {
+        "executionId": "9c7d7f89-5266-4c1c-a64f-cb6f1a852a85",
+        "chatSessionId": "sess_98a7b0dd-867a-43cf-85ea-eecc84a9daf3",
+        "timestamp": 1794140320282
       }
     ]
   }

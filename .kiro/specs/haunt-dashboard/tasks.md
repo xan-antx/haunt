@@ -316,31 +316,116 @@ These tasks implement the amendment in the design (Req 1.8–1.11, 5.6–5.11, 7
     - Never weaken or delete tests; if the fit test fails, tune `--cam-shot-max` rather than shrinking text
     - _Requirements: 5.6–5.11, 7.10–7.12, 10.16–10.26, 16.7–16.10_
 
+## Second amendment tasks
+
+These tasks implement the second design amendment: the Ghost Cam one-screen layout (Req 10.12, 10.13, 10.15, 10.24–10.34) and the Home hero (Req 7.10–7.12, 7.20–7.25). They change behaviour that tasks 24 and 26.4 delivered under the earlier design (fit at 1920×1080 only, logo as the h1). Those tasks stay checked as history. Where a test written for the earlier requirement now contradicts the current requirement (for example "exactly one h1 named Haunt"), the test is rewritten to assert the current requirement, with the same or stricter checks. No test is weakened or deleted to make it pass. Tasks 30 to 32 each end with `npm run build` and `npm test` in `dashboard/`. Playwright runs only in task 34.
+
+- [x] 30. Stuck_Notice model
+  - [x] 30.1 Write `src/model/stuckNotice.ts` with `stuckNotice(run, step)`
+    - Returns `StuckNotice { lines: string[]; fullText: string }` or `null`; follow the design's table: no findings and not the last step of a `gave_up` run gives `null`
+    - Line 1: "{Ghost} gave up here." (give-up only); "{lead}." (finding only); "{lead} and gave up here." (both). `{lead}` is "The Listener got trapped here" for a Listener `focus_trap` first finding, otherwise "{Ghost} hit a problem here"
+    - Line 2 (findings only): the first finding's label from `FINDING_LABELS` and its title, plus " (+N more at this step)" when there is more than one finding; line 3: the first finding's evidence; never more than 3 lines
+    - "Last step" means the highest `n` in the run
+    - _Requirements: 10.12, 10.13, 10.30, 10.31_
+  - [x] 30.2 Write property test for the Stuck_Notice in `src/__tests__/stuckNotice.properties.test.ts`
+    - **Property 13: One merged Stuck_Notice per step**
+    - Top-level `describe('Feature: haunt-dashboard, Property 13: …')`, at least 100 runs, independent oracle written from the requirement text; the generator puts several findings on one step, includes findings at non-last steps, all three results and all eight finding types
+    - **Validates: Requirements 10.12, 10.13, 10.30, 10.31**
+  - [x] 30.3 Write unit tests for `stuckNotice` with the samples
+    - Listener step 9 gives "The Listener got trapped here and gave up here."; Listener step 7 gives "The Listener hit a problem here."; Bebe step 3 gives "Bebe hit a problem here."; Listener step 1 gives `null`; a three-finding step gives "(+2 more at this step)"
+    - _Requirements: 10.12, 10.13, 10.30, 10.31_
+  - [x] 30.4 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)
+    - _Requirements: 10.12, 10.13, 10.30, 10.31_
+
+- [x] 31. Ghost Cam one-screen layout
+  - [x] 31.1 Reorder `src/screens/GhostCamScreen.tsx` and use one Stuck_Notice
+    - Remove the separate finding callout and "gave up here" callout; render a single `StuckNotice` component fed by `stuckNotice(run, step)` in a full-width slot under the screenshot and panel row. The slot element is always rendered with a fixed height of three lines (`4.5rem`), empty when the model returns `null`, so it never moves other elements. Each line is clamped to one line with an ellipsis; the full text is in the DOM and in `title`
+    - DOM and reading order: Run_Summary, screenshot, panel (Transcript, plus waveform for The Listener), Stuck_Notice slot, Control_Row, Timeline, run-file notes, Provenance_Panel
+    - Control_Row is one element directly after the notice slot containing step info (step, page, action, wait time), Play/Pause, Step back, Step forward and, for The Listener, the "Read aloud (approximation)" toggle with its note; the Timeline follows it directly
+    - _Requirements: 10.1, 10.12, 10.13, 10.25, 10.26, 10.30, 10.31, 10.32, 10.33, 18.1_
+  - [x] 31.2 Make the Run_Summary two lines
+    - Row 1 is the `h1`: ghost name and mission goal. Row 2 is a `<p>`: "Requirement: {requirement}" followed by the result badge and text, with the badge kept outside the ellipsised part
+    - Each row uses `white-space: nowrap; overflow: hidden; text-overflow: ellipsis` in fit mode and has a `title` with its full text; full text stays in the DOM. The ghost description and site name are shown in stacked mode only
+    - _Requirements: 10.15, 10.29, 18.4_
+  - [x] 31.3 Make the Provenance_Panel a disclosure on the Ghost Cam
+    - Add a `collapsible` prop to `src/components/ProvenancePanel.tsx`: the `h2` "Where this run came from" holds a button with `aria-expanded` and `aria-controls`, and the body has `hidden` while collapsed. State starts collapsed and is keyed on the run key. Exorcise does not pass the prop, so its panels stay open
+    - Collapse the "Notes about this run file" disclosure by default as well
+    - Keep the Reproduce_Command box behaviour from task 27 (focusable only when overflowing, re-checked when the panel opens)
+    - _Requirements: 10.15, 10.25, 5.6, 5.8, 5.11_
+  - [x] 31.4 Rewrite the fit and stacked CSS in `GhostCam.module.css`, `Screenshot.module.css` and the new notice and summary styles
+    - Fit mode under `@media (min-width: 1280px) and (min-height: 800px)`: grid areas `summary / shot panel / notice / controls / timeline / notes / prov`, `--cam-shot-max: calc(100vh - 31rem)`; the stage and the right column both get `height: var(--cam-shot-max)`, the image shrinks inside the stage with `max-width` and `max-height`, the right column is absolutely filled and the Transcript_Viewport takes the remaining height (`flex: 1 1 0; min-height: 6rem`), so no height depends on the step, the line count or the Stuck_Notice
+    - Control_Row `flex-wrap: nowrap` in fit mode; timeline heading visually hidden in fit mode
+    - Stacked mode (under 1280 px wide or under 800 px tall, including 200% zoom): the 3fr/2fr stage between 900 and 1279 px, one column under 900 px, Control_Row wraps, `.transcript { height: clamp(10rem, 40vh, 18rem) }`, the Stuck_Notice slot keeps three lines of `min-height`, and only the screenshot area scrolls sideways
+    - Keep the FocusGlow scaling unchanged
+    - _Requirements: 10.1, 10.2, 10.3, 10.24, 10.26, 10.28, 10.31, 10.33, 10.34, 18.8_
+  - [x] 31.5 Write unit tests for the new Ghost Cam structure
+    - DOM order via `compareDocumentPosition` for both samples: Run_Summary, screenshot, panel, Stuck_Notice slot, Control_Row, Timeline, Provenance_Panel
+    - At most one Stuck_Notice element at any step; the slot exists at steps with no notice; Listener step 9 shows one notice with both phrases
+    - Run_Summary rows each have a `title` equal to their full text; the Provenance_Panel toggle is `aria-expanded="false"` on first render, the body is `hidden`, the Reproduce_Command is not focusable while collapsed, activating the toggle expands it, and opening another run collapses it again; Exorcise renders its panels open
+    - Control_Row contains the Controls and, for The Listener only, the Read aloud toggle; axe passes on both samples
+    - _Requirements: 10.15, 10.25, 10.29, 10.30, 10.31, 10.32, 10.33_
+  - [x] 31.6 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)
+    - _Requirements: 10.1, 10.12–10.15, 10.24–10.34_
+
+- [x] 32. Home hero
+  - [x] 32.1 Make the Tagline the h1 and keep the logo only in the Top_Navigation
+    - In `src/screens/HomeScreen.tsx` the Hero h1 reads "Haunt your app before your users do." and contains no `HauntLogo`; remove the logo and the standalone "Haunt" text from the Hero
+    - `HauntLogo` is rendered only inside the header brand link in `Layout`; give its root `data-haunt-logo` so tests can find it. Haunt card titles stay h2 and the section keeps `aria-label="Haunted sites"`
+    - _Requirements: 7.10, 7.11, 7.20, 18.7_
+  - [x] 32.2 Build `src/components/HeroGhosts.tsx` and use it in the Hero
+    - A `<ul>` of three `<li>` in the order The Listener, The Phantom, Bebe; each has the ghost's SVG character (`aria-hidden="true"`), the ghost's name as visible text in a `<p>`, and the one-sentence respectful description from `model/ghosts.ts` (screen reader's view and keyboard; slow 3G and an old phone; 200% zoom, Punjabi or Hindi, wary of tricky wording)
+    - DOM order inside the Hero: h1, short intro, `HeroGhosts`. Set `data-float="hero"` and `--float-delay` of 0 s, 1.5 s and 3 s
+    - Hero layout CSS: grid with `minmax(0, 1.2fr) minmax(0, 1fr)` columns from 900 px so the ghosts sit on the right; below 900 px one column with the ghosts under the h1; the list wraps (`flex: 1 1 8rem; min-width: 0`) so there is no horizontal scrolling at 320 px or 200% zoom
+    - _Requirements: 7.20, 7.21, 7.22, 7.25, 15.2, 15.4, 18.8_
+  - [x] 32.3 Add the hero float to `src/styles/motion.css`
+    - Inside `@media (prefers-reduced-motion: no-preference)` only: `haunt-hero-float` moves `translateY(0)` to `translateY(-8px)` over 6 s, applied to `[data-float='hero']` with `animation-delay: var(--float-delay, 0s)`. Outside that query nothing animates, so the Hero_Ghosts are still under Reduced_Motion
+    - _Requirements: 7.23, 7.24, 17.1, 17.2, 17.3_
+  - [x] 32.4 Update and add unit tests for Home
+    - Rewrite the earlier assertions that expect an h1 named "Haunt" so they assert the current requirement: exactly one h1 with the text "Haunt your app before your users do."; the Hero has no `[data-haunt-logo]` and no heading whose text is only "Haunt"; the header brand link has the logo, and it appears nowhere else on the page
+    - `HeroGhosts` renders three items in order with visible names and `aria-hidden` SVGs, after the h1 in DOM order; card titles are h2; Outcome_Lines and the side panel checks from task 26.6 still pass; axe passes
+    - A CSS source test that the float keyframes exist only inside a `prefers-reduced-motion: no-preference` block and that the travel is at most 12 px
+    - _Requirements: 7.10, 7.11, 7.20, 7.21, 7.22, 7.23, 7.24_
+  - [x] 32.5 Run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)
+    - _Requirements: 7.10–7.12, 7.20–7.25_
+
+- [x] 33. Update the Playwright specs (write only, do not run yet)
+  - [x] 33.1 Rewrite `e2e/ghostcam-layout.spec.ts` for the new layout
+    - Run at 1536×864, 1440×900 and 1920×1080, 100% zoom, for both samples and at every step of each: `documentElement.scrollHeight ≤ innerHeight`; Run_Summary, screenshot or Placeholder, panel, Stuck_Notice slot, Control_Row, timeline, collapsed Provenance_Panel and footer all have `bottom ≤ innerHeight` with `scrollY` 0; the Provenance_Panel is collapsed on load and sits below the timeline
+    - Layout stability: the boxes of the screenshot stage, Transcript_Viewport, Stuck_Notice slot, Control_Row and timeline are identical within 1 px at step 1, a finding step and the last step of the Listener sample
+    - Control_Row is under the panels and the timeline under the Control_Row; for The Listener the Read aloud toggle shares a row with the Controls; Run_Summary rows are one line each
+    - Stacked checks at 320 px, 899 px and 200% zoom (960×540): vertical order per Req 10.26, `scrollWidth ≤ clientWidth`, Transcript_Viewport height identical at every step
+    - Keep the existing transcript, order and 320 px checks; do not remove any assertion
+    - _Requirements: 10.24, 10.25, 10.26, 10.28, 10.29, 10.31, 10.32, 10.33, 10.34_
+  - [x] 33.2 Update `e2e/transcript.spec.ts` and `e2e/home.spec.ts`
+    - Transcript: add a long fixture run (about 30 steps derived from the Listener sample) at 1536×864 where the scroller overflows, is focusable and ArrowUp brings an earlier line into view; the Current_Line stays fully visible and `scrollY` does not change
+    - Home: replace the "h1 named Haunt" check with the Tagline h1 check; the logo mark appears once, inside the `header`, not in the Hero; at 900 px and wider the three Hero_Ghosts sit to the right of the h1 with names visible, at 899 px below it, `scrollWidth ≤ clientWidth` at 320 px and 200% zoom; with `reducedMotion: 'no-preference'` each Hero_Ghost has a running animation and its top moves by at most 12 px over one cycle; with `reducedMotion: 'reduce'` none animates and positions do not change over 2 seconds; keep the 1280 and 1920 px side panel checks
+    - _Requirements: 7.10, 7.11, 7.20–7.25, 10.20, 10.21_
+
+- [x] 34. Final end-to-end run
+  - Confirm nothing is listening on port 3001 (check `list_processes` for a running `npm run dev` or `npm run preview` and stop it, and check that port 3001 is free), because the Playwright config starts its own server on that port and `strictPort` would fail otherwise
+  - Run `npm run build` in dashboard/, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; if the fit test fails, tune `--cam-shot-max` or the Stuck_Notice slot height rather than shrinking text. Never weaken or delete tests
+  - _Requirements: 5.6–5.11, 7.10–7.12, 7.20–7.25, 10.12–10.34, 16.7–16.10_
+
 ## Notes
 
-- Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2) are required.
+- Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2) are required.
 - Every Property_Test describe must be top level and start with `Feature: haunt-dashboard, Property N`, so the pattern in task 28 finds it.
-- Playwright runs only in task 29.
+- Playwright ran in task 29 for the first amendment. For the second amendment it runs only once, in task 34. Task 33 only writes the specs.
+- Tasks 24 and 26.4 are kept as history; tasks 31 and 32 supersede their layout and h1 behaviour.
 
 ## Task Dependency Graph
 
 ```json
 {
   "waves": [
-    { "id": 0, "tasks": ["23.1", "23.2", "23.5", "25.1", "26.1", "26.3", "28.1"] },
-    { "id": 1, "tasks": ["23.3", "23.6", "25.2", "26.2", "26.4", "27.1", "28.2", "28.3", "28.4"] },
-    { "id": 2, "tasks": ["23.4", "23.7", "24.1", "26.5", "27.2", "28.5"] },
-    { "id": 3, "tasks": ["24.2", "25.3", "26.6", "27.3"] },
-    { "id": 4, "tasks": ["24.3"] },
-    { "id": 5, "tasks": ["23.8"] },
-    { "id": 6, "tasks": ["24.4"] },
-    { "id": 7, "tasks": ["25.4"] },
-    { "id": 8, "tasks": ["26.7"] },
-    { "id": 9, "tasks": ["27.4"] },
-    { "id": 10, "tasks": ["28.6"] },
-    { "id": 11, "tasks": ["28.7"] },
-    { "id": 12, "tasks": ["29.1", "29.2", "29.3", "29.4", "29.5"] },
-    { "id": 13, "tasks": ["29.6"] }
+    { "id": 0, "tasks": ["30.1", "31.3", "32.1"] },
+    { "id": 1, "tasks": ["30.2", "30.3", "31.1", "32.2"] },
+    { "id": 2, "tasks": ["31.2", "32.3"] },
+    { "id": 3, "tasks": ["31.4", "32.4"] },
+    { "id": 4, "tasks": ["30.4", "31.5"] },
+    { "id": 5, "tasks": ["31.6"] },
+    { "id": 6, "tasks": ["32.5"] },
+    { "id": 7, "tasks": ["33.1", "33.2"] }
   ]
 }
 ```

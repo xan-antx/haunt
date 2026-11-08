@@ -34,7 +34,15 @@ Verification process: after each change, the House Builder runs `npm run build` 
 - **Transcript**: The running list of lines in the Spoken_Panel or Thought_Panel: one line per step from step 1 up to and including the current step, in step order, with the current step's line last.
 - **Current_Line**: The Transcript line for the current step.
 - **Earlier_Line**: Any Transcript line other than the Current_Line.
-- **Run_Summary**: The Ghost_Cam's header showing the Run's ghost, mission goal, requirement and result.
+- **Run_Summary**: The Ghost_Cam's header showing the Run's ghost, mission goal, requirement and result, limited to two lines of text (Requirement 10, criterion 29).
+- **Stuck_Notice**: The single compact notice on the Ghost_Cam that tells the viewer the ghost got stuck at the current step. It replaces the separate "got trapped here" and "gave up here" notices (Requirement 10, criteria 12 and 13).
+- **Control_Row**: The single row on the Ghost_Cam, directly under the screenshot and the Spoken_Panel or Thought_Panel, that holds the step information, the Play, Pause, Step forward and Step back controls, and (for The Listener) the Read aloud toggle.
+- **Transcript_Viewport**: The fixed-height, internally scrolling area of the Spoken_Panel or Thought_Panel that contains the Transcript.
+- **Ghost_Cam_Viewport_Set**: The three viewport sizes 1536 by 864, 1440 by 900 and 1920 by 1080 CSS pixels, each at 100% zoom.
+- **Hero**: The top section of the Home screen.
+- **Tagline**: The text "Haunt your app before your users do."
+- **Hero_Ghosts**: The group of The Listener, The Phantom and Bebe characters, each with its name, shown on the right side of the Hero.
+- **Top_Navigation**: The header navigation bar shown on every Dashboard screen.
 - **Provenance_Panel**: The panel titled "Where this run came from", showing `startedAt`, `site.commit`, `site.url` and the Reproduce_Command.
 - **Nav_Fog**: The fog band drawn behind the top navigation.
 - **Outcome_Line**: The plain-words sentence on a Home haunt card that says what happened to one ghost in its most recent Run of that Haunt.
@@ -161,8 +169,8 @@ Verification process: after each change, the House Builder runs `npm run build` 
 7. THE Home screen SHALL show a "Summon a live ghost" button that is marked unavailable with `aria-disabled="true"`, stays reachable by keyboard, does nothing when activated, and shows the visible text "Coming soon: live ghosts are not connected yet".
 8. WHEN Invalid_Runs exist, THE Home screen SHALL list them in a "Restless files" section with each file path and a link to its errors.
 9. WHEN no valid Runs exist, THE Home screen SHALL show an empty state that explains where run files go.
-10. THE Home screen SHALL show the word "Haunt" once in the hero, as the logo, with no second visible "Haunt" heading.
-11. THE Home screen SHALL have exactly one h1 whose accessible name is "Haunt", provided either by the logo itself or by a visually hidden heading, and the haunt card headings SHALL remain h2.
+10. THE Home screen SHALL show the Haunt logo only in the Top_Navigation, and THE Hero SHALL NOT contain the Haunt logo or any other visible heading that reads only "Haunt".
+11. THE Home screen SHALL have exactly one h1, the Hero's large heading, whose text is the Tagline, and the haunt card headings SHALL remain h2.
 12. WHILE the viewport is 1280 CSS pixels wide or wider, THE Home screen SHALL use the width to the right of the haunt cards for content, either by placing haunt cards in two or more columns or by showing a side panel with run information, so no empty column wider than one haunt card remains beside the cards.
 13. WHILE the viewport is narrower than 1280 CSS pixels, THE Home screen SHALL keep the haunt cards in reading order and meet the zoom and 320 CSS pixel rules in Requirement 18.
 14. WHEN showing an Outcome_Line for a Run whose result is `succeeded` and that has at least one step, THE Home screen SHALL show the text "Made it through in N steps", where N is the number of entries in the Run's steps array, using "step" instead of "steps" when N is 1 (for example "Made it through in 6 steps"), whatever findings the Run has.
@@ -171,6 +179,12 @@ Verification process: after each change, the House Builder runs `npm run build` 
 17. WHEN showing an Outcome_Line for a Run whose result is `error` and that has at least one step, THE Home screen SHALL show the text "Stopped by a technical error at step N", where N is the `n` of the Run's last step (for example "Stopped by a technical error at step 3"), whatever findings the Run has.
 18. THE Home screen SHALL show each Outcome_Line as visible text that is not identical to the text of the result badge beside it and that, except under criterion 19, contains the step count or step number defined in criteria 14 to 17.
 19. IF the Run's steps array is empty, THEN THE Home screen SHALL show the Outcome_Line "No steps were recorded" for any result, in place of the text from criteria 14 to 17.
+20. THE Hero SHALL show the Tagline as its large heading.
+21. THE Hero SHALL show the Hero_Ghosts on the right side of the Hero, with The Listener, The Phantom and Bebe each shown as its SVG character (Requirement 15) together with its name as visible text.
+22. THE Hero SHALL describe each ghost in Hero_Ghosts respectfully, as a person with real needs and matching the persona descriptions in the product overview: The Listener uses a screen reader's view and the keyboard, The Phantom browses on slow 3G and an old phone, and Bebe uses 200% zoom, reads Punjabi or Hindi, and is wary of tricky wording.
+23. THE Hero_Ghosts SHALL float gently with a vertical movement of no more than 12 CSS pixels.
+24. WHILE Reduced_Motion is set, THE Hero_Ghosts SHALL be shown without any animation.
+25. WHILE the viewport is narrower than 900 CSS pixels, THE Hero SHALL place the Hero_Ghosts below the Tagline in reading order, and THE Hero SHALL meet the zoom and 320 CSS pixel rules in Requirement 18.
 
 ### Requirement 8: Haunted Map
 
@@ -216,21 +230,28 @@ Verification process: after each change, the House Builder runs `npm run build` 
 9. WHEN the user presses Step forward on the last step or Step back on step 1, THE Ghost_Cam SHALL stay on the current step and SHALL mark that control unavailable.
 10. THE Ghost_Cam SHALL show a timeline with one mark per step, a distinct mark with a text label for each step with a finding, and the current step marked with `aria-current="step"`.
 11. WHEN the user activates a timeline mark, THE Ghost_Cam SHALL move to that step and pause.
-12. WHEN the current step has a finding, THE Ghost_Cam SHALL show the finding's plain-words type, title and evidence, using result-specific copy such as "The Listener got trapped here."
-13. WHEN the current step is the last step of a `gave_up` Run, THE Ghost_Cam SHALL show "<Ghost> gave up here."
+12. WHEN the current step has a finding, THE Ghost_Cam SHALL show the finding's plain-words type, title and evidence inside the Stuck_Notice, using result-specific copy such as "The Listener got trapped here."
+13. WHEN the current step is the last step of a `gave_up` Run, THE Ghost_Cam SHALL show "<Ghost> gave up here." inside the Stuck_Notice.
 14. WHEN the current step changes, THE Ghost_Cam SHALL announce the step number and the spoken or thought text through a polite live region, and SHALL NOT move keyboard focus.
-15. THE Ghost_Cam SHALL show the Run_Summary (mission goal, requirement and result) and the Provenance_Panel (Requirement 5).
+15. THE Ghost_Cam SHALL show the Run_Summary (mission goal, requirement and result) and the Provenance_Panel (Requirement 5), where the Provenance_Panel is a disclosure that is collapsed when the Ghost_Cam opens and shows its heading "Where this run came from" in one row while collapsed.
 16. THE Transcript SHALL contain exactly one line per step from step 1 to the current step, in ascending step order, with the Current_Line last, and SHALL keep repeated texts (for example several "Button" lines) as separate lines.
 17. THE Transcript SHALL show each line's step number in text next to the line.
 18. THE Transcript SHALL highlight the Current_Line with a visible marker or outline in addition to any color change, and SHALL mark the Current_Line as current for assistive technology.
 19. THE Transcript SHALL show Earlier_Lines progressively dimmer the further they are from the Current_Line, so that no line has higher contrast than any line after it and the Current_Line has the highest contrast, while every Transcript line keeps at least 4.5:1 contrast against the panel background (Requirement 18.5).
-20. WHEN the current step changes, THE Transcript SHALL show the Current_Line fully visible at the bottom of the panel's visible area, scrolling inside the panel when the lines exceed its height, without scrolling the page and without moving keyboard focus.
+20. WHEN the current step changes, THE Transcript SHALL show the Current_Line fully visible at the bottom of the Transcript_Viewport, scrolling inside the Transcript_Viewport when the lines exceed its height, without scrolling the page and without moving keyboard focus.
 21. WHEN the Transcript's lines exceed the panel height, THE Transcript SHALL be reachable with the Tab key, have an accessible name that identifies it as the spoken or thought transcript, and scroll with the Up Arrow and Down Arrow keys so every earlier line can be brought into view.
 22. WHEN the user moves to a different step by Step back, Step forward, a timeline mark or playback, THE Transcript SHALL show only the lines from step 1 up to and including the new current step.
 23. WHEN the current step changes, THE Ghost_Cam SHALL keep the live-region announcement of criterion 14 limited to the new step, without re-announcing Earlier_Lines.
-24. WHILE the viewport is 1920 by 1080 CSS pixels at 100% zoom, THE Ghost_Cam SHALL fit the Run_Summary, the screenshot, the Spoken_Panel or Thought_Panel, the step controls and the timeline within the viewport height, without vertical page scrolling to reach any of them, for both sample Runs.
+24. WHILE the viewport is any size in the Ghost_Cam_Viewport_Set, THE Ghost_Cam SHALL fit the Run_Summary, the screenshot, the Spoken_Panel or Thought_Panel, the Stuck_Notice, the Control_Row, the timeline and the collapsed Provenance_Panel within the viewport, so that the document height is no greater than the viewport height and no vertical page scrolling is needed to reach any of them, for both sample Runs and at every step of each.
 25. THE Ghost_Cam SHALL place the Provenance_Panel below the timeline in both visual order and reading order.
-26. WHILE the viewport is narrower than 900 CSS pixels or zoomed to 200%, THE Ghost_Cam SHALL allow vertical page scrolling, keep the order Run_Summary, screenshot, panel, step controls, timeline, Provenance_Panel, and SHALL NOT require horizontal page scrolling at widths down to 320 CSS pixels (Requirement 18).
+28. THE Spoken_Panel or Thought_Panel SHALL give the Transcript_Viewport a fixed height that does not change when the current step changes, when the number of Transcript lines changes, or when the Stuck_Notice appears or disappears.
+29. THE Run_Summary SHALL show the ghost, mission goal, requirement and result in no more than two lines of text at every viewport size in the Ghost_Cam_Viewport_Set, truncating a line that is too long with an ellipsis and making the full text available through an accessible name or description.
+30. THE Ghost_Cam SHALL show at most one Stuck_Notice at a time, and WHEN the current step has a finding and is also the last step of a `gave_up` Run, THE Stuck_Notice SHALL combine both messages (for example "The Listener got trapped here and gave up here.") instead of showing two notices.
+31. THE Stuck_Notice SHALL occupy no more than 3 lines of text and SHALL keep its place in the layout so that its appearing or disappearing does not move the screenshot, the panel, the Control_Row or the timeline.
+32. THE Ghost_Cam SHALL place the Control_Row directly under the screenshot and the Spoken_Panel or Thought_Panel, and the timeline directly below the Control_Row.
+33. THE Control_Row SHALL show the step number, page, action and wait time, the Play, Pause, Step forward and Step back controls, and, WHERE the Run's ghost is The Listener, the "Read aloud (approximation)" toggle (Requirement 11), all on one row while the viewport is 900 CSS pixels wide or wider.
+34. WHILE the viewport is narrower than 900 CSS pixels or zoomed to 200%, THE Control_Row SHALL be allowed to wrap onto more than one row, and Requirement 10, criterion 26 applies instead of criteria 24 and 33.
+26. WHILE the viewport is narrower than 900 CSS pixels or zoomed to 200%, THE Ghost_Cam SHALL allow vertical page scrolling, keep the order Run_Summary, screenshot, panel, Stuck_Notice, Control_Row, timeline, Provenance_Panel, and SHALL NOT require horizontal page scrolling at widths down to 320 CSS pixels (Requirement 18).
 27. IF a step's `spoken` text (for The Listener) or `thought` text (for The Phantom or Bebe) is missing or empty, THEN THE Transcript SHALL still show a line for that step, with its step number, whose text states that nothing was spoken or thought at that step, and that line SHALL count toward the one-line-per-step rule of criterion 16.
 
 ### Requirement 11: Approximate voice
@@ -328,7 +349,7 @@ Verification process: after each change, the House Builder runs `npm run build` 
 #### Acceptance Criteria
 
 1. THE Dashboard SHALL show slow drifting fog, candle flicker on primary actions, and gently floating ghost characters.
-2. WHILE Reduced_Motion is set, THE Dashboard SHALL show all ambient animations as still images, and SHALL NOT animate the waveform.
+2. WHILE Reduced_Motion is set, THE Dashboard SHALL show all ambient animations, including the Hero_Ghosts, as still images, and SHALL NOT animate the waveform.
 3. THE Dashboard SHALL NOT flash more than three times in any one-second period, and candle flicker SHALL vary brightness by no more than 10%.
 4. THE Dashboard SHALL NOT include jump scares, sudden loud sounds, or sudden full-screen visual changes.
 5. THE Dashboard SHALL NOT play any sound unless the user turns on the Approximate_Voice.

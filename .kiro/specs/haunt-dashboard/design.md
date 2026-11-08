@@ -21,7 +21,7 @@ The Haunt dashboard is a static single-page app in `dashboard/` that replays and
 4. **Every spooky element has a job.** Decoration always encodes information (see "Spooky element jobs").
 5. **The URL is the state.** Screen, run, step, question, filters and comparison pairs live in the URL.
 
-### Amendment: requirement changes (Req 1.8–1.11, 5.6–5.11, 7.2, 7.10–7.19, 10.4–10.5, 10.15–10.27, 16.7–16.10)
+### Amendment: requirement changes (Req 1.8–1.11, 5.6–5.11, 7.2, 7.10–7.25, 10.4–10.5, 10.12–10.13, 10.15–10.34, 16.7–16.10)
 
 This amendment was written after reading the current code in `dashboard/`. Each change below names what the code does today and what changes. The details are in the sections marked "Amendment" further down.
 
@@ -29,10 +29,13 @@ This amendment was written after reading the current code in `dashboard/`. Each 
 |---|---|---|---|
 | `npm run test:properties` | `vitest --run -t "Feature: haunt-dashboard, Property"`. It skips the two `Feature: exorcise-different-ghost-fix, Property N` tests in `models.properties.test.ts` and reports success when nothing matches | A wrapper script with a pattern that matches every spec name, which fails when zero Property_Tests ran | Property test runner |
 | Reproduce_Command | `.code` uses `white-space: pre-wrap; word-break: break-all`, so flags and URLs split mid-word. The `dd` grid column is `1fr`, so an unbreakable line would widen the page | `white-space: pre`, horizontal scroll inside the box, `minmax(0, 1fr)` column, focusable only when it overflows | Provenance_Panel |
-| Home hero | `ScreenHeading` renders a visible "Haunt" h1 as plain text. Card titles are h3 under a hidden "Haunted sites" h2. The ghost row shows `resultSentence` ("The Listener gave up") | The h1 becomes the logo (mark plus wordmark). Card titles become h2. The ghost row shows the Outcome_Line from `src/model/outcome.ts` | Home |
+| Home hero | `ScreenHeading` renders a visible "Haunt" h1 as plain text. Card titles are h3 under a hidden "Haunted sites" h2. The ghost row shows `resultSentence` ("The Listener gave up") | The h1 is the Tagline "Haunt your app before your users do." The Haunt logo appears only in the Top_Navigation, not in the Hero. The Hero shows the three Hero_Ghosts (character plus visible name) on the right; they float up to 8 px and are still under Reduced_Motion. Card titles become h2. The ghost row shows the Outcome_Line from `src/model/outcome.ts` | Home |
 | Home at 1280 px and wider | `.cards` uses `repeat(auto-fill, minmax(24rem, 1fr))`. With one haunt this leaves an empty track as wide as the card | Two-column layout: haunt cards on the left (`auto-fit`), a "Recent ghost walks" side panel on the right | Home |
 | Ghost Cam panel | Shows only the current step's text | A Transcript of steps 1 to current, built by `src/model/transcript.ts`, with fade levels and internal scrolling | Transcript |
-| Ghost Cam layout | Vertical stack: header, stage, step info, callouts, controls, voice, timeline, warnings, provenance. Too tall for 1080 px | A grid that fits 1920×1080; Provenance_Panel stays below the timeline | Ghost Cam layout |
+| Ghost Cam layout | Vertical stack: header, stage, step info, callouts, controls, voice, timeline, warnings, provenance. Too tall for 1080 px | One screen with no page scroll at 1536×864, 1440×900 and 1920×1080: a two-row Run_Summary, screenshot and panel side by side, one Stuck_Notice slot, one Control_Row directly under the two panels, the timeline below it, then the collapsed Provenance_Panel | Ghost Cam layout |
+| Ghost Cam Transcript height | The transcript's height follows the layout and can change with the screenshot | Fixed height that does not depend on the step, the number of lines or the Stuck_Notice. Self-scrolling, newest line always visible | Ghost Cam layout |
+| Ghost Cam notices | A finding callout and a separate "gave up here" callout | One Stuck_Notice built by `src/model/stuckNotice.ts`, at most 3 lines, in a slot that always keeps its space | Stuck_Notice |
+| Provenance_Panel on the Ghost Cam | Always open | A disclosure, collapsed when the Ghost Cam opens, one row while collapsed | Provenance_Panel |
 | Nav_Fog | `.layer` is `width: 200%`, but the global rule `img, svg { max-width: 100% }` clamps it to 100%. The drift moves it `translateX(-50%)`, so the right half of the header loses its fog during the animation | `.layer { max-width: none; }` and a layer width test | Nav_Fog |
 
 ## Architecture
@@ -94,11 +97,13 @@ dashboard/
 │   │   ├── reproduce.ts          # Reproduce_Command
 │   │   ├── outcome.ts            # (amendment) Outcome_Line for Home
 │   │   ├── transcript.ts         # (amendment) Transcript lines and fade levels
+│   │   ├── stuckNotice.ts        # (amendment) the single merged Stuck_Notice for a step
 │   │   └── waveform.ts           # deterministic bars from text
 │   ├── components/
 │   │   ├── layout/               # Header, Nav, SkipLink, Footer, Fog, LiveRegion
 │   │   ├── ghosts/               # ListenerGhost, PhantomGhost, BebeGhost, GhostBadge
-│   │   ├── ProvenancePanel.tsx   # startedAt, commit, url, reproduce + copy
+│   │   ├── ProvenancePanel.tsx   # startedAt, commit, url, reproduce + copy; collapsible on the Ghost Cam
+│   │   ├── HeroGhosts.tsx        # (amendment) Hero_Ghosts: three characters with visible names
 │   │   ├── ResultBadge.tsx
 │   │   ├── Screenshot.tsx        # image + Placeholder + FocusGlow
 │   │   ├── RunErrorPanel.tsx
@@ -344,6 +349,10 @@ type FadeLevel = 0 | 1 | 2 | 3;               // 0 = Current_Line
 interface TranscriptLine { n: number; text: string; empty: boolean; fade: FadeLevel; current: boolean }
 function buildTranscript(run: Run, currentN: number): TranscriptLine[];
 function fadeLevel(distance: number): FadeLevel; // min(3, distance), distance = steps before the current one
+
+// stuckNotice.ts (amendment, Req 10.12, 10.13, 10.30, 10.31)
+interface StuckNotice { lines: string[]; fullText: string }   // 1 to 3 lines
+function stuckNotice(run: Run, step: Step): StuckNotice | null;
 ```
 
 **Outcome_Line (amendment).** `outcomeLine` is the only place the sentence is built. It uses `FINDING_LABELS` from `findingLabels.ts` (the single label table, Req 9.4) and `plural` from `format.ts`. "Last step" means the step with the highest `n`. `Run.steps` is already sorted by `n`, so that is the last element.
@@ -368,6 +377,21 @@ Every non-empty case contains a digit, and no badge label (`Completed`, `Gave up
 
 Repeated texts (for example several "Button" lines) are separate lines, because there is one line per step and the React key is the step `n`.
 
+**Stuck_Notice model (amendment).** `stuckNotice(run, step)` is the only place the notice is built, so the Ghost Cam can never show two notices (Req 10.30). Let `F` be the findings whose `step` equals `step.n`, in array order, and let `G` be true when `run.result === 'gave_up'` and `step.n` is the highest `n` in the run.
+
+| `F` | `G` | Result |
+|---|---|---|
+| empty | false | `null` (no notice; the slot stays empty but keeps its space) |
+| empty | true | line 1: "{Ghost} gave up here." |
+| non-empty | false | line 1: "{lead}." |
+| non-empty | true | line 1: "{lead} and gave up here." (for example "The Listener got trapped here and gave up here.") |
+
+- `{lead}` is "The Listener got trapped here" when the ghost is the Listener and the first finding in `F` is `focus_trap`, and "{Ghost} hit a problem here" otherwise (the existing copy).
+- When `F` is non-empty, line 2 is the first finding's plain-words label (from `FINDING_LABELS`) and title: "Keyboard trap: Dialog has no way out". If `F` has more than one finding, " (+N more at this step)" is added to line 2, and the Graveyard has the rest.
+- Line 3 is the first finding's evidence. The CSS clamps each line to one line with an ellipsis, and the full text is in `fullText` and in the element's `title`, so the clamp hides nothing from assistive technology (the DOM text is complete).
+- `lines.length` is therefore never more than 3 by construction (Req 10.31).
+- The give-up phrase "gave up here" appears in line 1 only, and at most once.
+
 **Séance answer templates** (first person, built only from run fields):
 
 | Question | Template |
@@ -381,11 +405,33 @@ Repeated texts (for example several "Button" lines) are separate lines, because 
 
 ### Screens
 
-**Home.** A candlelit title band ("Haunt"), then the two candle buttons: "Start here" (amber, flickering flame) and "Summon a live ghost" (`aria-disabled="true"`, dimmed, unlit candle, visible "Coming soon: live ghosts are not connected yet"; its click handler is a no-op). Haunt cards follow: site name (h2), most recent date, finding count ("3 findings"), and one row per ghost: character, name, result in words with a ResultBadge, link to its Ghost Cam. Each card links to the Haunted Map. A "Restless files" section lists Invalid_Runs.
+**Home.** A candlelit Hero (the Tagline as the h1, with the three Hero_Ghosts on the right; see the Home amendment), then the two candle buttons: "Start here" (amber, flickering flame) and "Summon a live ghost" (`aria-disabled="true"`, dimmed, unlit candle, visible "Coming soon: live ghosts are not connected yet"; its click handler is a no-op). Haunt cards follow: site name (h2), most recent date, finding count ("3 findings"), and one row per ghost: character, name, result in words with a ResultBadge, link to its Ghost Cam. Each card links to the Haunted Map. A "Restless files" section lists Invalid_Runs.
 
-**Home (amendment, Req 7.2, 7.10–7.19).**
+**Home (amendment, Req 7.2, 7.10–7.25).**
 
-- *Logo is the h1.* The hero's `ScreenHeading` renders `<h1 class="logo">` holding an inline `HauntLogo` SVG mark (a small lit candle, `aria-hidden="true"`) followed by the wordmark text "Haunt" in IM Fell English italic amber. The accessible name is "Haunt". The hero has no other element with the text "Haunt". The header brand link stays: it is a link inside the banner landmark, not a heading, and it is outside the hero (Req 7.10, 7.11).
+- *The Tagline is the h1, and the logo is only in the Top_Navigation (Req 7.10, 7.11, 7.20).* The Hero's `ScreenHeading` renders `<h1>` with the text "Haunt your app before your users do." in IM Fell English. The earlier idea of making the logo (mark plus wordmark) the h1 is dropped. `HauntLogo` (the candle mark, `aria-hidden="true"`, plus the wordmark) is rendered only inside the header brand link in `Layout`. That link sits in the banner landmark and is not a heading. The Hero contains no `HauntLogo` and no heading or other large text that reads only "Haunt". The Tagline starts with the word "Haunt" but is a full sentence. Card titles are h2, so the heading order is h1 (Tagline), then h2 for each card and the side panel. The document title for Home stays "Home · Haunt".
+- *Hero and Hero_Ghosts (Req 7.20–7.25).* A new `HeroGhosts` component renders a `<ul>` of three `<li>`, in the order The Listener, The Phantom, Bebe. Each item has the ghost's SVG character from `components/ghosts/` (`aria-hidden="true"`, because the name is visible), the ghost's name as visible text in a `<p>` (not a heading), and a one-sentence respectful description taken from `model/ghosts.ts`, which already holds the persona copy: The Listener uses a screen reader's view and the keyboard; The Phantom browses on slow 3G and an old phone; Bebe uses 200% zoom, reads Punjabi or Hindi, and is wary of tricky wording. The DOM order inside the Hero is Tagline, short intro text, then `HeroGhosts`, so under 900 px the ghosts fall below the Tagline in reading order without any CSS reordering:
+
+  ```css
+  .hero { display: grid; gap: var(--space-5); align-items: center; }
+  @media (min-width: 900px) {
+    .hero { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }   /* ghosts on the right */
+  }
+  .heroGhosts { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center; list-style: none; padding: 0; }
+  .heroGhosts > li { flex: 1 1 8rem; min-width: 0; }
+  ```
+
+  The columns use `minmax(0, …)` and the list wraps, so the Hero causes no horizontal scrolling at 320 px or at 200% zoom (Req 7.25, 18.8).
+- *Floating, and still under Reduced_Motion (Req 7.23, 7.24).* The float is defined only in `motion.css`, inside `@media (prefers-reduced-motion: no-preference)`, on `[data-float='hero']`:
+
+  ```css
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes haunt-hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    [data-float='hero'] { animation: haunt-hero-float 6s ease-in-out infinite; animation-delay: var(--float-delay, 0s); }
+  }
+  ```
+
+  The vertical travel is 8 px, under the 12 px limit. `HeroGhosts` sets `--float-delay` to 0 s, 1.5 s and 3 s so the three ghosts do not move in step. With Reduced_Motion set, the media query does not apply, so there is no animation of any kind on the Hero_Ghosts, and the same rule covers the Hero's other ambient motion. The CSS alone decides this; no script is involved, so there is no flash of motion before a hook runs.
 - *Card headings are h2.* `HauntCard` changes its title from `h3` to `h2`. The visually hidden "Haunted sites" `h2` is removed and the section gets `aria-label="Haunted sites"`, so the heading order stays h1 → h2 (Req 7.11, 18.7).
 - *Outcome_Line.* In each ghost row, `resultSentence(...)` is replaced by `<p class="outcome">{outcomeLine(summary.latest)}</p>`, next to the `ResultBadge` of the same `summary.latest` run (Req 7.2). The "earlier runs" list keeps `resultSentence`.
 - *Wide layout (≥ 1280 px).* The haunt-card section and a new side panel sit in one wrapper:
@@ -407,12 +453,12 @@ Repeated texts (for example several "Button" lines) are separate lines, because 
 
 **Graveyard.** A wrapping grid of bone tombstones (`<article>` with `h2` = plain-words type). Contents: ghost badge, title, evidence, "Step 9 · Lantern Bills demo", and a link "Watch The Listener at step 9". Filters: site select and ghost radio group, written to the URL query.
 
-**Ghost Cam.** Layout: provenance and mission header, then a two-column grid (stacked under 900 px):
+**Ghost Cam.** Layout: the two-line Run_Summary, then a two-column grid of screenshot and panel (stacked under 900 px), then the Stuck_Notice slot, the Control_Row, the timeline, run-file notes and the collapsed Provenance_Panel (details in "Ghost Cam layout (amendment)"):
 
 - *Left*: `Screenshot` renders the image at its natural aspect ratio. `FocusGlow` is an absolutely positioned outline scaled by `renderedWidth / naturalWidth` (measured with `ResizeObserver`). For missing images it renders the Placeholder (16:10 grey `#55504a`, text "No screenshot for step 9") and scales against 1280×800. The glow uses a spectral-white 3 px border and a soft box-shadow halo. With reduced motion the halo is static; otherwise it pulses slowly (2.5 s, opacity 0.7–1.0).
 - *Right*: `SpokenPanel` (Listener): black panel, large spectral text in quotes, waveform below as an SVG of 32 bars from `waveformBars(spoken)`, `aria-hidden`. The bars animate only while playing and without reduced motion. `ThoughtPanel` (others): surface panel with a thought-bubble shape and the `thought` text.
-- *Below*: Controls (`Step back`, `Play`/`Pause` as one toggle button with `aria-pressed`, `Step forward`), step info ("Step 9 of 9 · /bill · Tab · waited 0.5 s"), the voice toggle for the Listener, and the Timeline: an ordered list of step buttons, each named "Step n" (plus ", finding: Keyboard trap" where relevant), finding steps drawn as small tombstones, the current one with `aria-current="step"`.
-- *Finding callout*: when the step has a finding, a callout with ghost-specific copy: Listener + trap: "The Listener got trapped here."; others: "{Ghost} hit a problem here." Last step of a `gave_up` run: "{Ghost} gave up here." (red fill, white text, light border).
+- *Below, in one Control_Row and then the timeline*: Controls (`Step back`, `Play`/`Pause` as one toggle button with `aria-pressed`, `Step forward`), step info ("Step 9 of 9 · /bill · Tab · waited 0.5 s"), the voice toggle for the Listener, and the Timeline: an ordered list of step buttons, each named "Step n" (plus ", finding: Keyboard trap" where relevant), finding steps drawn as small tombstones, the current one with `aria-current="step"`.
+- *Stuck_Notice*: one notice at a time, built by `stuckNotice(run, step)` (see "Stuck_Notice model"). A finding at the step gives "The Listener got trapped here." (Listener + `focus_trap`) or "{Ghost} hit a problem here." The last step of a `gave_up` run gives "{Ghost} gave up here." When both apply, one notice combines them: "The Listener got trapped here and gave up here." Style: red fill, white text, light border. This replaces the separate finding callout and gave-up callout.
 - A visually hidden polite live region announces "Step 9: Button, Confirm".
 
 Keyboard shortcuts are not added beyond normal buttons. That avoids conflicts with screen reader keys.
@@ -459,9 +505,9 @@ Playback is a `useEffect` interval of 1500 ms that calls `navigate(stepUrl(n+1),
 
 **Ghost Cam layout (amendment, Req 10.1, 10.15, 10.24–10.26).**
 
-The DOM order is the reading order at every size: Run_Summary, screenshot, panel (transcript plus finding callouts), step info, Controls and voice toggle, Timeline, run-file notes (warnings), Provenance_Panel. Compared with today, the finding callouts move from between step info and controls into the right-hand column after the panel. The voice toggle stays directly after the Controls. Provenance is already after the Timeline in `GhostCamScreen.tsx` and stays there (Req 10.25).
+The DOM order is the reading order at every size: Run_Summary, screenshot, panel (the Transcript, plus the waveform for the Listener), Stuck_Notice, Control_Row (step info, Controls, voice toggle), Timeline, run-file notes (warnings, a collapsed disclosure), Provenance_Panel (a collapsed disclosure). The Stuck_Notice moves out of the right-hand column and spans the full width under the two panels. The Control_Row follows it directly, and the Timeline follows the Control_Row (Req 10.26, 10.32). Provenance stays after the Timeline (Req 10.25).
 
-*Fit mode* applies under `@media (min-width: 1280px) and (min-height: 900px)`. At 1920×1080 and 100% zoom it fits the Run_Summary, screenshot, panel, controls and timeline inside the viewport (Req 10.24):
+*Fit mode* applies under `@media (min-width: 1280px) and (min-height: 800px)`. The old `min-height: 900px` would have excluded 1536×864, so it is lowered. In fit mode, at 1536×864, 1440×900 and 1920×1080 and 100% zoom, the whole page (site header, Run_Summary, screenshot, panel, Stuck_Notice slot, Control_Row, timeline, collapsed Provenance_Panel and footer) fits inside the viewport, and the document is no taller than the viewport (Req 10.24). The footer is part of the document, so it is part of the budget.
 
 ```css
 .cam {
@@ -470,25 +516,32 @@ The DOM order is the reading order at every size: Run_Summary, screenshot, panel
   grid-template-areas:
     "summary  summary"
     "shot     panel"
-    "controls panel"
+    "notice   notice"
+    "controls controls"
     "timeline timeline"
-    "rest     rest";        /* warnings, Provenance_Panel */
-  gap: var(--space-4) var(--space-5);
-  --cam-shot-max: calc(100vh - 40rem);
+    "notes    notes"        /* run-file notes, then Provenance_Panel: both collapsed disclosures */
+    "prov     prov";
+  gap: var(--space-3) var(--space-5);
+  --cam-shot-max: calc(100vh - 31rem);
 }
-.right { grid-area: panel; position: relative; }      /* adds no height to its rows */
+.stage { grid-area: shot; height: var(--cam-shot-max); display: grid; place-items: center; min-width: 0; }
+.stage img, .stage .placeholder { max-width: 100%; max-height: 100%; }
+.right { grid-area: panel; position: relative; height: var(--cam-shot-max); }
 .rightInner { position: absolute; inset: 0; display: flex; flex-direction: column; gap: var(--space-3); }
 .transcript { flex: 1 1 0; min-height: 6rem; }
-.callouts, .waveform { flex: none; }
+.waveform { flex: none; }
+.notice { grid-area: notice; height: 4.5rem; }    /* three lines; the slot keeps its space even when empty */
 ```
 
-- The right column is absolutely filled, so its height equals the screenshot row plus the controls row. The transcript takes the rest and scrolls internally. A long transcript can never make the page taller.
-- The screenshot is capped by height: the image gets `max-height: var(--cam-shot-max); width: auto`, and the Placeholder gets `width: min(100%, calc(var(--cam-shot-max) * 1.6))` to keep 16:10. `FocusGlow` already scales by rendered width over natural width (or 1280), so the cap does not change the glow math.
-- *Height budget at 1080 px* (18 px root): site header ≈ 78 px, main top padding 36 px, compact Run_Summary ≤ 150 px, three row gaps 54 px, step info + controls + voice note ≈ 120 px, timeline ≈ 105 px. That is about 543 px. The first value, `32rem` (576 px), was too small: measured in the browser, the Run_Summary is about 194 px and the Listener's controls row (with the voice toggle and note) is about 221 px, so the Listener's timeline ended at 1176 px. `40rem` (720 px) leaves 360 px for the screenshot, which gives a placeholder about 576 × 360 px and puts both timelines inside 1080 px. The Playwright fit test checks the real numbers for both samples.
-- *Compact Run_Summary* in fit mode: a 64 px ghost character, the h1 and the one-line ghost description in the first column, and the `dl` (Mission, Requirement, Site, Result) as a two-column grid in the second column. The summary keeps the same elements in the same order, only arranged differently.
-- The timeline heading uses `margin-top: 0` in fit mode, and the marks stay on one row for up to about 20 steps at 1296 px. Longer runs wrap, and the page may then scroll. Req 10.24 only names the two samples (9 and 6 steps).
+- *Fixed heights (Req 10.28, 10.31).* The stage and the right column both have the height `--cam-shot-max`, which depends only on the viewport. Neither depends on the current step's screenshot, the number of Transcript lines, or whether a Stuck_Notice is showing. The image sits inside the stage and shrinks to fit (`object-fit: contain` behaviour through `max-width` and `max-height`), so screenshots of different sizes cannot change the row height. The notice slot has a fixed height too, so a notice appearing or disappearing moves nothing.
+- The right column is absolutely filled, so a long transcript can never make the page taller. The transcript takes the height left after the waveform (Listener only) and scrolls internally.
+- The screenshot is centred in the stage. The image is wrapped in an inline-block sized to the rendered image, and `FocusGlow` is positioned inside that wrapper. The glow still scales by rendered width over natural width (or 1280 for the Placeholder), so the stage does not change the glow math. The Placeholder gets `aspect-ratio: 16 / 10` and fits inside the stage.
+- *Height budget at 864 px* (18 px root, the smallest viewport in the Ghost_Cam_Viewport_Set): site header ≈ 78 px, main top and bottom padding 32 px together, Run_Summary ≈ 64 px (two lines), five row gaps of 12 px = 60 px, Stuck_Notice slot 72 px, Control_Row ≈ 52 px, timeline ≈ 84 px, collapsed Provenance_Panel row ≈ 44 px, footer ≈ 44 px. That is about 530 px. The collapsed run-file notes row (shown only for runs with warnings, such as the Bebe sample) adds about 44 px. `--cam-shot-max: calc(100vh - 31rem)` (558 px) leaves about 306 px for the screenshot at 864 px, a placeholder about 490 × 306 px, and about 522 px at 1080 px. These are estimates from font sizes. An earlier estimate for the old layout was too small when measured in the browser, so the Playwright fit test checks the real numbers for both samples at all three viewports, and the value should be tuned there rather than by shrinking text.
+- *Two-line Run_Summary (Req 10.29).* In fit mode the Run_Summary is two single-line rows, each with `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`. A 40 px ghost character sits on the left across both rows. Row 1 is the `h1`: the ghost's name and the mission goal ("The Listener: Pay the electricity bill"). Row 2 is a `<p>`: "Requirement: {requirement}", then the result badge and its text, kept to the right of the ellipsised requirement so the result never gets cut off. Both rows carry a `title` with their full text. The full text is also in the DOM, so a screen reader reads all of it; the ellipsis is CSS only. The one-line ghost description and the site name are not in the summary in fit mode (the site is in the Provenance_Panel, and the description is on Home). In stacked mode the rows may wrap and show the description.
+- *Control_Row (Req 10.32–10.34).* One flex row directly under the stage and panel row and the Stuck_Notice slot: step info on the left, then the Controls, then, for the Listener, the "Read aloud (approximation)" toggle with its note shortened to a visible sentence that wraps inside the toggle's own cell. The row has `flex-wrap: nowrap` in fit mode and `flex-wrap: wrap` otherwise. The timeline follows it directly.
+- The timeline heading is visually hidden in fit mode (still in the DOM), and the marks stay on one row for up to about 20 steps at 1296 px. Longer runs wrap, and the page may then scroll. Req 10.24 only names the two samples (9 and 6 steps).
 
-*Stacked mode* (narrower than 1280 px or shorter than 900 px, which includes 200% zoom on a 1920×1080 screen, a 960×540 CSS viewport). Between 900 and 1279 px wide, the current two-column stage stays (screenshot `3fr`, panel `2fr`) and the page scrolls vertically. Below 900 px everything is one column in DOM order. The transcript scroller gets `max-height: 50vh` (stacked) so it never fills the page. The screenshot area keeps its own `overflow-x: auto` and is the only element allowed to scroll sideways (Req 10.26, 18.8).
+*Stacked mode* (narrower than 1280 px or shorter than 800 px, which includes 200% zoom on a 1920×1080 screen, a 960×540 CSS viewport). Between 900 and 1279 px wide, the two-column stage stays (screenshot `3fr`, panel `2fr`) and the page scrolls vertically. Below 900 px everything is one column in DOM order: Run_Summary, screenshot, panel, Stuck_Notice, Control_Row, timeline, run-file notes, Provenance_Panel (Req 10.26). The Transcript_Viewport gets a fixed `height: clamp(10rem, 40vh, 18rem)`, which depends on the viewport only, so it stays the same height from step to step (Req 10.28) and never fills the page. The Stuck_Notice slot keeps `min-height` for three lines. The Control_Row wraps (Req 10.34). The screenshot area keeps its own `overflow-x: auto` and is the only element allowed to scroll sideways (Req 10.26, 18.8). The screenshot area keeps its own `overflow-x: auto` and is the only element allowed to scroll sideways (Req 10.26, 18.8).
 
 **Approximate voice.** `useApproximateVoice()` checks `window.speechSynthesis`, waits for `voiceschanged`, and keeps only `voices.filter(v => v.localService)`. It prefers a local voice whose `lang` starts with the document language. It speaks `spoken` on step change while enabled and calls `cancel()` before each utterance, on toggle off and on unmount. When unavailable, the toggle is `aria-disabled` with the reason "Your browser has no built-in offline voice."
 
@@ -537,6 +590,8 @@ The DOM order is the reading order at every size: Run_Summary, screenshot, panel
 - `useScrollOverflow(box, 'x')` sets `tabIndex={0}` only while `scrollWidth > clientWidth + 1`. It re-measures through `ResizeObserver` on viewport and zoom changes (Req 5.8, 5.11). The name comes from `aria-label`. The global `:focus-visible` ring (3 px `--spectral` on `--surface`, 12.53:1) shows on the box. ArrowLeft and ArrowRight scroll by 40 px, and Home and End jump to the start and end, so the first and last characters can always be reached.
 - *Copy* calls `navigator.clipboard.writeText(command)`. `command` is the value returned by `reproduceCommand(run)` in the same render, never the DOM text, so layout cannot add or remove characters (Req 5.9).
 - *Clipboard failure* (Req 5.10): the existing `catch` stays. It selects the command text and announces "Couldn't copy. Select the command and copy it yourself." through the polite live region. "Command copied" is announced only after `writeText` resolves. The button is never disabled.
+
+**Disclosure on the Ghost Cam (amendment, Req 10.15).** `ProvenancePanel` takes a `collapsible` prop. The Ghost Cam passes it; the Exorcise screen, which shows two panels side by side, does not, so it stays open there. When collapsible, the heading "Where this run came from" is an `h2` that contains a button with `aria-expanded` and `aria-controls`, and the body is a `div` with the `hidden` attribute while collapsed. The component's open state starts as `false` and is keyed on the run key, so it is collapsed each time a Ghost Cam opens and stays as the user left it while stepping through the same run. A collapsed panel is one row (heading and button) and its contents, including the Reproduce_Command box, are out of the Tab order and the accessibility tree. When it is opened, the Reproduce_Command box's `ResizeObserver` fires on the size change and the box becomes focusable only if it overflows (Req 5.8, 5.11). The run-file notes ("Notes about this run file") use the same disclosure pattern and are collapsed as well, so a run with warnings does not make the page taller in fit mode.
 
 ### Visual design rules
 
@@ -607,7 +662,7 @@ The Listener sample's spoken lines include repeated short texts, and each stays 
 
 *A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
 
-Properties 1–8 are the existing properties, already implemented in `validate.properties.test.ts`, `models.properties.test.ts` and `routes.test.ts`. Their numbers stay the same. Properties 9–12 cover the amendment.
+Properties 1–8 are the existing properties, already implemented in `validate.properties.test.ts`, `models.properties.test.ts` and `routes.test.ts`. Their numbers stay the same. Properties 9–13 cover the amendment.
 
 ### Property 1: validateRun never throws
 
@@ -681,6 +736,12 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 
 **Validates: Requirements 1.8, 1.9**
 
+### Property 13: One merged Stuck_Notice per step
+
+*For any* valid run and any step in it, let `F` be the findings at that step and `G` be true when the run's result is `gave_up` and the step is the last one. Then `stuckNotice(run, step)` is `null` exactly when `F` is empty and `G` is false. Otherwise it returns one notice with 1 to 3 lines. The phrase "gave up here" appears in `lines[0]` exactly once when `G` is true and nowhere in the notice when `G` is false. The finding lead ("got trapped here" for a Listener `focus_trap`, otherwise "hit a problem here") appears in `lines[0]` exactly once when `F` is non-empty and nowhere when `F` is empty. When both apply, both phrases are in the same `lines[0]`. The generator includes several findings at one step, findings at non-last steps, all three results and all eight finding types.
+
+**Validates: Requirements 10.12, 10.13, 10.30, 10.31**
+
 ## Error Handling
 
 | Situation | Behavior |
@@ -733,26 +794,39 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 10. Transcript fading and contrast (same file). It uses `COLORS` and `contrastRatio` from `tokens.ts`.
 11. Outcome_Line (`src/__tests__/outcome.properties.test.ts`). It uses an oracle written from the requirement text and a step-count arbitrary that includes 0 and 1.
 12. Property_Test name filter (`scripts/__tests__/propertyTestPattern.properties.test.ts`). It is also found by the widened include.
+13. Stuck_Notice (`src/__tests__/stuckNotice.properties.test.ts`). It uses the same contract-run arbitrary as Properties 9 and 10, forces several findings onto one step in some cases, and checks the result against an independent oracle written from the requirement text.
 
 **Amendment: new unit tests (Vitest + Testing Library)**
 
 - `decideExit`: a report with 0 tests gives exit 1 and the message; a report with failures gives exit 1; a report with passes only gives exit 0; a missing report gives exit 1.
 - Vitest config: `exclude` contains `e2e/**`, so no Playwright file is collected.
 - `outcomeLine` with the two samples (values in Data Models), plus one example for each row of the Outcome_Line table.
-- Home: exactly one `h1` with accessible name "Haunt"; the hero contains the text "Haunt" once; haunt card titles are `h2`; each ghost row shows the Outcome_Line next to a badge whose text differs; the side panel heading "Recent ghost walks" exists; axe passes.
+- Home: exactly one `h1`, with the text "Haunt your app before your users do."; the Hero contains no `HauntLogo` and no heading whose text is only "Haunt", while the header brand link contains the logo (and `HauntLogo` renders nowhere else); haunt card titles are `h2`; `HeroGhosts` renders three items in the order Listener, Phantom, Bebe, each with its name as visible text and an `aria-hidden` SVG; the Hero_Ghosts come after the h1 in DOM order; each ghost row shows the Outcome_Line next to a badge whose text differs; the side panel heading "Recent ghost walks" exists; axe passes.
+- Stuck_Notice: with the samples, Listener step 9 gives "The Listener got trapped here and gave up here." (finding `focus_trap` at step 9 and `gave_up`); Listener step 7 gives "The Listener hit a problem here."; Bebe step 3 gives "Bebe hit a problem here."; Listener step 1 gives no notice and the slot element still exists. The Ghost Cam never renders more than one element with the notice role.
+- Run_Summary: the two rows are single-line (`white-space: nowrap`) in fit mode; each has a `title` equal to its full text; the full requirement text is in the DOM.
+- Provenance_Panel on the Ghost Cam: the toggle has `aria-expanded="false"` on first render and its body has `hidden`; the Reproduce_Command is not focusable while collapsed; activating the toggle expands it; changing to another run key collapses it again; the Exorcise screen renders it open without a toggle.
+- Transcript_Viewport: its inline or computed height is the same value at step 1 and at the last step, with and without a Stuck_Notice (checked in the Playwright run below, because jsdom has no layout).
 - Transcript component: `aria-current="step"` on the last `li` only; the marker element is present; after Step back, only lines 1..n are rendered; `scrollTop` equals `scrollHeight - clientHeight` after a step change (with stubbed sizes); `document.activeElement` is unchanged after playback advances; the live region text contains only the new step; `tabIndex` is 0 only when the stubbed `scrollHeight` is larger than `clientHeight`; ArrowUp and ArrowDown change `scrollTop`.
 - Provenance_Panel: `writeText` receives exactly `reproduceCommand(run)`; on a rejected `writeText`, the live region has the failure text, not "Command copied", and the button is not disabled; the command box has `role="region"`, the name "Reproduce command", and `tabIndex` 0 only while overflowing, re-checked when the `ResizeObserver` stub fires.
 - Contrast: the eight transcript fade pairs and the fog blend pairs (`--text` and `--spectral` on `blend(spectral, bg, 0.25)`) are added to the contrast test.
-- Ghost Cam DOM order: Run_Summary, screenshot, panel, controls, timeline, Provenance_Panel, checked with `compareDocumentPosition`.
+- Ghost Cam DOM order: Run_Summary, screenshot, panel, Stuck_Notice, Control_Row, timeline, Provenance_Panel, checked with `compareDocumentPosition`.
 
 **Amendment: new end-to-end checks (Playwright, run once at the end)**
 
-- *Ghost Cam fits 1920×1080* for both samples at 100% zoom: the bounding boxes of the Run_Summary, screenshot (or Placeholder), panel, controls and timeline all have `bottom ≤ innerHeight` with `window.scrollY` at 0. The Provenance_Panel's top is below the timeline's bottom.
-- *Ghost Cam stacked* at 320 px, at 899 px and at 200% zoom (960×540 viewport): the vertical order of the boxes matches Req 10.26, and `documentElement.scrollWidth ≤ clientWidth`.
-- *Transcript highlight:* at step 9 of the Listener sample, the last line has `aria-current="step"`, a visible left border, and the highest computed contrast. Its box is inside the scroller's visible box. `window.scrollY` did not change while stepping.
+- *Ghost Cam fits on one screen* at 1536×864, 1440×900 and 1920×1080, 100% zoom, for both samples and at every step of each (Req 10.24): `documentElement.scrollHeight ≤ innerHeight`, and the bounding boxes of the Run_Summary, screenshot (or Placeholder), panel, Stuck_Notice slot, Control_Row, timeline and the collapsed Provenance_Panel (and the footer) all have `bottom ≤ innerHeight` with `window.scrollY` at 0. The Provenance_Panel's top is below the timeline's bottom.
+- *Ghost Cam layout does not move between steps:* at each of the three viewports, the bounding boxes of the screenshot stage, the Transcript_Viewport, the Stuck_Notice slot, the Control_Row and the timeline are identical (within 1 px) at step 1, at a step with a finding, and at the last step of the Listener sample, which has the merged notice. This covers Req 10.28 and 10.31.
+- *Run_Summary is two lines* at the three viewports: the h1 row and the requirement row each have a height of one line box, and `scrollWidth` may exceed `clientWidth` only where the ellipsis applies.
+- *Control_Row and timeline position:* the Control_Row's top is at or below the bottom of the screenshot stage and the panel, with nothing between them but the Stuck_Notice slot; the timeline's top is at or below the Control_Row's bottom. For the Listener, the Read aloud toggle is in the same row as the Controls (their vertical centres are within one line height).
+- *Provenance disclosure:* the toggle is collapsed on load; the Reproduce_Command is not visible until it is activated; the page needs no vertical scrolling while it is collapsed.
+- *Ghost Cam stacked* at 320 px, at 899 px and at 200% zoom (960×540 viewport): the vertical order of the boxes matches Req 10.26, and `documentElement.scrollWidth ≤ clientWidth`. The Transcript_Viewport has the same height at every step.
+- *Transcript highlight and newest line visible:* at every step of the Listener sample and of the Bebe sample, the last line has `aria-current="step"`, a visible left border, and the highest computed contrast. Its box is fully inside the scroller's visible box (Req 10.20). `window.scrollY` did not change while stepping. After pressing Step back, the transcript has only lines 1 to the new step.
+- *Transcript self-scrolls:* with a long fixture run (for example 30 steps, derived from the Listener sample) at 1536×864, at its last step the scroller's `scrollHeight` is larger than its `clientHeight`, it is focusable, and ArrowUp brings an earlier line into view.
 - *Nav_Fog width* at 320, 768, 1280, 1920 and 2560 px wide and at 200% zoom: the `.fog` box has `left` within 1 px of 0 and `right` within 1 px of `documentElement.clientWidth`. Each fog layer's width is at least twice the fog's width, which catches the `max-width` clamp. The check repeats after `page.setViewportSize` without reload. `scrollWidth ≤ clientWidth` throughout. Each nav link is clickable (`elementFromPoint` at its centre returns the link).
 - *Reproduce_Command does not wrap mid-word* at 320, 1280 and 2560 px and at 100%, 200% and 400% zoom: the `code` element's height equals one line box (the command has no `\n`), so the line count is newline count + 1. The page does not scroll sideways. At 320 px the box has `tabindex="0"`, and pressing End or ArrowRight repeatedly brings `scrollLeft` to `scrollWidth - clientWidth`. At 2560 px with no overflow, the box has no `tabindex`.
 - *Home at 1280 and 1920 px:* the side panel is to the right of the cards, and no empty grid track is wider than a card.
+- *Hero at 1280, 1920 and 899 px:* at 900 px and wider, the three Hero_Ghosts' left edges are to the right of the h1's right edge, and each has its name visible. At 899 px they are below the h1. `scrollWidth ≤ clientWidth` at 320 px and at 200% zoom.
+- *Hero_Ghosts float, within limits:* with `emulateMedia({ reducedMotion: 'no-preference' })`, `document.getAnimations()` includes an animation on each of the three Hero_Ghosts, and sampling each ghost's `getBoundingClientRect().top` over one cycle gives a range of 12 px or less (the design value is 8 px). With `reducedMotion: 'reduce'`, no animation applies to them, and their positions do not change over 2 seconds.
+- *Logo only in the header:* on Home, `HauntLogo`'s mark (`[data-haunt-logo]`) is found once, inside the `header` landmark, and not inside the Hero.
 
 **End-to-end (Playwright against `npm run preview` on port 3001)**
 
@@ -772,4 +846,7 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - **Visual rules** live in `.kiro/steering/dashboard-design.md`, which takes precedence over this document.
 - **(Amendment) New color tokens.** The five transcript fade tokens (`--spoken-fade-1..3`, `--thought-fade-1`, `--thought-fade-3`) are new. The steering file's colour table should list them with their ratios. Until it does, `tokens.css`, `tokens.ts` and the contrast test are the record.
 - **(Amendment) Missing `spoken` or `thought`.** Req 10.27 talks about missing text, but `validateRun` treats a missing `spoken` or `thought` as invalid under Req 4.1. This design keeps that rule. The Transcript model handles `undefined` anyway, so relaxing validation later needs no model change.
-- **(Amendment) Fit-mode height budget.** `--cam-shot-max` started as `calc(100vh - 32rem)`, an estimate from the font sizes. The Playwright fit test failed for the Listener, so it is now `calc(100vh - 40rem)`. If the fit test fails again, tune this value rather than shrinking text.
+- **(Amendment) Fit-mode height budget.** The earlier version used `--cam-shot-max: calc(100vh - 40rem)` for 1920×1080 only. The new layout must also fit 1536×864, adds a fixed Stuck_Notice slot and a footer to the budget, and moves the Provenance_Panel into a collapsed row. The new value `calc(100vh - 31rem)` is an estimate (see the height budget above) and has not been measured in a browser yet. If the Playwright fit test fails at 864 px, tune this value or the Stuck_Notice slot height rather than shrinking text. At 864 px the screenshot is about 306 px tall, which is small but readable. The focus box scales with it.
+- **(Amendment) Stuck_Notice evidence is clamped.** The three-line limit (Req 10.31) means long evidence is cut with an ellipsis in the notice. The full text stays in the DOM and in the `title`, and the Graveyard shows every finding in full. If more than one finding sits on one step, the notice names the first and counts the rest.
+- **(Amendment) Ghost description in the Run_Summary.** To keep the summary to two lines in fit mode, the one-line ghost description is shown only in stacked mode. Home's Hero_Ghosts carry the persona descriptions.
+- **(Amendment) Fit mode needs a viewport at least 800 px tall.** Below that height, or below 1280 px width, or at high zoom, the Ghost Cam uses the stacked layout and the page scrolls. Req 10.24 only covers the three listed viewport sizes.
