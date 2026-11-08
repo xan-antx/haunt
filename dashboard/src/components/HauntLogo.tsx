@@ -1,5 +1,5 @@
 // The Haunt logo mark: a small lit candle. Decorative only; the wordmark text
-// beside it gives the heading its accessible name "Haunt" (Req 7.10, 7.11).
+// beside it in the header brand link gives the link its accessible name (Req 7.10, 7.11).
 
 import styles from './HauntLogo.module.css';
 
@@ -7,6 +7,7 @@ export function HauntLogo({ className }: { className?: string }) {
   return (
     <svg
       className={[styles.mark, className ?? ''].filter(Boolean).join(' ')}
+      data-haunt-logo=""
       viewBox="0 0 24 40"
       aria-hidden="true"
       focusable="false"

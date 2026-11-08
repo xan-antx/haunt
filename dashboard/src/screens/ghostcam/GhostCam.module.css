@@ -15,38 +15,25 @@
   color: var(--text-muted);
 }
 
-.mission {
-  display: grid;
-  gap: var(--space-1);
+/* Run_Summary rows. In stacked mode they wrap; fit mode makes each a single ellipsised line. */
+.summaryRow {
+  overflow-wrap: anywhere;
+}
+
+.requirementRow {
+  margin: 0 0 var(--space-2);
+}
+
+.siteLine {
   margin: 0;
-}
-
-.mission > div {
-  display: grid;
-  grid-template-columns: minmax(7rem, max-content) 1fr;
-  gap: var(--space-1) var(--space-4);
-}
-
-@media (max-width: 36rem) {
-  .mission > div {
-    grid-template-columns: 1fr;
-  }
-}
-
-.mission dt {
-  font-weight: 700;
-}
-
-.mission dd {
-  margin: 0;
-  min-width: 0;
 }
 
 .result {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+  vertical-align: middle;
 }
 
 /* Ghost Cam grid. Each direct child is one area, in DOM (reading) order.
@@ -59,6 +46,7 @@
   grid-template-areas:
     'summary  summary'
     'shot     panel'
+    'notice   notice'
     'controls controls'
     'timeline timeline'
     'rest     rest';
@@ -73,6 +61,7 @@
       'summary'
       'shot'
       'panel'
+      'notice'
       'controls'
       'timeline'
       'rest';
@@ -105,6 +94,11 @@
   gap: var(--space-3);
 }
 
+.cam > [data-cam-area='notice'] {
+  grid-area: notice;
+  margin-top: var(--space-3);
+}
+
 .controlsArea {
   grid-area: controls;
 }
@@ -133,11 +127,11 @@
 }
 
 /* Transcript: one line per step, Current_Line last. Scrolls inside itself only.
-   In stacked mode it is capped at half the viewport so it never fills the page. */
+   In stacked mode it has a fixed clamped height, so it never fills the page or jumps. */
 .transcript {
   overflow-y: auto;
   overscroll-behavior: contain;
-  max-height: 50vh;
+  height: clamp(10rem, 40vh, 18rem);
 }
 
 .lines {
@@ -270,52 +264,6 @@
   font-size: 1.1rem;
 }
 
-.callouts {
-  display: grid;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-/* Red is a fill only, with white text and a light border. */
-.endCallout {
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
-  background: var(--failure);
-  color: var(--on-failure);
-  border: 2px solid var(--text);
-  border-radius: var(--radius);
-  font-weight: 700;
-  font-size: 1.15rem;
-}
-
-.callout {
-  background: var(--surface);
-  border-left: 6px solid var(--bone);
-  border-radius: var(--radius);
-  padding: var(--space-4) var(--space-5);
-}
-
-.calloutHeading {
-  font-size: 1.5rem;
-}
-
-.calloutType {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-weight: 700;
-}
-
-.calloutIcon {
-  width: 1rem;
-  height: 1.25rem;
-  fill: var(--bone);
-}
-
-.calloutTitle {
-  font-weight: 700;
-}
-
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -418,24 +366,125 @@
    panel, controls and timeline fit in the viewport (Req 10.24). The right column is absolutely
    filled, so it spans the screenshot and controls rows without adding height to them, and the
    transcript takes whatever height is left and scrolls inside itself. */
-@media (min-width: 1280px) and (min-height: 900px) {
+@media (min-width: 1280px) and (min-height: 800px) {
   .cam {
-    /* 40rem: the Listener's voice toggle and note make its controls row about 120 px taller
-       than Bebe's, so the screenshot gives up that height to keep the timeline in view. */
-    --cam-shot-max: calc(100vh - 40rem);
+    /* The stage and the right column share this one height, so no height depends on the
+       step, the transcript line count or the Stuck_Notice (Req 10.24, 10.31, 10.33). */
+    --cam-shot-max: calc(100vh - 34rem);
     grid-template-columns: minmax(0, 1fr) minmax(22rem, 26rem);
     grid-template-areas:
       'summary  summary'
       'shot     panel'
-      'controls panel'
+      'notice   notice'
+      'controls controls'
       'timeline timeline'
       'rest     rest';
-    gap: var(--space-4) var(--space-5);
+    gap: var(--space-2) var(--space-5);
+    align-items: stretch;
+  }
+
+  /* Page chrome around the Ghost Cam is tightened so the whole screen fits (Req 10.24). */
+  :global(#main-content):has(> .cam) {
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-2);
+  }
+
+  :global(body):has(.cam) :global(footer) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  :global(body):has(.cam) :global(footer) p {
+    margin: 0;
+  }
+
+  .warnings {
+    margin-top: 0;
+    padding: 0 var(--space-4);
+  }
+
+  .rest > section {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+
+  .left {
+    height: var(--cam-shot-max);
+    min-height: 0;
+    overflow: hidden;
   }
 
   .right {
     position: relative;
-    align-self: stretch;
+    height: var(--cam-shot-max);
+    min-height: 0;
+  }
+
+  .cam > [data-cam-area='notice'] {
+    margin-top: 0;
+  }
+
+  /* Control_Row: step info, the controls and (Listener) the voice toggle on one row. */
+  .controlsArea {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .controlsArea > * {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .stepInfo {
+    flex: 1 1 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .controls {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+
+  .voice {
+    flex: 0 1 22rem;
+  }
+
+  .voiceNote {
+    margin-top: var(--space-1);
+    font-size: 0.8rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* The Timeline heading stays in the accessibility tree but is not drawn. */
+  .timelineWrap .sectionHeading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .timelineWrap {
+    position: relative;
   }
 
   .rightInner {
@@ -454,78 +503,78 @@
   }
 
   .panelHeading,
-  .waveform,
-  .callouts {
+  .waveform {
     flex: none;
   }
 
   .transcript {
     flex: 1 1 0;
-    min-height: 0;
-    max-height: none;
+    height: auto;
+    min-height: 6rem;
     overflow-y: auto;
   }
 
-  .callouts {
-    margin-bottom: 0;
-  }
-
-  /* Compact Run_Summary: same elements in the same order, a 64 px ghost, the h1 and
-     description in the first column and the mission list in the second. */
+  /* Two-line Run_Summary (Req 10.29): a 40 px ghost on the left across both rows. Row 1 is the
+     h1 (ghost and goal). Row 2 is the requirement, then the result, which is never cut off.
+     The ghost description and site name are for stacked mode only. */
   .summary {
+    flex-wrap: nowrap;
     margin-bottom: 0;
+    gap: var(--space-4);
     align-items: center;
   }
 
   .summary > svg {
     flex: none;
-    width: calc(64px * 130 / 160);
-    height: 64px;
+    width: calc(40px * 130 / 160);
+    height: 40px;
   }
 
   .headerText {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-    gap: 0 var(--space-5);
-    align-items: center;
+    flex: 1 1 0;
+  }
+
+  .ghostDescription,
+  .siteLine {
+    display: none;
+  }
+
+  .summaryRow {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
   }
 
   .headerText > h1 {
-    grid-column: 1;
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .requirementRow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
     margin: 0;
+    line-height: 1.5;
   }
 
-  .ghostDescription {
-    grid-column: 1;
-    margin: 0;
+  .requirementText {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .mission {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-1) var(--space-5);
-  }
-
-  .mission > div {
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 0 var(--space-3);
-  }
-
-  .stepInfo {
-    margin-top: 0;
-  }
-
-  .controls,
-  .voice {
-    margin-bottom: 0;
+  .result {
+    flex: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 
   .timelineWrap {
-    margin-top: 0;
-  }
-
-  .timelineWrap .sectionHeading {
     margin-top: 0;
   }
 }

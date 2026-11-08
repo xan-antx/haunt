@@ -33,6 +33,9 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
   font-family: var(--font-heading);
   font-style: italic;
   font-size: 2rem;

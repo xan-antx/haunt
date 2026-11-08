@@ -1,5 +1,5 @@
 // Ghost Cam DOM order is the reading order at every size (Req 10.25, 10.26):
-// Run_Summary, screenshot (or Placeholder), panel, controls, timeline, Provenance_Panel.
+// Run_Summary, screenshot (or Placeholder), panel, Stuck_Notice slot, controls, timeline, Provenance_Panel.
 
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -21,11 +21,17 @@ function expectInOrder(elements: Array<[string, Element]>) {
   }
 }
 
+/** The Provenance_Panel is collapsed by default (Req 10.15); open it so its command box is reachable. */
+function openProvenance() {
+  fireEvent.click(screen.getByRole('button', { name: /Where this run came from/ }));
+}
+
 function orderedParts(panelHeading: string): Array<[string, Element]> {
   return [
     ['Run_Summary', screen.getByRole('heading', { level: 1, name: /Ghost Cam/ })],
     ['screenshot', screen.getByRole('img', { name: SHOT })],
     ['panel', screen.getByRole('heading', { name: panelHeading })],
+    ['Stuck_Notice slot', screen.getByTestId('stuck-notice-slot')],
     ['controls', screen.getByRole('button', { name: 'Play' })],
     ['timeline', screen.getByRole('region', { name: 'Timeline' })],
     ['Provenance_Panel', screen.getByRole('region', { name: 'Where this run came from' })],
@@ -37,6 +43,7 @@ describe('Ghost Cam DOM order', () => {
   it.each(CASES)('follows the reading order for $label', async ({ path, panel }) => {
     renderApp(path);
     await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+    openProvenance();
     expectInOrder(orderedParts(panel));
   });
 
@@ -45,6 +52,7 @@ describe('Ghost Cam DOM order', () => {
     await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
     const img = document.querySelector('[data-cam-area="shot"] img');
     if (img) fireEvent.error(img);
+    openProvenance();
     expect(screen.getByRole('img', { name: /^No screenshot for step \d+$/ })).toBeInTheDocument();
     expectInOrder(orderedParts(panel));
   });
@@ -57,12 +65,14 @@ describe('Ghost Cam DOM order', () => {
       'summary',
       'shot',
       'panel',
+      'notice',
       'controls',
       'timeline',
       'rest',
     ]);
+    openProvenance();
     const parts = orderedParts(panel);
-    const expectedArea = ['summary', 'shot', 'panel', 'controls', 'timeline', 'rest', 'rest'];
+    const expectedArea = ['summary', 'shot', 'panel', 'notice', 'controls', 'timeline', 'rest', 'rest'];
     parts.forEach(([, el], i) => {
       expect(el.closest('[data-cam-area]')?.getAttribute('data-cam-area')).toBe(expectedArea[i]);
     });

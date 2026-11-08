@@ -1,0 +1,27 @@
+/* Fixed three-line slot (4.5rem = 3 x 1.5rem), so the notice never moves other elements. */
+.slot {
+  height: 4.5rem;
+  min-height: 4.5rem;
+  overflow: hidden;
+}
+
+.notice {
+  height: 100%;
+  background: var(--surface);
+  border-left: 6px solid var(--bone);
+  border-radius: var(--radius);
+  padding: 0 var(--space-4);
+}
+
+.notice p {
+  margin: 0;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lead {
+  font-weight: 700;
+}

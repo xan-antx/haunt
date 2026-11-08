@@ -14,6 +14,7 @@ import {
   seancePath,
   stepPath,
 } from '../../routes';
+import { HauntLogo } from '../HauntLogo';
 import { Fog } from './Fog';
 import { LiveRegionProvider } from './LiveRegion';
 import { HeadingFocusContext, type FocusRequest } from './ScreenHeading';
@@ -126,7 +127,8 @@ export function Layout() {
           <Fog />
           <div className={styles.headerInner}>
             <Link to="/" className={styles.brand}>
-              Haunt
+              <HauntLogo />
+              <span>Haunt</span>
             </Link>
             <Nav />
           </div>

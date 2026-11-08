@@ -55,11 +55,18 @@ describe('Ghost Cam panels', () => {
     expect(screen.getByText('No screenshot for step 9')).toBeInTheDocument();
   });
 
-  it('shows the finding callout and gave-up copy on the last step', async () => {
+  it('shows one merged Stuck_Notice on the last step', async () => {
     await openStep(LISTENER, 9);
-    expect(screen.getByText('The Listener gave up here.')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'The Listener got trapped here.' })).toBeInTheDocument();
-    expect(screen.getByText('Cannot escape the payment confirmation dialog')).toBeInTheDocument();
+    const notices = screen.getAllByTestId('stuck-notice');
+    expect(notices).toHaveLength(1);
+    expect(screen.getByText('The Listener got trapped here and gave up here.')).toBeInTheDocument();
+    expect(notices[0]!.textContent).toContain('Cannot escape the payment confirmation dialog');
+    expect(screen.queryByRole('heading', { name: 'The Listener got trapped here.' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the empty Stuck_Notice slot on a step with no notice', async () => {
+    await openStep(LISTENER, 1);
+    expect(screen.getByTestId('stuck-notice-slot')).toBeEmptyDOMElement();
   });
 
   it('shows the zero-sized focusBox warning for Bebe', async () => {

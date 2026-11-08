@@ -6,15 +6,32 @@
   border: 2px solid var(--surface);
 }
 
-/* The logo is the page's one h1: candle mark plus the "Haunt" wordmark. */
-.logo {
-  display: inline-flex;
+/* One column below 900 px (ghosts under the h1); ghosts on the right from 900 px. */
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
   align-items: center;
-  gap: 0.25em;
+}
+
+.heroText {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+/* The Tagline is the page's one h1. The logo lives only in the header brand link. */
+.headline {
+  margin: 0;
   font-family: var(--font-heading);
   font-size: 3rem;
   font-style: italic;
   color: var(--amber);
+  overflow-wrap: anywhere;
 }
 
 .tagline {

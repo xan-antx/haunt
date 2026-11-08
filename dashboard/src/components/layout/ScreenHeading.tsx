@@ -19,11 +19,14 @@ export function ScreenHeading({
   children,
   title,
   className,
+  tooltip,
 }: {
   children: ReactNode;
   /** Document title without the " · Haunt" suffix. */
   title: string;
   className?: string;
+  /** Full heading text, for the `title` attribute when CSS shortens the heading with an ellipsis. */
+  tooltip?: string;
 }) {
   const ref = useRef<HTMLHeadingElement>(null);
   const focus = useContext(HeadingFocusContext);
@@ -35,7 +38,7 @@ export function ScreenHeading({
     }
   });
   return (
-    <h1 ref={ref} tabIndex={-1} className={className}>
+    <h1 ref={ref} tabIndex={-1} className={className} title={tooltip}>
       {children}
     </h1>
   );

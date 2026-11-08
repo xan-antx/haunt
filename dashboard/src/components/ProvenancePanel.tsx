@@ -1,6 +1,6 @@
 // When the run was recorded, which commit of which site, and how to reproduce it.
 
-import { useRef } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { Run } from '../data/types';
 import { scrollKeys, useScrollOverflow } from '../hooks/useScrollOverflow';
 import { formatLocalDateTime } from '../model/format';
@@ -22,13 +22,20 @@ export function ProvenancePanel({
   run,
   heading = 'Where this run came from',
   commandLabel = 'Reproduce command',
+  collapsible = false,
 }: {
   run: Run;
   heading?: string;
   /** Accessible name of the command box. Must be unique when a screen shows more than one panel. */
   commandLabel?: string;
+  /** Renders the heading as a disclosure button; the body starts collapsed for each run. */
+  collapsible?: boolean;
 }) {
   const announce = useAnnounce();
+  const bodyId = useId();
+  // Open state is keyed on the run, so a different run starts collapsed again.
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const expanded = !collapsible || openKey === run.key;
   const commandRef = useRef<HTMLElement>(null);
   const box = useRef<HTMLDivElement>(null);
   const overflowing = useScrollOverflow(box, 'x');
@@ -51,7 +58,21 @@ export function ProvenancePanel({
 
   return (
     <section className={styles.panel} aria-label={heading}>
-      <dl className={styles.list}>
+      {collapsible && (
+        <h2 className={styles.heading}>
+          <button
+            type="button"
+            className={styles.toggle}
+            aria-expanded={expanded}
+            aria-controls={bodyId}
+            onClick={() => setOpenKey(expanded ? null : run.key)}
+          >
+            <span aria-hidden="true">{expanded ? '▾' : '▸'} </span>
+            {heading}
+          </button>
+        </h2>
+      )}
+      <dl id={bodyId} className={styles.list} hidden={!expanded}>
         <div>
           <dt>Recorded</dt>
           <dd>

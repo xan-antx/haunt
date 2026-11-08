@@ -17,6 +17,8 @@ const samples = [
 async function openGhostCam(key: string) {
   const view = renderApp(`/run/${key}/step/1`);
   await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+  // The Provenance_Panel starts collapsed on the Ghost Cam; open it.
+  fireEvent.click(screen.getByRole('button', { name: /Where this run came from/ }));
   return view;
 }
 
@@ -118,6 +120,22 @@ describe('Provenance_Panel copy command', () => {
     await act(() => sleep(120));
     expect(liveRegion()).not.toHaveTextContent('Command copied');
     expect(copyButton()).toBeEnabled();
+  });
+});
+
+describe('Provenance_Panel disclosure on the Ghost Cam', () => {
+  it('starts collapsed and toggles aria-expanded and the hidden body', async () => {
+    renderApp(`/run/${listenerRun().key}/step/1`);
+    await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+    const toggle = screen.getByRole('button', { name: /Where this run came from/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    const body = document.getElementById(toggle.getAttribute('aria-controls')!)!;
+    expect(body).toHaveAttribute('hidden');
+    expect(screen.queryByRole('region', { name: 'Reproduce command' })).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(body).not.toHaveAttribute('hidden');
+    expect(commandBox()).toBeInTheDocument();
   });
 });
 

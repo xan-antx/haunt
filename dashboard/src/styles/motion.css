@@ -60,6 +60,17 @@
     }
   }
 
+  /* Home hero ghosts: 8 px of travel in total, under the 12 px limit. */
+  @keyframes haunt-hero-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
   @keyframes haunt-glow-pulse {
     0%,
     100% {
@@ -92,6 +103,11 @@
 
   .motion-float {
     animation: haunt-ghost-float 6s ease-in-out infinite;
+  }
+
+  [data-float='hero'] {
+    animation: haunt-hero-float 6s ease-in-out infinite;
+    animation-delay: var(--float-delay, 0s);
   }
 
   .motion-glow-pulse {

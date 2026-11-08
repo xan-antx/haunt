@@ -36,7 +36,7 @@ async function open(page: Page, hash: string) {
 test.describe('deep links', () => {
   test('a step URL opens that step, paused', async ({ page }) => {
     await open(page, `#/run/${L}/step/9`);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ghost Cam: The Listener');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Ghost Cam: The Listener: /);
     await expect(page.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false');
     // Scoped to the Timeline: the current Transcript line also has aria-current="step" (Req 10.18).
     const timeline = page.getByRole('region', { name: 'Timeline' });

@@ -1,6 +1,7 @@
 /* The screenshot area is the only place allowed to scroll sideways. */
 .scroller {
   max-width: 100%;
+  max-height: var(--cam-shot-max, none);
   overflow-x: auto;
 }
 

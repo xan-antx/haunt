@@ -10,12 +10,12 @@ import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { RunErrorPanel } from '../components/RunErrorPanel';
 import { Screenshot } from '../components/Screenshot';
+import { StuckNotice } from '../components/StuckNotice';
 import { useRun } from '../data/hooks';
-import type { Finding, Run, Step } from '../data/types';
+import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
-import { plainFindingType } from '../model/findingLabels';
 import { formatSeconds } from '../model/format';
-import { GHOSTS, gaveUpHere, resultSentence, stoppedHere } from '../model/ghosts';
+import { GHOSTS, RESULT_LABELS, resultSentence } from '../model/ghosts';
 import { homePath, parseStepParam, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import { Controls, Timeline } from './ghostcam/Controls';
@@ -28,40 +28,6 @@ export const PLAYBACK_INTERVAL_MS = 1500;
 export function RunRedirect() {
   const { runKey = '' } = useParams();
   return <Navigate to={stepPath(runKey, 1)} replace />;
-}
-
-function findingHeadline(run: Run, finding: Finding): string {
-  const name = GHOSTS[run.ghost].name;
-  if (run.ghost === 'listener' && finding.type === 'focus_trap') return `${name} got trapped here.`;
-  return `${name} hit a problem here.`;
-}
-
-function FindingCallouts({ run, step, isLast }: { run: Run; step: Step; isLast: boolean }) {
-  const findings = run.findings.filter((f) => f.step === step.n);
-  const ended = isLast && (run.result === 'gave_up' || run.result === 'error');
-  if (findings.length === 0 && !ended) return null;
-  return (
-    <div className={styles.callouts}>
-      {ended && (
-        <p className={styles.endCallout}>{run.result === 'gave_up' ? gaveUpHere(run.ghost) : stoppedHere(run.ghost)}</p>
-      )}
-      {findings.map((finding, i) => (
-        <section key={i} className={styles.callout} aria-labelledby={`finding-${i}`}>
-          <h2 id={`finding-${i}`} className={styles.calloutHeading}>
-            {findingHeadline(run, finding)}
-          </h2>
-          <p className={styles.calloutType}>
-            <svg className={styles.calloutIcon} viewBox="0 0 16 20" aria-hidden="true" focusable="false">
-              <path d="M2 19 V8 a6 6 0 0 1 12 0 V19 Z" />
-            </svg>
-            {plainFindingType(finding.type)}
-          </p>
-          <p className={styles.calloutTitle}>{finding.title}</p>
-          <p>{finding.evidence}</p>
-        </section>
-      ))}
-    </div>
-  );
 }
 
 function VoiceToggle({ step }: { step: Step }) {
@@ -106,7 +72,6 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   const index = run.steps.findIndex((s) => s.n === n);
   const step = run.steps[index]!;
   const first = run.steps[0]!;
-  const last = run.steps[run.steps.length - 1]!;
   const atFirst = index === 0;
   const atLast = index === run.steps.length - 1;
   const ghost = GHOSTS[run.ghost];
@@ -168,36 +133,37 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   };
 
   // DOM order is the reading order at every size (Req 10.26). Each direct child of `.cam`
-  // is one grid area: summary, shot, panel, controls, timeline, rest.
+  // is one grid area: summary, shot, panel, notice, controls, timeline, rest.
   return (
     <div className={styles.cam}>
       <div className={`${styles.header} ${styles.summary}`} data-cam-area="summary">
         <GhostCharacter ghost={run.ghost} size={96} floating={playing} />
         <div className={styles.headerText}>
-          <ScreenHeading title={`Step ${step.n} of ${run.steps.length} · ${ghost.name} · Ghost Cam`}>
-            Ghost Cam: {ghost.name}
+          {/* Row 1: ghost name and mission goal. The hidden prefix keeps "Ghost Cam" in the
+              heading's accessible name. */}
+          <ScreenHeading
+            title={`Step ${step.n} of ${run.steps.length} · ${ghost.name} · Ghost Cam`}
+            className={styles.summaryRow}
+            tooltip={`${ghost.name}: ${run.mission.goal}`}
+          >
+            <span className="visually-hidden">Ghost Cam: </span>
+            {ghost.name}: <span>{run.mission.goal}</span>
           </ScreenHeading>
+          {/* Row 2: the requirement (ellipsised) and then the result, which is never cut off. */}
+          <p
+            className={`${styles.summaryRow} ${styles.requirementRow}`}
+            title={`Requirement: ${run.mission.requirement} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`}
+          >
+            <span className={styles.requirementText}>
+              Requirement: <span>{run.mission.requirement}</span>
+            </span>{' '}
+            <span className={styles.result}>
+              <ResultBadge result={run.result} /> <span>{resultSentence(run.ghost, run.result)}.</span>
+            </span>
+          </p>
+          {/* Stacked mode only. */}
           <p className={styles.ghostDescription}>{ghost.description}</p>
-          <dl className={styles.mission}>
-            <div>
-              <dt>Mission</dt>
-              <dd>{run.mission.goal}</dd>
-            </div>
-            <div>
-              <dt>Requirement</dt>
-              <dd>{run.mission.requirement}</dd>
-            </div>
-            <div>
-              <dt>Site</dt>
-              <dd>{run.site.name}</dd>
-            </div>
-            <div>
-              <dt>Result</dt>
-              <dd className={styles.result}>
-                <ResultBadge result={run.result} /> <span>{resultSentence(run.ghost, run.result)}.</span>
-              </dd>
-            </div>
-          </dl>
+          <p className={styles.siteLine}>Site: {run.site.name}</p>
         </div>
       </div>
 
@@ -212,9 +178,10 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           ) : (
             <ThoughtPanel run={run} step={step} />
           )}
-          <FindingCallouts run={run} step={step} isLast={step.n === last.n} />
         </div>
       </div>
+
+      <StuckNotice run={run} step={step} />
 
       <div className={styles.controlsArea} data-cam-area="controls">
         <p className={styles.stepInfo}>
@@ -280,8 +247,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           </details>
         )}
 
-        <h2 className={styles.sectionHeading}>Where this run came from</h2>
-        <ProvenancePanel run={run} />
+        <ProvenancePanel run={run} collapsible />
       </div>
     </div>
   );

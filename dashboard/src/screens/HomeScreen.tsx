@@ -2,8 +2,8 @@
 
 import { Link } from 'react-router-dom';
 import { CandleButton } from '../components/CandleButton';
+import { HeroGhosts } from '../components/HeroGhosts';
 import { GhostBadge, GhostCharacter } from '../components/ghosts/Ghosts';
-import { HauntLogo } from '../components/HauntLogo';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ResultBadge } from '../components/ResultBadge';
 import { runFilePath } from '../components/RunErrorPanel';
@@ -160,26 +160,30 @@ export function HomeScreen() {
   return (
     <>
       <div className={styles.hero}>
-        <ScreenHeading title="Home" className={styles.logo}>
-          <HauntLogo />
-          <span>Haunt</span>
-        </ScreenHeading>
-        <p className={styles.tagline}>
-          Three ghost users tried to get things done on our sites. Here is where they got stuck.
-        </p>
-        <div className={styles.actions}>
-          {start ? (
-            <CandleButton lit to={stepPath(start.runKey, start.step)}>
-              Start here
-            </CandleButton>
-          ) : (
-            <CandleButton lit={false} reason={startHereUnavailableReason(runs)}>
-              Start here
-            </CandleButton>
-          )}
-          <CandleButton lit={false} reason="Coming soon: live ghosts are not connected yet">
-            Summon a live ghost
-          </CandleButton>
+        <div className={styles.heroInner}>
+          <div className={styles.heroText}>
+            <ScreenHeading title="Home" className={styles.headline}>
+              Haunt your app before your users do.
+            </ScreenHeading>
+            <p className={styles.tagline}>
+              Three ghost users tried to get things done on our sites. Here is where they got stuck.
+            </p>
+            <div className={styles.actions}>
+              {start ? (
+                <CandleButton lit to={stepPath(start.runKey, start.step)}>
+                  Start here
+                </CandleButton>
+              ) : (
+                <CandleButton lit={false} reason={startHereUnavailableReason(runs)}>
+                  Start here
+                </CandleButton>
+              )}
+              <CandleButton lit={false} reason="Coming soon: live ghosts are not connected yet">
+                Summon a live ghost
+              </CandleButton>
+            </div>
+          </div>
+          <HeroGhosts />
         </div>
       </div>
 
