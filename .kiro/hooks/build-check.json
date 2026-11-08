@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Build check",
+      "trigger": "PostTaskExec",
+      "description": "Run npm run build in the folder(s) a finished spec task changed.",
+      "action": {
+        "type": "command",
+        "command": "node .kiro/hooks/scripts/build-check.mjs",
+        "timeout": 300
+      }
+    }
+  ]
+}

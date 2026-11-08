@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Contract guard",
+      "trigger": "PreToolUse",
+      "description": "Ask for confirmation before writing anything in contract/.",
+      "matcher": "fs_write|str_replace|fs_append|delete_file|smart_relocate",
+      "action": {
+        "type": "command",
+        "command": "node .kiro/hooks/scripts/contract-guard.mjs"
+      }
+    }
+  ]
+}
