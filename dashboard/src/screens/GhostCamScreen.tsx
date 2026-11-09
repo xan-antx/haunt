@@ -6,6 +6,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { GhostCharacter } from '../components/ghosts/Ghosts';
 import { useAnnounce } from '../components/layout/LiveRegion';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { RunErrorPanel } from '../components/RunErrorPanel';
@@ -149,6 +150,11 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
             <span className="visually-hidden">Ghost Cam: </span>
             {ghost.name}: <span>{run.mission.goal}</span>
           </ScreenHeading>
+          {/* Screen_Intro (Req 20.13, 20.14): one plain sentence, never ellipsised. */}
+          <ScreenIntro className={styles.camIntro}>
+            Ghost Cam replays this visit one step at a time, showing each page next to what{' '}
+            {run.ghost === 'listener' ? `${ghost.name} heard` : `${ghost.name} was thinking`}.
+          </ScreenIntro>
           {/* Row 2: the requirement (ellipsised) and then the result, which is never cut off. */}
           <p
             className={`${styles.summaryRow} ${styles.requirementRow}`}

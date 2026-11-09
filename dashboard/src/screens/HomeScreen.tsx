@@ -1,12 +1,15 @@
-// Home: haunted sites, the "Start here" moment, and any restless files.
+// Home: the "Start here" moment, how Haunt works, a guide to every screen, haunted sites,
+// and any restless files.
 
 import { Link } from 'react-router-dom';
 import { CandleButton } from '../components/CandleButton';
 import { HeroGhosts } from '../components/HeroGhosts';
 import { GhostBadge, GhostCharacter } from '../components/ghosts/Ghosts';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { runFilePath } from '../components/RunErrorPanel';
+import { ScreenIcon } from '../components/ScreenIcon';
 import { useAllRuns } from '../data/hooks';
 import type { InvalidRun, Run } from '../data/types';
 import { formatDate, plural } from '../model/format';
@@ -19,6 +22,7 @@ import {
   startHereUnavailableReason,
   type Haunt,
 } from '../model/haunts';
+import { NAV_ORDER, SCREENS, screenDestinations } from '../model/screens';
 import { mapPath, restlessPath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './HomeScreen.module.css';
@@ -130,6 +134,67 @@ function RecentWalks({ runs }: { runs: Run[] }) {
   );
 }
 
+const HOW_STEPS = [
+  'A ghost tries a real task on your site',
+  'It records everything it sees and hears',
+  'You see exactly where it got stuck',
+] as const;
+
+/** How_It_Works_Strip (Req 20.7). */
+function HowItWorks() {
+  return (
+    <section aria-labelledby="how-heading" className={styles.how}>
+      <h2 id="how-heading" className={styles.sectionTitle}>
+        How Haunt works
+      </h2>
+      <ol className={styles.howSteps}>
+        {HOW_STEPS.map((text, i) => (
+          <li key={text} className={styles.howStep}>
+            <span className={styles.howNumber} aria-hidden="true">
+              {i + 1}
+            </span>
+            <span>{text}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+/** Screen_Guide: one card per screen other than Home (Req 20.8, 20.9). */
+function ScreenGuide({ runs }: { runs: Run[] }) {
+  const destinations = screenDestinations(runs);
+  return (
+    <section aria-labelledby="guide-heading" className={styles.guide}>
+      <h2 id="guide-heading" className={styles.sectionTitle}>
+        What's in here
+      </h2>
+      <ul className={styles.guideCards}>
+        {NAV_ORDER.filter((id) => id !== 'home').map((id) => {
+          const { name, description } = SCREENS[id];
+          const to = destinations[id];
+          return (
+            <li key={id} className={styles.guideCard}>
+              <div className={styles.guideTitleRow}>
+                <ScreenIcon screen={id} className={styles.guideIcon} />
+                <h3 className={styles.guideTitle}>{name}</h3>
+              </div>
+              <p className={styles.guideDescription}>{description}</p>
+              {to ? (
+                <Link to={to} className={`button ${styles.guideButton}`}>
+                  Open {name}
+                </Link>
+              ) : (
+                <p className="muted">Opens once a ghost has walked here.</p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 function RestlessFiles({ invalid }: { invalid: InvalidRun[] }) {
   if (invalid.length === 0) return null;
   return (
@@ -156,6 +221,7 @@ export function HomeScreen() {
   const { runs, invalid } = state;
   const haunts = groupHaunts(runs);
   const start = startHereTarget(runs);
+  const startRun = start ? runs.find((r) => r.key === start.runKey) : undefined;
 
   return (
     <>
@@ -165,9 +231,9 @@ export function HomeScreen() {
             <ScreenHeading title="Home" className={styles.headline}>
               Haunt your app before your users do.
             </ScreenHeading>
-            <p className={styles.tagline}>
-              Three ghost users tried to get things done on our sites. Here is where they got stuck.
-            </p>
+            <ScreenIntro className={styles.tagline}>
+              Three ghost users tried real tasks on our sites, and this dashboard shows where each one got stuck.
+            </ScreenIntro>
             <div className={styles.actions}>
               {start ? (
                 <CandleButton lit to={stepPath(start.runKey, start.step)}>
@@ -182,10 +248,19 @@ export function HomeScreen() {
                 Summon a live ghost
               </CandleButton>
             </div>
+            {start && startRun && (
+              <p className={styles.tourNote}>
+                Start here opens {GHOSTS[startRun.ghost].name} at step {start.step}. Then follow “Next stop” at the
+                bottom of each screen to see the rest.
+              </p>
+            )}
           </div>
           <HeroGhosts />
         </div>
       </div>
+
+      <HowItWorks />
+      <ScreenGuide runs={runs} />
 
       {/* DOM order is reading and tab order: cards, then the side panel (Req 7.13, 18.1). */}
       <div className={styles.body}>

@@ -3,6 +3,7 @@
 import { useId } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { Tombstone } from '../components/Tombstone';
 import { useAllRuns } from '../data/hooks';
 import { plural } from '../model/format';
@@ -35,7 +36,7 @@ export function GraveyardScreen() {
   return (
     <>
       <ScreenHeading title="Graveyard">Graveyard</ScreenHeading>
-      <p>Each tombstone is one problem a ghost found. Follow a tombstone to watch the moment it happened.</p>
+      <ScreenIntro>Each tombstone is one problem a ghost found, with a link to watch the moment it happened.</ScreenIntro>
 
       <div className={styles.filters}>
         <div className={styles.siteFilter}>

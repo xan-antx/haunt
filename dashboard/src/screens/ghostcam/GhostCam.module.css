@@ -24,6 +24,12 @@
   margin: 0 0 var(--space-2);
 }
 
+/* Screen_Intro between the two Run_Summary rows. It wraps, and is never ellipsised (Req 20.14). */
+.camIntro {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+}
+
 .siteLine {
   margin: 0;
 }
@@ -393,7 +399,7 @@
 
   /* Page chrome around the Ghost Cam is tightened so the whole screen fits (Req 10.24). */
   :global(#main-content):has(> .cam) {
-    padding-top: var(--space-3);
+    padding-top: var(--space-1);
     padding-bottom: var(--space-2);
   }
 
@@ -594,6 +600,12 @@
   .headerText > h1 {
     font-size: 1.5rem;
     line-height: 1.3;
+  }
+
+  .camIntro {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   .requirementRow {

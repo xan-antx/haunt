@@ -38,6 +38,18 @@ This amendment was written after reading the current code in `dashboard/`. Each 
 | Provenance_Panel on the Ghost Cam | Always open | A disclosure, collapsed when the Ghost Cam opens, one row while collapsed | Provenance_Panel |
 | Nav_Fog | `.layer` is `width: 200%`, but the global rule `img, svg { max-width: 100% }` clamps it to 100%. The drift moves it `translateX(-50%)`, so the right half of the header loses its fog during the animation | `.layer { max-width: none; }` and a layer width test | Nav_Fog |
 
+### Amendment: plain-words wayfinding (Req 20, 10.24, 10.29)
+
+A first-time user could not tell what each screen does from its spooky name. The names stay; every screen also says its job in plain words.
+
+| Area | Today | Change | Section |
+|---|---|---|---|
+| Top_Navigation | `Layout.tsx` builds its own list of `{ to, label }` items. Each link is one line with the label only | Items come from one table in `src/model/screens.ts`. Each link shows the label and, under it, the Screen_Description as visible text; both are part of the link's accessible name. Narrow screens keep the descriptions in a two-column grid | Wayfinding |
+| Home | Hero, haunt cards with the side panel, Restless files | Adds the How_It_Works_Strip and the Screen_Guide after the Hero, a short note under "Start here" about the tour, and a one-sentence tagline paragraph | Wayfinding |
+| Guided_Path | None. Screens end with their content | `Layout` renders one `NextStop` link after the screen in `<main>`, chosen by `nextStop()` in `screens.ts` | Wayfinding |
+| Screen_Intro | Most screens open with a two- or three-sentence paragraph. The Ghost Cam has none since the fit-mode layout change | Every screen opens with one plain sentence right after its h1 (exact texts below). The Ghost Cam gets one between its two Run_Summary rows | Wayfinding |
+| Ghost Cam height budget | `--cam-shot-max: calc(100vh - 26rem)` with a single-row header | The taller header and the Screen_Intro are paid for by a tighter header and summary in fit mode, so the screenshot and panel stay at least 380 px tall at 1536×864 | Wayfinding |
+
 ## Architecture
 
 ```mermaid
@@ -98,9 +110,11 @@ dashboard/
 │   │   ├── outcome.ts            # (amendment) Outcome_Line for Home
 │   │   ├── transcript.ts         # (amendment) Transcript lines and fade levels
 │   │   ├── stuckNotice.ts        # (amendment) the single merged Stuck_Notice for a step
+│   │   ├── screens.ts            # (amendment) screen table: names, Screen_Descriptions, Guided_Path, destinations
 │   │   └── waveform.ts           # deterministic bars from text
 │   ├── components/
-│   │   ├── layout/               # Header, Nav, SkipLink, Footer, Fog, LiveRegion
+│   │   ├── layout/               # Header, Nav, SkipLink, Footer, Fog, LiveRegion, (amendment) NextStop, ScreenIntro
+│   │   ├── ScreenIcon.tsx        # (amendment) one original SVG icon per screen
 │   │   ├── ghosts/               # ListenerGhost, PhantomGhost, BebeGhost, GhostBadge
 │   │   ├── ProvenancePanel.tsx   # startedAt, commit, url, reproduce + copy; collapsible on the Ghost Cam
 │   │   ├── HeroGhosts.tsx        # (amendment) Hero_Ghosts: three characters with visible names
@@ -560,6 +574,90 @@ The DOM order is the reading order at every size: Run_Summary, screenshot, panel
 
 **Coverage.** A table: rows are missions (requirement text in a `th scope="row"`, goal below), columns are the three ghosts, always in the order The Listener, The Phantom, Bebe. Cells hold an icon + "Completed" / "Gave up" / "Errored" / "Not yet haunted", linking to the runs.
 
+### Wayfinding (amendment, Req 20, 10.24, 10.29)
+
+**One screen table (Req 20.6).** `src/model/screens.ts` is the only place that names screens and says what they are for:
+
+```ts
+export type ScreenId = 'home' | 'map' | 'graveyard' | 'ghostcam' | 'seance' | 'exorcise' | 'coverage';
+export interface ScreenInfo { id: ScreenId; name: string; description: string | null }
+
+export const SCREENS: Record<ScreenId, ScreenInfo>;      // Home's description is null
+export const NAV_ORDER: readonly ScreenId[];             // home, map, graveyard, ghostcam, seance, exorcise, coverage
+export const GUIDED_PATH: readonly ScreenId[];           // home, ghostcam, graveyard, map, exorcise, coverage, seance (then home again)
+
+/** Screen_Destination of every screen; null for map and ghostcam when there are no runs. */
+export function screenDestinations(runs: Run[]): Record<ScreenId, string | null>;
+/** The next available stop after `current` on the Guided_Path, wrapping to Home. */
+export function nextStop(current: ScreenId, destinations: Record<ScreenId, string | null>): { id: ScreenId; to: string } | null;
+/** Which screen a route belongs to: run and step are ghostcam; restless and not_found are null. */
+export function screenOfRoute(route: Route): ScreenId | null;
+```
+
+| Screen | Name | Screen_Description | Screen_Destination |
+|---|---|---|---|
+| `home` | Home | (none) | `#/` |
+| `map` | Haunted Map | Where ghosts got stuck | Map of `groupHaunts(runs)[0]`, the most recently visited Haunt |
+| `graveyard` | Graveyard | Every problem found | `#/graveyard` |
+| `ghostcam` | Ghost Cam | Replay a ghost's visit | `startHereTarget(runs)`, else step 1 of the first run |
+| `seance` | Séance | Ask a ghost why | `#/seance` |
+| `exorcise` | Exorcise | Before and after a fix | `#/exorcise` |
+| `coverage` | Spec Coverage | Which requirements people can reach | `#/coverage` |
+
+The Top_Navigation, the Screen_Guide and the Next_Stop_Link all call `screenDestinations`, so a nav link, a guide button and a "Next stop" link to the same screen always open the same URL. These are the same targets the navigation used before, moved out of `Layout.tsx`.
+
+**Top_Navigation (Req 20.1–20.5).** Each item is one link with two lines:
+
+```tsx
+<Link to={to} aria-current={current ? 'page' : undefined}>
+  <span className={styles.navLabel}>Ghost Cam</span>
+  <span className={styles.navHint}>Replay a ghost's visit</span>
+</Link>
+```
+
+- The accessible name comes from the link's content, so it is "Ghost Cam Replay a ghost's visit": it starts with the screen's name, so voice control ("click Ghost Cam") and the tests that find the link by name keep working, and it contains every word of visible text. An earlier draft used `aria-labelledby` to cut the name down to "Ghost Cam" with the description in `aria-describedby`; axe's `label-content-name-mismatch` rule rejects that, because visible text inside the link is then missing from its name (WCAG 2.5.3). Both spans are inside the link, so clicking the description follows the link. No `title` attribute is used (Req 20.2, 20.3).
+- The hint is `--text` at `0.85rem` and `line-height: 1.25`. It uses `--text` rather than `--text-muted` because `--text-muted` on the Nav_Fog at its 0.25 opacity ceiling is only about 3.9:1, while `--text` stays about 6.9:1 (Req 20.4, 16.10). Size and the second line, not color, set it apart from the label. No new color pair is added.
+- At 900 px and wider the list is a wrapping flex row. Each hint has `max-width: 9.5rem` and wraps inside its item, so "Which requirements people can reach" takes two short lines rather than widening the row. Under 900 px the list becomes `grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr))`, which gives two columns at 320 px, and the hint has no `max-width`. Descriptions are never hidden, truncated or clipped at any width (Req 20.4, 20.5). Text wraps normally, so at 200% zoom the items wrap onto more rows and nothing scrolls sideways.
+- The active item keeps its 3 px amber bottom border and bold label. Items align to the top, so Home, which has no description, lines up with the others' labels.
+
+**Screen_Icon (Req 20.15).** `ScreenIcon({ screen })` renders a 24×24 stroked SVG with `aria-hidden="true"` and `focusable="false"`, in `currentColor`. Each icon is drawn for this project from the spooky element it stands for: a house (Home), a floor plan with a frost circle (Haunted Map), a tombstone (Graveyard), a film camera (Ghost Cam), a crystal ball (Séance), a ghost and a check mark (Exorcise) and a checklist (Spec Coverage). The screen's name is always visible next to it.
+
+**Home (Req 20.7–20.9, 20.12, 20.13).** DOM order: Hero (h1 Tagline, Screen_Intro, candle buttons, tour note, Hero_Ghosts), How_It_Works_Strip, Screen_Guide, haunt cards and "Recent ghost walks", Restless files, Next_Stop_Link. The heading order stays h1, then h2 for each section and card, then h3 inside the Screen_Guide.
+
+- *How_It_Works_Strip.* `<section aria-labelledby="how-heading">` with the h2 "How Haunt works" and an `<ol>` of three items. Each item has a large step number (`aria-hidden`, because the `<ol>` already conveys the order) and the step text. The three items sit in a row from 900 px and stack below that.
+- *Screen_Guide.* `<section aria-labelledby="guide-heading">` with the h2 "What's in here" and a `<ul>` of six cards in `NAV_ORDER` without Home. Each card: `ScreenIcon`, the name as an h3, the Screen_Description as a `<p>`, and `<Link className="button">Open {name}</Link>`. When the destination is null (no runs), the link is replaced by the muted text "Opens once a ghost has walked here." Cards use `repeat(auto-fit, minmax(min(100%, 15rem), 1fr))`.
+- *Tour note.* When "Start here" is available, a `<p>` under the candle buttons reads "Start here opens {ghost} at step {n}. Then follow "Next stop" at the bottom of each screen to see the rest." With the samples: "Start here opens The Listener at step 9. …"
+
+**Guided_Path and Next_Stop_Link (Req 20.10–20.12).** `Layout` renders `<NextStop />` inside `<main>`, after the `<Outlet />`, so it is always the last content of the screen and no screen has to remember to add it. `NextStop` reads the route with `screenOfRoute`, the runs with `useAllRuns`, and asks `nextStop(current, screenDestinations(runs))`. It renders nothing while runs are loading, when the index failed to load, and on routes that are not on the Guided_Path (Restless files, not found).
+
+```tsx
+<nav aria-label="Guided path" className={styles.nextStop}>
+  <Link to={next.to} className={styles.link}>   {/* name: "Next stop: Graveyard Every problem found" */}
+    <ScreenIcon screen={next.id} />
+    <span><span className={styles.kicker}>Next stop:</span> {SCREENS[next.id].name}</span>
+    <span>{SCREENS[next.id].description ?? 'Back to the start'}</span>
+  </Link>
+</nav>
+```
+
+The order is Home → Ghost Cam → Graveyard → Haunted Map → Exorcise → Spec Coverage → Séance → Home. `nextStop` walks forward from the current screen and skips any screen whose destination is null, so with no runs the Graveyard leads to Exorcise. The Ghost Cam destination is the "Start here" step, so "Start here" on Home and the Home Next_Stop_Link both begin the tour at The Listener's step 9 with the samples. The link is a bordered surface card in the normal link and focus styles. It is not a candle: candles stay for the primary actions on Home.
+
+**Screen_Intro (Req 20.13, 20.14).** `ScreenIntro` renders `<p data-screen-intro>` directly after the screen's `ScreenHeading`. The sentences are:
+
+| Screen | Screen_Intro |
+|---|---|
+| Home | "Three ghost users tried real tasks on our sites, and this dashboard shows where each one got stuck." |
+| Haunted Map | "This map shows each page of {site} as a room, with a frost circle wherever a ghost got stuck." It is followed by the legend paragraph "The bigger the circle, the longer the ghost waited there." |
+| Graveyard | "Each tombstone is one problem a ghost found, with a link to watch the moment it happened." |
+| Ghost Cam | "Ghost Cam replays this visit one step at a time, showing each page next to what The Listener heard." For The Phantom and Bebe, "…next to what {ghost} was thinking." |
+| Séance | "Pick a run and a question, and the ghost answers from what it recorded, linking each step it mentions." |
+| Exorcise | "This compares a run from before a fix with a run from after it, so you can see which problems are gone." |
+| Spec Coverage | "Each row is one requirement, showing whether each ghost could complete it." It is followed by "A requirement a ghost could not complete is one that real people like them can't reach." |
+
+On the Ghost Cam the Screen_Intro sits inside the Run_Summary area, between the h1 row and the requirement row, and the 40 px ghost spans all three rows. In fit mode it is one line at `0.9rem` in `--text-muted` (8.09:1 on `--bg`). It is not ellipsised; the sentence is short enough (under 100 characters) to fit in one line at the 1296 px content width. In stacked mode it wraps normally.
+
+**Ghost Cam height budget (Req 10.24).** The two-line navigation items and the Screen_Intro add height above the stage, and at 1536×864 the old budget left only 16 px above the 380 px minimum. Fit mode on the Ghost Cam pays for them by tightening the chrome, in the same `:has(.cam)` style already used for `<main>` and the footer: the header's inner padding drops to `var(--space-2)`, and the Run_Summary rows use a tighter line height. `--cam-shot-max` is then tuned against the Playwright layout tests at all three viewports, which check that the six areas fit, that the screenshot and panel are at least 380 px tall, and that nothing moves between steps. The Next_Stop_Link follows the Provenance_Panel, below the fold with the footer.
+
 ### Provenance_Panel (amendment, Req 5.6–5.11)
 
 **Problems in the current code** (`ProvenancePanel.tsx` and `.module.css`):
@@ -769,6 +867,8 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 | (amendment) Vitest crashes before writing its JSON report | Exit 1: "Vitest did not produce a report." |
 | (amendment) Clipboard write rejected or unavailable | Same as "Clipboard denied" above. "Command copied" is not announced, and the button stays enabled |
 | (amendment) `ResizeObserver` missing (old browser, jsdom) | `useScrollOverflow` measures once per render. Content still scrolls; only the re-check on resize is lost. Tests install a small `ResizeObserver` stub in `setupTests.ts` |
+| (amendment) No runs, so the Haunted Map and Ghost Cam have no Screen_Destination | Their nav items are left out as before. Their Screen_Guide cards say "Opens once a ghost has walked here." with no link, and `nextStop` skips them |
+| (amendment) Runs still loading, or the index failed to load | No Next_Stop_Link is rendered, so it never points at a stop that is about to change |
 | (amendment) Empty `spoken` or `thought` text | A Transcript line "Nothing was spoken at this step." or "Nothing was thought at this step."; the live region says "Step n: nothing was spoken" |
 
 ## Testing Strategy
@@ -858,4 +958,6 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - **(Amendment) Fit-mode height budget.** The earlier version used `--cam-shot-max: calc(100vh - 40rem)` for 1920×1080 only. The new layout must also fit 1536×864, adds a fixed Stuck_Notice slot and a footer to the budget, and moves the Provenance_Panel into a collapsed row. The `calc(100vh - 31rem)` estimate left only about 250 px at 864 px once measured, so the footer and the Provenance_Panel were allowed below the fold and the value is now `calc(100vh - 26rem)` (396 px at 864 px, checked by the Playwright layout tests). The focus box scales with the screenshot.
 - **(Amendment) Stuck_Notice evidence is clamped.** The three-line limit (Req 10.31) means long evidence is cut with an ellipsis in the notice. The full text stays in the DOM and in the `title`, and the Graveyard shows every finding in full. If more than one finding sits on one step, the notice names the first and counts the rest.
 - **(Amendment) Ghost description in the Run_Summary.** To keep the summary to two lines in fit mode, the one-line ghost description is shown only in stacked mode. Home's Hero_Ghosts carry the persona descriptions.
+- **(Amendment, Req 20) Home has no Screen_Description.** The six descriptions given cover the other screens, and "Home" explains itself. Home is still on the Guided_Path: it is the start ("Start here") and the end (Séance leads back to it), and its own Next_Stop_Link opens the same Ghost Cam step as "Start here".
+- **(Amendment, Req 20) No collapsed menu on narrow screens.** The navigation has never had a menu button, and Req 20.5 asks that narrow screens keep the descriptions, so the seven items stay visible in a two-column grid. This makes the header taller on phones; a collapsible menu could be added later as long as it shows the descriptions when open.
 - **(Amendment) Fit mode needs a viewport at least 800 px tall.** Below that height, or below 1280 px width, or at high zoom, the Ghost Cam uses the stacked layout and the page scrolls. Req 10.24 only covers the three listed viewport sizes.

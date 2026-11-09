@@ -4,6 +4,7 @@ import { useId } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { GhostBadge } from '../components/ghosts/Ghosts';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { useAllRuns } from '../data/hooks';
@@ -192,9 +193,9 @@ export function ExorciseScreen() {
 
   const heading = <ScreenHeading title="Exorcise">Exorcise</ScreenHeading>;
   const intro = (
-    <p>
-      Fixed something? Compare a run from before the fix with a run from after it, and see which hauntings are gone.
-    </p>
+    <ScreenIntro>
+      This compares a run from before a fix with a run from after it, so you can see which problems are gone.
+    </ScreenIntro>
   );
 
   if (!before) {

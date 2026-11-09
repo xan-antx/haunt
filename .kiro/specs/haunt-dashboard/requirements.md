@@ -6,6 +6,8 @@ The Haunt dashboard is a static React + Vite + TypeScript site in `dashboard/` t
 
 The dashboard has seven screens: Home, Haunted Map, Graveyard, Ghost Cam, Séance, Exorcise and Spec Coverage. It is built for the Kiroween 2026 Costume Contest category, so it has a candlelit haunted-house look where every spooky element communicates something. The dashboard itself must be fully accessible.
 
+The screens keep their spooky names, but a first-time user could not tell what each screen does from its name alone. Requirement 20 makes every screen's job obvious in plain words: a short description under each navigation label, a "How Haunt works" strip and a "What's in here" guide on Home, a Guided_Path with a "Next stop" link at the bottom of each screen, and one plain sentence at the top of every screen.
+
 Test data is the two sample runs in `runs/samples/`: `listener-gave-up/run.json` (The Listener, result `gave_up`, 9 steps, findings at steps 7 and 9) and `bebe-succeeded/run.json` (Bebe, result `succeeded`, 6 steps, finding at step 3).
 
 The allowed `ghost`, `result` and finding `type` values are defined in `contract/run-format.md`. The dashboard uses exactly those values.
@@ -53,6 +55,14 @@ Verification process: after each change, the House Builder runs `npm run build` 
 - **Reproduce_Command**: A shell command, generated from Run fields, that re-creates a Run.
 - **Placeholder**: A grey box drawn in place of a screenshot that is missing or cannot be loaded.
 - **Reduced_Motion**: The user's `prefers-reduced-motion: reduce` setting.
+- **Screen_Description**: The short plain-words description of what a screen is for: Haunted Map "Where ghosts got stuck", Graveyard "Every problem found", Ghost Cam "Replay a ghost's visit", Séance "Ask a ghost why", Exorcise "Before and after a fix", Spec Coverage "Which requirements people can reach". Home has no Screen_Description.
+- **Screen_Intro**: The one plain sentence directly after a screen's h1 that says what the screen shows.
+- **Screen_Icon**: The original SVG icon for one screen, used next to its name on Home and in the Next_Stop_Link.
+- **How_It_Works_Strip**: The Home section headed "How Haunt works" with three numbered plain steps.
+- **Screen_Guide**: The Home section headed "What's in here", with one card per screen other than Home.
+- **Guided_Path**: The fixed order in which the screens are visited as a tour: Home, Ghost Cam, Graveyard, Haunted Map, Exorcise, Spec Coverage, Séance, then back to Home.
+- **Next_Stop_Link**: The link at the bottom of a screen on the Guided_Path that opens the next screen on the Guided_Path.
+- **Screen_Destination**: The URL a screen's Top_Navigation link opens. The Haunted Map's is the most recently visited Haunt's map; the Ghost Cam's is the "Start here" step, or step 1 of the first Run when there is no "Start here" step. Both are unavailable when there are no Runs.
 
 ## Requirements
 
@@ -242,10 +252,10 @@ Verification process: after each change, the House Builder runs `npm run build` 
 21. WHEN the Transcript's lines exceed the panel height, THE Transcript SHALL be reachable with the Tab key, have an accessible name that identifies it as the spoken or thought transcript, and scroll with the Up Arrow and Down Arrow keys so every earlier line can be brought into view.
 22. WHEN the user moves to a different step by Step back, Step forward, a timeline mark or playback, THE Transcript SHALL show only the lines from step 1 up to and including the new current step.
 23. WHEN the current step changes, THE Ghost_Cam SHALL keep the live-region announcement of criterion 14 limited to the new step, without re-announcing Earlier_Lines.
-24. WHILE the viewport is any size in the Ghost_Cam_Viewport_Set, THE Ghost_Cam SHALL fit the Run_Summary, the screenshot, the Spoken_Panel or Thought_Panel, the Stuck_Notice, the Control_Row and the timeline within the viewport, so that no vertical page scrolling is needed to reach any of them, for both sample Runs and at every step of each. The footer and the collapsed Provenance_Panel MAY sit below the fold. The screenshot and the Spoken_Panel or Thought_Panel SHALL each be at least 380 CSS pixels tall and SHALL have the same height; the screenshot SHALL fill its column at its natural aspect ratio, leaving no empty gap between it and the panel beyond the grid gap; and the waveform SHALL stay inside the Spoken_Panel.
+24. WHILE the viewport is any size in the Ghost_Cam_Viewport_Set, THE Ghost_Cam SHALL fit the Top_Navigation with its Screen_Descriptions (Requirement 20), the Run_Summary, the Screen_Intro, the screenshot, the Spoken_Panel or Thought_Panel, the Stuck_Notice, the Control_Row and the timeline within the viewport, so that no vertical page scrolling is needed to reach any of them, for both sample Runs and at every step of each. The footer, the collapsed Provenance_Panel and the Next_Stop_Link MAY sit below the fold. The screenshot and the Spoken_Panel or Thought_Panel SHALL each be at least 380 CSS pixels tall and SHALL have the same height; the screenshot SHALL fill its column at its natural aspect ratio, leaving no empty gap between it and the panel beyond the grid gap; and the waveform SHALL stay inside the Spoken_Panel.
 25. THE Ghost_Cam SHALL place the Provenance_Panel below the timeline in both visual order and reading order.
 28. THE Spoken_Panel or Thought_Panel SHALL give the Transcript_Viewport a fixed height that does not change when the current step changes, when the number of Transcript lines changes, or when the Stuck_Notice appears or disappears.
-29. THE Run_Summary SHALL show the ghost, mission goal, requirement and result in no more than two lines of text at every viewport size in the Ghost_Cam_Viewport_Set, truncating a line that is too long with an ellipsis and making the full text available through an accessible name or description.
+29. THE Run_Summary SHALL show the ghost, mission goal, requirement and result in no more than two lines of text at every viewport size in the Ghost_Cam_Viewport_Set, truncating a line that is too long with an ellipsis and making the full text available through an accessible name or description. The Ghost_Cam's Screen_Intro (Requirement 20, criterion 13) sits between the two Run_Summary lines, does not count toward this limit, and is never truncated.
 30. THE Ghost_Cam SHALL show at most one Stuck_Notice at a time, and WHEN the current step has a finding and is also the last step of a `gave_up` Run, THE Stuck_Notice SHALL combine both messages (for example "The Listener got trapped here and gave up.") instead of showing two notices.
 31. THE Stuck_Notice SHALL occupy no more than 3 lines of text and SHALL keep its place in the layout so that its appearing or disappearing does not move the screenshot, the panel, the Control_Row or the timeline.
 32. THE Ghost_Cam SHALL place the Control_Row directly under the screenshot and the Spoken_Panel or Thought_Panel, and the timeline directly below the Control_Row.
@@ -381,3 +391,25 @@ Verification process: after each change, the House Builder runs `npm run build` 
 1. THE Dashboard SHALL NOT make network requests to any origin other than its own, including for fonts, analytics, icons, speech or error reporting.
 2. THE Dashboard SHALL bundle all fonts, images and icons locally.
 3. THE Dashboard SHALL set a Content-Security-Policy meta tag that restricts scripts, styles, fonts, images and connections to its own origin.
+
+### Requirement 20: Plain-words wayfinding
+
+**User Story:** As a first-time visitor, I want every screen to say in plain words what it does and where to go next, so that the spooky names make sense without guessing.
+
+#### Acceptance Criteria
+
+1. THE Top_Navigation SHALL show, directly under each screen's name, that screen's Screen_Description as visible text: Haunted Map "Where ghosts got stuck", Graveyard "Every problem found", Ghost Cam "Replay a ghost's visit", Séance "Ask a ghost why", Exorcise "Before and after a fix", Spec Coverage "Which requirements people can reach". The spooky names stay unchanged.
+2. THE Top_Navigation SHALL show each Screen_Description at all times, as part of the link's clickable area, and SHALL NOT use a tooltip, a `title` attribute, or hover or focus to reveal it.
+3. THE Top_Navigation SHALL give each link an accessible name made of all its visible text, starting with the screen's name and followed by its Screen_Description (for example "Ghost Cam Replay a ghost's visit"), so the accessible name contains the visible label (WCAG 2.5.3).
+4. THE Top_Navigation SHALL keep every Screen_Description fully visible, without truncation or clipping, at 200% browser zoom and at viewport widths down to 320 CSS pixels, with at least 4.5:1 contrast against the Nav_Fog behind it (Requirement 16.10) and without horizontal page scrolling (Requirement 18.8).
+5. WHILE the viewport is narrower than 900 CSS pixels, THE Top_Navigation SHALL keep showing every Screen_Description under its screen's name, and SHALL NOT hide the descriptions or move them behind a collapsed menu.
+6. THE Dashboard SHALL define each screen's name, Screen_Description, Screen_Icon and place on the Guided_Path in exactly one table, and SHALL use that table for the Top_Navigation, the Screen_Guide and the Next_Stop_Links.
+7. THE Home screen SHALL show the How_It_Works_Strip: an h2 "How Haunt works" followed by an ordered list of exactly three steps, in this order: "A ghost tries a real task on your site", "It records everything it sees and hears", "You see exactly where it got stuck".
+8. THE Home screen SHALL show the Screen_Guide: an h2 "What's in here" followed by one card per screen other than Home, in Top_Navigation order. Each card SHALL show the screen's Screen_Icon, the screen's name as an h3, its Screen_Description, and a link styled as a button with the text "Open <screen name>" that opens the screen's Screen_Destination.
+9. IF a screen's Screen_Destination is unavailable because there are no Runs, THEN its Screen_Guide card SHALL show visible text explaining that the screen opens once a ghost has walked, in place of the link.
+10. THE Dashboard SHALL show a Next_Stop_Link as the last content in the main landmark of every screen on the Guided_Path. The Next_Stop_Link SHALL have the visible text "Next stop" and the next screen's name, SHALL show the next screen's Screen_Icon and Screen_Description, and SHALL have an accessible name made of all its visible text, starting with "Next stop: <screen name>".
+11. THE Next_Stop_Link SHALL follow the Guided_Path: Home leads to Ghost Cam, Ghost Cam to Graveyard, Graveyard to Haunted Map, Haunted Map to Exorcise, Exorcise to Spec Coverage, Spec Coverage to Séance, and Séance back to Home. Each Next_Stop_Link SHALL open the next screen's Screen_Destination, and IF that Screen_Destination is unavailable, THEN the Next_Stop_Link SHALL lead to the first later screen on the Guided_Path that is available.
+12. THE "Start here" button SHALL begin the Guided_Path by opening the Ghost_Cam at the "Start here" step (Requirement 7.5, 7.6), which is The Listener's step 9 with the sample data. WHEN "Start here" is available, THE Home screen SHALL show visible text next to it that says which ghost and step it opens and that the "Next stop" link at the bottom of each screen continues the tour.
+13. THE Home, Haunted Map, Graveyard, Ghost_Cam, Séance, Exorcise and Spec Coverage screens SHALL each show a Screen_Intro: exactly one plain sentence that says what the screen shows, placed directly after the screen's h1 in DOM order. Further explanation, such as a legend, MAY follow in a separate paragraph.
+14. THE Ghost_Cam's Screen_Intro SHALL name the ghost and say whether the panel shows what it heard (The Listener) or what it was thinking (The Phantom and Bebe), and SHALL fit on one line at every viewport size in the Ghost_Cam_Viewport_Set while Requirement 10.24 still holds.
+15. THE Screen_Icons SHALL be original inline SVGs drawn for this project, hidden from assistive technology, and always shown next to the screen's name in text (Requirement 15.5, 18.4).

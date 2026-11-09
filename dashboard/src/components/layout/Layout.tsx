@@ -3,20 +3,12 @@
 import { useLayoutEffect, useRef, type MouseEvent } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAllRuns } from '../../data/hooks';
-import { groupHaunts, startHereTarget } from '../../model/haunts';
-import {
-  coveragePath,
-  exorcisePath,
-  graveyardPath,
-  homePath,
-  mapPath,
-  parseRoute,
-  seancePath,
-  stepPath,
-} from '../../routes';
+import { NAV_ORDER, SCREENS, screenDestinations, screenOfRoute } from '../../model/screens';
+import { parseRoute } from '../../routes';
 import { HauntLogo } from '../HauntLogo';
 import { Fog } from './Fog';
 import { LiveRegionProvider } from './LiveRegion';
+import { NextStop } from './NextStop';
 import { HeadingFocusContext, type FocusRequest } from './ScreenHeading';
 import styles from './Layout.module.css';
 
@@ -55,46 +47,33 @@ function SkipLink() {
 function Nav() {
   const state = useAllRuns();
   const runs = state.status === 'ready' ? state.runs : [];
-  const firstHaunt = groupHaunts(runs)[0];
-  const start = startHereTarget(runs);
-  const camTarget = start ?? (runs[0] ? { runKey: runs[0].key, step: 1 } : null);
+  const destinations = screenDestinations(runs);
   const location = useLocation();
-  const route = parseRoute(location.pathname);
-
-  const items: { to: string; label: string; current: boolean }[] = [
-    { to: homePath(), label: 'Home', current: route.screen === 'home' },
-    ...(firstHaunt
-      ? [{ to: mapPath(firstHaunt.siteKey), label: 'Haunted Map', current: route.screen === 'map' }]
-      : []),
-    { to: graveyardPath(), label: 'Graveyard', current: route.screen === 'graveyard' },
-    ...(camTarget
-      ? [
-          {
-            to: stepPath(camTarget.runKey, camTarget.step),
-            label: 'Ghost Cam',
-            current: route.screen === 'step' || route.screen === 'run',
-          },
-        ]
-      : []),
-    { to: seancePath(), label: 'Séance', current: route.screen === 'seance' },
-    { to: exorcisePath(), label: 'Exorcise', current: route.screen === 'exorcise' },
-    { to: coveragePath(), label: 'Spec Coverage', current: route.screen === 'coverage' },
-  ];
+  const current = screenOfRoute(parseRoute(location.pathname));
 
   return (
     <nav className={styles.nav} aria-label="Main">
       <ul>
-        {items.map((item) => (
-          <li key={item.label}>
-            <Link
-              to={item.to}
-              className={item.current ? styles.active : undefined}
-              aria-current={item.current ? 'page' : undefined}
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
+        {NAV_ORDER.map((id) => {
+          const to = destinations[id];
+          if (to === null) return null;
+          const { name, description } = SCREENS[id];
+          const isCurrent = current === id;
+          // The accessible name comes from all the visible text, name first, then the plain-words
+          // description, so it contains the visible label (Req 20.1 to 20.3, WCAG 2.5.3).
+          return (
+            <li key={id}>
+              <Link
+                to={to}
+                className={isCurrent ? styles.active : undefined}
+                aria-current={isCurrent ? 'page' : undefined}
+              >
+                <span className={styles.navLabel}>{name}</span>
+                {description && <span className={styles.navHint}>{description}</span>}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
@@ -135,6 +114,7 @@ export function Layout() {
         </header>
         <main id="main-content" tabIndex={-1} className={styles.main}>
           <Outlet />
+          <NextStop />
         </main>
         <footer className={styles.footer}>
           <p>

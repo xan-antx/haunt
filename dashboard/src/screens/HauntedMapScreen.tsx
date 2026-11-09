@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { GhostBadge, GhostIcon } from '../components/ghosts/Ghosts';
 import { Fog } from '../components/layout/Fog';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { useAllRuns } from '../data/hooks';
 import type { GhostId } from '../data/types';
 import { buildRooms, coldSpotSize, type ColdSpot, type Room } from '../model/coldSpots';
@@ -98,10 +99,10 @@ export function HauntedMapScreen() {
   return (
     <>
       <ScreenHeading title={`Haunted Map · ${siteName}`}>Haunted Map: {siteName}</ScreenHeading>
-      <p>
-        Each room is a page the ghosts visited. A frost circle is a cold spot, where a ghost got stuck. The bigger
-        the circle, the longer it waited.
-      </p>
+      <ScreenIntro>
+        This map shows each page of {siteName} as a room, with a frost circle wherever a ghost got stuck.
+      </ScreenIntro>
+      <p>The bigger the circle, the longer the ghost waited there.</p>
 
       <fieldset className={styles.filter}>
         <legend>Show rooms for</legend>

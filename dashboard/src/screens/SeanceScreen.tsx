@@ -5,6 +5,7 @@ import { useId, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { GhostCharacter } from '../components/ghosts/Ghosts';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
 import { byStartedAtDesc, formatDate } from '../model/format';
@@ -13,6 +14,9 @@ import { QUESTIONS, answer } from '../model/seance';
 import { QUESTION_IDS, isQuestionId, seancePath, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './SeanceScreen.module.css';
+
+const SEANCE_INTRO =
+  'Pick a run and a question, and the ghost answers from what it recorded, linking each step it mentions.';
 
 function runLabel(run: Run): string {
   return `${GHOSTS[run.ghost].name} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}`;
@@ -61,6 +65,7 @@ export function SeanceScreen() {
     return (
       <>
         <ScreenHeading title="Séance">Séance</ScreenHeading>
+        <ScreenIntro>{SEANCE_INTRO}</ScreenIntro>
         <p>No ghost has walked here yet, so there is no one to ask.</p>
       </>
     );
@@ -84,10 +89,7 @@ export function SeanceScreen() {
   return (
     <>
       <ScreenHeading title={`Séance · ${ghost.name}`}>Séance</ScreenHeading>
-      <p>
-        Ask a ghost about its run. Every answer comes straight from the run file, and each step it mentions links to
-        that moment in the Ghost Cam.
-      </p>
+      <ScreenIntro>{SEANCE_INTRO}</ScreenIntro>
 
       <div className={styles.table}>
         <GhostCharacter ghost={run.ghost} size={110} labelled />

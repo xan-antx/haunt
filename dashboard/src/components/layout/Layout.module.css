@@ -26,7 +26,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3) var(--space-6);
+  gap: var(--space-3) var(--space-5);
   max-width: var(--content-width);
   margin: 0 auto;
   padding: var(--space-4);
@@ -44,33 +44,90 @@
   line-height: 1;
 }
 
+/* Each item is the screen's name with its plain-words description under it (Req 20.1).
+   The description is never hidden, truncated or clipped, at any width or zoom (Req 20.4, 20.5). */
+.nav {
+  min-width: 0;
+}
+
 .nav ul {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-2);
+  align-items: flex-start;
+  gap: var(--space-1);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+.nav li {
+  min-width: 0;
+}
+
+/* Tight side padding keeps all seven items, each description on one line, beside the brand at
+   1280 px and wider (the Ghost Cam height budget depends on a one-row header). */
 .nav a {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-height: 44px;
-  padding: 0 var(--space-3);
+  padding: var(--space-1);
   border-radius: var(--radius);
   color: var(--text);
   text-decoration: none;
   border-bottom: 3px solid transparent;
+  line-height: 1.25;
 }
 
-.nav a:hover {
+.nav a:hover .navLabel {
   text-decoration: underline;
 }
 
 .nav a.active {
   border-bottom-color: var(--amber);
+}
+
+.nav a.active .navLabel {
   font-weight: 700;
+}
+
+/* --text, not --text-muted: --text-muted is only about 3.9:1 on the fog at its opacity ceiling.
+   The text wraps inside its item when the row is too narrow, so it is never cut off. */
+.navHint {
+  font-size: 0.85rem;
+  overflow-wrap: break-word;
+}
+
+/* Narrow screens keep every description, in a grid of at least two columns at 320 px (Req 20.5). */
+@media (max-width: 899.98px) {
+  .nav {
+    flex: 1 1 100%;
+  }
+
+  .nav ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
+  }
+
+  .nav a {
+    justify-content: flex-start;
+    height: 100%;
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
+/* Ghost Cam fit mode (see GhostCam.module.css): a slimmer header pays for the two-line nav items,
+   so the Ghost Cam still fits at 1536×864 (Req 10.24). The descriptions stay visible. */
+@media (min-width: 1280px) and (min-height: 800px) {
+  :global(body):has([data-cam-area]) .headerInner {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+
+  :global(body):has([data-cam-area]) .nav a {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
 }
 
 .main {

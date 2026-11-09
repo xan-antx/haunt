@@ -2,6 +2,7 @@
 
 import { Link } from 'react-router-dom';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
+import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { useAllRuns } from '../data/hooks';
 import type { GhostId } from '../data/types';
@@ -50,10 +51,8 @@ export function CoverageScreen() {
   return (
     <>
       <ScreenHeading title="Spec Coverage">Spec Coverage</ScreenHeading>
-      <p>
-        Each mission is one requirement. A requirement that a ghost could not complete is one that real people like
-        them can't reach.
-      </p>
+      <ScreenIntro>Each row is one requirement, showing whether each ghost could complete it.</ScreenIntro>
+      <p>A requirement a ghost could not complete is one that real people like them can't reach.</p>
       {missions.length === 0 ? (
         <p>No missions yet. Once a ghost has walked a mission, it appears here.</p>
       ) : (
