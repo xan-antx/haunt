@@ -1,3 +1,4 @@
+/* Problem 1 lives in the component (no accessible name). This file only styles the icon. */
 .button {
   display: inline-flex;
   align-items: center;
@@ -9,6 +10,7 @@
   background-color: var(--color-primary);
   color: #ffffff;
   cursor: pointer;
+  box-shadow: 0 3px 0 var(--color-primary-dark), 0 6px 14px rgba(45, 58, 140, 0.25);
 }
 
 .button:hover:not(:disabled) {

@@ -1,14 +1,70 @@
 {
   "pageTitle": "Lantern Bills - Pay Your Electricity Bill",
   "payBillButton": "Pay this bill",
+  "header": {
+    "tagline": "Power for every home",
+    "greeting": "Namaste, {{name}}",
+    "customerName": "Asha Kaur",
+    "accountLabel": "Account no."
+  },
   "billDetails": {
     "heading": "Your Electricity Bill",
+    "subtitle": "Check your bill and pay it securely online.",
+    "cardHeading": "Bill for {{period}}",
+    "status": "Not paid yet",
     "accountNumber": "Account Number",
     "amountDue": "Amount Due",
-    "dueDate": "Due Date"
+    "dueDate": "Due Date",
+    "billingPeriod": "Billing period",
+    "unitsUsed": "Units used"
+  },
+  "usage": {
+    "heading": "Units used in the last six months",
+    "item": "{{month}}: {{value}} units",
+    "itemCurrent": "{{month}}: {{value}} units, on this bill",
+    "units": "{{value}} units",
+    "average": "Six-month average: {{value}} units a month",
+    "thisBill": "This bill"
+  },
+  "dates": {
+    "dayMonthYear": "{{day}} {{month}} {{year}}",
+    "monthYear": "{{month}} {{year}}",
+    "dayRange": "{{startDay}}–{{endDay}} {{month}} {{year}}"
+  },
+  "months": {
+    "jan": "January",
+    "feb": "February",
+    "mar": "March",
+    "apr": "April",
+    "may": "May",
+    "jun": "June",
+    "jul": "July",
+    "aug": "August",
+    "sep": "September",
+    "oct": "October",
+    "nov": "November",
+    "dec": "December"
+  },
+  "monthsShort": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "payPanel": {
+    "hint": "Pay securely by debit or credit card."
   },
   "paymentForm": {
     "heading": "Payment Information",
+    "secureNote": "Your card details are sent over a secure connection and are never stored.",
     "cardNumber": "Card Number",
     "cardNumberPlaceholder": "1234 5678 9012 3456",
     "expiry": "Expiry Date",
@@ -54,7 +110,9 @@
     "backToBill": "Back to bill"
   },
   "banner": {
-    "alt": "Lantern Bills - Your trusted electricity provider"
+    "alt": "Paper lanterns and diyas glowing on a festival night",
+    "offerTag": "Festive offer",
+    "offerText": "Get 5% cashback, up to ₹150 a month, on every bill paid by autopay until 31 December 2026."
   },
   "summary": {
     "heading": "Payment Summary",
@@ -63,6 +121,15 @@
     "addOn": "Payment Protection"
   },
   "autopayLink": "Set up autopay",
+  "footer": {
+    "careHeading": "Customer care",
+    "careText": "Email {{email}} and we will reply within one working day.",
+    "careHours": "Service centres are open Monday to Saturday, 9 am to 6 pm.",
+    "outageHeading": "Power cut?",
+    "outageText": "Report it any time to {{email}}. Keep your account number handy.",
+    "safetyHeading": "Stay safe",
+    "safetyText": "Lantern Bills never asks for your OTP, PIN or CVV by phone, SMS or email."
+  },
   "accessibility": {
     "loading": "Loading",
     "closeDialog": "Close dialog",

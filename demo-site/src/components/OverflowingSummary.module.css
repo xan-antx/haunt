@@ -1,22 +1,28 @@
 .summary {
-  background-color: var(--color-background);
-  border: 2px solid var(--color-border-strong);
-  border-radius: 4px;
+  background-color: var(--color-marigold-light);
+  border: 2px solid var(--color-marigold);
+  border-radius: var(--radius-card);
   padding: 1rem;
   margin-left: auto;
+  box-shadow: var(--shadow-card);
 }
 
 .heading {
   margin-bottom: 0.5rem;
+  font-size: 1.125rem;
 }
 
 .label {
-  color: var(--color-text-light);
+  color: var(--color-saffron);
+  font-weight: 700;
+  font-size: 0.9375rem;
 }
 
 .amount {
   font-size: 1.75rem;
   font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Problem 5: clipping at narrow viewports (200% zoom on a 1280px display). */

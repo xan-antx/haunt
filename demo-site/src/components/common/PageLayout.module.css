@@ -4,31 +4,140 @@
   flex-direction: column;
 }
 
+/* ---- Header ---- */
+
 .header {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-night);
   color: #ffffff;
-  padding: 0.75rem 1rem;
+}
+
+/* A festive toran of marigold and mango-leaf triangles under the header (decorative, static). */
+.header::after {
+  content: '';
+  display: block;
+  height: 10px;
+  background-color: var(--color-page);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='10'%3E%3Cpath d='M0 0h14L7 10z' fill='%23f4a62a'/%3E%3Cpath d='M14 0h14l-7 10z' fill='%232f8f5b'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+}
+
+.headerInner,
+.footerInner,
+.main {
+  width: 100%;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.headerInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.brandBlock,
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo {
+  display: block;
+  flex-shrink: 0;
 }
 
 .brand {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
-  max-width: 800px;
-  margin: 0 auto;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: #ffffff;
 }
+
+.tagline {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-gold);
+}
+
+.customer {
+  text-align: right;
+  line-height: 1.35;
+}
+
+.greeting {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.accountLine {
+  font-size: 0.875rem;
+  color: var(--color-night-text);
+}
+
+.accountNumber {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Main ---- */
 
 .main {
   flex: 1;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2.5rem;
 }
 
+/* ---- Footer ---- */
+
 .footer {
-  background-color: #ffffff;
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-light);
-  text-align: center;
-  padding: 1rem;
+  background-color: var(--color-night);
+  color: var(--color-night-text);
+  border-top: 4px solid var(--color-marigold);
+}
+
+.footerInner {
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+.footerColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1.5rem 2rem;
+  margin: 1.5rem 0;
+}
+
+.footerHeading {
+  font-size: 1rem;
+  color: #ffffff;
+  margin-bottom: 0.375rem;
+}
+
+.footerText {
+  font-size: 0.9375rem;
+  overflow-wrap: break-word;
+}
+
+.footerText + .footerText {
+  margin-top: 0.375rem;
+}
+
+.copyright {
+  border-top: 1px solid var(--color-night-2);
+  padding-top: 1rem;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .customer {
+    text-align: left;
+  }
 }

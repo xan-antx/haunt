@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/common/Button';
@@ -9,13 +9,102 @@ import { OverflowingSummary } from '../components/OverflowingSummary';
 import { SilentCardErrors } from '../components/SilentCardErrors';
 import { TrappingProtectionModal } from '../components/TrappingProtectionModal';
 import { UnlabeledPayButton } from '../components/UnlabeledPayButton';
+import { UsageChart } from '../components/UsageChart';
+import { BILL_EXTRAS } from '../data/billExtras';
 import { useLanguage } from '../hooks/useLanguage';
 import { usePaymentForm } from '../hooks/usePaymentForm';
 import { SAMPLE_BILL } from '../types';
 import { formatCurrency } from '../utils/currency';
+import { formatDateRange, formatLongDate, formatMonthYear, formatNumber } from '../utils/format';
 import { processPayment } from '../utils/payment';
 import common from './Pages.module.css';
 import styles from './BillPage.module.css';
+
+/** Small decorative icons. Each sits next to text that says the same thing. */
+function LockIcon() {
+  return (
+    <svg className={styles.inlineIcon} viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+      <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" />
+      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg className={styles.inlineIcon} viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+      <path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg className={styles.inlineIcon} viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+      <path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+interface BillCardProps {
+  /** Formatted amount due, e.g. "₹2,490.00". */
+  amountText: string;
+}
+
+/**
+ * The bill itself: amount, due date, account, period, units and the six-month chart.
+ * Memoised so typing in the payment form does not re-render it; it still follows language changes.
+ */
+const BillCard = memo(function BillCard({ amountText }: BillCardProps) {
+  const { t } = useTranslation();
+  const unitsThisBill = BILL_EXTRAS.usage[BILL_EXTRAS.usage.length - 1]?.units ?? 0;
+
+  return (
+    <section className={`${common.section} ${styles.billCard}`} aria-labelledby="bill-card-heading">
+      <div className={styles.billCardTop}>
+        <h2 id="bill-card-heading" className={styles.billCardHeading}>
+          {t('billDetails.cardHeading', {
+            period: formatMonthYear(t, BILL_EXTRAS.billingPeriodStart),
+          })}
+        </h2>
+        <span className={styles.status}>
+          <ClockIcon />
+          {t('billDetails.status')}
+        </span>
+      </div>
+
+      <dl className={styles.facts}>
+        <div className={`${styles.fact} ${styles.factWide}`}>
+          <dt>{t('billDetails.amountDue')}</dt>
+          <dd data-testid="amount-due" className={styles.amountDue}>
+            {amountText}
+          </dd>
+        </div>
+        <div className={styles.fact}>
+          <dt>{t('billDetails.dueDate')}</dt>
+          <dd>{formatLongDate(t, BILL_EXTRAS.dueDate)}</dd>
+        </div>
+        <div className={styles.fact}>
+          <dt>{t('billDetails.accountNumber')}</dt>
+          <dd data-testid="account-number" className={styles.accountNumber}>
+            {SAMPLE_BILL.accountNumber}
+          </dd>
+        </div>
+        <div className={styles.fact}>
+          <dt>{t('billDetails.billingPeriod')}</dt>
+          <dd>{formatDateRange(t, BILL_EXTRAS.billingPeriodStart, BILL_EXTRAS.billingPeriodEnd)}</dd>
+        </div>
+        <div className={styles.fact}>
+          <dt>{t('billDetails.unitsUsed')}</dt>
+          <dd>{t('usage.units', { value: formatNumber(unitsThisBill) })}</dd>
+        </div>
+      </dl>
+
+      <UsageChart usage={BILL_EXTRAS.usage} />
+    </section>
+  );
+});
 
 type PaymentForm = ReturnType<typeof usePaymentForm>;
 
@@ -50,6 +139,10 @@ function PaymentFormSection({ form, paymentFailed, onSubmit }: PaymentFormSectio
       <h2 id="payment-form-heading" className={common.sectionHeading}>
         {t('paymentForm.heading')}
       </h2>
+      <p className={styles.secureNote}>
+        <LockIcon />
+        <span>{t('paymentForm.secureNote')}</span>
+      </p>
 
       {paymentFailed ? (
         <div role="alert" className={common.paymentError}>
@@ -174,30 +267,42 @@ export function BillPage() {
 
   return (
     <PageLayout title={t('pageTitle')}>
-      <h1 className={styles.heading}>{t('billDetails.heading')}</h1>
+      <div className={styles.intro}>
+        <h1 className={styles.heading}>{t('billDetails.heading')}</h1>
+        <p className={styles.subtitle}>{t('billDetails.subtitle')}</p>
+      </div>
 
+      {/*
+        Problem 4 (deliberate): nothing in this wrapper takes space until the banner arrives after
+        1500 ms. Then the image, the Autopay link (placed where Pay this bill was) and the offer
+        text all appear at once and push everything below down.
+      */}
       <div className={styles.bannerWrap}>
         <LateBanner onLoaded={() => setBannerLoaded(true)} />
         {bannerLoaded ? (
           <Link to="/autopay" className={styles.autopayLink}>
             {t('autopayLink')}
+            <ArrowIcon />
           </Link>
+        ) : null}
+        {bannerLoaded ? (
+          <p className={styles.offer}>
+            <span className={styles.offerTag}>{t('banner.offerTag')}</span>
+            <span className={styles.offerText}>{t('banner.offerText')}</span>
+          </p>
         ) : null}
       </div>
 
       <div className={styles.payRow}>
         <Button onClick={() => setShowForm(true)}>{t('payBillButton')}</Button>
+        <p className={styles.payHint}>
+          <LockIcon />
+          <span>{t('payPanel.hint')}</span>
+        </p>
       </div>
 
       <div className={common.row}>
-        <div className={common.section}>
-          <dl className={common.detailsList}>
-            <dt>{t('billDetails.accountNumber')}</dt>
-            <dd data-testid="account-number">{SAMPLE_BILL.accountNumber}</dd>
-            <dt>{t('billDetails.amountDue')}</dt>
-            <dd data-testid="amount-due">{amountText}</dd>
-          </dl>
-        </div>
+        <BillCard amountText={amountText} />
         <OverflowingSummary amount={amountText} />
       </div>
 

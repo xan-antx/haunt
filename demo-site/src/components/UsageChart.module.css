@@ -1,0 +1,86 @@
+/*
+ * Bar colours against the white card (WCAG 1.4.11 needs 3:1):
+ *   earlier months #7a85cf 3.45:1, this bill #c46d12 3.79:1.
+ * This bill is also marked in text ("This bill") and with a bold month, never by colour alone.
+ */
+.usage {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.heading {
+  margin-bottom: 0.75rem;
+}
+
+.chart {
+  list-style: none;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.visual {
+  display: grid;
+  grid-template-rows: auto 6.5rem auto minmax(1.25rem, auto);
+  justify-items: center;
+  row-gap: 0.25rem;
+  height: 100%;
+  text-align: center;
+}
+
+.value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.bar {
+  display: block;
+  width: 70%;
+  max-width: 2.75rem;
+  border-radius: 6px 6px 0 0;
+  background-color: #7a85cf;
+}
+
+.month {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+
+.marker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-saffron);
+}
+
+.current .bar {
+  background-color: #c46d12;
+}
+
+.current .month {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.average {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--color-text-light);
+}

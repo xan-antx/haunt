@@ -12,4 +12,6 @@
 .loaded {
   min-height: 120px;
   object-fit: cover;
+  /* Rounded on top; the offer text under the image (BillPage) rounds the bottom. */
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
