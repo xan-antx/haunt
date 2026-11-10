@@ -21,14 +21,14 @@ function mentionsPopUp(text: string): boolean {
 
 function expectedHeadline(run: Run): string {
   const name = GHOSTS[run.ghost].name;
-  if (run.steps.length === 0) return `No steps were recorded for ${name}.`;
+  if (run.steps.length === 0) return `${name} recorded no steps.`;
   const verb = oracleVerb(run.mission.goal);
   const couldnt = verb === null ? "couldn't finish the task" : `couldn't ${verb}`;
   const managed = verb === null ? 'made it through' : `managed to ${verb}`;
   let lastN = -Infinity;
   for (const s of run.steps) lastN = Math.max(lastN, s.n);
 
-  if (run.result === 'error') return `${name} was stopped by a technical error and ${couldnt}.`;
+  if (run.result === 'error') return `${name} hit a technical error and ${couldnt}.`;
   if (run.result === 'gave_up') {
     let atLast: Finding | undefined;
     for (const f of run.findings) {

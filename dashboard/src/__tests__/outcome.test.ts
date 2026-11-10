@@ -30,13 +30,13 @@ function outcomeOf(result: RunResult, stepCount: number, findings: Finding[] = [
 
 describe('outcomeLine', () => {
   it('gives the sample values', () => {
-    expect(outcomeLine(listenerRun())).toBe('Trapped by a keyboard trap at step 9');
+    expect(outcomeLine(listenerRun())).toBe('Hit a keyboard trap at step 9');
     expect(outcomeLine(bebeRun())).toBe('Made it through in 6 steps');
   });
 
-  it('says no steps were recorded for an empty steps array, whatever the result', () => {
+  it('says the run has no steps for an empty steps array, whatever the result', () => {
     for (const result of ['succeeded', 'gave_up', 'error'] as const) {
-      expect(outcomeOf(result, 0, [makeFinding('focus_trap', 1)])).toBe('No steps were recorded');
+      expect(outcomeOf(result, 0, [makeFinding('focus_trap', 1)])).toBe('No steps in this run');
     }
   });
 
@@ -46,11 +46,11 @@ describe('outcomeLine', () => {
   });
 
   it('names the last step of an errored run, ignoring findings', () => {
-    expect(outcomeOf('error', 3, [makeFinding('focus_trap', 3)])).toBe('Stopped by a technical error at step 3');
+    expect(outcomeOf('error', 3, [makeFinding('focus_trap', 3)])).toBe('Hit a technical error at step 3');
   });
 
   it('describes a focus_trap at the last step of a gave_up run', () => {
-    expect(outcomeOf('gave_up', 9, [makeFinding('focus_trap', 9)])).toBe('Trapped by a keyboard trap at step 9');
+    expect(outcomeOf('gave_up', 9, [makeFinding('focus_trap', 9)])).toBe('Hit a keyboard trap at step 9');
   });
 
   it('uses the label as written for another finding type at the last step', () => {

@@ -88,7 +88,7 @@ describe('Exorcise', () => {
   it('refuses to compare different missions', async () => {
     await open(`/exorcise/${L}/2026-11-07-bebe-autopay`);
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'These runs are different missions, so there is nothing to compare.',
+      "These runs follow different missions, so Exorcise can't compare them.",
     );
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
@@ -140,7 +140,7 @@ describe('exorcise-different-ghost-fix: bug condition', () => {
   it('still refuses different missions first when the ghosts also differ', async () => {
     await open(`/exorcise/${L}/2026-11-07-bebe-autopay`);
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'These runs are different missions, so there is nothing to compare.',
+      "These runs follow different missions, so Exorcise can't compare them.",
     );
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });

@@ -17,7 +17,7 @@ interface OracleRun {
  */
 function expectedOutcome(run: OracleRun): { text: string; number: number | null } {
   // 7.19: empty steps wins over every other rule, for any result.
-  if (run.steps.length === 0) return { text: 'No steps were recorded', number: null };
+  if (run.steps.length === 0) return { text: 'No steps in this run', number: null };
 
   // 7.14: N is the number of entries in steps, singular "step" when N is 1.
   if (run.result === 'succeeded') {
@@ -31,7 +31,7 @@ function expectedOutcome(run: OracleRun): { text: string; number: number | null 
 
   // 7.17: error ignores findings.
   if (run.result === 'error') {
-    return { text: `Stopped by a technical error at step ${lastN}`, number: lastN };
+    return { text: `Hit a technical error at step ${lastN}`, number: lastN };
   }
 
   // 7.15 / 7.16: gave_up uses the first finding (array order) at the last step.
@@ -47,7 +47,7 @@ function expectedOutcome(run: OracleRun): { text: string; number: number | null 
   const label = FINDING_LABELS[first.type].label;
   if (first.type === 'focus_trap') {
     const lowered = label.slice(0, 1).toLowerCase() + label.slice(1);
-    return { text: `Trapped by a ${lowered} at step ${lastN}`, number: lastN };
+    return { text: `Hit a ${lowered} at step ${lastN}`, number: lastN };
   }
   return { text: `Stuck at step ${lastN}: ${label}`, number: lastN };
 }

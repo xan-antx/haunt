@@ -73,7 +73,7 @@ describe('Result_Headline rules (Req 21.4)', () => {
 
   it('stops on a technical error', () => {
     const run = edit(base, { result: 'error' });
-    expect(resultHeadline(run)).toBe("The Listener was stopped by a technical error and couldn't pay.");
+    expect(resultHeadline(run)).toBe("The Listener hit a technical error and couldn't pay.");
   });
 
   it('counts more problems on a successful run', () => {
@@ -95,9 +95,9 @@ describe('Result_Headline rules (Req 21.4)', () => {
     expect(resultHeadline(edit(bebeRun(), { mission, findings: [] }))).toBe('Bebe made it through with no problems.');
   });
 
-  it('says when no steps were recorded', () => {
+  it('says when the ghost recorded no steps', () => {
     const run = edit(base, { steps: [] });
-    expect(resultHeadline(run)).toBe('No steps were recorded for The Listener.');
+    expect(resultHeadline(run)).toBe('The Listener recorded no steps.');
     expect(watchStep(run)).toBeNull();
   });
 

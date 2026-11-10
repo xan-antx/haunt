@@ -228,7 +228,7 @@ test.describe('old links open the right place', () => {
     await open(page, '#/haunt/lantern-bills-demo/map?ghost=phantom');
     await expect(page).toHaveURL(url('#/graveyard?site=lantern-bills-demo&ghost=phantom&view=map'));
     await expect(page.getByRole('region', { name: 'Map of Lantern Bills demo' })).toBeVisible();
-    await expect(page.getByText('Not visited by The Phantom')).toHaveCount(2);
+    await expect(page.getByText('The Phantom never entered this room')).toHaveCount(2);
     await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Graveyard' })).toHaveAttribute(
       'aria-current',
       'page',

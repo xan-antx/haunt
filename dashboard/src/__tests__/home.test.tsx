@@ -91,7 +91,7 @@ describe('Home screen', () => {
     const rows = hauntCards().flatMap(ghostRows);
     const listener = rows.find((row) => within(row).queryByText('The Listener', { selector: 'p' }))!;
     const bebe = rows.find((row) => within(row).queryByText('Bebe', { selector: 'p' }))!;
-    expect(within(listener).getByText('Trapped by a keyboard trap at step 9')).toBeInTheDocument();
+    expect(within(listener).getByText('Hit a keyboard trap at step 9')).toBeInTheDocument();
     expect(within(listener).getByText('Gave up')).toBeInTheDocument();
     expect(within(bebe).getByText('Made it through in 6 steps')).toBeInTheDocument();
     expect(within(bebe).getByText('Completed')).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import axe from 'axe-core';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildTranscript, NOTHING_SPOKEN, NOTHING_THOUGHT } from '../model/transcript';
+import { buildTranscript, NOTHING_SPOKEN, nothingThought } from '../model/transcript';
 import { BEBE_META, LISTENER_META, bebeRun, bebeSample, listenerRun, listenerSample, mustRun } from './fixtures/samples';
 import { memorySource, renderApp, sampleFiles } from './helpers';
 
@@ -59,11 +59,13 @@ describe('buildTranscript with the sample runs', () => {
     const spoken = buildTranscript(mustRun(listener, LISTENER_META), 3);
     expect(spoken).toHaveLength(3);
     expect(spoken[2]).toEqual({ n: 3, text: NOTHING_SPOKEN, empty: true, fade: 0, current: true });
+    expect(NOTHING_SPOKEN).toBe('The screen reader said nothing at this step.');
 
     const bebe = bebeSample();
     (bebe.steps as Array<Record<string, unknown>>)[0]!.thought = '   ';
     const thought = buildTranscript(mustRun(bebe, BEBE_META), 2);
-    expect(thought[0]).toEqual({ n: 1, text: NOTHING_THOUGHT, empty: true, fade: 1, current: false });
+    expect(thought[0]).toEqual({ n: 1, text: nothingThought('bebe'), empty: true, fade: 1, current: false });
+    expect(thought[0]!.text).toBe('Bebe noted no thought at this step.');
     expect(thought[1]!.empty).toBe(false);
   });
 });
@@ -185,12 +187,12 @@ describe('Transcript component', () => {
     expect(transcript().querySelector('[aria-live]')).toBeNull();
   });
 
-  it('announces "nothing was spoken" and shows a note line for an empty step', async () => {
+  it('announces "the screen reader said nothing" and shows a note line for an empty step', async () => {
     const json = listenerSample();
     (json.steps as Array<Record<string, unknown>>)[8]!.spoken = '';
     await openStep(LISTENER, 8, memorySource([{ json, meta: LISTENER_META }]));
     fireEvent.click(screen.getByRole('button', { name: 'Step forward' }));
-    await waitFor(() => expect(screen.getByTestId('live-region').textContent).toBe('Step 9: nothing was spoken'));
+    await waitFor(() => expect(screen.getByTestId('live-region').textContent).toBe('Step 9: the screen reader said nothing'));
     const items = lines();
     expect(items).toHaveLength(9);
     expect(items[8]).toHaveTextContent(`Step 9 ${NOTHING_SPOKEN}`);

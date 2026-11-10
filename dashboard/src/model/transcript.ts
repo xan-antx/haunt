@@ -1,7 +1,8 @@
 // Transcript lines for the Ghost Cam's Spoken_Panel and Thought_Panel (Req 10.4, 10.5,
 // 10.16–10.19, 10.22, 10.27). One line per step from the first step up to the current one.
 
-import type { Run } from '../data/types';
+import type { GhostId, Run } from '../data/types';
+import { ghostName } from './ghosts';
 
 /** 0 is the Current_Line; 3 is the floor for lines three or more steps back. */
 export type FadeLevel = 0 | 1 | 2 | 3;
@@ -14,8 +15,18 @@ export interface TranscriptLine {
   current: boolean;
 }
 
-export const NOTHING_SPOKEN = 'Nothing was spoken at this step.';
-export const NOTHING_THOUGHT = 'Nothing was thought at this step.';
+/** The Listener's line for a step with no spoken text. */
+export const NOTHING_SPOKEN = 'The screen reader said nothing at this step.';
+
+/** The line for a step with no thought text, for The Phantom or Bebe. */
+export function nothingThought(ghost: GhostId): string {
+  return `${ghostName(ghost)} noted no thought at this step.`;
+}
+
+/** What the live region says for a step with no text, after "Step n: ". */
+export function nothingAnnounced(ghost: GhostId): string {
+  return ghost === 'listener' ? 'the screen reader said nothing' : `${ghostName(ghost)} noted no thought`;
+}
 
 /** `distance` is how many steps this line sits before the Current_Line. */
 export function fadeLevel(distance: number): FadeLevel {
@@ -29,7 +40,7 @@ export function buildTranscript(run: Run, currentN: number): TranscriptLine[] {
   if (lastIndex < 0) return [];
 
   const listener = run.ghost === 'listener';
-  const placeholder = listener ? NOTHING_SPOKEN : NOTHING_THOUGHT;
+  const placeholder = listener ? NOTHING_SPOKEN : nothingThought(run.ghost);
   const lines: TranscriptLine[] = [];
 
   for (let i = 0; i <= lastIndex; i++) {

@@ -86,7 +86,7 @@ export function resultSentence(ghost: GhostId, result: RunResult): string {
     case 'gave_up':
       return `${name} gave up`;
     case 'error':
-      return `${name} was stopped by a technical error`;
+      return `${name} hit a technical error`;
   }
 }
 

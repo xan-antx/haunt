@@ -1,20 +1,29 @@
+/* The wrapper is a size container, so the list can choose its columns from its own width. */
+.wrap {
+  container: hero-ghosts / inline-size;
+  min-width: 0;
+}
+
+/* Three equal columns. Each ghost spans three shared rows (character, name, description) through
+   subgrid, so the names line up across the row and the descriptions start on the same line. */
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--space-4);
   min-width: 0;
 }
 
 .item {
-  flex: 1 1 8rem;
+  grid-row: span 3;
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+  justify-items: center;
+  align-items: start;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   text-align: center;
 }
 
@@ -22,6 +31,7 @@
   margin: var(--space-2) 0 0;
   font-weight: 700;
   overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .description {
@@ -29,4 +39,14 @@
   color: var(--text-muted);
   font-size: 0.9rem;
   overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* Too narrow for three 120 px characters side by side (for example at 320 px): one ghost per row,
+   in reading order, with no horizontal scrolling. */
+@container hero-ghosts (width < 19rem) {
+  .list {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-4);
+  }
 }

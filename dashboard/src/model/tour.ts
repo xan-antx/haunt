@@ -80,7 +80,7 @@ export function buildTour(runs: Run[]): TourStop[] | null {
       path: exorcisePath(),
       targets: ['[data-tour="exorcise-pickers"]', intro],
       title: 'Before and after a fix',
-      body: 'Exorcise compares a run from before a fix with a run from after it. It shows which problems are gone and which still haunt the site.',
+      body: 'When you fix your code and run the same ghost again, Exorcise compares the two runs. It shows which problems are gone and which still haunt the site.',
     },
     {
       id: 'coverage',

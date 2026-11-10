@@ -484,6 +484,60 @@ These tasks implement Req 21–23 and the criteria marked "Revised" in Req 6, 7,
   - Confirm nothing is listening on port 3001, run `npm run build`, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; never weaken or delete tests
   - _Requirements: 10.24, 20.1–20.5, 21, 22, 23_
 
+## Fourth amendment tasks: equal sizes, active copy and the developer's loop
+
+These tasks implement the fourth amendment (design sections "Amendment: equal sizes, active copy and the developer's loop" and "Equal sizes and active copy (fourth amendment)"): Req 7.7, 7.15, 7.17, 7.19, 7.29, 7.30, 8.6, 9.10, 9.11, 10.27, 13.11, 20.7, 20.10, 21.4, 21.6, 21.9 and 21.10. They change only `dashboard/`. The demo site keeps its six deliberate problems. Earlier tasks stay checked as history. Where a test asserted the old wording, its expected string is updated to the new wording with the same checks; no test is weakened or deleted. Each of tasks 43 to 49 ended with `npm run build` and `npm test` in `dashboard/` (`npx vitest --run --maxWorkers=1` when the machine is busy, because parallel workers timed out while starting). Nothing changes the Ghost Cam layout, so Req 10.24 at 1536×864 is unaffected. Playwright runs once, in task 51.
+
+- [x] 43. Graveyard filter bar of equal boxes
+  - Make the Site filter a `<fieldset>` with `<legend id>Site</legend>` and a `<select aria-labelledby>` in `src/screens/GraveyardScreen.tsx`; remove `.siteFilter`; `.filters { align-items: stretch }` and `.filters > fieldset { display: flex; align-items: center }`
+  - The select keeps the accessible name "Site" (`graveyard-map.test.tsx` finds it by that name)
+  - _Requirements: 9.6, 9.10_
+
+- [x] 44. Equal heights on Home
+  - [x] 44.1 Haunt cards and "Recent ghost walks": `.body { align-items: stretch }` from 1280 px, `.sites` flex column, `.cards { flex: 1 }`, `.card` and the article (`.cardInner`) flex columns, map link `margin-top: auto`
+    - _Requirements: 7.12, 7.29_
+  - [x] 44.2 Hero_Ghosts: a `hero-ghosts` size container around the list, three equal columns, each item a three-row subgrid (`row-gap: 0`), `text-wrap: balance` on names and descriptions, one column when the container is narrower than 19 rem
+    - _Requirements: 7.21, 7.25, 7.30, 18.8_
+  - [x] 44.3 Result_Cards: card and inner flex, text column a flex column with `align-items: flex-start`, the candle (last child) `margin-top: auto`, ghost `align-self: flex-start`
+    - _Requirements: 21.7, 21.10_
+
+- [x] 45. Tombstones of equal size
+  - `.grid`: drop `align-items: end`, add `grid-auto-rows: 1fr`; `.grid > li { display: flex }` with the article `flex: 1`; `.meta { margin-top: auto }` in `Tombstone.module.css`
+  - _Requirements: 9.2, 9.11_
+
+- [x] 46. Next_Stop_Link typography
+  - `.name` in the body font, 1.25 rem, weight 700, `--spectral`; `.kicker` inherits the same font, size and weight in `--text`
+  - _Requirements: 20.10_
+
+- [x] 47. Active copy in the models
+  - `outcome.ts` ("Hit a … at step N", "Hit a technical error at step N", "No steps in this run"), `results.ts` ("{ghost} hit a technical error and couldn't {verb}.", "{ghost} recorded no steps."), `ghosts.ts` `resultSentence`, `findingLabels.ts` (two "helped" answers and the `dark_pattern` blocker), `transcript.ts` (`NOTHING_SPOKEN`, `nothingThought(ghost)`, `nothingAnnounced(ghost)`, used by the Ghost Cam's live region), the Result_Card unlit reason
+  - Update the expected strings in `outcome.test.ts`, `outcome.properties.test.ts` (Property 11 oracle), `results.test.ts`, `results.properties.test.ts` (Property 14 oracle), `transcript.test.tsx`, `transcript.properties.test.ts` (Property 9) and `home.test.tsx`
+  - _Requirements: 7.15, 7.17, 7.19, 10.27, 12.7, 21.4, 21.6_
+
+- [x] 48. Active copy on the screens
+  - Map_View ("{ghost} never entered this room", "Ghosts who entered"), Restless files on Home and the restless screen, the missing-index screen ("No runs found"), the route error screen, the Exorcise different-missions, different-ghosts and Not reached texts, the Spec Coverage legend and changed-requirement note
+  - Update the expected strings in `graveyard-map.test.tsx`, `a11y.test.tsx`, `Exorcise.test.tsx` and `e2e/first-visit.spec.ts` (written only; not run yet)
+  - _Requirements: 4.12, 8.6, 13.9_
+
+- [x] 49. Lantern Bills and the developer's loop
+  - [x] 49.1 Write `src/model/sites.ts` (`siteAbout`) and render the Site_About sentence and the "Try Lantern Bills yourself" link after the Results_Section h2 in `HomeScreen.tsx`
+    - _Requirements: 21.9, 19.1_
+  - [x] 49.2 Hero Screen_Intro, the "Summon a live ghost" reason, the fourth How_It_Works step (with a 2×2 grid from 900 px and four columns from 1280 px), the Exorcise Screen_Intro, the "No after run yet" hint with the samples-only sentence, and Tour stop 7's body
+    - _Requirements: 7.7, 13.11, 20.7, 20.13, 22.2, 22.11_
+
+- [x] 50. Update the spec
+  - `requirements.md`, `design.md` and this file describe the fourth amendment; the bugfix spec `exorcise-different-ghost-fix` is unchanged, because "No after run yet for {ghost}" is unchanged
+
+- [ ] 51. Final end-to-end run (left for the House Builder to run when the computer is free)
+  - Confirm nothing is listening on port 3001, run `npm run build`, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; never weaken or delete tests
+  - Pay attention to `home.spec.ts` (Hero_Ghosts right of the h1 from 900 px, wide layout), `first-visit.spec.ts` (Map_View fog text, results heading inside 864 px), `ghostcam-layout.spec.ts` (fit at 1536×864) and the real-browser axe scans, which check the new Site_About contrast
+  - _Requirements: 7.29, 7.30, 9.10, 9.11, 10.24, 18.5, 18.8, 18.10, 21.9, 21.10_
+
+- [ ]* 52. Add automated checks for the new layout criteria
+  - Playwright: on Home at 1280 px the haunt card column and the side panel have equal heights; the three Hero_Ghost names share one top within 1 px at 900, 1280 and 1920 px; Result_Card candles share a bottom; on the Graveyard the three filter boxes share a height and all Tombstones share a height and their links a bottom; the Next_Stop_Link's kicker and name have the same computed font
+  - Unit: `siteAbout` returns the Lantern Bills entry and null for other names; Home shows the Site_About sentence and link after the results h2; the Exorcise notice shows the samples-only sentence only while every Run comes from `runs/samples/`
+  - _Requirements: 7.29, 7.30, 9.10, 9.11, 13.11, 20.10, 21.9, 21.10_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2, 38.2, 39.2) are required.

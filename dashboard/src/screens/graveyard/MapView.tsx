@@ -37,10 +37,10 @@ function RoomCard({ room, site, filter }: { room: Room; site: string; filter: Gh
       {unvisited && (
         <>
           <Fog dense className={styles.roomFog} />
-          <p className={styles.notVisited}>Not visited by {GHOSTS[filter].name}</p>
+          <p className={styles.notVisited}>{GHOSTS[filter].name} never entered this room</p>
         </>
       )}
-      <p className={styles.label}>Entered by</p>
+      <p className={styles.label}>Ghosts who entered</p>
       <ul className={styles.badges}>
         {room.ghosts.map((g) => (
           <li key={g}>

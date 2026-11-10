@@ -11,7 +11,10 @@ export function RouteErrorScreen() {
     <>
       <ScreenHeading title="Something went wrong">Something went wrong on this screen</ScreenHeading>
       <div className="panel">
-        <p>This screen could not be shown. The address is unchanged, so you can try reloading the page.</p>
+        <p>
+          Something stopped this screen from loading. The address stays the same, so you can reload the page to try
+          again.
+        </p>
         {detail && <p className="muted">Details: {detail}</p>}
         <p>
           <Link to={homePath()}>Go back to Home</Link>

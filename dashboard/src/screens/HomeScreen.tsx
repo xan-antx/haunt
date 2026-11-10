@@ -17,6 +17,7 @@ import { GHOST_ORDER, GHOSTS, moodFor, resultSentence } from '../model/ghosts';
 import { outcomeLine } from '../model/outcome';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
+import { siteAbout } from '../model/sites';
 import { buildTour } from '../model/tour';
 import { graveyardPath, restlessPath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
@@ -25,7 +26,7 @@ import styles from './HomeScreen.module.css';
 function HauntCard({ haunt }: { haunt: Haunt }) {
   return (
     <li className={styles.card}>
-      <article aria-labelledby={`haunt-${haunt.siteKey}`}>
+      <article aria-labelledby={`haunt-${haunt.siteKey}`} className={styles.cardInner}>
         <h2 id={`haunt-${haunt.siteKey}`} className={styles.cardTitle}>
           {haunt.siteName}
         </h2>
@@ -138,6 +139,7 @@ const HOW_STEPS = [
   'A ghost tries a real task on your site',
   'It records everything it sees and hears',
   'You see exactly where it got stuck',
+  'You fix your code, and the next run shows if the problem is gone',
 ] as const;
 
 /** One Result_Card: what happened to one ghost, in plain words, with one main action (Req 21.3–21.6). */
@@ -164,7 +166,7 @@ function ResultCard({ run }: { run: Run }) {
             <ResultBadge result={run.result} />
           </p>
           {step === null ? (
-            <CandleButton lit={false} reason="No steps were recorded, so there is nothing to watch.">
+            <CandleButton lit={false} reason="This run has no steps, so there is nothing to watch.">
               Watch it happen
             </CandleButton>
           ) : (
@@ -181,11 +183,23 @@ function ResultCard({ run }: { run: Run }) {
 /** Results_Section: one per Haunt, right after the Hero (Req 21.1, 21.2, 21.7). */
 function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
   const headingId = `results-${haunt.siteKey}`;
+  const about = siteAbout(haunt.siteName);
   return (
     <section aria-labelledby={headingId} className={styles.results} data-tour={first ? 'results' : undefined}>
       <h2 id={headingId} className={styles.sectionTitle}>
         {resultsHeading(haunt.siteName)}
       </h2>
+      {/* What the tested site is, for a first-time visitor (Req 21.9). */}
+      {about && (
+        <div className={styles.siteAbout}>
+          <p className={styles.siteDescription}>{about.description}</p>
+          {about.tryLink && (
+            <p>
+              <a href={about.tryLink.href}>{about.tryLink.label}</a>
+            </p>
+          )}
+        </div>
+      )}
       <ul className={styles.resultCards}>
         {haunt.ghosts.map((summary) => (
           <ResultCard key={summary.ghost} run={summary.latest} />
@@ -221,7 +235,7 @@ function RestlessFiles({ invalid }: { invalid: InvalidRun[] }) {
   return (
     <section aria-labelledby="restless-heading" className={styles.section}>
       <h2 id="restless-heading">Restless files</h2>
-      <p>These run files could not be read, so they are left out of every screen.</p>
+      <p>The dashboard can't read these run files, so it leaves them out of every screen.</p>
       <ul>
         {invalid.map((item) => (
           <li key={item.key}>
@@ -253,7 +267,7 @@ export function HomeScreen() {
               Haunt your app before your users do.
             </ScreenHeading>
             <ScreenIntro className={styles.tagline}>
-              Three ghost users tried real tasks on our sites, and this dashboard shows where each one got stuck.
+              Haunt's ghost users try real tasks on your app, and this dashboard shows where each one got stuck.
             </ScreenIntro>
             <div className={styles.actions}>
               {tourAvailable ? (
@@ -265,7 +279,10 @@ export function HomeScreen() {
                   Take the 60-second tour
                 </CandleButton>
               )}
-              <CandleButton lit={false} reason="Coming soon: live ghosts are not connected yet">
+              <CandleButton
+                lit={false}
+                reason="Coming soon. For now, this dashboard shows runs the ghosts already recorded."
+              >
                 Summon a live ghost
               </CandleButton>
             </div>

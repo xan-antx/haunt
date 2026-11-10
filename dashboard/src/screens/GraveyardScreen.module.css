@@ -1,20 +1,17 @@
+/* View, Site and Ghost are all fieldsets with the label on the border. Boxes on one row stretch
+   to the same height, and each box centres its controls vertically. */
 .filters {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: stretch;
   gap: var(--space-4) var(--space-5);
   margin: var(--space-5) 0;
 }
 
-.siteFilter {
+.filters > fieldset {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  align-items: center;
   max-width: 100%;
-}
-
-.siteFilter label {
-  font-weight: 700;
 }
 
 .viewIcon {
@@ -27,16 +24,24 @@
   color: var(--text-muted);
 }
 
+/* Every tombstone has the same width (equal columns) and the same height (equal rows, sized by the
+   tallest stone), whatever the length of its text. */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  grid-auto-rows: 1fr;
   gap: var(--space-6) var(--space-5);
-  align-items: end;
   list-style: none;
   margin: var(--space-5) 0 0;
   padding: 0;
 }
 
 .grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.grid > li > * {
+  flex: 1;
   min-width: 0;
 }

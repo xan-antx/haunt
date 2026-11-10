@@ -28,7 +28,7 @@ export const FINDING_LABELS: Record<FindingType, FindingLabel> = {
   },
   unannounced_error: {
     label: 'Error nobody announced',
-    helped: "If the error had been read out, I'd have known what to fix.",
+    helped: "If the page had announced the error, I'd have known what to fix.",
     blocker: 'missed an error nobody announced',
     thing: 'an error nobody announced',
   },
@@ -46,7 +46,7 @@ export const FINDING_LABELS: Record<FindingType, FindingLabel> = {
   },
   cut_off_text: {
     label: 'Text cut off',
-    helped: 'Text that wrapped instead of being cut off when I zoomed in.',
+    helped: 'Text that wrapped to the next line when I zoomed in, instead of running off the edge.',
     blocker: "couldn't read text that was cut off",
     thing: 'text that was cut off',
   },
@@ -59,7 +59,7 @@ export const FINDING_LABELS: Record<FindingType, FindingLabel> = {
   dark_pattern: {
     label: 'Tricky choice',
     helped: 'A plain choice, with nothing extra ticked for me.',
-    blocker: 'was caught by a tricky choice',
+    blocker: 'ran into a tricky choice',
     thing: 'a tricky choice',
   },
 };

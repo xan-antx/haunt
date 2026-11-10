@@ -41,13 +41,13 @@ describe('Graveyard Map_View (Req 8, 9.7–9.9)', () => {
 
   it('fogs rooms the chosen ghost never entered', async () => {
     await renderGraveyard('/graveyard?ghost=phantom&view=map');
-    expect(screen.getAllByText('Not visited by The Phantom')).toHaveLength(2);
+    expect(screen.getAllByText('The Phantom never entered this room')).toHaveLength(2);
     expect(document.querySelectorAll('main [data-fog]')).toHaveLength(2);
   });
 
   it('keeps fog off rooms the chosen ghost entered', async () => {
     await renderGraveyard('/graveyard?ghost=bebe&view=map');
-    expect(screen.queryByText(/Not visited by/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/never entered this room/)).not.toBeInTheDocument();
   });
 
   it('switches views through the URL with replace and keeps focus on the radio', async () => {

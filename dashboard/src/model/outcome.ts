@@ -9,7 +9,7 @@ export type OutcomeRun = Pick<Run, 'result' | 'steps' | 'findings'>;
 
 export function outcomeLine(run: OutcomeRun): string {
   const { steps, findings, result } = run;
-  if (steps.length === 0) return 'No steps were recorded';
+  if (steps.length === 0) return 'No steps in this run';
 
   if (result === 'succeeded') return `Made it through in ${plural(steps.length, 'step')}`;
 
@@ -17,14 +17,14 @@ export function outcomeLine(run: OutcomeRun): string {
   // maximum so the rule holds even if they are not.
   const lastN = Math.max(...steps.map((step) => step.n));
 
-  if (result === 'error') return `Stopped by a technical error at step ${lastN}`;
+  if (result === 'error') return `Hit a technical error at step ${lastN}`;
 
   const finding = findings.find((f) => f.step === lastN);
   if (!finding) return `Gave up at step ${lastN}`;
 
   const label = FINDING_LABELS[finding.type].label;
   if (finding.type === 'focus_trap') {
-    return `Trapped by a ${label.charAt(0).toLowerCase()}${label.slice(1)} at step ${lastN}`;
+    return `Hit a ${label.charAt(0).toLowerCase()}${label.slice(1)} at step ${lastN}`;
   }
   return `Stuck at step ${lastN}: ${label}`;
 }

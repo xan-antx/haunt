@@ -52,7 +52,7 @@ export function CoverageScreen() {
     <>
       <ScreenHeading title="Spec Coverage">Spec Coverage</ScreenHeading>
       <ScreenIntro>Each row is one requirement, showing whether each ghost could complete it.</ScreenIntro>
-      <p>A requirement a ghost could not complete is one that real people like them can't reach.</p>
+      <p>If a ghost couldn't complete a requirement, people with the same needs probably can't either.</p>
       {missions.length === 0 ? (
         <p>No missions yet. Once a ghost has walked a mission, it appears here.</p>
       ) : (
@@ -81,7 +81,7 @@ export function CoverageScreen() {
                   </span>
                   {m.requirementChanged && (
                     <span className={styles.changed}>
-                      The requirement text changed between runs. This is the text from the most recent run.
+                      The requirement text changed between runs. This row shows the text from the most recent run.
                     </span>
                   )}
                 </th>

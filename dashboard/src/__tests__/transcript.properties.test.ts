@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import type { Run } from '../data/types';
 import { validateRun } from '../data/validate';
-import { buildTranscript, fadeLevel, NOTHING_SPOKEN, NOTHING_THOUGHT } from '../model/transcript';
+import { buildTranscript, fadeLevel, NOTHING_SPOKEN, nothingThought } from '../model/transcript';
 import { COLORS, contrastRatio, TRANSCRIPT_FADES } from '../styles/tokens';
 import { contractRunArb } from './arbitraries';
 
@@ -53,7 +53,7 @@ describe('Feature: haunt-dashboard, Property 9: Transcript has exactly one line 
           const raw = listener ? step.spoken : step.thought;
           if (raw.trim() === '') {
             expect(line.empty).toBe(true);
-            expect(line.text).toBe(listener ? NOTHING_SPOKEN : NOTHING_THOUGHT);
+            expect(line.text).toBe(listener ? NOTHING_SPOKEN : nothingThought(run.ghost));
           } else {
             expect(line.empty).toBe(false);
             expect(line.text).toBe(raw);

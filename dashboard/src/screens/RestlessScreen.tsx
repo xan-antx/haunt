@@ -30,7 +30,7 @@ export function RestlessScreen() {
       return (
         <>
           <ScreenHeading title={`Restless file · ${state.invalid.key}`}>A restless file</ScreenHeading>
-          <p>This run file could not be read, so it is left out of every other screen.</p>
+          <p>The dashboard can't read this run file, so it leaves it out of every other screen.</p>
           <RunErrorPanel invalid={state.invalid} />
           <p>
             <Link to={homePath()}>Go back to Home</Link>

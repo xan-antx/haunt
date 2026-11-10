@@ -24,7 +24,7 @@ export const GRAVEYARD_INTROS: Record<GraveyardView, string> = {
 export function GraveyardScreen() {
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const siteSelectId = useId();
+  const siteLegendId = useId();
   const state = useAllRuns();
   if (state.status === 'loading') return <Loading what="the graveyard" />;
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
@@ -73,11 +73,12 @@ export function GraveyardScreen() {
             </label>
           </div>
         </fieldset>
-        <div className={styles.siteFilter}>
-          <label htmlFor={siteSelectId}>Site</label>
+        {/* A fieldset like View and Ghost, so all three filter boxes match (label on the border). */}
+        <fieldset>
+          <legend id={siteLegendId}>Site</legend>
           <select
-            id={siteSelectId}
             className="select"
+            aria-labelledby={siteLegendId}
             value={site ?? ''}
             onChange={(e) => setChoice({ site: e.target.value || undefined })}
           >
@@ -88,7 +89,7 @@ export function GraveyardScreen() {
               </option>
             ))}
           </select>
-        </div>
+        </fieldset>
         <fieldset>
           <legend>Ghost</legend>
           <div className="radio-row">

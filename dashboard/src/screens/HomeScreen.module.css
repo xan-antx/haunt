@@ -62,7 +62,8 @@
   font-size: 1.75rem;
 }
 
-/* How_It_Works_Strip: three numbered steps, side by side from 900 px (Req 20.7). */
+/* How_It_Works_Strip: four numbered steps. One column, then two by two from 900 px, then one row of
+   four from 1280 px (Req 20.7). */
 .how {
   margin-bottom: var(--space-6);
 }
@@ -78,7 +79,13 @@
 
 @media (min-width: 900px) {
   .howSteps {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .howSteps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -113,6 +120,21 @@
   margin-bottom: var(--space-6);
 }
 
+/* What the tested site is, under the results heading. The sentence is --text-muted on --bg (8.09:1)
+   and the link keeps the global --spectral link style (14.64:1). */
+.siteAbout {
+  max-width: 48rem;
+  margin: 0 0 var(--space-4);
+}
+
+.siteAbout p {
+  margin: 0 0 var(--space-2);
+}
+
+.siteDescription {
+  color: var(--text-muted);
+}
+
 .resultCards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
@@ -122,7 +144,10 @@
   padding: 0;
 }
 
+/* Cards on one row share its height. The text column fills the card, so the "Watch it happen"
+   button sits at the bottom of every card on the row. */
 .resultCard {
+  display: flex;
   min-width: 0;
   padding: var(--space-5);
   border-radius: var(--radius-lg);
@@ -130,19 +155,29 @@
 }
 
 .resultInner {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4) var(--space-5);
-  align-items: flex-start;
+  align-items: stretch;
+  min-width: 0;
 }
 
 .resultGhost {
   flex: none;
+  align-self: flex-start;
 }
 
 .resultText {
   flex: 1 1 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
+}
+
+.resultText > :last-child {
+  margin-top: auto;
 }
 
 .resultName {
@@ -180,18 +215,23 @@
   margin-top: var(--space-6);
 }
 
+/* From 1280 px the haunt cards and the side panel share a row and stretch to the same height. */
 @media (min-width: 1280px) {
   .body {
     grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
-    align-items: start;
+    align-items: stretch;
   }
 }
 
+/* The cards list fills the column's height, so a single card is as tall as the side panel. */
 .sites {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .cards {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
   gap: var(--space-5);
@@ -201,10 +241,25 @@
 }
 
 .card {
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   min-width: 0;
+}
+
+/* The card's content fills the card, and the map link sits at the bottom. */
+.cardInner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cardInner > :last-child {
+  margin-top: auto;
+  margin-bottom: 0;
 }
 
 .cardTitle {

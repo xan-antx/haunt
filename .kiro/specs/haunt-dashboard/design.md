@@ -66,6 +66,22 @@ A first-time user still saw seven tools but not the story. This amendment was wr
 | Guided_Path | Home, Ghost Cam, Graveyard, Haunted Map, Exorcise, Spec Coverage, Séance | Home, Ghost Cam, Graveyard, Exorcise, Spec Coverage | Screens table |
 | Playwright | Default worker count | `workers: 3` locally, the default on CI | Testing |
 
+### Amendment: equal sizes, active copy and the developer's loop (fourth amendment)
+
+This amendment comes from a read-only layout and copy audit of `dashboard/`. It changes Req 7.7, 7.15, 7.17, 7.19, 8.6, 10.27, 20.7, 20.10, 21.4 and 21.6, and adds Req 7.29, 7.30, 9.10, 9.11, 13.11, 21.9 and 21.10. Details are in "Equal sizes and active copy (fourth amendment)" below. Nothing here changes the Ghost Cam's layout, so its one-screen fit at 1536×864 (Req 10.24) is unchanged.
+
+| Area | Today | Change | Section |
+|---|---|---|---|
+| Graveyard filters | View and Ghost are fieldsets with the label on the border; Site is a `<label>` above a bare select, so its box is shorter; the row aligns `flex-end` | Site is a fieldset too, its select named by the legend; the row stretches, so the three boxes match | Equal sizes |
+| Tombstones | `align-items: end` bottom-aligns stones of different heights | Equal rows (`grid-auto-rows: 1fr`), each stone fills its cell, and the step line and link sit at the bottom | Equal sizes |
+| Home cards and side panel | `align-items: start`, so the haunt card and "Recent ghost walks" differ in height | The two columns stretch; the haunt card fills its column and its map link sits at the bottom | Equal sizes |
+| Result_Cards | Text column is as tall as its content | Cards share the row height and "Watch it happen" sits at the bottom | Equal sizes |
+| Hero_Ghosts | Wrapping flex items (`flex: 1 1 8rem`), so Bebe can wrap alone and names can start at different heights | Three equal columns on a subgrid of shared rows; one column below a 19 rem container | Equal sizes |
+| Next_Stop_Link | "Next stop:" in the body font at 1 rem, the name in the heading serif at 1.5 rem | Both in the body font, 1.25 rem, weight 700; only the color differs | Equal sizes |
+| Status copy | Passive phrases such as "Stopped by a technical error", "No steps were recorded", "Not visited by", "could not be read" | Active phrases, listed in the copy table below | Active copy |
+| Lantern Bills | Never explained | A Site_About sentence and "Try Lantern Bills yourself" link under the Results_Section heading | Active copy |
+| Developer's loop | "Coming soon: live ghosts are not connected yet"; three "How Haunt works" steps; Exorcise copy that does not mention fixing code | Honest copy about recorded runs, a fourth step about fixing code and running again, and Exorcise copy that describes fix → re-run → compare | Active copy |
+
 ## Architecture
 
 ```mermaid
@@ -334,10 +350,10 @@ function plainFindingType(type: FindingType): string;
 // FindingType          label                      "What would have helped?" (first person)
 // unlabeled_button     Button with no name        "If the button had a name, like 'Pay bill', I'd have known what it does."
 // focus_trap           Keyboard trap              "A way out with the keyboard, like Escape or a Close button I could reach."
-// unannounced_error    Error nobody announced     "If the error had been read out, I'd have known what to fix."
+// unannounced_error    Error nobody announced     "If the page had announced the error, I'd have known what to fix."
 // slow_wait            Too long a wait            "A faster page, or a sign that it was still working."
 // misclick             Clicked the wrong thing    "A page that stayed still while I was about to click."
-// cut_off_text         Text cut off               "Text that wrapped instead of being cut off when I zoomed in."
+// cut_off_text         Text cut off               "Text that wrapped to the next line when I zoomed in, instead of running off the edge."
 // untranslated         Text not translated        "This text in my language."
 // dark_pattern         Tricky choice              "A plain choice, with nothing extra ticked for me."
 
@@ -389,10 +405,10 @@ function stuckNotice(run: Run, step: Step): StuckNotice | null;
 
 | Condition (checked in this order) | Text | Sample |
 |---|---|---|
-| `steps` is empty | "No steps were recorded" | |
+| `steps` is empty | "No steps in this run" | |
 | `succeeded` | "Made it through in N steps" with N = `steps.length` and "step" when N is 1 | Bebe: "Made it through in 6 steps" |
-| `error` | "Stopped by a technical error at step N", N = last `n` | |
-| `gave_up` and the first finding (array order) with `step === last n` is `focus_trap` | "Trapped by a " + label with its first letter lowercased + " at step N" | Listener: "Trapped by a keyboard trap at step 9" |
+| `error` | "Hit a technical error at step N", N = last `n` | |
+| `gave_up` and the first finding (array order) with `step === last n` is `focus_trap` | "Hit a " + label with its first letter lowercased + " at step N" | Listener: "Hit a keyboard trap at step 9" |
 | `gave_up` and that first finding is another type | "Stuck at step N: " + label as written | |
 | `gave_up` with no finding at the last step | "Gave up at step N" | |
 
@@ -401,7 +417,7 @@ Every non-empty case contains a digit, and no badge label (`Completed`, `Gave up
 **Transcript model (amendment).** `buildTranscript(run, currentN)` finds the index of the step with `n === currentN` and returns one line for every step from index 0 to that index, in array order (ascending `n`). It returns `[]` when `currentN` is not in the run, but the screen never calls it then because `StepOutOfRange` renders first. For each line:
 
 - `text` is `step.spoken` for The Listener and `step.thought` for the other ghosts.
-- When that text is missing, empty or whitespace only, `empty` is `true` and `text` is "Nothing was spoken at this step." (Listener) or "Nothing was thought at this step." (others) (Req 10.27). Today `validateRun` requires `spoken` and `thought` to be strings (Req 4.1), so "missing" can only reach the model if validation is relaxed later. The model still handles `undefined`.
+- When that text is missing, empty or whitespace only, `empty` is `true` and `text` is `NOTHING_SPOKEN`, "The screen reader said nothing at this step." (Listener), or `nothingThought(ghost)`, "{ghost} noted no thought at this step." (others) (Req 10.27). The live region uses `nothingAnnounced(ghost)` after "Step n: ". Today `validateRun` requires `spoken` and `thought` to be strings (Req 4.1), so "missing" can only reach the model if validation is relaxed later. The model still handles `undefined`.
 - `current` is `true` only for the last line.
 - `fade = fadeLevel(lastIndex - i)`, so the Current_Line is level 0 and earlier lines step down to level 3, which is the floor. Lines further back than three steps stay at level 3. Contrast therefore never increases toward the top, which satisfies "no line has higher contrast than any line after it" (Req 10.19).
 
@@ -437,7 +453,7 @@ A third input `E` is true when `run.result === 'error'` and `step.n` is the high
 
 ### Screens
 
-**Home.** A candlelit Hero (the Tagline as the h1, with the three Hero_Ghosts on the right; see the Home amendment), then the two candle buttons: "Start here" (amber, flickering flame) and "Summon a live ghost" (`aria-disabled="true"`, dimmed, unlit candle, visible "Coming soon: live ghosts are not connected yet"; its click handler is a no-op). Haunt cards follow: site name (h2), most recent date, finding count ("3 findings"), and one row per ghost: character, name, result in words with a ResultBadge, link to its Ghost Cam. Each card links to the Haunted Map. A "Restless files" section lists Invalid_Runs.
+**Home.** A candlelit Hero (the Tagline as the h1, with the three Hero_Ghosts on the right; see the Home amendment), then the two candle buttons: "Start here" (amber, flickering flame) and "Summon a live ghost" (`aria-disabled="true"`, dimmed, unlit candle, visible "Coming soon. For now, this dashboard shows runs the ghosts already recorded."; its click handler is a no-op). Haunt cards follow: site name (h2), most recent date, finding count ("3 findings"), and one row per ghost: character, name, result in words with a ResultBadge, link to its Ghost Cam. Each card links to the Haunted Map. A "Restless files" section lists Invalid_Runs.
 
 **Home (amendment, Req 7.2, 7.10–7.25).**
 
@@ -450,11 +466,14 @@ A third input `E` is true when `run.result === 'error'` and `step.n` is the high
     .hero { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }   /* ghosts on the right */
   }
   .headline { text-wrap: balance; }   /* the Tagline splits into even lines, never "do." alone */
-  .heroGhosts { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: center; list-style: none; padding: 0; }
-  .heroGhosts > li { flex: 1 1 8rem; min-width: 0; }
+  /* Fourth amendment (Req 7.30): a size container, three equal columns and a subgrid of shared rows */
+  .wrap { container: hero-ghosts / inline-size; min-width: 0; }
+  .list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--space-4); list-style: none; padding: 0; }
+  .item { grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 0; justify-items: center; }
+  @container hero-ghosts (width < 19rem) { .list { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-4); } }
   ```
 
-  The columns use `minmax(0, …)` and the list wraps, so the Hero causes no horizontal scrolling at 320 px or at 200% zoom (Req 7.25, 18.8).
+  The columns use `minmax(0, …)`, and below a 19 rem container (three 97.5 px characters and two gaps no longer fit) the list becomes one column, so the Hero causes no horizontal scrolling at 320 px or at 200% zoom (Req 7.25, 18.8). At 900 px the right-hand column is about 354 px, so the three ghosts still share a row. The subgrid rows (character, name, description) are shared by all three items, so a name that wraps to two lines moves all three descriptions down together. The earlier wrapping flex list (`flex: 1 1 8rem`) let Bebe drop onto her own row between about 900 and 1150 px.
 - *Floating, and still under Reduced_Motion (Req 7.23, 7.24).* The float is defined only in `motion.css`, inside `@media (prefers-reduced-motion: no-preference)`, on `[data-float='hero']`:
 
   ```css
@@ -472,9 +491,12 @@ A third input `E` is true when `run.result === 'error'` and `step.n` is the high
   ```css
   .body { display: grid; gap: var(--space-5); }
   @media (min-width: 1280px) {
-    .body { grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr); align-items: start; }
+    .body { grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr); align-items: stretch; }   /* fourth amendment: was start */
   }
-  .cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+  .sites { display: flex; flex-direction: column; }
+  .cards { flex: 1; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+  .card, .cardInner { display: flex; flex-direction: column; }   /* .cardInner is the article */
+  .cardInner > :last-child { margin-top: auto; }                  /* the map link sits at the bottom */
   ```
 
   The side panel is `<aside aria-labelledby="recent-heading">` with the h2 "Recent ghost walks". It lists the six most recent runs from `recentRuns(runs, 6)` in `haunts.ts`, newest first: ghost icon and name, site name, local date, Outcome_Line, and a link "Watch {ghost} in the Ghost Cam". Below the list it shows run counts per ghost ("The Listener: 1 run"), in ghost order.
@@ -482,9 +504,9 @@ A third input `E` is true when `run.result === 'error'` and `step.n` is the high
   *Why a side panel and not only more card columns.* With the sample data there is one haunt. `auto-fill` leaves an empty track as wide as the card, which is the current bug. `auto-fit` alone would stretch the single card to about 1240 px, with lines too long to read comfortably. The side panel puts run information into that space whatever the number of haunts. When there are several haunts, `auto-fit` inside the left column (about 810 px at 1280, about 1150 px at 1920 with the 72 rem content width) still gives one or two card columns. The rule "no empty column wider than one haunt card" (Req 7.12) holds at every count.
 - *Narrow layout (< 1280 px).* `.body` is one column: hero, haunt cards, then the side panel, then Restless files. This is also the DOM order, so reading order and tab order match (Req 7.13, 18.1).
 
-**Haunted Map.** A floor plan grid of rooms (CSS grid, `<ul>` of `<li>` rooms, each with an `h2` of the page path). Each room shows ghost badges for who entered and cold spots as round frosty buttons sized by `coldSpotSize`. Each button has visible text "{s} s" and the accessible name "Bebe waited 1.2 s at step 2 — open in Ghost Cam". A ghost filter (radio group) adds fog over rooms that ghost never entered, plus the text "Not visited by Bebe".
+**Haunted Map.** A floor plan grid of rooms (CSS grid, `<ul>` of `<li>` rooms, each with an `h2` of the page path). Each room shows ghost badges for who entered and cold spots as round frosty buttons sized by `coldSpotSize`. Each button has visible text "{s} s" and the accessible name "Bebe waited 1.2 s at step 2 — open in Ghost Cam". A ghost filter (radio group) adds fog over rooms that ghost never entered, plus the text "Bebe never entered this room" (fourth amendment; it was "Not visited by Bebe"). The ghost list is labelled "Ghosts who entered".
 
-**Graveyard.** A wrapping grid of bone tombstones (`<article>` with `h2` = plain-words type). Contents: ghost badge, title, evidence, "Step 9 · Lantern Bills demo", and a link "Watch The Listener at step 9". Filters: site select and ghost radio group, written to the URL query.
+**Graveyard.** A grid of bone tombstones (`<article>` with `h2` = plain-words type). Contents: ghost badge, title, evidence, "Step 9 · Lantern Bills demo", and a link "Watch The Listener at step 9". Filters: View, Site and Ghost, each a fieldset with its legend on the border, written to the URL query. Every tombstone has the same width and height, with the step line and link at the bottom (fourth amendment, Req 9.10, 9.11).
 
 **Ghost Cam.** Layout: the two-line Run_Summary, then a two-column grid of screenshot and panel (stacked under 900 px), then the Stuck_Notice slot, the Control_Row, the timeline, run-file notes and the collapsed Provenance_Panel (details in "Ghost Cam layout (amendment)"):
 
@@ -640,7 +662,7 @@ The Top_Navigation, the Screen_Guide and the Next_Stop_Link all call `screenDest
 
 **Home (Req 20.7–20.9, 20.12, 20.13).** DOM order: Hero (h1 Tagline, Screen_Intro, candle buttons, tour note, Hero_Ghosts), How_It_Works_Strip, Screen_Guide, haunt cards and "Recent ghost walks", Restless files, Next_Stop_Link. The heading order stays h1, then h2 for each section and card, then h3 inside the Screen_Guide.
 
-- *How_It_Works_Strip.* `<section aria-labelledby="how-heading">` with the h2 "How Haunt works" and an `<ol>` of three items. Each item has a large step number (`aria-hidden`, because the `<ol>` already conveys the order) and the step text. The three items sit in a row from 900 px and stack below that.
+- *How_It_Works_Strip.* `<section aria-labelledby="how-heading">` with the h2 "How Haunt works" and an `<ol>` of four items (fourth amendment; it had three). Each item has a large step number (`aria-hidden`, because the `<ol>` already conveys the order) and the step text. The fourth step, "You fix your code, and the next run shows if the problem is gone", closes the developer's loop. The items stack below 900 px, sit two by two from 900 px, and share one row from 1280 px.
 - *Screen_Guide.* `<section aria-labelledby="guide-heading">` with the h2 "What's in here" and a `<ul>` of six cards in `NAV_ORDER` without Home. Each card: `ScreenIcon`, the name as an h3, the Screen_Description as a `<p>`, and `<Link className="button">Open {name}</Link>`. When the destination is null (no runs), the link is replaced by the muted text "Opens once a ghost has walked here." Cards use `repeat(auto-fit, minmax(min(100%, 15rem), 1fr))`.
 - *Tour note.* When "Start here" is available, a `<p>` under the candle buttons reads "Start here opens {ghost} at step {n}. Then follow "Next stop" at the bottom of each screen to see the rest." With the samples: "Start here opens The Listener at step 9. …"
 
@@ -658,17 +680,19 @@ The Top_Navigation, the Screen_Guide and the Next_Stop_Link all call `screenDest
 
 The order is Home → Ghost Cam → Graveyard → Haunted Map → Exorcise → Spec Coverage → Séance → Home. `nextStop` walks forward from the current screen and skips any screen whose destination is null, so with no runs the Graveyard leads to Exorcise. The Ghost Cam destination is the "Start here" step, so "Start here" on Home and the Home Next_Stop_Link both begin the tour at The Listener's step 9 with the samples. The link is a bordered surface card in the normal link and focus styles. It is not a candle: candles stay for the primary actions on Home.
 
+*Typography (fourth amendment, Req 20.10).* "Next stop:" (`.kicker`) and the screen name (`.name`) share one line in the body font at 1.25 rem, weight 700, line-height 1.3, like the Top_Navigation's names. Only the color differs: `--text` for "Next stop:" (12.21:1 on `--surface`) and `--spectral` for the name (12.53:1). The name used to be the heading serif at 1.5 rem next to 1 rem body text, which looked like two styles on one line. The description under it stays body text at 1 rem.
+
 **Screen_Intro (Req 20.13, 20.14).** `ScreenIntro` renders `<p data-screen-intro>` directly after the screen's `ScreenHeading`. The sentences are:
 
 | Screen | Screen_Intro |
 |---|---|
-| Home | "Three ghost users tried real tasks on our sites, and this dashboard shows where each one got stuck." |
+| Home | "Haunt's ghost users try real tasks on your app, and this dashboard shows where each one got stuck." (fourth amendment; the sample data has runs for two ghosts, not three) |
 | Haunted Map | "This map shows each page of {site} as a room, with a frost circle wherever a ghost got stuck." It is followed by the legend paragraph "The bigger the circle, the longer the ghost waited there." |
 | Graveyard | "Each tombstone is one problem a ghost found, with a link to watch the moment it happened." |
 | Ghost Cam | "Ghost Cam replays this visit one step at a time, showing each page next to what The Listener heard." For The Phantom and Bebe, "…next to what {ghost} was thinking." |
 | Séance | "Pick a run and a question, and the ghost answers from what it recorded, linking each step it mentions." |
-| Exorcise | "This compares a run from before a fix with a run from after it, so you can see which problems are gone." |
-| Spec Coverage | "Each row is one requirement, showing whether each ghost could complete it." It is followed by "A requirement a ghost could not complete is one that real people like them can't reach." |
+| Exorcise | "After you fix a problem in your code and run the same ghost again, Exorcise compares the two runs to show which problems are gone." (fourth amendment) |
+| Spec Coverage | "Each row is one requirement, showing whether each ghost could complete it." It is followed by "If a ghost couldn't complete a requirement, people with the same needs probably can't either." (fourth amendment) |
 
 On the Ghost Cam the Screen_Intro sits inside the Run_Summary area, between the h1 row and the requirement row, and the 40 px ghost spans all three rows. In fit mode it is one line at `0.9rem` in `--text-muted` (8.09:1 on `--bg`). It is not ellipsised; the sentence is short enough (under 100 characters) to fit in one line at the 1296 px content width. In stacked mode it wraps normally.
 
@@ -737,7 +761,7 @@ export function watchStep(run: Run): number | null;        // Watch_Step; null w
 | `misclick` | clicked the wrong thing | something easy to click by mistake |
 | `cut_off_text` | couldn't read text that was cut off | text that was cut off |
 | `untranslated` | couldn't read text that wasn't translated | text that wasn't translated |
-| `dark_pattern` | was caught by a tricky choice | a tricky choice |
+| `dark_pattern` | ran into a tricky choice (fourth amendment; was "was caught by a tricky choice") | a tricky choice |
 
 The pop-up wording applies when the `focus_trap` finding's title or evidence, or the `spoken` text of its step, matches `/\b(dialog|modal|pop-?up)\b/i`. The Listener sample's trap finding is titled "Cannot escape the payment confirmation dialog", so its headline is "The Listener got trapped in a pop-up and couldn't pay." The Mission_Verb for "Pay this month's electricity bill" is "pay". The rules in Req 21.4 are applied in the order they are listed.
 
@@ -763,7 +787,7 @@ export function placeCallout(target: Box | null, size: { width: number; height: 
 | 4 | same | `[data-cam-area="notice"]` | Where it got stuck | "This notice says in plain words where the ghost got stuck and why. Press Ask this ghost to hear it in the ghost's own words." |
 | 5 | same | `[data-cam-area="timeline"]` | Every step of the visit | "The timeline has one mark per step, and a tombstone marks each problem. Press any mark to jump to that step." |
 | 6 | `/graveyard` | `[data-tour="graveyard-views"]`, `[data-screen-intro]` | Every problem in one place | "The Graveyard has one tombstone for each problem the ghosts found. Choose Map to see each page as a room instead." |
-| 7 | `/exorcise` | `[data-tour="exorcise-pickers"]`, `[data-screen-intro]` | Before and after a fix | "Exorcise compares a run from before a fix with a run from after it. It shows which problems are gone and which still haunt the site." |
+| 7 | `/exorcise` | `[data-tour="exorcise-pickers"]`, `[data-screen-intro]` | Before and after a fix | "When you fix your code and run the same ghost again, Exorcise compares the two runs. It shows which problems are gone and which still haunt the site." (fourth amendment) |
 | 8 | `/coverage` | `[data-tour="coverage-table"]`, `[data-screen-intro]` | Which requirements people can reach | "Spec Coverage shows whether each ghost could complete each requirement. That's the tour, so explore on your own from here." |
 
 `{site}` is the Site_Short_Name of the most recent Haunt. The Ghost Cam stop uses the Ghost Cam's Screen_Destination, which with the samples is The Listener at step 9, so stop 4 points at a filled Stuck_Notice. Targets are looked up inside `#main-content`. Eight short stops at a few seconds each keep the tour near one minute.
@@ -803,6 +827,47 @@ export function placeCallout(target: Box | null, size: { width: number; height: 
 From 900 px the Menu_Button is `display: none`, the list is a one-line flex row, and `.navHint` is `display: none`, so each accessible name is the Screen's name alone. Below 900 px the `<nav>` is `display: none` until `.open`, then a one-column list under the brand row with the hint shown on its own line (`--text` at 0.85 rem, as before, about 6.9:1 on the fog at its ceiling). The menu closes on every location change and on Escape, which also focuses the button. The header is shorter than before, since each item is one line, which leaves a little more room in the Ghost Cam's fit-mode budget; `--cam-shot-max` stays `calc(100vh - 26rem)`.
 
 **Accessibility notes.** axe's `region` rule counts `[role=dialog]` as a region, so the portalled callout does not need a landmark. The Ask_Panel is a named region inside `<main>`. The Tour's focus containment is deliberate and escapable (Escape, Skip, Finish), as in the modal dialog pattern; the haunt keyboard test, which checks for traps, runs with the tour closed, and the tour has its own keyboard test.
+
+### Equal sizes and active copy (fourth amendment)
+
+**Equal sizes (Req 7.29, 7.30, 9.10, 9.11, 21.10).** Boxes that share a row get the same height from CSS alone. No script measures anything.
+
+| Component | File | Change |
+|---|---|---|
+| Graveyard filters | `screens/GraveyardScreen.tsx`, `GraveyardScreen.module.css` | Site becomes `<fieldset><legend id>Site</legend><select aria-labelledby={legendId}>`, like View and Ghost, so all three use the global fieldset style. `.filters { align-items: stretch }` and `.filters > fieldset { display: flex; align-items: center }`. The select keeps the accessible name "Site". `.siteFilter` is removed |
+| Tombstones | `GraveyardScreen.module.css`, `components/Tombstone.module.css` | `.grid` drops `align-items: end` and adds `grid-auto-rows: 1fr`; `.grid > li { display: flex }` and the article gets `flex: 1`; `.meta { margin-top: auto }` pushes the step line and the link to the bottom. The arched top is a percentage `border-radius`, so equal heights also give equal arches |
+| Home haunt cards and side panel | `HomeScreen.tsx`, `HomeScreen.module.css` | See the CSS in "Home (amendment)" above: the columns stretch, `.cards` fills `.sites`, and the article (`.cardInner`) is a flex column whose last paragraph (the map link) has `margin-top: auto` |
+| Result_Cards | `HomeScreen.module.css` | `.resultCard { display: flex }`, `.resultInner { flex: 1; align-items: stretch }`, `.resultGhost { align-self: flex-start }`, `.resultText` is a flex column with `align-items: flex-start` (so the candle button keeps its own width), and its last child (the candle) has `margin-top: auto` |
+| Hero_Ghosts | `components/HeroGhosts.tsx`, `HeroGhosts.module.css` | A wrapper `div` is the `hero-ghosts` size container; the list is a three-column grid and each item spans three subgrid rows. See "Home (amendment)" above |
+
+The e2e test for the wide Home layout walks up from a card's article to the first ancestor with `display: grid`. The `li` is now `display: flex`, so the walk still stops at `.cards`.
+
+**Active copy (Req 7.7, 7.15, 7.17, 7.19, 8.6, 10.27, 20.7, 21.4, 21.6, 13.11).** Run-file text (finding titles, evidence, spoken and thought lines) is written by the engine and is shown unchanged. The finding-type labels (Req 9.3) are short labels, not sentences, and stay.
+
+| Where | File | Before | After |
+|---|---|---|---|
+| Outcome_Line | `model/outcome.ts` | Trapped by a keyboard trap at step 9 / Stopped by a technical error at step 3 / No steps were recorded | Hit a keyboard trap at step 9 / Hit a technical error at step 3 / No steps in this run |
+| Result_Headline | `model/results.ts` | {ghost} was stopped by a technical error and couldn't {verb}. / No steps were recorded for {ghost}. | {ghost} hit a technical error and couldn't {verb}. / {ghost} recorded no steps. |
+| Result_Card unlit reason | `HomeScreen.tsx` | No steps were recorded, so there is nothing to watch. | This run has no steps, so there is nothing to watch. |
+| `resultSentence` (Ghost Cam summary, earlier runs) | `model/ghosts.ts` | {ghost} was stopped by a technical error | {ghost} hit a technical error |
+| Transcript placeholder and announcement | `model/transcript.ts`, `GhostCamScreen.tsx` | Nothing was spoken / thought at this step. "Step n: nothing was spoken" | The screen reader said nothing at this step. / {ghost} noted no thought at this step. "Step n: the screen reader said nothing" / "Step n: {ghost} noted no thought" |
+| "What would have helped?" | `model/findingLabels.ts` | If the error had been read out… / Text that wrapped instead of being cut off… | If the page had announced the error, I'd have known what to fix. / Text that wrapped to the next line when I zoomed in, instead of running off the edge. |
+| `dark_pattern` blocker | `model/findingLabels.ts` | was caught by a tricky choice | ran into a tricky choice |
+| Map_View | `screens/graveyard/MapView.tsx` | Not visited by {ghost} / Entered by | {ghost} never entered this room / Ghosts who entered |
+| Restless files (Home and its screen) | `HomeScreen.tsx`, `RestlessScreen.tsx` | These run files could not be read, so they are left out… | The dashboard can't read these run files, so it leaves them out of every screen. (and the singular form) |
+| Missing index | `screens/common.tsx` | No runs were collected | h1 and title "No runs found"; "The dashboard found no collected runs. Run `npm run dev` or `npm run build` in `dashboard/` to collect them." |
+| Route error | `RouteErrorScreen.tsx` | This screen could not be shown. The address is unchanged… | Something stopped this screen from loading. The address stays the same, so you can reload the page to try again. |
+| Exorcise errors | `ExorciseScreen.tsx` | These runs are different missions, so there is nothing to compare. / …so these runs can't be compared. / …so we can't tell if this is fixed. | These runs follow different missions, so Exorcise can't compare them. / …so Exorcise can't compare these runs. / …so we can't tell whether your fix worked. |
+| Spec Coverage | `CoverageScreen.tsx` | …real people like them can't reach. / This is the text from the most recent run. | If a ghost couldn't complete a requirement, people with the same needs probably can't either. / This row shows the text from the most recent run. |
+
+**Lantern Bills (Req 21.9).** `src/model/sites.ts` holds the Site_About table, keyed by the exact `site.name`, and `siteAbout(siteName)` returns the entry or null (it uses `Object.hasOwn`, so a name like "constructor" finds nothing). The table lives in the dashboard, not the contract, so the engine and `contract/` are unchanged. `Results` renders, directly after the h2, a `div.siteAbout` with the sentence in a `<p>` in `--text-muted` on `--bg` (8.09:1) and, below it, a `<p>` with an ordinary `<a href>` in the global link style (`--spectral`, 14.64:1). The link is the only external one in the Dashboard. It points at our own hosted copy of the demo site, it is not fetched or prefetched, and the CSP does not restrict navigation, so Req 19 still holds; the e2e network guard only fails on requests the page makes, and nothing clicks the link. The cards' "exactly one link" check counts links inside each `article`, so the new link, which sits outside the cards, does not affect it.
+
+**The developer's loop (Req 7.7, 20.7, 13.11, 22).** The copy tells a judge how Haunt is used: inspect a recorded ghost visit here, fix the code in your own repository, run the same ghost again, then compare the runs in Exorcise. It does not claim that ghosts can be run from the dashboard today.
+
+- Hero Screen_Intro and the "Summon a live ghost" reason: see the Screen_Intro table and "Home" above.
+- How_It_Works_Strip: the fourth step.
+- Exorcise Screen_Intro and Tour stop 7: see their tables above.
+- Exorcise "No after run yet" notice: "No after run yet for {ghost}." (unchanged, from the bugfix spec) then "Fix the problem in your app's code, then run {ghost} on the same mission again, and the new run shows up here as the after run." While every Run has `origin === 'samples'`, it adds "Re-running ghosts is coming soon. This demo only has sample runs, so there is no after run to show yet." Once real runs from `runs/` exist, that sentence goes away, because re-running then works.
 
 ### Provenance_Panel (amendment, Req 5.6–5.11)
 
@@ -904,7 +969,7 @@ With the samples: Home shows one Haunt ("Lantern Bills demo", two ghosts, 3 find
 
 | Model | Listener sample | Bebe sample |
 |---|---|---|
-| `outcomeLine` | "Trapped by a keyboard trap at step 9" (badge "Gave up") | "Made it through in 6 steps" (badge "Completed") |
+| `outcomeLine` | "Hit a keyboard trap at step 9" (badge "Gave up") | "Made it through in 6 steps" (badge "Completed") |
 | `buildTranscript(run, 1)` | 1 line, step 1, `current`, fade 0 | 1 line, step 1, `current`, fade 0 |
 | `buildTranscript(run, last)` | 9 lines; fades top to bottom `3,3,3,3,3,3,2,1,0`; spoken text | 6 lines; fades `3,3,3,2,1,0`; thought text |
 | `recentRuns(runs, 6)` | Both runs, newest first by `startedAt` | |
@@ -967,7 +1032,7 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 
 ### Property 9: Transcript has exactly one line per step up to the current step
 
-*For any* valid run and any step `n` in it, `buildTranscript(run, n)` returns one line per step whose index is at most the index of `n`, in ascending step order and with no repeats dropped. Each line's `n` equals its step's `n`. Exactly one line is `current`, and it is the last line, for step `n`. Each line's text is the step's `spoken` text (Listener) or `thought` text (others). When that text is empty or whitespace only, the line is still present, with `empty: true` and the matching "Nothing was spoken/thought at this step." text. The generator includes empty, whitespace-only and repeated texts.
+*For any* valid run and any step `n` in it, `buildTranscript(run, n)` returns one line per step whose index is at most the index of `n`, in ascending step order and with no repeats dropped. Each line's `n` equals its step's `n`. Exactly one line is `current`, and it is the last line, for step `n`. Each line's text is the step's `spoken` text (Listener) or `thought` text (others). When that text is empty or whitespace only, the line is still present, with `empty: true` and the matching placeholder text ("The screen reader said nothing at this step." or "{ghost} noted no thought at this step."). The generator includes empty, whitespace-only and repeated texts.
 
 **Validates: Requirements 10.4, 10.5, 10.16, 10.17, 10.18, 10.22, 10.27**
 

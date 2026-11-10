@@ -51,7 +51,7 @@ function byStep(findings: readonly Finding[]): Finding[] {
 /** Result_Headline (Req 21.4). The only place it is built. */
 export function resultHeadline(run: Run): string {
   const name = ghostName(run.ghost);
-  if (run.steps.length === 0) return `No steps were recorded for ${name}.`;
+  if (run.steps.length === 0) return `${name} recorded no steps.`;
 
   const verb = missionVerb(run.mission.goal);
   const couldnt = verb ? `couldn't ${verb}` : "couldn't finish the task";
@@ -65,7 +65,7 @@ export function resultHeadline(run: Run): string {
       return `${name} gave up at step ${lastN} and ${couldnt}.`;
     }
     case 'error':
-      return `${name} was stopped by a technical error and ${couldnt}.`;
+      return `${name} hit a technical error and ${couldnt}.`;
     case 'succeeded': {
       const [first, ...rest] = byStep(run.findings);
       if (!first) return `${name} ${managed} with no problems.`;

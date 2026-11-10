@@ -64,7 +64,7 @@ describe('axe-core', () => {
 
   it('has no violations on the missing-index screen', async () => {
     renderApp('/', failingSource());
-    expect(await screen.findByText(/No runs were collected\. Run/)).toBeInTheDocument();
+    expect(await screen.findByText(/The dashboard found no collected runs\. Run/)).toBeInTheDocument();
     expect(await violations()).toEqual([]);
   });
 

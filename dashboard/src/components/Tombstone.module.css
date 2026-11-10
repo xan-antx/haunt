@@ -31,8 +31,10 @@
   margin: 0;
 }
 
+/* The step line and the "Watch…" link sit together at the bottom of the stone, so they line up
+   across a row of tombstones of equal height. */
 .meta {
-  margin: 0;
+  margin: auto 0 0;
   color: var(--bone-ink-muted);
 }
 

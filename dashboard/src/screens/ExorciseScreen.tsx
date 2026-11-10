@@ -91,14 +91,14 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
           <RunSummary run={before} heading="Before" />
           <p className={styles.warning}>
             <strong>Different ghosts.</strong> {beforeName} and {GHOSTS[after.ghost].name} look for different
-            problems, so these runs can't be compared. Choose an after run by {beforeName}.
+            problems, so Exorcise can't compare these runs. Choose an after run by {beforeName}.
           </p>
         </>
       );
     }
     return (
       <p className={styles.error} role="alert">
-        These runs are different missions, so there is nothing to compare.
+        These runs follow different missions, so Exorcise can't compare them.
       </p>
     );
   }
@@ -140,7 +140,7 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
                       {row.status === 'not_reached' && (
                         <p className={styles.note}>
                           {GHOSTS[after.ghost].name} never got as far as {row.page} in the after run, so we can't
-                          tell if this is fixed.
+                          tell whether your fix worked.
                         </p>
                       )}
                     </td>
@@ -194,7 +194,8 @@ export function ExorciseScreen() {
   const heading = <ScreenHeading title="Exorcise">Exorcise</ScreenHeading>;
   const intro = (
     <ScreenIntro>
-      This compares a run from before a fix with a run from after it, so you can see which problems are gone.
+      After you fix a problem in your code and run the same ghost again, Exorcise compares the two runs to show which
+      problems are gone.
     </ScreenIntro>
   );
 
@@ -210,6 +211,8 @@ export function ExorciseScreen() {
 
   const afterOptions = afterCandidates(before, runs);
   const ghostName = GHOSTS[before.ghost].name;
+  // True while the dashboard shows only the sample runs from runs/samples/, as in this demo.
+  const onlySamples = runs.every((r) => r.origin === 'samples');
   const choose = (b: Run, a: Run | null) => {
     const nextAfter = a ?? defaultAfter(b, runs);
     if (nextAfter) navigate(exorcisePath(b.key, nextAfter.key), { replace: true });
@@ -250,8 +253,15 @@ export function ExorciseScreen() {
             <>
               <strong>After run (same ghost and mission)</strong>
               <p className={styles.notice}>
-                No after run yet for {ghostName}. Run {ghostName} on this mission again after your fix, then come
-                back.
+                No after run yet for {ghostName}. Fix the problem in your app's code, then run {ghostName} on the
+                same mission again, and the new run shows up here as the after run.
+                {onlySamples && (
+                  <>
+                    {' '}
+                    Re-running ghosts is coming soon. This demo only has sample runs, so there is no after run to
+                    show yet.
+                  </>
+                )}
               </p>
             </>
           ) : (

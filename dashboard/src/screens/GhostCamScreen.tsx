@@ -18,6 +18,7 @@ import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
 import { formatSeconds } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS, resultSentence } from '../model/ghosts';
+import { nothingAnnounced } from '../model/transcript';
 import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import { AskPanel } from './ghostcam/AskPanel';
@@ -145,7 +146,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
       // Only the new step; Earlier_Lines in the Transcript are never re-announced.
       const listener = run.ghost === 'listener';
       const text = listener ? step.spoken : step.thought;
-      const said = typeof text === 'string' && text.trim() !== '' ? text : `nothing was ${listener ? 'spoken' : 'thought'}`;
+      const said = typeof text === 'string' && text.trim() !== '' ? text : nothingAnnounced(run.ghost);
       announce(`Step ${step.n}: ${said}`);
     }
     announcedFor.current = id;
