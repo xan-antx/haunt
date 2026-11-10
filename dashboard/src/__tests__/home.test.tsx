@@ -145,7 +145,8 @@ describe('Home results first (Req 21, 7.28, 20.8)', () => {
     expect(hero.nextElementSibling).toBe(results);
     expect(results.compareDocumentPosition(how) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(how.compareDocumentPosition(sites) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(results).toHaveAttribute('data-tour', 'results');
+    // The tour's first stop highlights the cards, not the whole section.
+    expect(within(results).getAllByRole('article')[0]!.closest('ul')).toHaveAttribute('data-tour', 'results');
   });
 
   it('removes the "What\'s in here" Screen_Guide', async () => {

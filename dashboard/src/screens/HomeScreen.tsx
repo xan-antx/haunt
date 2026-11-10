@@ -185,7 +185,7 @@ function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
   const headingId = `results-${haunt.siteKey}`;
   const about = siteAbout(haunt.siteName);
   return (
-    <section aria-labelledby={headingId} className={styles.results} data-tour={first ? 'results' : undefined}>
+    <section aria-labelledby={headingId} className={styles.results}>
       <h2 id={headingId} className={styles.sectionTitle}>
         {resultsHeading(haunt.siteName)}
       </h2>
@@ -200,7 +200,9 @@ function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
           )}
         </div>
       )}
-      <ul className={styles.resultCards}>
+      {/* The tour's first stop highlights the cards, not the whole section: the section with the
+          site sentence is taller than the room a short window leaves beside a callout. */}
+      <ul className={styles.resultCards} data-tour={first ? 'results' : undefined}>
         {haunt.ghosts.map((summary) => (
           <ResultCard key={summary.ghost} run={summary.latest} />
         ))}
