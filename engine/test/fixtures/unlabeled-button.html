@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unlabeled buttons</title>
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      button, [role="button"] { min-width: 40px; min-height: 28px; margin: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Buttons</h1>
+
+      <section aria-label="Payment Information">
+        <form id="pay-form" onsubmit="return false">
+          <label for="card">Card number</label>
+          <input id="card" name="card" />
+          <!-- 1. Icon-only button: no name. -->
+          <button id="icon-only" type="submit"><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg></button>
+        </form>
+      </section>
+
+      <div id="named">
+        <!-- Named in four different ways: no Finding. -->
+        <button id="with-label" type="button" aria-label="Close"><svg aria-hidden="true" width="16" height="16"></svg></button>
+        <span id="label-source">Search</span>
+        <button id="with-labelledby" type="button" aria-labelledby="label-source"><svg aria-hidden="true" width="16" height="16"></svg></button>
+        <button id="with-title" type="button" title="Open menu"><svg aria-hidden="true" width="16" height="16"></svg></button>
+        <button id="with-text" type="button">Pay this bill</button>
+      </div>
+
+      <div id="hidden">
+        <!-- Hidden from assistive technology: no Finding. -->
+        <button id="aria-hidden" type="button" aria-hidden="true"></button>
+        <button id="hidden-attr" type="button" hidden></button>
+        <button id="display-none" type="button" style="display: none"></button>
+      </div>
+
+      <div id="twins">
+        <!-- Two identical unnamed buttons: two Findings, told apart by order. -->
+        <button class="twin" type="button"></button>
+        <button class="twin" type="button"></button>
+      </div>
+
+      <!-- An unnamed element with role=button but no native button. -->
+      <div id="role-button" role="button" tabindex="0"></div>
+
+      <!-- A labelledby that points to nothing does not name the button. -->
+      <button id="dangling" type="button" aria-labelledby="no-such-id"></button>
+    </main>
+  </body>
+</html>

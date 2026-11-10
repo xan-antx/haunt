@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener dialog fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Checkout</h1>
+    <button type="button" id="open">Open dialog</button>
+  </main>
+  <div id="dlg" role="dialog" aria-modal="true" aria-label="Protect your payment" hidden>
+    <label><input type="checkbox" id="cover" checked> Payment protection</label>
+    <button type="button" id="learn" aria-expanded="false">Learn more</button>
+    <button type="button" id="close" tabindex="-1" aria-label="Close dialog">x</button>
+    <button type="button" id="continue" tabindex="-1">Continue</button>
+  </div>
+  <script>
+    var dlg = document.getElementById('dlg');
+    var cover = document.getElementById('cover');
+    var learn = document.getElementById('learn');
+    document.getElementById('open').addEventListener('click', function () {
+      dlg.hidden = false;
+      cover.focus();
+    });
+    learn.addEventListener('click', function () {
+      learn.setAttribute('aria-expanded', learn.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+    });
+    // Like the Lantern Bills protection modal: Tab and Shift+Tab only swap between two controls,
+    // and Escape does nothing.
+    document.addEventListener('keydown', function (e) {
+      if (dlg.hidden || e.key !== 'Tab') return;
+      e.preventDefault();
+      (document.activeElement === cover ? learn : cover).focus();
+    }, true);
+  </script>
+</body>
+</html>

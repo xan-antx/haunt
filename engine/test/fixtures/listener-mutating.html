@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener mutating fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Always changing</h1>
+    <button type="button" id="b">Press</button>
+    <p id="tick">0</p>
+  </main>
+  <script>
+    // Changes the page every 30 ms, forever, so it is never quiet.
+    var i = 0;
+    setInterval(function () { document.getElementById('tick').textContent = String(++i); }, 30);
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lantern Bills - Pay Your Electricity Bill</title>
+</head>
+<body>
+  <header>
+    <p>Lantern Bills</p>
+  </header>
+  <main>
+    <h1>Your Electricity Bill</h1>
+    <p>Amount due: ₹1,240</p>
+    <button type="button" id="pay">Pay this bill</button>
+    <section aria-label="Payment Information" id="payment" hidden>
+      <h2>Payment</h2>
+      <label for="card">Card Number</label>
+      <input id="card" name="card" required autocomplete="off">
+      <label for="expiry">Expiry Date</label>
+      <input id="expiry" name="expiry" required autocomplete="off">
+      <button type="button" id="submit"><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg></button>
+    </section>
+    <div id="messages"></div>
+  </main>
+  <div id="dlg" role="dialog" aria-modal="true" aria-label="Protect your payment" hidden>
+    <label><input type="checkbox" id="cover" checked> Payment protection for ₹99</label>
+    <button type="button" id="learn" aria-expanded="false">Learn more</button>
+  </div>
+  <script>
+    // A page like Lantern Bills: an unnamed submit button, error messages in role="alert" regions that are
+    // inserted together with their text, and a modal dialog with a pre-ticked option.
+    // The log lets a test prove which input reached the page: keys, and no pointer input of any kind.
+    var log = window.__log = { keys: [], pointer: {}, pointerTotal: 0, keyboardClicks: 0, pointerClicks: 0 };
+    [
+      'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'mouseenter', 'mouseleave',
+      'pointerdown', 'pointerup', 'pointermove', 'pointerover', 'pointerout', 'pointerenter', 'pointerleave', 'pointercancel',
+      'touchstart', 'touchmove', 'touchend', 'touchcancel',
+      'dblclick', 'auxclick', 'contextmenu', 'wheel', 'dragstart'
+    ].forEach(function (type) {
+      addEventListener(type, function () {
+        log.pointer[type] = (log.pointer[type] || 0) + 1;
+        log.pointerTotal += 1;
+      }, true);
+    });
+    // The browser also sends a click when Enter or Space activates a button; that one has no position (detail 0).
+    addEventListener('click', function (e) {
+      if (e.detail === 0 && !e.pointerType) log.keyboardClicks += 1;
+      else log.pointerClicks += 1;
+    }, true);
+    addEventListener('keydown', function (e) { log.keys.push(e.key); }, true);
+
+    var payment = document.getElementById('payment');
+    var card = document.getElementById('card');
+    var expiry = document.getElementById('expiry');
+    var messages = document.getElementById('messages');
+    var dlg = document.getElementById('dlg');
+    var cover = document.getElementById('cover');
+    var learn = document.getElementById('learn');
+
+    function addAlert(text) {
+      var el = document.createElement('div');
+      el.setAttribute('role', 'alert');
+      el.textContent = text;
+      messages.appendChild(el);
+    }
+    document.getElementById('pay').addEventListener('click', function () { payment.hidden = false; });
+    document.getElementById('submit').addEventListener('click', function () {
+      if (!card.value) {
+        addAlert('Card number is required');
+      } else if (!expiry.value) {
+        // Later than the key press: it is made during the Settle that follows the action.
+        setTimeout(function () { addAlert('Expiry date is required'); }, 200);
+      } else {
+        dlg.hidden = false;
+        cover.focus();
+      }
+    });
+    learn.addEventListener('click', function () {
+      learn.setAttribute('aria-expanded', learn.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Focus trap fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Checkout</h1>
+    <button type="button" id="outside">Behind the dialog</button>
+  </main>
+  <!-- Like the Lantern Bills protection modal: Close and Continue are tabindex="-1", every Tab and
+       Shift+Tab is sent to the checkbox or "Learn more", and Escape does nothing.
+       Add ?escape=close to make Escape close the dialog instead. -->
+  <div id="dlg" role="dialog" aria-modal="true" aria-label="Protect your payment">
+    <label><input type="checkbox" id="cover" checked> Payment protection for ₹99</label>
+    <button type="button" id="learn" aria-expanded="false">Learn more</button>
+    <button type="button" id="close" tabindex="-1" aria-label="Close dialog">x</button>
+    <button type="button" id="continue" tabindex="-1">Continue</button>
+    <button type="button" id="later" disabled>Pay later</button>
+    <button type="button" id="secret" hidden>Secret</button>
+  </div>
+  <script>
+    var dlg = document.getElementById('dlg');
+    var cover = document.getElementById('cover');
+    var learn = document.getElementById('learn');
+    var closes = location.search.indexOf('escape=close') !== -1;
+    document.addEventListener('keydown', function (e) {
+      if (dlg.hidden) return;
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        (document.activeElement === cover ? learn : cover).focus();
+      } else if (e.key === 'Escape' && closes) {
+        dlg.hidden = true;
+        document.getElementById('outside').focus();
+      }
+    }, true);
+    cover.focus();
+  </script>
+</body>
+</html>

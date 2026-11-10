@@ -1,0 +1,1409 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Set up the engine project": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285711509
+      },
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285734993
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772199
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794285814272
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794285986199
+      }
+    ],
+    "2.1 Write `contract/run.schema.json` exactly as in the design": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285711689
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772359
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286002994
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286176587
+      }
+    ],
+    "2.2 Write `src/contract/types.ts` (Run, Step, Finding, FocusBox, GhostId, FindingType, RunResult) and `src/contract/schema.ts` (Ajv 2020 compile of the Run_Schema, `validateSchema(run)` → `{ path, message }[]`)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285711810
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772468
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286196352
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287280213
+      }
+    ],
+    "2.3 Write `src/contract/invariants.ts` with every rule in the design's invariant table, and `validate(run, screenshotNames)` combining both layers": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285711933
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772607
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287292778
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288002456
+      }
+    ],
+    "2.4 Unit tests: `contract/example-run.json` and both `runs/samples/*/run.json` pass the schema; derived invalid copies are rejected: `ghost: \"poltergeist\"`, `result: \"success\"`, `type: \"keyboard_trap\"`, an extra top-level field, an extra step field, empty `steps`, `n: 0`, negative `waitMs`. Invariant tests for gaps, missing finding steps, bad screenshot names, bad Run_Ids and zero-sized boxes": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712056
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772764
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288018817
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288418082
+      }
+    ],
+    "3.1 Write `engine/haunt.config.json`, `schemas/config.schema.json` and `src/config/loadConfig.ts` (missing file, bad JSON and schema failure each give a clear error)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712184
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285772893
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286003142
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286176805
+      }
+    ],
+    "3.2 Write `src/config/address.ts` with the pure `isAllowedAddress(url, config)` and the refusal message": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712278
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773074
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286196580
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287280774
+      }
+    ],
+    "3.3 Write `src/config/guard.ts`: `context.route` with a predicate, `routeWebSocket`, blocked URLs printed to standard error; the context is created with `serviceWorkers: 'block'`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712372
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773196
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287293621
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288003043
+      }
+    ],
+    "3.4 Unit tests: allowed and refused examples (`http://localhost:3000`, `http://127.0.0.1:5173/x`, `http://LOCALHOST`, `http://[::1]`, `http://0.0.0.0`, `http://user:pw@localhost`, `ftp://localhost`, `http://localhost.`, a subdomain of an allowed domain, `javascript:alert(1)`); config errors; a fixture page whose script requests `http://example.com/` gets the request aborted and logged": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712470
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773340
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288019298
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288418556
+      }
+    ],
+    "3.5 Write property test for address refusal in `test/address.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712583
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773508
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289535613
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289968258
+      }
+    ],
+    "4.1 Write `schemas/mission.schema.json` and `src/missions/loadMission.ts` (id equals file name, `do: \"type\"` requires `value`, patterns compile with `iu`)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712689
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773649
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286003286
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286177243
+      }
+    ],
+    "4.2 Write `engine/missions/pay-bill.json` exactly as in the design, and `src/missions/templates.ts` for `{{futureExpiry}}`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712808
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773760
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286199155
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287281541
+      }
+    ],
+    "4.3 Write `src/missions/patterns.ts`: NFC normalisation, whitespace collapsing, language-ordered matching": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285712904
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285773870
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286004159
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286178178
+      }
+    ],
+    "4.4 Unit tests: `pay-bill` loads; its `requirement` equals the text of Requirement 2, criterion 9 read from `.kiro/specs/lantern-bills/requirements.md`; `{{futureExpiry}}` gives `11/28` for a November 2026 start and rolls over correctly in December; invalid mission files are rejected with their JSON path; the submit patterns don't match \"Pay this bill\"": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713031
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774005
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287295207
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288003640
+      }
+    ],
+    "5.1 Write `src/core/runId.ts` (format and `-2`, `-3`… suffixes), `src/core/git.ts` (short commit from the repository root, `unknown` with a warning) and `src/core/rng.ts` (mulberry32)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713186
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774141
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286004755
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286178819
+      }
+    ],
+    "5.2 Write `src/core/recorder.ts`: Step numbering, `page`, `shots/NNN.png`, focusBox conversion to screenshot pixels and omission rules, `waitMs`, seen screenshots kept in memory": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713290
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774291
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287295631
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288004653
+      }
+    ],
+    "5.3 Write `src/core/finalize.ts` (build the run JSON from the mission, site config, URL, commit and recorder; validate) and `src/core/writer.ts` (temp folder, rename, cleanup on failure)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713388
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774440
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288020082
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288419377
+      }
+    ],
+    "5.4 Unit tests: a valid run writes `run.json` plus exactly the referenced shots; an invalid run leaves the out folder unchanged; a simulated rename failure leaves no folder; `site.url` has no trailing slash for `/`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713513
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774601
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288432452
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288815895
+      }
+    ],
+    "5.5 Write property test for saved runs in `test/finalize.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713705
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774798
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288432824
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288816582
+      }
+    ],
+    "5.6 Write property test for Run_Ids in `test/runId.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285713858
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285774981
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794286199313
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794287282719
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288006827
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288421516
+      }
+    ],
+    "6.1 Write `src/core/types.ts` with the interfaces from the design (`Body`, `Mind`, `Decision`, `Detector`, `DetectedProblem`, `DetectorContext`, `StepTrace`, `Probe`, `Ghost`)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714018
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775223
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288020786
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288420986
+      }
+    ],
+    "6.2 Write `src/core/detectors.ts`: run every detector after each Step, de-duplicate by `key`, reject a `stepN` that isn't recorded, `finish()` at the end, read-only `inspect` and CDP wrappers, and turn a thrown error into result `error` with the detector name in the last thought": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714170
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775350
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288433583
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288817619
+      }
+    ],
+    "6.3 Write `src/core/runLoop.ts` following the design's pseudocode: Step 1 opens the URL; after each Step run detectors, then the success check, then the ghost's stop rule, then the 60-step limit; give-up thoughts from the Mind; `error` handling": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714394
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775514
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288828524
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288964932
+      }
+    ],
+    "6.4 Unit tests with fake ghosts: success ends the Run even with Findings on that Step; the stop rule gives `gave_up` with the Give_Up_Thought appended; the 60th Step ends the Run; a throwing body gives `error`. Detector purity test on a fixture page: a sample detector's `inspect` calls cause no DOM mutation, focus change or scroll": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714629
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775656
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288978433
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289341673
+      }
+    ],
+    "6.5 Write property test for finding steps in `test/runLoop.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714753
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775813
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288979194
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289341894
+      }
+    ],
+    "6.6 Write property test for step numbering in `test/runLoop.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285714886
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285775964
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289343667
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289525638
+      }
+    ],
+    "7.1 Write `src/cli/main.ts` with `parseArgs`: `run` and `--help`, all options, checks in the design's order (config, mission, site, address, Out_Root test guard, Chromium), browser launch through an injectable launcher, progress lines, the absolute `run.json` path as the last line, exit codes 0/1/2/3/130, and Ctrl+C handling": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715009
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776143
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288979390
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289343899
+      }
+    ],
+    "7.2 Unit tests: each argument error exits 2 without launching; `--help` exits 0 and lists the ghosts; `--out` inside `runs/` is refused under the test runner; a missing Chromium executable prints `npx playwright install chromium` and exits 1": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715176
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776361
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289536849
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289969264
+      }
+    ],
+    "8. Checkpoint: core": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715287
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776562
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289977050
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794290120862
+      }
+    ],
+    "9.1 Write the page scripts `src/page/changeClock.ts`, `liveRegions.ts` and `elementKeys.ts`, installed with `addInitScript`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715433
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776732
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794290131179
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314408299
+      }
+    ],
+    "9.2 Write `src/ghosts/listener/profile.ts` and `ax.ts` (CDP full AX tree → `Heard`, opaque refs, focus, dialog and region)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715658
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776853
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794290131662
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314069257
+      }
+    ],
+    "9.3 Write `src/ghosts/listener/body.ts` with the `KeyboardOnlyPage` facade, keys, typing, heading and landmark jumps (reading position only), field and button jumps (Tab with the press limit), per-press trace entries, Settle, and focusBox": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715819
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285776965
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314927706
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794315746117
+      }
+    ],
+    "9.4 Write `src/ghosts/listener/speech.ts` with the rules and role words from the design": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285715970
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285777501
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314425580
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314926474
+      }
+    ],
+    "9.5 Unit tests on fixture pages: the speech examples (`Pay this bill, button`, `button`, dialog entry, checkbox state, a `role=\"alert\"` announcement); jumps skip non-matching kinds and stop after one cycle; heading jumps don't move focus; the facade has no mouse, click, fill, focus or evaluate; a serialised `Heard` contains no coordinates, sizes, CSS, HTML or image data": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716068
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285777743
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794315757053
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794316450682
+      }
+    ],
+    "10.1 Write `src/ghosts/listener/mind.ts`: Intentions in order, `doneWhen`, matching with used refs excluded, the orientation heading jump, jump search with Full_Pass, the dialog search (Tab round, Shift+Tab round, Escape), last resort on unnamed buttons, and giving up": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716166
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285777957
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794315757840
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794316451382
+      }
+    ],
+    "10.2 Write `src/ghosts/listener/thoughts.ts`: per-decision thoughts and the Give_Up_Thoughts for `trapped`, `no_match` and `step_limit`, built from the Mind's memory": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716309
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778100
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794316459601
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794318776132
+      }
+    ],
+    "10.3 Unit tests with scripted `Heard` sequences that copy Lantern Bills' tree: the decisions match the design's expected walk; the same inputs give the same decisions; with no unnamed buttons the Mind gives up with `no_match`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716414
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778240
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794318784544
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319391064
+      }
+    ],
+    "11.1 Write `src/detectors/unlabeledButton.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716560
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778371
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314425889
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314927266
+      }
+    ],
+    "11.2 Write `src/detectors/focusTrap.ts` and the Listener stop rule (`trapped`)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716707
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778627
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794318785256
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319393013
+      }
+    ],
+    "11.3 Write `src/detectors/errorWords.ts` and `src/detectors/unannouncedError.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716829
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778795
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314426147
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794314927510
+      }
+    ],
+    "11.4 Fixture pages and tests, one positive and one negative per detector: an icon-only button versus one with `aria-label`; a trapping dialog with `tabindex=\"-1\"` controls and no Escape versus a dialog whose controls are all reachable and that closes on Escape; an error shown silently versus one in `role=\"alert\"` and one linked by `aria-describedby`. Evidence strings contain the measured facts listed in the requirements": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285716938
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285778910
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319408770
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319859581
+      }
+    ],
+    "12. Register The Listener and run it once by hand": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717080
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779061
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319869677
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794320289936
+      }
+    ],
+    "13.1 Write `e2e/harness/lanternBills.ts` as in the design: node_modules check, git status snapshot, port check on IPv4 and IPv6, Vite build into `test-output/.lantern-bills-build` with base `/`, `vite preview` on port 3000 with `--strictPort`, 200 check, and `stop()` without a shell": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717220
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779273
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794320298705
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794322903529
+      }
+    ],
+    "13.2 Write `e2e/listener.e2e.test.ts`: run the CLI 10 times in sequence with `--out test-output/e2e/listener`; require at least 9 runs with `gave_up` and both `unlabeled_button` and `focus_trap`; every run passes the Run_Schema, the Run_Invariants and the dashboard's `validateRun` with no errors; `git status --porcelain -- demo-site` is unchanged; on failure print a table of result, finding types and last thought per run": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717351
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779471
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794322913916
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794323296421
+      }
+    ],
+    "13.3 Harness tests: with a dummy server on port 3000 the harness fails with the port message; the server is stopped after a failing test": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717462
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779630
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794323297051
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794324795101
+      }
+    ],
+    "14. Checkpoint: The Listener works": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717591
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779754
+      },
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794324805587
+      }
+    ],
+    "15. Listener demo run": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717802
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285779903
+      }
+    ],
+    "16.1 Write `src/page/sight.ts` (Seen_Items, looks, occlusion check, visible text per character, probe item keys), `src/page/clickLog.ts` and `src/page/layoutShifts.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285717929
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780087
+      }
+    ],
+    "16.2 Write `src/ghosts/visual/body.ts`: Sight then screenshot, click after the Reaction_Delay at the seen centre, typing with the ghost's delay, scroll over the viewport centre, wait, back, Settle on the Page_Change_Clock, waiting spans for `slow_wait`, focusBox of the aimed box": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285718116
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780225
+      }
+    ],
+    "16.3 Unit tests on fixture pages: clipped text gives only the visible characters; items under a modal backdrop are left out; a link with `role=\"button\"` looks like a link; the click lands at the centre seen earlier even when the page moved": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285718235
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780332
+      }
+    ],
+    "16.4 Write property test for visual perception purity in `test/sight.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285718390
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780459
+      }
+    ],
+    "17.1 Write `src/ghosts/visual/mind.ts` and `thoughts.ts`: language-ordered matching, field labels above or to the left, used items skipped, two-Step type intentions, last resort on empty-text buttons, unexpected-page recovery marked `recovery: true`, waiting on empty Sights, scroll search down then up, `no_match`, and the Give_Up_Thoughts": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285718565
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780664
+      }
+    ],
+    "17.2 Unit tests with scripted Sights copying Lantern Bills in English and in Punjabi: the decisions match the design's expected walks; \"Pay this bill\" is found through the `en` fallback for Bebe; the autopay page triggers \"Back to bill\" as a recovery": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285718779
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780825
+      }
+    ],
+    "18.1 Write `src/ghosts/phantom/profile.ts` (viewport, scale, mobile, touch, user agent, locale) and the CDP throttling setup; Settle 1200 ms; Reaction_Delay 550–650 ms from the seed; typing 120 ms": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285719042
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285780962
+      }
+    ],
+    "18.2 Throttling test: a 100 000-byte fixture loaded through The Phantom's profile with the request guard on takes at least 2 seconds, and the same file without throttling takes less than 1 second": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285719315
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781133
+      }
+    ],
+    "18.3 Write property test for reaction delays in `test/delays.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285719516
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781241
+      }
+    ],
+    "19.1 Write `src/detectors/misclick.ts` (aimed versus hit element key, layout-shift entries in the window, seen and after screenshots)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285719778
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781358
+      }
+    ],
+    "19.2 Write `src/detectors/slowWait.ts` (no-progress spans across waiting Steps)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720023
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781495
+      }
+    ],
+    "19.3 Write `misclickStreak` and The Phantom's stop rules (`slow_wait`, `misclicks`)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720162
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781665
+      }
+    ],
+    "19.4 Fixture pages and tests: a button that moves 1 s after load under a link versus a stable button; a page blank for 12 s after load versus a page with a visible spinner for 12 s; `NNN-seen.png` is written only when a Finding refers to it": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720284
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285781878
+      }
+    ],
+    "19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720441
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285782109
+      }
+    ],
+    "20.1 Write `src/ghosts/bebe/profile.ts` (640×400, scale 2, `pa-IN`, Accept-Language), Settle 2000 ms, Reaction_Delay 1300–1700 ms, typing 300 ms, languages `pa`, `hi`, `en`; no stop rule from Findings": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720665
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285782333
+      }
+    ],
+    "20.2 Write `src/detectors/cutOffText.ts`": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285720840
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285782601
+      }
+    ],
+    "20.3 Write `src/detectors/untranslated.ts` (allowed terms from the site config, acronyms, digit tokens, typed values left out)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285721057
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285782841
+      }
+    ],
+    "20.4 Write `src/detectors/money.ts` and `src/detectors/darkPattern.ts` (bill amount from the first page, pre-ticked paid checkbox not touched by the ghost, total higher than the bill)": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285721265
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285783123
+      }
+    ],
+    "20.5 Fixture pages and tests, one positive and one negative per detector: clipped versus scrollable overflow; English words versus allowed terms, acronyms and numbers on a `lang=\"pa\"` page; a pre-ticked ₹99 option versus an unticked one and one the ghost ticked itself; a raised total versus an equal one. The viewport-or-first-present step rule is tested with an element below the fold": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285721515
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285783365
+      }
+    ],
+    "21. Register The Phantom and Bebe and run each once by hand": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285721731
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285783631
+      }
+    ],
+    "22. Checkpoint: Phase 2a core": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285722068
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285783877
+      }
+    ],
+    "23. The Phantom's end-to-end test": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285722320
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285784142
+      }
+    ],
+    "24. Bebe's end-to-end test": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285722511
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285784432
+      }
+    ],
+    "25. Checkpoint: all ghosts": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285722655
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285784683
+      }
+    ],
+    "26. Demo runs for every ghost": [
+      {
+        "executionId": "ab57fc52-2c72-4636-97fc-99a2b1d1b0f7",
+        "chatSessionId": "sess_4f105137-5312-4d63-8f15-0019b9f59edd",
+        "timestamp": 1794285722808
+      },
+      {
+        "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
+        "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
+        "timestamp": 1794285784887
+      }
+    ],
+    "4. Missions": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288004047
+      }
+    ],
+    "2. Contract types, Run_Schema and invariants": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288418171
+      }
+    ],
+    "5. Run recording and writing": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794288816678
+      }
+    ],
+    "6. Run loop and detector framework": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289526213
+      }
+    ],
+    "3. Configuration and address safety": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289968396
+      }
+    ],
+    "7. CLI": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794289969401
+      }
+    ],
+    "9. The Listener's body": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794316450834
+      }
+    ],
+    "10. The Listener's mind": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319394969
+      }
+    ],
+    "11. The Listener's detectors": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794319859666
+      }
+    ],
+    "13. Lantern_Bills_Harness and The Listener's end-to-end test": [
+      {
+        "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794324795199
+      }
+    ]
+  }
+}

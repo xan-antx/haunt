@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unannounced error fixture</title>
+    <style>
+      body { font-family: sans-serif; }
+      .errorText { color: #b00020; font-size: 0.875rem; }
+      .note { color: #333; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Payment</h1>
+      <label for="card">Card number</label>
+      <input id="card" type="text" />
+      <label for="expiry">Expiry date</label>
+      <input id="expiry" type="text" />
+      <div id="slot"></div>
+      <div id="live" aria-live="polite"></div>
+      <button id="pay" type="button">Pay this bill</button>
+    </main>
+    <script>
+      // Each helper changes the page the way an app would after validation. The test calls them as "actions".
+      const slot = document.getElementById('slot');
+      const add = (tag, text, attrs) => {
+        const el = document.createElement(tag);
+        for (const [name, value] of Object.entries(attrs || {})) el.setAttribute(name, value);
+        el.textContent = text;
+        slot.appendChild(el);
+        return el;
+      };
+
+      // A visible error with no live region, no role and no link to a field (Lantern Bills' card errors).
+      window.showSilentError = (text) => add('div', text, { class: 'errorText' });
+
+      // The same kind of error, inside role="alert".
+      window.showAlertError = (text) => add('div', text, { class: 'errorText', role: 'alert' });
+
+      // The error is linked to the focused field with aria-describedby.
+      window.showDescribedError = (text, focusId) => {
+        add('div', text, { class: 'errorText', id: 'card-error' });
+        const field = document.getElementById(focusId || 'card');
+        field.setAttribute('aria-describedby', 'card-error');
+        field.focus();
+      };
+
+      // The error is linked to a field, but a different field has the focus.
+      window.showDescribedElsewhere = (text) => {
+        add('div', text, { class: 'errorText', id: 'card-error' });
+        document.getElementById('card').setAttribute('aria-describedby', 'card-error');
+        document.getElementById('expiry').focus();
+      };
+
+      // A visible error, and the same text put into an existing aria-live region.
+      window.showLiveError = (text) => {
+        add('div', text, { class: 'errorText' });
+        document.getElementById('live').textContent = text;
+      };
+
+      // Plain text with no error class: only its wording says it is an error.
+      window.showNote = (text) => add('p', text, { class: 'note' });
+
+      window.clearSlot = () => {
+        slot.textContent = '';
+        document.getElementById('live').textContent = '';
+        document.getElementById('card').removeAttribute('aria-describedby');
+      };
+
+      window.focusField = (id) => document.getElementById(id).focus();
+    </script>
+  </body>
+</html>

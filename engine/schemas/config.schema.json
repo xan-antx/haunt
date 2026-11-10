@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/haunt/engine/config.schema.json",
+  "title": "Haunt engine configuration (haunt.config.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["allowedDomains", "sites"],
+  "properties": {
+    "allowedDomains": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(?!-)[a-z0-9-]{1,63}(?<!-)(\\.(?!-)[a-z0-9-]{1,63}(?<!-))+$",
+        "not": { "pattern": "^\\d{1,3}(\\.\\d{1,3}){3}$" }
+      }
+    },
+    "sites": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": { "$ref": "#/$defs/site" }
+    }
+  },
+  "$defs": {
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "allowedTerms"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "allowedTerms": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

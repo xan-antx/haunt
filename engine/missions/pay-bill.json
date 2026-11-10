@@ -1,0 +1,54 @@
+{
+  "id": "pay-bill",
+  "site": "lantern-bills",
+  "goal": "Pay this month's electricity bill",
+  "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+  "successCheck": {
+    "text": "The confirmation (data-haunt=\"payment-success\") is visible",
+    "visible": "[data-haunt=\"payment-success\"]"
+  },
+  "intentions": [
+    {
+      "id": "open-form", "do": "activate",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying.",
+      "target": { "kind": "button", "en": ["^pay( this)? bill$", "^pay now$"], "pa": ["ਬਿੱਲ.*ਭਰੋ", "^ਭੁਗਤਾਨ ਕਰੋ$"] },
+      "doneWhen": { "present": { "kind": "field", "en": ["card number"], "pa": ["ਕਾਰਡ ਨੰਬਰ"] } }
+    },
+    {
+      "id": "card-number", "do": "type", "value": "4111111111111111",
+      "thought": "I'll enter the card number.",
+      "target": { "kind": "field", "en": ["card number"], "pa": ["ਕਾਰਡ ਨੰਬਰ"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "expiry", "do": "type", "value": "{{futureExpiry}}",
+      "thought": "Now the expiry date.",
+      "target": { "kind": "field", "en": ["expir"], "pa": ["ਮਿਆਦ"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "cvv", "do": "type", "value": "123",
+      "thought": "Now the three-digit security code.",
+      "target": { "kind": "field", "en": ["cvv", "security code"], "pa": ["CVV"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "name", "do": "type", "value": "Asha Kaur",
+      "thought": "And the name on the card.",
+      "target": { "kind": "field", "en": ["name"], "pa": ["ਨਾਮ"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "submit", "do": "activate", "lastResort": "unnamedButton",
+      "thought": "Everything is filled in. I need the button that sends the payment.",
+      "target": { "kind": "button", "en": ["^(submit|pay now|continue|next|send)$"], "pa": ["^ਜਮ੍ਹਾਂ ਕਰੋ$", "^ਭੁਗਤਾਨ ਕਰੋ$"] },
+      "doneWhen": { "present": { "kind": "any", "en": ["protect your payment", "payment received"], "pa": ["ਆਪਣੇ ਭੁਗਤਾਨ ਦੀ ਰੱਖਿਆ ਕਰੋ", "ਭੁਗਤਾਨ ਪ੍ਰਾਪਤ ਹੋਇਆ"] } }
+    },
+    {
+      "id": "confirm", "do": "activate",
+      "thought": "I need to confirm the payment.",
+      "target": { "kind": "button", "en": ["^(continue|confirm|pay|pay now)$"], "pa": ["^ਜਾਰੀ ਰੱਖੋ$"] },
+      "doneWhen": "success"
+    }
+  ]
+}

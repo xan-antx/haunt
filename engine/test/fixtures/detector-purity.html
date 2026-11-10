@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Detector purity</title>
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      #tall { height: 2400px; }
+      #box { width: 200px; height: 80px; overflow: auto; border: 1px solid #333; }
+      #box > div { height: 600px; }
+    </style>
+  </head>
+  <body>
+    <h1>Detector purity</h1>
+    <form id="form" onsubmit="return false">
+      <label for="card">Card number</label>
+      <input id="card" name="card" value="4111" />
+      <label for="note">Note</label>
+      <textarea id="note" name="note">some text</textarea>
+      <label><input id="agree" type="checkbox" checked /> Agree</label>
+      <button id="pay" type="submit"><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg></button>
+    </form>
+    <div id="box" tabindex="0"><div>Scrollable content</div></div>
+    <div id="tall">A tall area so the page can scroll.</div>
+    <script>
+      // Put the page into a recognisable state: focus on a field, the window and an inner box scrolled.
+      document.getElementById('note').focus();
+      window.scrollTo(0, 300);
+      document.getElementById('box').scrollTop = 120;
+
+      // Count every DOM mutation from the moment the page has finished loading (the parser itself
+      // still adds nodes after this script). A pure Detector must leave this at 0.
+      window.__mutations = [];
+      window.__observer = new MutationObserver((records) => {
+        window.__mutations.push(...records.map((r) => r.type));
+      });
+      window.__watching = false;
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          window.__observer.observe(document, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            characterData: true,
+          });
+          window.__watching = true;
+        }, 100);
+      });
+
+      // What the page looks like to a user, read back by the test.
+      window.__state = () => {
+        const pending = window.__observer.takeRecords().map((r) => r.type);
+        const mutations = window.__mutations.concat(pending);
+        const active = document.activeElement;
+        return {
+          mutations: mutations.length,
+          activeElement: active ? (active.id || active.tagName) : null,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          boxScrollTop: document.getElementById('box').scrollTop,
+          cardValue: document.getElementById('card').value,
+          noteValue: document.getElementById('note').value,
+          agreeChecked: document.getElementById('agree').checked,
+          title: document.title,
+        };
+      };
+    </script>
+  </body>
+</html>

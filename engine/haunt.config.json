@@ -1,0 +1,9 @@
+{
+  "allowedDomains": [],
+  "sites": {
+    "lantern-bills": {
+      "name": "Lantern Bills demo",
+      "allowedTerms": ["Lantern Bills"]
+    }
+  }
+}

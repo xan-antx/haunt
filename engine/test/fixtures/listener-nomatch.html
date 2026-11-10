@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener no-match fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Links and one button, no form field the keyboard can reach</h1>
+    <a href="#alpha" id="alpha">Alpha</a>
+    <a href="#beta" id="beta">Beta</a>
+    <button type="button" id="only">Only button</button>
+    <a href="#gamma" id="gamma">Gamma</a>
+    <!-- A field that Tab never reaches: it can only be focused by a script. -->
+    <input id="unreachable" tabindex="-1" aria-label="Unreachable field">
+  </main>
+</body>
+</html>

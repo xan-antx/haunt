@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Icon-only button pair</title>
+</head>
+<body>
+  <!-- One icon-only submit button. Without a query it has no name. With ?named it has an aria-label. -->
+  <main>
+    <h1>Pay</h1>
+    <form onsubmit="return false">
+      <button type="submit" id="icon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M5 12h14"></path></svg></button>
+    </form>
+  </main>
+  <script>
+    if (location.search.indexOf('named') !== -1) document.getElementById('icon').setAttribute('aria-label', 'Pay this bill');
+  </script>
+</body>
+</html>

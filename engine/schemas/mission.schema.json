@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/haunt/engine/schemas/mission.schema.json",
+  "title": "Haunt mission file",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "site", "goal", "requirement", "successCheck", "intentions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "#/$defs/key" },
+    "site": { "$ref": "#/$defs/key" },
+    "goal": { "type": "string", "minLength": 1 },
+    "requirement": { "type": "string", "minLength": 1 },
+    "successCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "visible"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "visible": { "type": "string", "minLength": 1 }
+      }
+    },
+    "intentions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/intention" }
+    }
+  },
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "patternList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "intention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "do", "thought", "target", "doneWhen"],
+      "properties": {
+        "id": { "$ref": "#/$defs/key" },
+        "do": { "enum": ["activate", "type"] },
+        "value": { "type": "string", "minLength": 1 },
+        "thought": { "type": "string", "minLength": 1 },
+        "lastResort": { "enum": ["unnamedButton"] },
+        "target": { "$ref": "#/$defs/target" },
+        "doneWhen": { "$ref": "#/$defs/doneWhen" }
+      },
+      "if": {
+        "type": "object",
+        "required": ["do"],
+        "properties": { "do": { "const": "type" } }
+      },
+      "then": { "required": ["value"], "properties": { "value": { "type": "string" } } }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "en"],
+      "properties": {
+        "kind": { "enum": ["button", "link", "field", "checkbox"] },
+        "en": { "$ref": "#/$defs/patternList" },
+        "pa": { "$ref": "#/$defs/patternList" },
+        "hi": { "$ref": "#/$defs/patternList" }
+      }
+    },
+    "presentCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "en"],
+      "properties": {
+        "kind": { "enum": ["button", "link", "field", "checkbox", "any"] },
+        "en": { "$ref": "#/$defs/patternList" },
+        "pa": { "$ref": "#/$defs/patternList" },
+        "hi": { "$ref": "#/$defs/patternList" }
+      }
+    },
+    "doneWhen": {
+      "type": ["string", "object"],
+      "if": { "type": "string" },
+      "then": { "const": "success" },
+      "else": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "maxProperties": 1,
+        "properties": {
+          "fieldValue": { "const": true },
+          "present": { "$ref": "#/$defs/presentCondition" }
+        }
+      }
+    }
+  }
+}

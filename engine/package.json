@@ -1,0 +1,35 @@
+{
+  "name": "haunt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Haunt engine: drives ghost personas through a website and writes run.json files",
+  "type": "module",
+  "bin": {
+    "haunt": "bin/haunt.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "test:properties": "vitest run -t \"Feature: haunt-engine, Property\"",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:e2e:listener": "vitest run --config vitest.e2e.config.ts e2e/listener.e2e.test.ts",
+    "test:e2e:phantom": "vitest run --config vitest.e2e.config.ts e2e/phantom.e2e.test.ts",
+    "test:e2e:bebe": "vitest run --config vitest.e2e.config.ts e2e/bebe.e2e.test.ts",
+    "demo": "tsx scripts/demo.ts",
+    "demo:all": "tsx scripts/demo.ts --all"
+  },
+  "dependencies": {
+    "ajv": "^8",
+    "playwright": "^1.65.0",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "fast-check": "^4.10.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Well-behaved dialog fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Settings</h1>
+    <button type="button" id="outside">Behind the dialog</button>
+  </main>
+  <!-- Every control can be reached with Tab. By default Tab wraps inside the dialog and Escape closes it.
+       ?escape=ignore    Escape does nothing (but every control is still reachable).
+       ?trap=off         Tab is not kept inside: from the last control it moves on to "Behind the dialog". -->
+  <div id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+    <h2 id="dlg-title">Rename file</h2>
+    <label>File name <input type="text" id="name" value="notes.txt"></label>
+    <button type="button" id="cancel">Cancel</button>
+    <button type="button" id="ok">OK</button>
+  </div>
+  <script>
+    var dlg = document.getElementById('dlg');
+    var nameInput = document.getElementById('name');
+    var ok = document.getElementById('ok');
+    var query = location.search;
+    var ignoreEscape = query.indexOf('escape=ignore') !== -1;
+    var trapOff = query.indexOf('trap=off') !== -1;
+    document.addEventListener('keydown', function (e) {
+      if (dlg.hidden) return;
+      if (e.key === 'Tab' && !trapOff) {
+        if (!e.shiftKey && document.activeElement === ok) { e.preventDefault(); nameInput.focus(); }
+        else if (e.shiftKey && document.activeElement === nameInput) { e.preventDefault(); ok.focus(); }
+      } else if (e.key === 'Escape' && !ignoreEscape) {
+        dlg.hidden = true;
+        document.getElementById('outside').focus();
+      }
+    }, true);
+    nameInput.focus();
+  </script>
+</body>
+</html>

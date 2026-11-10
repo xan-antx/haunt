@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener form fixture</title>
+</head>
+<body>
+  <header>
+    <p>Lantern Bills</p>
+  </header>
+  <main>
+    <h1>Your Electricity Bill</h1>
+    <a href="#help" id="help-link">Help</a>
+    <button type="button" id="pay">Pay this bill</button>
+    <section aria-label="Payment Information">
+      <h2>Payment</h2>
+      <label for="card">Card Number</label>
+      <input id="card" name="card" required autocomplete="off">
+      <label for="expiry">Expiry Date</label>
+      <input id="expiry" name="expiry" required autocomplete="off">
+      <label><input type="checkbox" id="save" checked> Save this card</label>
+      <label for="plan">Plan</label>
+      <select id="plan"><option>One</option><option>Two</option></select>
+    </section>
+    <button type="button" id="icon"><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg></button>
+    <button type="button" id="submit">Submit</button>
+  </main>
+  <script>
+    // The test reads this log to prove what reached the page: key presses, and no mouse or touch input.
+    window.__log = { keys: [], times: [], pointer: 0 };
+    addEventListener('keydown', function (e) {
+      window.__log.keys.push(e.key);
+      window.__log.times.push(performance.now());
+    }, true);
+    ['mousedown', 'mouseup', 'mousemove', 'pointerdown', 'pointerup', 'touchstart', 'wheel'].forEach(function (type) {
+      addEventListener(type, function () { window.__log.pointer += 1; }, true);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lantern Bills - Pay Your Electricity Bill</title>
+  <style>
+    body { font-family: sans-serif; }
+    .errorText { color: #b00020; font-size: 0.875rem; }
+    .error { color: #b00020; }
+    button { min-width: 40px; min-height: 32px; }
+  </style>
+</head>
+<body>
+  <!-- A small page with the same three problems as Lantern Bills, plus a named icon-only button:
+         - the icon-only submit button has the real markup of the demo's UnlabeledPayButton
+           (a button that holds only an <svg aria-hidden="true" focusable="false">);
+         - the card error is a plain red div (SilentCardErrors), the expiry error is in role="alert",
+           the cardholder error is linked to the focused field with aria-describedby;
+         - the protection dialog has Close and Continue with tabindex="-1", Tab only alternates between
+           the checkbox and "Learn more", and Escape does nothing (TrappingProtectionModal).
+       The test drives the page with real key presses:
+         Tab x3 to the submit button, Enter (errors appear, focus goes to the cardholder field),
+         Enter in that field (the dialog opens), Tab, Tab, Shift+Tab, Escape. -->
+  <header>
+    <p>Lantern Bills</p>
+    <button type="button" id="search" aria-label="Search bills"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6"></circle></svg></button>
+  </header>
+  <main>
+    <h1>Your Electricity Bill</h1>
+    <section id="payment-section" aria-labelledby="payment-form-heading">
+      <h2 id="payment-form-heading">Payment Information</h2>
+      <form id="pay-form" novalidate>
+        <div>
+          <label for="card-number">Card Number</label>
+          <input id="card-number" type="text" autocomplete="off">
+          <div id="card-slot"></div>
+        </div>
+        <div>
+          <label for="card-expiry">Expiry Date</label>
+          <input id="card-expiry" type="text" autocomplete="off">
+          <div id="expiry-slot"></div>
+        </div>
+        <div>
+          <label for="cardholder-name">Cardholder Name</label>
+          <input id="cardholder-name" type="text" autocomplete="off">
+          <div id="name-slot"></div>
+        </div>
+        <div>
+          <button type="submit" id="pay-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <div id="dlg" role="dialog" aria-modal="true" aria-label="Protect your payment" hidden>
+    <button type="button" id="close" tabindex="-1" aria-label="Close dialog">x</button>
+    <label><input type="checkbox" id="cover" checked> Payment protection for ₹99</label>
+    <a href="#learn-more" id="learn" role="button" aria-expanded="false">Learn more</a>
+    <button type="button" id="continue" tabindex="-1">Continue</button>
+  </div>
+  <script>
+    var dlg = document.getElementById('dlg');
+    var cover = document.getElementById('cover');
+    var learn = document.getElementById('learn');
+    var nameField = document.getElementById('cardholder-name');
+
+    function add(slot, tag, text, attrs) {
+      var el = document.createElement(tag);
+      Object.keys(attrs).forEach(function (name) { el.setAttribute(name, attrs[name]); });
+      el.textContent = text;
+      document.getElementById(slot).appendChild(el);
+    }
+
+    document.getElementById('pay-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      // Silent: visible red text, no role, no live region, not linked to the field.
+      add('card-slot', 'div', 'Invalid card number', { class: 'errorText' });
+      // Announced: inserted together with its text inside role="alert".
+      add('expiry-slot', 'div', 'Invalid expiry date', { class: 'error', role: 'alert' });
+      // Described: linked to the field that gets the focus.
+      add('name-slot', 'div', 'Cardholder name is required', { class: 'error', id: 'name-error' });
+      nameField.setAttribute('aria-describedby', 'name-error');
+      nameField.focus();
+    });
+
+    // Enter in the cardholder field continues to the protection offer.
+    nameField.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      dlg.hidden = false;
+      cover.focus();
+    });
+
+    // The trap: Tab and Shift+Tab only alternate between the checkbox and "Learn more". Escape does nothing.
+    document.addEventListener('keydown', function (e) {
+      if (dlg.hidden || e.key !== 'Tab') return;
+      e.preventDefault();
+      (document.activeElement === cover ? learn : cover).focus();
+    }, true);
+    learn.addEventListener('click', function (e) { e.preventDefault(); });
+
+    document.getElementById('card-number').focus();
+  </script>
+</body>
+</html>

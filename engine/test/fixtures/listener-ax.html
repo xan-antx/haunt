@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener fixture</title>
+</head>
+<body>
+  <header>
+    <p>Lantern Bills</p>
+  </header>
+  <nav aria-label="Main">
+    <a href="#bill">Bills</a>
+  </nav>
+  <main>
+    <h1>Your Electricity Bill</h1>
+    <h2>Payment</h2>
+    <button type="button" id="pay">Pay this bill</button>
+    <button type="button" id="icon"><svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg></button>
+    <section aria-label="Checkout">
+      <div role="dialog" aria-label="Protect your payment">
+        <h3>Extra cover</h3>
+        <label><input type="checkbox" id="cover" checked> Payment protection</label>
+        <button type="button" id="learn">Learn more</button>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>Thank you</p>
+  </footer>
+  <script>
+    document.getElementById('cover').focus();
+  </script>
+</body>
+</html>

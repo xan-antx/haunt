@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener many links fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Sixty links, no fields</h1>
+    <ul id="list"></ul>
+  </main>
+  <script>
+    var list = document.getElementById('list');
+    for (var i = 1; i <= 60; i += 1) {
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#link' + i;
+      a.textContent = 'Link ' + i;
+      li.appendChild(a);
+      list.appendChild(li);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener settle fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Settle</h1>
+    <button type="button" id="slow">Show later</button>
+    <button type="button" id="alert">Save</button>
+    <button type="button" id="load">Load data</button>
+    <div id="out"></div>
+    <div id="status" role="status"></div>
+  </main>
+  <script>
+    function addLine(id, text) {
+      var p = document.createElement('p');
+      p.id = id;
+      p.textContent = text;
+      document.getElementById('out').appendChild(p);
+    }
+    // Three DOM changes, each less than 300 ms after the one before: the page is only quiet after the last.
+    document.getElementById('slow').addEventListener('click', function () {
+      setTimeout(function () { addLine('late1', 'First'); }, 200);
+      setTimeout(function () { addLine('late2', 'Second'); }, 450);
+      setTimeout(function () { addLine('late3', 'Third'); }, 700);
+    });
+    // A live region that speaks 150 ms after the key.
+    document.getElementById('alert').addEventListener('click', function () {
+      setTimeout(function () { document.getElementById('status').textContent = 'Saved'; }, 150);
+    });
+    // A request only: it changes nothing on the page when it ends.
+    document.getElementById('load').addEventListener('click', function () {
+      fetch('/ok.txt').then(function (r) { return r.text(); });
+    });
+  </script>
+</body>
+</html>

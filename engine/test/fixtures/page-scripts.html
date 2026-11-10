@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Page scripts</title>
+    <style id="sheet">
+      body { margin: 0; font-family: sans-serif; }
+      #shifter { height: 60px; background: #ddd; }
+      #below { height: 80px; background: #aac; }
+      #tall { height: 2400px; }
+      #box { width: 200px; height: 80px; overflow: auto; border: 1px solid #333; }
+      #box > div { height: 600px; }
+      @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+      .pulse { animation: pulse 600ms linear infinite alternate; }
+      .blink { animation: pulse 150ms linear 1; }
+    </style>
+  </head>
+  <body>
+    <h1>Page scripts</h1>
+    <div id="shifter">Shifter</div>
+    <div id="below">Below the shifter</div>
+    <div id="mutable">text</div>
+    <div id="animated">Animated</div>
+    <div id="hidden" style="display: none"><span id="hidden-child">hidden text</span></div>
+    <img id="pic" width="40" height="40" alt="" />
+
+    <div id="live-polite" aria-live="polite"></div>
+    <div id="live-assertive" aria-live="assertive"></div>
+    <div id="live-off" aria-live="off"></div>
+    <div id="status" role="status"></div>
+    <div id="log" role="log"></div>
+    <div id="plain"></div>
+    <div id="hidden-live" role="alert" style="display: none"></div>
+    <div id="container"></div>
+
+    <form id="form" onsubmit="return false">
+      <label for="card">Card number</label>
+      <input id="card" name="card" value="4111" />
+      <label for="note">Note</label>
+      <textarea id="note" name="note">some text</textarea>
+      <label><input id="agree" type="checkbox" checked /> Agree</label>
+    </form>
+    <div id="box" tabindex="0"><div>Scrollable content</div></div>
+    <button id="outside">Outside</button>
+    <div id="dialog" role="dialog" aria-label="Protect your payment">
+      <button id="in-dialog">Inside</button>
+      <div id="nested"><button id="in-dialog-nested">Nested</button></div>
+    </div>
+    <div id="tall">A tall area so the page can scroll.</div>
+    <script>
+      // Put the page into a recognisable state: focus on a field, the window and an inner box scrolled.
+      document.getElementById('note').focus();
+      window.scrollTo(0, 300);
+      document.getElementById('box').scrollTop = 120;
+
+      // Count every DOM mutation from the moment the page has finished loading (the parser itself still
+      // adds nodes after this script). Anything the engine's scripts do to the DOM would show up here.
+      window.__mutations = [];
+      window.__observer = new MutationObserver((records) => {
+        window.__mutations.push(...records.map((r) => r.type));
+      });
+      window.__watching = false;
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          window.__observer.observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
+          window.__watching = true;
+        }, 100);
+      });
+
+      // What the page looks like to a user, read back by the test.
+      window.__state = () => {
+        const pending = window.__observer.takeRecords().map((r) => r.type);
+        const active = document.activeElement;
+        return {
+          mutations: window.__mutations.concat(pending).length,
+          activeElement: active ? (active.id || active.tagName) : null,
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          boxScrollTop: document.getElementById('box').scrollTop,
+          cardValue: document.getElementById('card').value,
+          noteValue: document.getElementById('note').value,
+          agreeChecked: document.getElementById('agree').checked,
+          title: document.title,
+        };
+      };
+    </script>
+  </body>
+</html>

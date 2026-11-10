@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guard probe</title>
+  </head>
+  <body>
+    <h1>Guard probe</h1>
+    <p>This page tries to reach a host that is not an allowed address. The Engine's request guard must stop it.</p>
+    <script>
+      // Results the test reads from the page. Every entry ends as "ok", "blocked" or "error:<detail>".
+      window.__probe = { done: false, results: {} };
+
+      const EXTERNAL = 'http://example.com/';
+
+      function settle(name, value) {
+        window.__probe.results[name] = value;
+      }
+
+      // Each probe returns a promise that always resolves, so one failure does not hide the others.
+      function viaFetch(name, url, init) {
+        return fetch(url, init).then(
+          (r) => settle(name, r.ok ? 'ok' : 'error:status ' + r.status),
+          (e) => settle(name, 'blocked:' + e.name),
+        );
+      }
+
+      function viaElement(name, el, url) {
+        return new Promise((resolve) => {
+          el.onload = () => { settle(name, 'ok'); resolve(); };
+          el.onerror = () => { settle(name, 'blocked'); resolve(); };
+          el.src = url;
+          document.body.appendChild(el);
+        });
+      }
+
+      function viaWebSocket(name, url) {
+        return new Promise((resolve) => {
+          let opened = false;
+          let ws;
+          try {
+            ws = new WebSocket(url);
+          } catch (e) {
+            settle(name, 'blocked:' + e.name);
+            resolve();
+            return;
+          }
+          ws.onopen = () => { opened = true; };
+          ws.onerror = () => { settle(name, 'blocked:error'); };
+          ws.onclose = (ev) => {
+            if (!(name in window.__probe.results)) settle(name, (opened ? 'closed:' : 'blocked:') + ev.code);
+            resolve();
+          };
+        });
+      }
+
+      // A data: URL needs no network, so the guard must let it through.
+      const DATA_URL = 'data:text/plain;base64,aGVsbG8=';
+
+      Promise.all([
+        // no-cors: without the guard this would resolve (opaque response), so a rejection means the request was stopped.
+        viaFetch('fetchExternal', EXTERNAL, { mode: 'no-cors' }),
+        viaFetch('fetchSameOrigin', '/ok.txt'),
+        viaFetch('fetchData', DATA_URL),
+        viaElement('imageExternal', new Image(), EXTERNAL + 'pixel.png'),
+        viaElement('scriptExternal', document.createElement('script'), EXTERNAL + 'tracker.js'),
+        viaWebSocket('webSocketExternal', 'ws://example.com/socket'),
+      ]).then(() => {
+        window.__probe.done = true;
+        document.title = 'Guard probe done';
+      });
+    </script>
+  </body>
+</html>

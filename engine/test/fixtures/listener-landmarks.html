@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listener landmarks fixture</title>
+</head>
+<body>
+  <header>
+    <p>Lantern Bills</p>
+    <nav aria-label="Main"><a href="#home" id="home-link">Home</a></nav>
+  </header>
+  <main>
+    <h1>Page title</h1>
+    <p>Introduction.</p>
+    <h2>Section one</h2>
+    <button type="button" id="first">First</button>
+    <aside aria-label="Tips">
+      <h3>Tip</h3>
+    </aside>
+    <h2>Section two</h2>
+  </main>
+  <footer>
+    <p>Thank you</p>
+  </footer>
+  <script>
+    // The test reads this log to prove that heading and landmark jumps send no key to the page.
+    window.__log = { keys: [] };
+    addEventListener('keydown', function (e) { window.__log.keys.push(e.key); }, true);
+    addEventListener('keyup', function (e) { window.__log.keys.push('up:' + e.key); }, true);
+  </script>
+</body>
+</html>
