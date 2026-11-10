@@ -56,7 +56,7 @@ export function CoverageScreen() {
       {missions.length === 0 ? (
         <p>No missions yet. Once a ghost has walked a mission, it appears here.</p>
       ) : (
-        <table className={styles.table} role="table">
+        <table className={styles.table} role="table" data-tour="coverage-table">
           <caption className="visually-hidden">Which ghosts completed each mission</caption>
           <thead role="rowgroup">
             <tr role="row">

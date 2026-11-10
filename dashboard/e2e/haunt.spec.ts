@@ -5,13 +5,14 @@ const ORIGIN = 'http://localhost:3001';
 const L = '2026-11-03-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
 
+// The five Screens, plus the two views that replaced the Haunted Map and Séance screens.
 const SCREENS: [string, string][] = [
   ['Home', '#/'],
-  ['Haunted Map', '#/haunt/lantern-bills-demo/map?ghost=phantom'],
+  ['Graveyard Map view', '#/graveyard?ghost=phantom&view=map'],
   ['Graveyard', '#/graveyard'],
   ['Ghost Cam (Listener)', `#/run/${L}/step/9`],
   ['Ghost Cam (Bebe)', `#/run/${B}/step/3`],
-  ['Séance', `#/seance/${L}/where-stuck`],
+  ['Ghost Cam with the Ask panel', `#/run/${L}/step/9?ask=where-stuck`],
   ['Exorcise', '#/exorcise'],
   ['Spec Coverage', '#/coverage'],
 ];
@@ -51,9 +52,16 @@ test.describe('deep links', () => {
     await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${B}/step/1`);
   });
 
-  test('Start here opens the Listener trap', async ({ page }) => {
+  test("the tour's Ghost Cam stop opens the Listener trap", async ({ page }) => {
     await open(page, '#/');
-    await page.getByRole('link', { name: 'Start here' }).click();
+    await page.getByRole('button', { name: 'Take the 60-second tour' }).click();
+    const next = page.getByRole('dialog').getByRole('button', { name: 'Next' });
+    await expect(next).toBeFocused();
+    await next.press('Enter');
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/9`);
+    await expect(page.getByRole('dialog', { name: 'What the page looked like' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/9`);
     await expect(page.locator('main h1')).toBeFocused();
   });

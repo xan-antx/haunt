@@ -8,13 +8,14 @@ const ORIGIN = 'http://localhost:3001';
 const L = '2026-11-03-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
 
+// The five Screens, plus the two views that replaced the Haunted Map and Séance screens.
 const SCREENS: [string, string][] = [
   ['Home', '#/'],
-  ['Haunted Map', '#/haunt/lantern-bills-demo/map?ghost=phantom'],
+  ['Graveyard Map view', '#/graveyard?ghost=phantom&view=map'],
   ['Graveyard', '#/graveyard'],
   ['Ghost Cam (Listener)', `#/run/${L}/step/9`],
   ['Ghost Cam (Bebe)', `#/run/${B}/step/3`],
-  ['Séance', `#/seance/${L}/where-stuck`],
+  ['Ghost Cam with the Ask panel', `#/run/${L}/step/9?ask=where-stuck`],
   ['Exorcise', '#/exorcise'],
   ['Spec Coverage', '#/coverage'],
 ];
@@ -41,10 +42,18 @@ test.afterEach(() => {
   expect(outside, 'requests outside localhost:3001').toEqual([]);
 });
 
+/** Below 900 px the list is behind the Menu button (Req 20.3); open it so every link can be checked. */
+async function openMenuIfNarrow(page: Page) {
+  const menu = page.getByRole('button', { name: 'Menu' });
+  if ((await menu.isVisible()) && (await menu.getAttribute('aria-expanded')) !== 'true') await menu.click();
+  if (await menu.isVisible()) await expect(menu).toHaveAttribute('aria-expanded', 'true');
+}
+
 async function open(page: Page, hash: string) {
   await page.goto(`/haunt/${hash}`);
   await expect(page.locator('main h1')).toBeVisible();
-  // The Haunted Map and Ghost Cam links appear once the runs have loaded.
+  await openMenuIfNarrow(page);
+  // The Ghost Cam link appears once the runs have loaded.
   await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Ghost Cam' })).toBeVisible();
   await expect(page.locator('header [data-fog]')).toHaveCount(1);
 }
@@ -89,7 +98,17 @@ async function expectFullWidthFog(page: Page, where: string) {
 async function expectNavLinksOnTop(page: Page, where: string) {
   const links = page.getByRole('navigation', { name: 'Main' }).getByRole('link');
   const count = await links.count();
-  expect(count, `${where}: nav links`).toBeGreaterThan(0);
+  expect(count, `${where}: nav links`).toBe(5);
+  // The Menu button, where shown, must not be covered by the fog either (Req 16.10).
+  const menu = page.getByRole('button', { name: 'Menu' });
+  if (await menu.isVisible()) {
+    const onTop = await menu.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return top !== null && (top === el || el.contains(top));
+    });
+    expect(onTop, `${where}: elementFromPoint at the centre of the Menu button returns it`).toBe(true);
+  }
   for (let i = 0; i < count; i++) {
     const link = links.nth(i);
     await link.scrollIntoViewIfNeeded();
@@ -103,6 +122,11 @@ async function expectNavLinksOnTop(page: Page, where: string) {
 }
 
 test.describe('Nav_Fog spans the viewport', () => {
+  // Each test walks every screen with the animated, blurred fog at sizes up to 2560 px. Alone one
+  // takes about 7 s; three at once in parallel workers starve each other of CPU and pass 90 s.
+  // Running this group in order in one worker keeps every check and avoids that contention.
+  test.describe.configure({ mode: 'default' });
+
   for (const size of SIZES) {
     test(`${size.label}: full-width fog, no sideways scroll, nav links reachable on every screen`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
@@ -132,6 +156,7 @@ test.describe('Nav_Fog spans the viewport', () => {
         .poll(async () => page.evaluate(() => document.documentElement.clientWidth))
         .toBeLessThanOrEqual(size.width);
       const where = `Home after resize to ${size.label}`;
+      await openMenuIfNarrow(page);
       await expectFullWidthFog(page, where);
       await expectNavLinksOnTop(page, where);
     }

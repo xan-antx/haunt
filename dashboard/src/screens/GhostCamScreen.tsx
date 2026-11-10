@@ -1,8 +1,8 @@
 // Ghost Cam: a step-by-step replay of one run. The screenshot is on the left and what the
 // ghost heard or thought is on the right. The URL always names the current step.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { GhostCharacter } from '../components/ghosts/Ghosts';
 import { useAnnounce } from '../components/layout/LiveRegion';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
@@ -10,6 +10,7 @@ import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { RunErrorPanel } from '../components/RunErrorPanel';
+import { ScreenIcon } from '../components/ScreenIcon';
 import { Screenshot } from '../components/Screenshot';
 import { StuckNotice } from '../components/StuckNotice';
 import { useRun } from '../data/hooks';
@@ -17,8 +18,9 @@ import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
 import { formatSeconds } from '../model/format';
 import { GHOSTS, RESULT_LABELS, resultSentence } from '../model/ghosts';
-import { homePath, parseStepParam, stepPath } from '../routes';
+import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
+import { AskPanel } from './ghostcam/AskPanel';
 import { Controls, Timeline } from './ghostcam/Controls';
 import { SpokenPanel, ThoughtPanel } from './ghostcam/Panels';
 import styles from './ghostcam/GhostCam.module.css';
@@ -77,10 +79,38 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   const atLast = index === run.steps.length - 1;
   const ghost = GHOSTS[run.ghost];
 
+  // Ask_Panel state lives in the URL (Req 6.2, 12.2).
+  const [search] = useSearchParams();
+  const ask = parseAsk(search.get('ask'));
+  const askParam = ask.open ? (ask.question ?? 'open') : null;
+  const askPanelId = useId();
+  const askButton = useRef<HTMLButtonElement>(null);
+  const firstQuestion = useRef<HTMLButtonElement>(null);
+  const focusPanelOnOpen = useRef(false);
+
+  // Every step move keeps the Ask_Panel as it is (Req 12.12).
   const goTo = useCallback(
-    (target: number) => navigate(stepPath(run.key, target), { replace: true }),
-    [navigate, run.key],
+    (target: number) => navigate(askPath(run.key, target, askParam), { replace: true }),
+    [navigate, run.key, askParam],
   );
+
+  const openAsk = () => {
+    focusPanelOnOpen.current = true;
+    navigate(askPath(run.key, n, 'open'), { replace: true });
+  };
+  const closeAsk = () => {
+    navigate(stepPath(run.key, n), { replace: true });
+    askButton.current?.focus();
+  };
+  const chooseQuestion = (question: QuestionId) => navigate(askPath(run.key, n, question), { replace: true });
+
+  // Opening with the Ask_Button moves focus to the first question (Req 12.11).
+  useEffect(() => {
+    if (ask.open && focusPanelOnOpen.current) {
+      focusPanelOnOpen.current = false;
+      firstQuestion.current?.focus();
+    }
+  }, [ask.open]);
 
   // Set when Play is pressed on the last step, so playback restarts from the first step.
   const restarting = useRef(false);
@@ -171,7 +201,30 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           <p className={styles.ghostDescription}>{ghost.description}</p>
           <p className={styles.siteLine}>Site: {run.site.name}</p>
         </div>
+        <button
+          ref={askButton}
+          type="button"
+          className={`button ${styles.askButton}`}
+          aria-expanded={ask.open}
+          aria-controls={ask.open ? askPanelId : undefined}
+          onClick={ask.open ? closeAsk : openAsk}
+        >
+          <ScreenIcon screen="seance" className={styles.askIcon} />
+          Ask this ghost
+        </button>
       </div>
+
+      {/* The Ask_Panel overlays the panel area, so opening it moves nothing (Req 12.10). */}
+      {ask.open && (
+        <AskPanel
+          id={askPanelId}
+          run={run}
+          question={ask.question}
+          onAsk={chooseQuestion}
+          onClose={closeAsk}
+          firstQuestionRef={firstQuestion}
+        />
+      )}
 
       <div className={styles.left} data-cam-area="shot">
         <Screenshot run={run} step={step} />

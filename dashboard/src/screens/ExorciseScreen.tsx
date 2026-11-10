@@ -221,7 +221,7 @@ export function ExorciseScreen() {
     <>
       {heading}
       {intro}
-      <div className={styles.pickers}>
+      <div className={styles.pickers} data-tour="exorcise-pickers">
         <div className={styles.picker}>
           <label htmlFor={beforeId}>Before run</label>
           <select

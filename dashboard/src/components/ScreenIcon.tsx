@@ -1,11 +1,14 @@
-// One original stroked icon per screen, drawn for this project. Always decorative: the screen's
-// name is shown as text next to it (Req 20.15).
+// One original stroked icon per Screen, drawn for this project, plus the floor plan of the
+// Graveyard's Map view and the crystal ball of the Ghost Cam's "Ask this ghost" button. Always
+// decorative: the name is shown as text next to it (Req 20.15).
 
 import type { ReactElement } from 'react';
 import type { ScreenId } from '../model/screens';
 import styles from './ScreenIcon.module.css';
 
-const PATHS: Record<ScreenId, ReactElement> = {
+export type IconId = ScreenId | 'map' | 'seance';
+
+const PATHS: Record<IconId, ReactElement> = {
   // A house with a door.
   home: (
     <>
@@ -66,7 +69,7 @@ const PATHS: Record<ScreenId, ReactElement> = {
   ),
 };
 
-export function ScreenIcon({ screen, className }: { screen: ScreenId; className?: string }) {
+export function ScreenIcon({ screen, className }: { screen: IconId; className?: string }) {
   return (
     <svg
       className={[styles.icon, className ?? ''].filter(Boolean).join(' ')}

@@ -50,6 +50,22 @@ A first-time user could not tell what each screen does from its spooky name. The
 | Screen_Intro | Most screens open with a two- or three-sentence paragraph. The Ghost Cam has none since the fit-mode layout change | Every screen opens with one plain sentence right after its h1 (exact texts below). The Ghost Cam gets one between its two Run_Summary rows | Wayfinding |
 | Ghost Cam height budget | `--cam-shot-max: calc(100vh - 26rem)` with a single-row header | The taller header and the Screen_Intro are paid for by a tighter header and summary in fit mode, so the screenshot and panel stay at least 380 px tall at 1536×864 | Wayfinding |
 
+### Amendment: first visit in 60 seconds (Req 21–23, and the "Revised" criteria in Req 6, 7, 8, 9, 10, 12, 20)
+
+A first-time user still saw seven tools but not the story. This amendment was written after reading the current code. Each row names what the code does today and what changes. Details are in "First visit (third amendment)" below, which supersedes the parts of "Wayfinding" that it names.
+
+| Area | Today | Change | Section |
+|---|---|---|---|
+| Home order | Hero, How_It_Works_Strip, Screen_Guide ("What's in here", six cards), haunt cards and side panel, Restless files | Hero, Results_Sections, How_It_Works_Strip, haunt cards and side panel, Restless files. The Screen_Guide is removed | Results_Section |
+| Home story | Each haunt card shows an Outcome_Line such as "Trapped by a keyboard trap at step 9" | A Result_Card per ghost with a Result_Headline built by `src/model/results.ts`, for example "The Listener got trapped in a pop-up and couldn't pay.", and one "Watch it happen" candle link to the Watch_Step | Results_Section |
+| Start here | A candle link to the Start_Here_Step, with a note about "Next stop" | "Take the 60-second tour", a candle button that starts the Tour. The Start_Here_Step stays as the Ghost Cam's Screen_Destination | Tour |
+| Tour | None | `src/model/tour.ts` lists eight Tour_Stops; `src/components/tour/Tour.tsx` shows each as a modal callout with Back, Next and Skip, moves between screens, highlights the target and manages focus | Tour |
+| Séance | Its own screen at `#/seance` and `#/seance/:runKey/:questionId`, with a run picker | The Ask_Panel inside the Ghost Cam, opened by the Ask_Button in the Run_Summary, state in `?ask=`. Old URLs redirect | Ask_Panel |
+| Haunted Map | Its own screen at `#/haunt/:siteKey/map?ghost=` | The Graveyard's Map_View at `#/graveyard?view=map`, sharing the Graveyard's site and ghost filters. Old URLs redirect | Map_View |
+| Top_Navigation | Seven items, each a name with a description under it; narrow screens show all items with descriptions in a grid | Five items, each a Screen_Icon and a name on one line. Below 900 px a Menu_Button opens the full list, with descriptions | Menu |
+| Guided_Path | Home, Ghost Cam, Graveyard, Haunted Map, Exorcise, Spec Coverage, Séance | Home, Ghost Cam, Graveyard, Exorcise, Spec Coverage | Screens table |
+| Playwright | Default worker count | `workers: 3` locally, the default on CI | Testing |
+
 ## Architecture
 
 ```mermaid
@@ -658,6 +674,136 @@ On the Ghost Cam the Screen_Intro sits inside the Run_Summary area, between the 
 
 **Ghost Cam height budget (Req 10.24).** The two-line navigation items and the Screen_Intro add height above the stage, and at 1536×864 the old budget left only 16 px above the 380 px minimum. Fit mode on the Ghost Cam pays for them by tightening the chrome, in the same `:has(.cam)` style already used for `<main>` and the footer: the header's inner padding drops to `var(--space-2)`, and the Run_Summary rows use a tighter line height. `--cam-shot-max` is then tuned against the Playwright layout tests at all three viewports, which check that the six areas fit, that the screenshot and panel are at least 380 px tall, and that nothing moves between steps. The Next_Stop_Link follows the Provenance_Panel, below the fold with the footer.
 
+*Superseded in part by the third amendment below:* the seven-item table, the two-line navigation items, the narrow-screen grid of descriptions, the Screen_Guide and the seven-stop Guided_Path. The Screen_Intro rules, the How_It_Works_Strip and the NextStop component stay.
+
+### First visit (third amendment, Req 21–23 and the revised criteria)
+
+**Screens table (Req 20.6, 20.11).** `src/model/screens.ts` keeps one table, now with five Screens:
+
+```ts
+export type ScreenId = 'home' | 'ghostcam' | 'graveyard' | 'exorcise' | 'coverage';
+export const NAV_ORDER: readonly ScreenId[];   // home, ghostcam, graveyard, exorcise, coverage
+export const GUIDED_PATH: readonly ScreenId[]; // the same order, then back to home
+```
+
+| Screen | Name | Screen_Description | Screen_Destination |
+|---|---|---|---|
+| `home` | Home | What the ghosts found | `#/` |
+| `ghostcam` | Ghost Cam | Replay a ghost's visit and ask it why | Start_Here_Step, else step 1 of the first run; null with no runs |
+| `graveyard` | Graveyard | Every problem found, as a list or a map | `#/graveyard` |
+| `exorcise` | Exorcise | Before and after a fix | `#/exorcise` |
+| `coverage` | Spec Coverage | Which requirements people can reach | `#/coverage` |
+
+`screenOfRoute` maps the Old_Link routes too: `map` belongs to `graveyard` and `seance` to `ghostcam`, so the right nav item is current for the instant before the redirect. `NextStop` shows "Back to the start" for Home instead of its description. `ScreenIcon` takes an `IconId = ScreenId | 'map' | 'seance'`, so the floor-plan icon labels the Map view choice and the crystal ball labels the Ask_Button.
+
+**Routes (Req 6.2, 6.10, 6.11).** `routes.ts` gains:
+
+```ts
+export type GraveyardView = 'list' | 'map';
+graveyardPath({ site?, ghost?, view? }): string   // view 'map' adds ?view=map; 'list' is the default and adds nothing
+export type AskParam = QuestionId | 'open';
+askPath(runKey, n, ask: AskParam | null): string  // stepPath(...) plus ?ask=<ask> when ask is not null
+parseAsk(value: string | null): { open: boolean; question: QuestionId | null }
+```
+
+`parseRoute` returns `view` for the Graveyard. The `map`, `seance` and `seanceAnswer` patterns stay in the router for the Old_Links and render small redirect components:
+
+| Old_Link | Component | Replaces the URL with |
+|---|---|---|
+| `#/haunt/:siteKey/map?ghost=g` | `MapRedirect` (no data needed) | `graveyardPath({ site: siteKey, ghost: g if it is a contract ghost, view: 'map' })` |
+| `#/seance` | `SeanceRedirect` | `askPath(featured.runKey, featured.step, 'open')`, where `featured` is the Ghost Cam's Screen_Destination; with no runs, a screen with the h1 "Ask a ghost" and "No ghost has walked here yet, so there is no one to ask." plus a Home link |
+| `#/seance/:runKey/:questionId` | `SeanceRedirect` | `askPath(runKey, watchStep(run), isQuestionId(q) ? q : 'open')`; an unknown run renders `UnknownRunScreen` |
+
+All three use `<Navigate replace>`, so the Old_Link leaves no history entry. `Layout.routeIdentity` sees the identity change and moves focus to the new h1, as for any other route change.
+
+**Results_Section (Req 21, 7.28).** `src/model/results.ts` is pure:
+
+```ts
+export function siteShortName(siteName: string): string;   // drops one trailing "demo" or "(demo)", any case
+export function resultsHeading(siteName: string): string;  // "What the ghosts found on " + siteShortName
+export function missionVerb(goal: string): string | null;  // Mission_Verb
+export function resultHeadline(run: Run): string;          // Result_Headline, the only place it is built
+export function watchStep(run: Run): number | null;        // Watch_Step; null when steps are empty
+```
+
+`FINDING_LABELS` (the single finding table, Req 9.4) gains two phrases per type, typed as part of `FindingLabel`, so a missing phrase fails to compile:
+
+| Type | `blocker` (after the ghost's name, gave-up runs) | `thing` (after "but found", succeeded runs) |
+|---|---|---|
+| `unlabeled_button` | couldn't tell what a button did | a button with no name |
+| `focus_trap` | got trapped with no keyboard way out (or "got trapped in a pop-up", see below) | a keyboard trap |
+| `unannounced_error` | missed an error nobody announced | an error nobody announced |
+| `slow_wait` | waited too long for the page | a page that took too long |
+| `misclick` | clicked the wrong thing | something easy to click by mistake |
+| `cut_off_text` | couldn't read text that was cut off | text that was cut off |
+| `untranslated` | couldn't read text that wasn't translated | text that wasn't translated |
+| `dark_pattern` | was caught by a tricky choice | a tricky choice |
+
+The pop-up wording applies when the `focus_trap` finding's title or evidence, or the `spoken` text of its step, matches `/\b(dialog|modal|pop-?up)\b/i`. The Listener sample's trap finding is titled "Cannot escape the payment confirmation dialog", so its headline is "The Listener got trapped in a pop-up and couldn't pay." The Mission_Verb for "Pay this month's electricity bill" is "pay". The rules in Req 21.4 are applied in the order they are listed.
+
+`HomeScreen` renders, after the Hero and before the How_It_Works_Strip, one `<section aria-labelledby>` per haunt from `groupHaunts`. The first carries `data-tour="results"` for the Tour. Each holds a `<ul>` of `<li><article aria-labelledby>` cards: the ghost's character (`aria-hidden`, not floating, so the page stays calm), an h3 with the name, `<p>Task: {goal}</p>`, `<p class=headline>{resultHeadline}</p>`, a `ResultBadge`, and a `CandleButton lit to={stepPath(key, watchStep)}` with the text "Watch it happen" plus a visually hidden ": {ghost} at step {n}". Cards are on `--surface` with `--text`, the same pairs as the haunt cards. The grid is `repeat(auto-fit, minmax(min(100%, 22rem), 1fr))`, so two cards share a row from about 900 px and stack at 320 px.
+
+**Tour (Req 22, 7.26, 7.27).** Two parts: a pure model and one component.
+
+```ts
+// src/model/tour.ts
+export interface TourStop { id: string; path: string; targets: string[]; title: string; body: string }
+export function buildTour(runs: Run[]): TourStop[] | null;   // null when there are no runs
+export function sentenceCount(text: string): number;
+export interface Box { top: number; left: number; width: number; height: number }
+export function placeCallout(target: Box | null, size: { width: number; height: number },
+  viewport: { width: number; height: number }): { top: number; left: number; side: 'below' | 'above' | 'right' | 'left' | 'center' | 'edge' };
+```
+
+| # | Screen (`path`) | Target (first match wins) | Title | Body |
+|---|---|---|---|---|
+| 1 | `/` | `[data-tour="results"]`, `[data-screen-intro]` | What the ghosts found | "Each card says in plain words what happened to one ghost on {site}. Press Watch it happen on a card to see that moment." |
+| 2 | Ghost Cam destination | `[data-cam-area="shot"]` | What the page looked like | "The left side shows the page at this step of the visit. The glowing outline marks where the ghost's focus was." |
+| 3 | same | `[data-cam-area="panel"]` | What {ghost} heard / was thinking | Listener: "The right side shows what The Listener's screen reader said at each step, with the newest line at the bottom." Others: "The right side shows what {ghost} was thinking at each step, with the newest line at the bottom." |
+| 4 | same | `[data-cam-area="notice"]` | Where it got stuck | "This notice says in plain words where the ghost got stuck and why. Press Ask this ghost to hear it in the ghost's own words." |
+| 5 | same | `[data-cam-area="timeline"]` | Every step of the visit | "The timeline has one mark per step, and a tombstone marks each problem. Press any mark to jump to that step." |
+| 6 | `/graveyard` | `[data-tour="graveyard-views"]`, `[data-screen-intro]` | Every problem in one place | "The Graveyard has one tombstone for each problem the ghosts found. Choose Map to see each page as a room instead." |
+| 7 | `/exorcise` | `[data-tour="exorcise-pickers"]`, `[data-screen-intro]` | Before and after a fix | "Exorcise compares a run from before a fix with a run from after it. It shows which problems are gone and which still haunt the site." |
+| 8 | `/coverage` | `[data-tour="coverage-table"]`, `[data-screen-intro]` | Which requirements people can reach | "Spec Coverage shows whether each ghost could complete each requirement. That's the tour, so explore on your own from here." |
+
+`{site}` is the Site_Short_Name of the most recent Haunt. The Ghost Cam stop uses the Ghost Cam's Screen_Destination, which with the samples is The Listener at step 9, so stop 4 points at a filled Stuck_Notice. Targets are looked up inside `#main-content`. Eight short stops at a few seconds each keep the tour near one minute.
+
+`placeCallout` keeps the callout 12 px inside the viewport. Below 600 px wide it returns `edge`: full width, at the bottom when the target's centre is in the top half of the viewport, else at the top. Otherwise it tries below, above, right and left of the target with a 12 px gap and takes the first that fits entirely; with no target it returns `center`; if nothing fits, it returns `edge` placement at the viewport's bottom-right, which may overlap a very large target.
+
+`TourProvider` wraps the Layout's content, so the tour survives route changes. It holds the current stop index (null when closed), the invoking element, and the stop list from `buildTour(runs)`. `useTour()` returns `{ available, reason, start(invoker) }` for Home's candle button. While the tour is open:
+
+- A host `div` is appended to `<body>` and the callout and Tour_Highlight are rendered into it with `createPortal`. Every other child of `<body>` gets the `inert` attribute (the ones that already had it are left alone and are not cleared later). This makes the background unreachable by pointer, keyboard and the accessibility tree in browsers, and lets tests check the attribute in jsdom.
+- The callout is `<div role="dialog" aria-modal="true" aria-labelledby={title} aria-describedby={body}>` with a progress `<p>` ("2 of 8"), an h2 title, the body `<p>`, and three `.button` buttons: Back (`aria-disabled="true"` on stop 1, a no-op), Next (or Finish) and Skip. It is keyed by stop index, so each stop is a fresh dialog and screen readers announce its name and description when focus enters.
+- Moving to a stop whose `path` differs from the current location calls `navigate(path)` (a normal history entry, so Back in the browser also works). Once the location matches, the component looks for the first matching target every 50 ms for up to 3 s. When found, it calls `scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })`, measures the target and the callout, and positions both with `position: fixed`. It re-measures on `scroll` (capture), `resize` and target `ResizeObserver` callbacks. Focus moves to the Next button only after this lookup ends, so the new screen's own h1 focus (from `Layout`) has already happened and cannot take focus back.
+- Tab and Shift+Tab are handled on the dialog and wrap between its buttons. A capture-phase `keydown` listener on `document` closes the tour on Escape wherever focus is.
+- On close, the host is removed, `inert` is cleared, and focus goes to the invoker if it is still connected, else to `#main-content h1`.
+- The Tour_Highlight is a fixed `div` (`aria-hidden`, `pointer-events: none`) drawn 6 px outside the target with a 3 px `--amber` outline. Amber on `--bg` (8.80) and amber on `--surface` (7.53) are existing pairs. Amber is the candle color, and the tour is itself the primary action that drew it. The callout is `--surface` with a 2 px `--amber` border, `--text` body and `--text-muted` progress (both existing pairs). No CSS transition or animation is used, so nothing moves under Reduced_Motion and there is nothing to gate; only the smooth scroll depends on `useReducedMotion()`.
+
+**Ask_Panel (Req 12.1, 12.2, 12.10–12.12, 10.24).** The Ghost Cam reads `ask` from the query with `parseAsk`. `src/screens/ghostcam/AskPanel.tsx` reuses `QUESTIONS` and `answer()` from `model/seance.ts` unchanged.
+
+- The Ask_Button is a `.button` after `.headerText` in the Run_Summary (`flex: none` in fit mode, so it sits at the right end of the summary rows and adds no height; the summary is about 85 px tall and the button 44 px). It has the crystal-ball `ScreenIcon`, `aria-expanded`, and `aria-controls` only while the panel exists.
+- The panel is a direct child of `.cam`, right after the summary in DOM order, with `grid-area: panel`, so it sits exactly on top of the right-hand panel area in both fit and stacked mode. `contain: size` stops its content from growing the grid row, `align-self: stretch` gives it the row's height, and it scrolls inside (`overflow-y: auto`). Because it only overlays an existing area and has no `data-cam-area`, the layout tests' boxes and the `body:has([data-cam-area])` rules are unchanged. It looks like the old spirit board: `--bg` with a 3 px double `--bone` border (bone on `--bg` is 13.00).
+- Content: `<section id aria-labelledby>` with the h2 "Ask {ghost}" and a "Close" button in one row, one sentence ("{ghost} answers from what it recorded. Each step it mentions is a link."), a `role="group" aria-label="Questions"` of four `aria-pressed` buttons, and the answer `<section aria-live="polite">` with an h3 ("{ghost} answers: {question}" or "{ghost} is listening") and the paragraphs, citations as `<Link replace to={askPath(key, step, question)}>`.
+- Open, choose and close all use `navigate(..., { replace: true })` on the same pathname, so `Layout` does not move focus. Opening from the button sets a ref that focuses the first question button after the panel mounts. Escape (handled on the panel) and Close navigate without `ask` and focus the Ask_Button. The Control_Row and timeline call `goTo`, which now keeps the current `ask` value, so the panel stays open while stepping.
+
+**Map_View (Req 8, 9.7–9.9).** `src/screens/graveyard/MapView.tsx` takes the filtered runs and the ghost filter and renders, per site, `<section aria-labelledby>` with an h2 "Map of {site}", then the room `<ul>` with `RoomCard`s (moved from `HauntedMapScreen.tsx`, room titles now h3) and `ColdSpotLink`s. `GraveyardScreen` reads `view` from the query and adds a "View" fieldset (`data-tour="graveyard-views"`) before the site filter, with radios "Tombstones" and "Map" (the Map radio carries the floor-plan icon). The site select and ghost radios are shared by both views. The status line counts tombstones in the list and rooms in the map. `HauntedMapScreen.tsx` and `SeanceScreen.tsx` (and their CSS modules) are removed; their styles move with the components.
+
+**Menu (Req 20.1–20.5).** `Nav` in `Layout.tsx` renders the Menu_Button just before the `<nav>`, inside the header (banner) landmark, so that on narrow screens it shares the brand's row while the open list spans the full header width below:
+
+```tsx
+<button type="button" className={styles.menuButton} aria-expanded={open} aria-controls={navId}>Menu</button>
+<nav id={navId} aria-label="Main" className={open ? 'nav open' : 'nav'} onKeyDown={closeOnEscape}>
+  <ul>
+    <li><Link aria-current=…><ScreenIcon screen={id} /><span><span className={styles.navLabel}>{name}</span>
+      <span className={styles.navHint}>{description}</span></span></Link></li>
+  </ul>
+</nav>
+```
+
+From 900 px the Menu_Button is `display: none`, the list is a one-line flex row, and `.navHint` is `display: none`, so each accessible name is the Screen's name alone. Below 900 px the `<nav>` is `display: none` until `.open`, then a one-column list under the brand row with the hint shown on its own line (`--text` at 0.85 rem, as before, about 6.9:1 on the fog at its ceiling). The menu closes on every location change and on Escape, which also focuses the button. The header is shorter than before, since each item is one line, which leaves a little more room in the Ghost Cam's fit-mode budget; `--cam-shot-max` stays `calc(100vh - 26rem)`.
+
+**Accessibility notes.** axe's `region` rule counts `[role=dialog]` as a region, so the portalled callout does not need a landmark. The Ask_Panel is a named region inside `<main>`. The Tour's focus containment is deliberate and escapable (Escape, Skip, Finish), as in the modal dialog pattern; the haunt keyboard test, which checks for traps, runs with the tour closed, and the tour has its own keyboard test.
+
 ### Provenance_Panel (amendment, Req 5.6–5.11)
 
 **Problems in the current code** (`ProvenancePanel.tsx` and `.module.css`):
@@ -849,6 +995,18 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 
 **Validates: Requirements 10.12, 10.13, 10.30, 10.31**
 
+### Property 14: Result_Headline and Watch_Step follow the rules for every run
+
+*For any* valid run, `resultHeadline(run)` equals the text an independent oracle builds from Req 21.4, starts with the ghost's name (or is the "No steps were recorded" line), and ends with exactly one full stop. `watchStep(run)` is `null` exactly when the run has no steps, and otherwise is the `n` of a step in the run that matches Req 21's Watch_Step rule. The generator includes all three results, all eight finding types, several findings at the last step, findings that point at missing steps, goals with and without a Mission_Verb, and pop-up words in titles.
+
+**Validates: Requirements 21.4, 21.5, 21.6**
+
+### Property 15: The tour callout stays inside the viewport and off its target
+
+*For any* viewport from 320×320 to 2560×1600, any callout size that fits inside it with a 12 px margin, and any target box (including boxes partly or fully off screen), `placeCallout` returns a position whose box lies inside the viewport with the 12 px margin. When the side is `below`, `above`, `right` or `left`, the callout box does not intersect the target box. Below 600 px wide the side is always `edge` and the callout is on the half of the viewport away from the target's centre.
+
+**Validates: Requirements 22.5, 22.10**
+
 ## Error Handling
 
 | Situation | Behavior |
@@ -870,6 +1028,12 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 | (amendment) No runs, so the Haunted Map and Ghost Cam have no Screen_Destination | Their nav items are left out as before. Their Screen_Guide cards say "Opens once a ghost has walked here." with no link, and `nextStop` skips them |
 | (amendment) Runs still loading, or the index failed to load | No Next_Stop_Link is rendered, so it never points at a stop that is about to change |
 | (amendment) Empty `spoken` or `thought` text | A Transcript line "Nothing was spoken at this step." or "Nothing was thought at this step."; the live region says "Step n: nothing was spoken" |
+| (third amendment) No runs | No Results_Section; "Take the 60-second tour" is an unlit candle with "No ghost has walked here yet, so there is nothing to tour." |
+| (third amendment) A Result_Card's run has no steps | "Watch it happen" is an unlit candle with "No steps were recorded, so there is nothing to watch." |
+| (third amendment) A Tour_Stop's target is missing (for example Exorcise with one run) | The next selector in its `targets` list is tried; after 3 s with none, the callout is centred with no highlight and focus still moves to Next |
+| (third amendment) The user navigates away by the browser's Back button during the tour | The tour stays open on its current stop and navigates back to that stop's screen, so the callout always describes the screen behind it |
+| (third amendment) `?ask=` holds an unknown value | Treated as `open`: the Ask_Panel opens with no question chosen |
+| (third amendment) Old_Link with an unknown site | Redirects to the Map_View with that `site`; the Graveyard ignores an unknown site, so every site's map is shown |
 
 ## Testing Strategy
 
@@ -937,6 +1101,21 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - *Hero_Ghosts float, within limits:* with `emulateMedia({ reducedMotion: 'no-preference' })`, `document.getAnimations()` includes an animation on each of the three Hero_Ghosts, and sampling each ghost's `getBoundingClientRect().top` over one cycle gives a range of 12 px or less (the design value is 8 px). With `reducedMotion: 'reduce'`, no animation applies to them, and their positions do not change over 2 seconds.
 - *Logo only in the header:* on Home, `HauntLogo`'s mark (`[data-haunt-logo]`) is found once, inside the `header` landmark, and not inside the Hero.
 
+**Third amendment: new and changed tests**
+
+- *Unit, models:* `resultHeadline`, `watchStep`, `siteShortName`, `missionVerb` with the samples and one example per Req 21.4 row; `buildTour` with the samples (eight stops, their paths and targets, the Listener wording at stop 3, one or two sentences per body); `screens.ts` (five-item `NAV_ORDER`, `GUIDED_PATH`, `nextStop` wrapping Spec Coverage to Home and skipping the Ghost Cam with no runs); `graveyardPath`, `askPath`, `parseAsk` and `parseRoute` with `view`.
+- *Property tests:* Property 14 in `src/__tests__/results.properties.test.ts` and Property 15 in `src/__tests__/tour.properties.test.ts`, each a top-level `describe('Feature: haunt-dashboard, Property N: …')` with at least 100 runs.
+- *Unit, Home:* the Results_Section follows the Hero and precedes "How Haunt works"; its h2 is "What the ghosts found on Lantern Bills"; two Result_Cards in ghost order with the sample headlines; each card has exactly one link, named "Watch it happen: The Listener at step 9" (or Bebe at step 3), going to the Watch_Step; no "What's in here" heading; "Take the 60-second tour" is a button; axe passes.
+- *Unit, Tour:* starting the tour shows a dialog named "What the ghosts found" with focus on Next; the app container has `inert`; Next moves to the Ghost Cam URL and the stop 2 dialog; Back on stop 1 is `aria-disabled` and does nothing; Tab from Skip wraps to Back and Shift+Tab from Back wraps to Skip; Escape closes, clears `inert`, keeps the URL and returns focus to the tour button; Skip and Finish close; walking all eight stops visits `/`, the Ghost Cam, `/graveyard`, `/exorcise` and `/coverage`; with reduced motion `scrollIntoView` gets `behavior: 'auto'`; axe passes with the dialog open.
+- *Unit, Ask_Panel:* the Ask_Button opens the panel (URL gets `?ask=open`, focus on the first question); choosing a question shows the answer and sets `?ask=why-give-up`; a citation link moves to that step with the panel still open; Step back keeps `ask`; Escape and Close remove `ask` and focus the Ask_Button; axe passes with the panel open.
+- *Unit, Map_View:* `#/graveyard?view=map` shows "Map of Lantern Bills demo", rooms `/` and `/bill` as h3, three cold spot links; `&ghost=phantom` fogs both rooms with "Not visited by The Phantom"; choosing the Map radio replaces the URL with `view=map` and keeps focus on the radio.
+- *Unit, Old_Links:* `#/haunt/lantern-bills-demo/map?ghost=phantom` ends at `/graveyard?site=lantern-bills-demo&ghost=phantom&view=map`; `#/seance` ends at the Listener's step 9 with `?ask=open`; `#/seance/<Listener>/where-stuck` ends at step 9 with `?ask=where-stuck` and the answer shown; `#/seance/<Bebe>/bogus` ends at Bebe's step 3 with `?ask=open`; `#/seance/nobody/why-give-up` shows the unknown-run message.
+- *Unit, Menu:* five links in order with names only; the Menu_Button toggles `aria-expanded` and names the list with `aria-controls`; Escape closes it and focuses the button; following a link closes it.
+- *Unit, axe list:* the screen list in `a11y.test.tsx` swaps the two Haunted Map and two Séance entries for the Map_View, the Map_View with fog, the Ask_Panel open and the Ask_Panel with an answer; the Old_Links keep their own redirect tests.
+- *End-to-end, new `e2e/first-visit.spec.ts`:* the Results_Section heading and both headlines are visible at 1536×864 without scrolling past the Hero's bottom by more than one screen, and "Watch it happen" opens step 9 with focus on the h1; the whole tour by keyboard only (Enter on Next), checking the URL and that each target and its callout are inside the viewport and do not overlap, then Escape returns focus to the tour button; with reduced motion `document.getAnimations()` is empty while the tour is open; axe has no violations with the tour open on Home and on the Ghost Cam; the Old_Links land on the new URLs; the Ask_Panel at 1536×864 keeps the six Ghost Cam areas in the viewport and in the same place as with it closed; at 375 px the Menu_Button opens the list with descriptions and Escape closes it.
+- *End-to-end, updated:* `haunt.spec.ts` and `nav-fog.spec.ts` swap their Haunted Map and Séance entries for the Map_View URL; `nav-fog.spec.ts` opens the Menu_Button below 900 px before checking that every nav link is on top of the fog (and also checks the Menu_Button); the "Start here" deep-link test becomes "the tour's Ghost Cam stop opens the Listener trap", with the same URL and focus checks.
+- *Playwright config:* `workers: process.env.CI ? undefined : 3`. Two groups run in order inside one worker with `test.describe.configure({ mode: 'default' })`: the Nav_Fog size loop in `nav-fog.spec.ts` and the full tour walks in `first-visit.spec.ts`. Each of those tests drives several screens with the animated, blurred fog. One Nav_Fog test at 1920 px takes about 7 s alone, but three at once in parallel workers took over 90 s and also slowed the Ghost Cam layout tests. The assertions are unchanged; only the scheduling is.
+
 **End-to-end (Playwright against `npm run preview` on port 3001)**
 
 - Keyboard-only walk through all seven screens: the skip link is first, every control can be reached, there are no traps, and the focus ring is visible.
@@ -959,5 +1138,10 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - **(Amendment) Stuck_Notice evidence is clamped.** The three-line limit (Req 10.31) means long evidence is cut with an ellipsis in the notice. The full text stays in the DOM and in the `title`, and the Graveyard shows every finding in full. If more than one finding sits on one step, the notice names the first and counts the rest.
 - **(Amendment) Ghost description in the Run_Summary.** To keep the summary to two lines in fit mode, the one-line ghost description is shown only in stacked mode. Home's Hero_Ghosts carry the persona descriptions.
 - **(Amendment, Req 20) Home has no Screen_Description.** The six descriptions given cover the other screens, and "Home" explains itself. Home is still on the Guided_Path: it is the start ("Start here") and the end (Séance leads back to it), and its own Next_Stop_Link opens the same Ghost Cam step as "Start here".
-- **(Amendment, Req 20) No collapsed menu on narrow screens.** The navigation has never had a menu button, and Req 20.5 asks that narrow screens keep the descriptions, so the seven items stay visible in a two-column grid. This makes the header taller on phones; a collapsible menu could be added later as long as it shows the descriptions when open.
+- **(Amendment, Req 20; superseded by the Menu_Button in the third amendment) No collapsed menu on narrow screens.** The navigation has never had a menu button, and Req 20.5 asks that narrow screens keep the descriptions, so the seven items stay visible in a two-column grid. This makes the header taller on phones; a collapsible menu could be added later as long as it shows the descriptions when open.
+- **(Third amendment) Site_Short_Name.** The user's wording is "What the ghosts found on Lantern Bills", while the sample `site.name` is "Lantern Bills demo". Rather than hard-coding the name, one trailing "demo" word is dropped, which keeps the heading built from the run files.
+- **(Third amendment) Result_Headline wording.** The headline is built from the finding type, a small pop-up check on the finding's own words, and the first word of the goal. A goal that does not start with a verb ("Bill payment") falls back to "couldn't finish the task". This is a heuristic over free text; the Outcome_Line on the haunt cards keeps the exact step-based wording.
+- **(Third amendment) One Result_Card per ghost.** "One card per ghost run" is read as one card for each ghost's most recent run in the Haunt, matching the haunt cards. Earlier runs stay listed on the haunt cards.
+- **(Third amendment) Tour state is not in the URL.** The tour is a short, one-off walkthrough, so reloading the page closes it. Each stop's screen is a normal URL.
+- **(Third amendment) The tour is modal; the Ask_Panel is not.** The tour floats over many screens and must keep focus on its own controls, so it uses the modal dialog pattern with `inert`. The Ask_Panel is part of the Ghost Cam and should work alongside the controls (stepping while reading an answer), so it is a named region in the reading order with no focus containment.
 - **(Amendment) Fit mode needs a viewport at least 800 px tall.** Below that height, or below 1280 px width, or at high zoom, the Ghost Cam uses the stacked layout and the page scrolls. Req 10.24 only covers the three listed viewport sizes.

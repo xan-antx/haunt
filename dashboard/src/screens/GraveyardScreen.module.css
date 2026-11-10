@@ -17,6 +17,12 @@
   font-weight: 700;
 }
 
+.viewIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--spectral);
+}
+
 .count {
   color: var(--text-muted);
 }

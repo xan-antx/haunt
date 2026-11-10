@@ -1,5 +1,5 @@
-// Home: the "Start here" moment, how Haunt works, a guide to every screen, haunted sites,
-// and any restless files.
+// Home: the Hero with the tour, what the ghosts found (results first), how Haunt works, haunted
+// sites with recent walks, and any restless files.
 
 import { Link } from 'react-router-dom';
 import { CandleButton } from '../components/CandleButton';
@@ -9,21 +9,16 @@ import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { runFilePath } from '../components/RunErrorPanel';
-import { ScreenIcon } from '../components/ScreenIcon';
+import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tour';
 import { useAllRuns } from '../data/hooks';
 import type { InvalidRun, Run } from '../data/types';
 import { formatDate, plural } from '../model/format';
 import { GHOST_ORDER, GHOSTS, resultSentence } from '../model/ghosts';
 import { outcomeLine } from '../model/outcome';
-import {
-  groupHaunts,
-  recentRuns,
-  startHereTarget,
-  startHereUnavailableReason,
-  type Haunt,
-} from '../model/haunts';
-import { NAV_ORDER, SCREENS, screenDestinations } from '../model/screens';
-import { mapPath, restlessPath, stepPath } from '../routes';
+import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
+import { resultHeadline, resultsHeading, watchStep } from '../model/results';
+import { buildTour } from '../model/tour';
+import { graveyardPath, restlessPath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './HomeScreen.module.css';
 
@@ -78,8 +73,8 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
           })}
         </ul>
         <p>
-          <Link to={mapPath(haunt.siteKey)} className={styles.mapLink}>
-            Open the Haunted Map of {haunt.siteName}
+          <Link to={graveyardPath({ site: haunt.siteKey, view: 'map' })} className={styles.mapLink}>
+            Open the map of {haunt.siteName} in the Graveyard
           </Link>
         </p>
       </article>
@@ -140,6 +135,56 @@ const HOW_STEPS = [
   'You see exactly where it got stuck',
 ] as const;
 
+/** One Result_Card: what happened to one ghost, in plain words, with one main action (Req 21.3–21.6). */
+function ResultCard({ run }: { run: Run }) {
+  const ghost = GHOSTS[run.ghost];
+  const step = watchStep(run);
+  const headingId = `result-${run.key}`;
+  return (
+    <li className={styles.resultCard}>
+      <article aria-labelledby={headingId} className={styles.resultInner}>
+        <GhostCharacter ghost={run.ghost} size={80} className={styles.resultGhost} />
+        <div className={styles.resultText}>
+          <h3 id={headingId} className={styles.resultName}>
+            {ghost.name}
+          </h3>
+          <p className={styles.resultTask}>Task: {run.mission.goal}</p>
+          <p className={styles.headline}>{resultHeadline(run)}</p>
+          <p className={styles.resultBadge}>
+            <ResultBadge result={run.result} />
+          </p>
+          {step === null ? (
+            <CandleButton lit={false} reason="No steps were recorded, so there is nothing to watch.">
+              Watch it happen
+            </CandleButton>
+          ) : (
+            <CandleButton lit to={stepPath(run.key, step)} label={`Watch it happen: ${ghost.name} at step ${step}`}>
+              Watch it happen
+            </CandleButton>
+          )}
+        </div>
+      </article>
+    </li>
+  );
+}
+
+/** Results_Section: one per Haunt, right after the Hero (Req 21.1, 21.2, 21.7). */
+function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
+  const headingId = `results-${haunt.siteKey}`;
+  return (
+    <section aria-labelledby={headingId} className={styles.results} data-tour={first ? 'results' : undefined}>
+      <h2 id={headingId} className={styles.sectionTitle}>
+        {resultsHeading(haunt.siteName)}
+      </h2>
+      <ul className={styles.resultCards}>
+        {haunt.ghosts.map((summary) => (
+          <ResultCard key={summary.ghost} run={summary.latest} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** How_It_Works_Strip (Req 20.7). */
 function HowItWorks() {
   return (
@@ -157,40 +202,6 @@ function HowItWorks() {
           </li>
         ))}
       </ol>
-    </section>
-  );
-}
-
-/** Screen_Guide: one card per screen other than Home (Req 20.8, 20.9). */
-function ScreenGuide({ runs }: { runs: Run[] }) {
-  const destinations = screenDestinations(runs);
-  return (
-    <section aria-labelledby="guide-heading" className={styles.guide}>
-      <h2 id="guide-heading" className={styles.sectionTitle}>
-        What's in here
-      </h2>
-      <ul className={styles.guideCards}>
-        {NAV_ORDER.filter((id) => id !== 'home').map((id) => {
-          const { name, description } = SCREENS[id];
-          const to = destinations[id];
-          return (
-            <li key={id} className={styles.guideCard}>
-              <div className={styles.guideTitleRow}>
-                <ScreenIcon screen={id} className={styles.guideIcon} />
-                <h3 className={styles.guideTitle}>{name}</h3>
-              </div>
-              <p className={styles.guideDescription}>{description}</p>
-              {to ? (
-                <Link to={to} className={`button ${styles.guideButton}`}>
-                  Open {name}
-                </Link>
-              ) : (
-                <p className="muted">Opens once a ghost has walked here.</p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
     </section>
   );
 }
@@ -215,13 +226,13 @@ function RestlessFiles({ invalid }: { invalid: InvalidRun[] }) {
 
 export function HomeScreen() {
   const state = useAllRuns();
+  const tour = useTour();
   if (state.status === 'loading') return <Loading />;
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
 
   const { runs, invalid } = state;
   const haunts = groupHaunts(runs);
-  const start = startHereTarget(runs);
-  const startRun = start ? runs.find((r) => r.key === start.runKey) : undefined;
+  const tourAvailable = buildTour(runs) !== null;
 
   return (
     <>
@@ -235,23 +246,22 @@ export function HomeScreen() {
               Three ghost users tried real tasks on our sites, and this dashboard shows where each one got stuck.
             </ScreenIntro>
             <div className={styles.actions}>
-              {start ? (
-                <CandleButton lit to={stepPath(start.runKey, start.step)}>
-                  Start here
+              {tourAvailable ? (
+                <CandleButton id={TOUR_START_ID} lit onClick={(event) => tour.start(runs, event.currentTarget)}>
+                  Take the 60-second tour
                 </CandleButton>
               ) : (
-                <CandleButton lit={false} reason={startHereUnavailableReason(runs)}>
-                  Start here
+                <CandleButton id={TOUR_START_ID} lit={false} reason={TOUR_UNAVAILABLE}>
+                  Take the 60-second tour
                 </CandleButton>
               )}
               <CandleButton lit={false} reason="Coming soon: live ghosts are not connected yet">
                 Summon a live ghost
               </CandleButton>
             </div>
-            {start && startRun && (
+            {tourAvailable && (
               <p className={styles.tourNote}>
-                Start here opens {GHOSTS[startRun.ghost].name} at step {start.step}. Then follow “Next stop” at the
-                bottom of each screen to see the rest.
+                The tour points out each part of the dashboard, and you can leave it at any time with Escape or Skip.
               </p>
             )}
           </div>
@@ -259,8 +269,12 @@ export function HomeScreen() {
         </div>
       </div>
 
+      {/* Results first, right after the Hero (Req 7.28, 21.1). */}
+      {haunts.map((haunt, i) => (
+        <Results key={haunt.siteKey} haunt={haunt} first={i === 0} />
+      ))}
+
       <HowItWorks />
-      <ScreenGuide runs={runs} />
 
       {/* DOM order is reading and tab order: cards, then the side panel (Req 7.13, 18.1). */}
       <div className={styles.body}>

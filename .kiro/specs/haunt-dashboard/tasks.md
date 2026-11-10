@@ -406,9 +406,87 @@ These tasks implement the second design amendment: the Ghost Cam one-screen layo
   - Run `npm run build` in dashboard/, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; if the fit test fails, tune `--cam-shot-max` or the Stuck_Notice slot height rather than shrinking text. Never weaken or delete tests
   - _Requirements: 5.6–5.11, 7.10–7.12, 7.20–7.25, 10.12–10.34, 16.7–16.10_
 
+## Third amendment tasks: first visit in 60 seconds
+
+These tasks implement Req 21–23 and the criteria marked "Revised" in Req 6, 7, 8, 9, 10, 12 and 20 (design section "First visit (third amendment)"). They replace behaviour from tasks 11, 13, 15 and the wayfinding work (the Screen_Guide, the seven-item navigation, the "Start here" button). Earlier tasks stay checked as history. Where an existing test asserts removed behaviour (for example the Haunted Map or Séance screens in the axe list), it is rewritten to assert the current requirement with the same or stricter checks; no test is weakened or deleted to make it pass. Tasks 35 to 40 each end with `npm run build` and `npm test` in `dashboard/`. Playwright runs once, in task 42.
+
+- [x] 35. Screens table, routes and Old_Links
+  - [x] 35.1 Five Screens in `src/model/screens.ts`
+    - `ScreenId` is `home | ghostcam | graveyard | exorcise | coverage`; new Screen_Descriptions; `NAV_ORDER` and `GUIDED_PATH` are home, ghostcam, graveyard, exorcise, coverage; `screenOfRoute` maps `map` to graveyard and `seance` to ghostcam
+    - `ScreenIcon` takes `IconId = ScreenId | 'map' | 'seance'`; `NextStop` shows "Back to the start" for Home
+    - _Requirements: 20.6, 20.10, 20.11_
+  - [x] 35.2 Routes in `src/routes.ts`
+    - `graveyardPath({ site, ghost, view })`, `parseRoute` returns `view`; `askPath(runKey, n, ask)` and `parseAsk(value)`
+    - _Requirements: 6.2, 9.7, 12.2_
+  - [x] 35.3 Old_Link redirects
+    - `MapRedirect` and `SeanceRedirect` in `src/screens/redirects.tsx`, routed from `PATTERNS.map`, `PATTERNS.seance` and `PATTERNS.seanceAnswer` with `<Navigate replace>`; the no-runs and unknown-run screens
+    - _Requirements: 6.10, 6.11, 23.3_
+  - [x] 35.4 Unit tests for the table, routes and redirects
+    - `NAV_ORDER`, `nextStop` order and wrap; `graveyardPath`/`askPath`/`parseAsk`/`parseRoute`; each Old_Link lands on its new URL and content; unknown run; no runs
+    - _Requirements: 6.10, 6.11, 20.11, 23.3_
+
+- [x] 36. Map_View in the Graveyard
+  - [x] 36.1 Move the room and cold-spot components into `src/screens/graveyard/MapView.tsx` with h2 "Map of {site}" and h3 room titles; remove `HauntedMapScreen.tsx` and its CSS module
+    - _Requirements: 8.1–8.7_
+  - [x] 36.2 Add the "View" choice (Tombstones / Map) with `data-tour="graveyard-views"`, shared site and ghost filters, `view=map` in the URL with replace, focus kept, and the per-view Screen_Intro
+    - _Requirements: 9.6, 9.7, 9.8, 9.9_
+  - [x] 36.3 Unit tests for the Map_View: rooms, cold spots, fog, view switch, focus
+    - _Requirements: 8.1–8.7, 9.7, 9.8_
+
+- [x] 37. Ask_Panel in the Ghost Cam
+  - [x] 37.1 Write `src/screens/ghostcam/AskPanel.tsx` and the Ask_Button in the Run_Summary; `goTo` keeps `ask`; remove `SeanceScreen.tsx` and its CSS module
+    - Panel overlays `grid-area: panel` with `contain: size` and internal scrolling; Close button; Escape; focus to the first question on open and back to the Ask_Button on close
+    - _Requirements: 12.1, 12.2, 12.10, 12.11, 12.12, 10.24_
+  - [x] 37.2 Unit tests for the Ask_Panel: open, question, citations, stepping, Escape, Close, focus, axe
+    - _Requirements: 12.1–12.3, 12.10–12.12_
+
+- [x] 38. Results first on Home
+  - [x] 38.1 Write `src/model/results.ts` (`siteShortName`, `resultsHeading`, `missionVerb`, `resultHeadline`, `watchStep`) and add `blocker` and `thing` to `FINDING_LABELS`
+    - _Requirements: 21.1, 21.4, 21.5, 9.4_
+  - [x] 38.2 Write property test for the Result_Headline in `src/__tests__/results.properties.test.ts`
+    - **Property 14: Result_Headline and Watch_Step follow the rules for every run**
+    - **Validates: Requirements 21.4, 21.5, 21.6**
+  - [x] 38.3 Render the Results_Sections in `HomeScreen.tsx` after the Hero, move "How Haunt works" below them, remove the Screen_Guide and the tour note about "Next stop"
+    - _Requirements: 21.1–21.3, 21.5–21.8, 7.28, 20.8_
+  - [x] 38.4 Unit tests for the results model and the Home Results_Section; update the Home tests that assumed the old order
+    - _Requirements: 21.1–21.8, 7.28_
+
+- [x] 39. The 60-second tour
+  - [x] 39.1 Write `src/model/tour.ts` (`buildTour`, `sentenceCount`, `placeCallout`)
+    - _Requirements: 22.1, 22.2, 22.5, 22.11_
+  - [x] 39.2 Write property test for callout placement in `src/__tests__/tour.properties.test.ts`
+    - **Property 15: The tour callout stays inside the viewport and off its target**
+    - **Validates: Requirements 22.5, 22.10**
+  - [x] 39.3 Write `src/components/tour/Tour.tsx` (`TourProvider`, `useTour`, the portalled dialog and highlight) and mount it in `Layout`; add `data-tour` targets on Exorcise and Spec Coverage
+    - Inert background, focus to Next after each stop loads, Tab wrapping, Escape anywhere, focus return, reduced-motion scrolling, no animation
+    - _Requirements: 22.1–22.11_
+  - [x] 39.4 Replace "Start here" with "Take the 60-second tour" and its note
+    - _Requirements: 7.26, 7.27, 20.12_
+  - [x] 39.5 Unit tests for the tour model and component, including axe with the dialog open
+    - _Requirements: 22.1–22.11_
+
+- [x] 40. Calmer menu
+  - [x] 40.1 One-line items with icon and name from 900 px; Menu_Button below 900 px with descriptions in the open list; Escape and link-follow close it
+    - _Requirements: 20.1–20.5, 16.10_
+  - [x] 40.2 Unit tests for the menu; run `npm run build` and `npm test` in dashboard/ and fix any failures (never weaken or delete tests)
+    - _Requirements: 20.1–20.5_
+
+- [x] 41. Playwright specs and config (write only)
+  - [x] 41.1 Set `workers: process.env.CI ? undefined : 3` in `playwright.config.ts`
+  - [x] 41.2 Write `e2e/first-visit.spec.ts` (results, tour by keyboard, reduced motion, axe with the tour open, Old_Links, Ask_Panel fit at 1536×864, narrow menu)
+    - _Requirements: 6.10, 10.24, 12.10, 20.3, 20.4, 21.1–21.5, 22.1–22.10, 23.2, 23.3_
+  - [x] 41.3 Update `haunt.spec.ts`, `nav-fog.spec.ts` and `home.spec.ts` for the five Screens, the Map_View URL, the Menu_Button and the tour button
+    - _Requirements: 16.7–16.10, 18.1–18.10, 20.1–20.5_
+  - [x] 41.4 Update `dashboard/README.md` with the current URLs and where each Old_Link leads
+    - _Requirements: 23.4_
+
+- [x] 42. Final end-to-end run
+  - Confirm nothing is listening on port 3001, run `npm run build`, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; never weaken or delete tests
+  - _Requirements: 10.24, 20.1–20.5, 21, 22, 23_
+
 ## Notes
 
-- Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2) are required.
+- Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2, 38.2, 39.2) are required.
 - Every Property_Test describe must be top level and start with `Feature: haunt-dashboard, Property N`, so the pattern in task 28 finds it.
 - Playwright ran in task 29 for the first amendment. For the second amendment it runs only once, in task 34. Task 33 only writes the specs.
 - Tasks 24 and 26.4 are kept as history; tasks 31 and 32 supersede their layout and h1 behaviour.

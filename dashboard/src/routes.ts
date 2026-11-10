@@ -43,14 +43,35 @@ function withQuery(path: string, query: Record<string, string | undefined>): str
   return qs ? `${path}?${qs}` : path;
 }
 
+/** The Graveyard's two views: the Tombstone_List (default) and the Map_View. */
+export type GraveyardView = 'list' | 'map';
+
+/** The Ask_Panel's URL state: open with no question, or open showing one answer. */
+export type AskParam = QuestionId | 'open';
+
 export const homePath = (): string => '/';
+/** Old_Link only: the former Haunted Map screen. New links use graveyardPath({ view: 'map' }). */
 export const mapPath = (site: string, ghost?: GhostId): string => withQuery(`/haunt/${enc(site)}/map`, { ghost });
-export const graveyardPath = (filter: { site?: string; ghost?: string } = {}): string =>
-  withQuery('/graveyard', { site: filter.site, ghost: filter.ghost });
+export const graveyardPath = (filter: { site?: string; ghost?: string; view?: GraveyardView } = {}): string =>
+  withQuery('/graveyard', {
+    site: filter.site,
+    ghost: filter.ghost,
+    view: filter.view === 'map' ? 'map' : undefined,
+  });
 export const runPath = (runKey: string): string => `/run/${enc(runKey)}`;
 export const stepPath = (runKey: string, n: number): string => `/run/${enc(runKey)}/step/${n}`;
+/** A Ghost Cam step, with the Ask_Panel open when `ask` is not null. */
+export const askPath = (runKey: string, n: number, ask: AskParam | null): string =>
+  withQuery(stepPath(runKey, n), { ask: ask ?? undefined });
+/** Old_Link only: the former Séance screen. */
 export const seancePath = (runKey?: string, questionId?: QuestionId): string =>
   runKey && questionId ? `/seance/${enc(runKey)}/${questionId}` : '/seance';
+
+/** Reads the `ask` query value. Any value opens the panel; only a question id chooses a question. */
+export function parseAsk(value: string | null): { open: boolean; question: QuestionId | null } {
+  if (value === null) return { open: false, question: null };
+  return { open: true, question: isQuestionId(value) ? value : null };
+}
 export const exorcisePath = (beforeKey?: string, afterKey?: string): string =>
   beforeKey && afterKey ? `/exorcise/${enc(beforeKey)}/${enc(afterKey)}` : '/exorcise';
 export const coveragePath = (): string => '/coverage';
@@ -62,7 +83,7 @@ export const href = (path: string): string => `#${path}`;
 export type Route =
   | { screen: 'home' }
   | { screen: 'map'; siteKey: string; ghost?: string }
-  | { screen: 'graveyard'; site?: string; ghost?: string }
+  | { screen: 'graveyard'; site?: string; ghost?: string; view?: 'map' }
   | { screen: 'run'; key: string }
   | { screen: 'step'; key: string; n: number }
   | { screen: 'seance'; key?: string; questionId?: string }
@@ -96,7 +117,14 @@ export function parseRoute(input: string): Route {
       if (s.length === 3 && s[2] === 'map') return { screen: 'map', siteKey: s[1]!, ghost: opt('ghost') };
       break;
     case 'graveyard':
-      if (s.length === 1) return { screen: 'graveyard', site: opt('site'), ghost: opt('ghost') };
+      if (s.length === 1) {
+        return {
+          screen: 'graveyard',
+          site: opt('site'),
+          ghost: opt('ghost'),
+          view: query.get('view') === 'map' ? 'map' : undefined,
+        };
+      }
       break;
     case 'run':
       if (s.length === 2) return { screen: 'run', key: s[1]! };

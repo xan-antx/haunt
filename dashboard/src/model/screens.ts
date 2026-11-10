@@ -1,68 +1,58 @@
-// The one table of screens: names, plain-words descriptions, the Guided_Path and where each
-// screen's link goes. The navigation, Home's "What's in here" guide and the "Next stop" links all
-// read from here, so they always agree (Req 20.6).
+// The one table of Screens: names, plain-words descriptions, the Guided_Path and where each
+// Screen's link goes. The navigation and the "Next stop" links both read from here, so they
+// always agree (Req 20.6).
 
 import type { Run } from '../data/types';
-import {
-  coveragePath,
-  exorcisePath,
-  graveyardPath,
-  homePath,
-  mapPath,
-  seancePath,
-  stepPath,
-  type Route,
-} from '../routes';
-import { groupHaunts, startHereTarget } from './haunts';
+import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath, type Route } from '../routes';
+import { startHereTarget } from './haunts';
 
-export type ScreenId = 'home' | 'map' | 'graveyard' | 'ghostcam' | 'seance' | 'exorcise' | 'coverage';
+export type ScreenId = 'home' | 'ghostcam' | 'graveyard' | 'exorcise' | 'coverage';
 
 export interface ScreenInfo {
   id: ScreenId;
-  /** The spooky name, shown everywhere the screen is named. */
+  /** The spooky name, shown everywhere the Screen is named. */
   name: string;
-  /** What the screen is for, in plain words. Home has none. */
-  description: string | null;
+  /** What the Screen is for, in plain words. Shown in the open narrow-screen menu and the Next stop link. */
+  description: string;
 }
 
 export const SCREENS: Record<ScreenId, ScreenInfo> = {
-  home: { id: 'home', name: 'Home', description: null },
-  map: { id: 'map', name: 'Haunted Map', description: 'Where ghosts got stuck' },
-  graveyard: { id: 'graveyard', name: 'Graveyard', description: 'Every problem found' },
-  ghostcam: { id: 'ghostcam', name: 'Ghost Cam', description: "Replay a ghost's visit" },
-  seance: { id: 'seance', name: 'Séance', description: 'Ask a ghost why' },
+  home: { id: 'home', name: 'Home', description: 'What the ghosts found' },
+  ghostcam: { id: 'ghostcam', name: 'Ghost Cam', description: "Replay a ghost's visit and ask it why" },
+  graveyard: { id: 'graveyard', name: 'Graveyard', description: 'Every problem found, as a list or a map' },
   exorcise: { id: 'exorcise', name: 'Exorcise', description: 'Before and after a fix' },
   coverage: { id: 'coverage', name: 'Spec Coverage', description: 'Which requirements people can reach' },
 };
 
-/** Top_Navigation order. */
-export const NAV_ORDER: readonly ScreenId[] = ['home', 'map', 'graveyard', 'ghostcam', 'seance', 'exorcise', 'coverage'];
+/** Top_Navigation order (Req 20.1). */
+export const NAV_ORDER: readonly ScreenId[] = ['home', 'ghostcam', 'graveyard', 'exorcise', 'coverage'];
 
-/** The tour. After the last stop it wraps back to Home. */
-export const GUIDED_PATH: readonly ScreenId[] = ['home', 'ghostcam', 'graveyard', 'map', 'exorcise', 'coverage', 'seance'];
+/** The Guided_Path. After the last stop it wraps back to Home (Req 20.11). */
+export const GUIDED_PATH: readonly ScreenId[] = ['home', 'ghostcam', 'graveyard', 'exorcise', 'coverage'];
 
 export type ScreenDestinations = Record<ScreenId, string | null>;
 
-/**
- * Where each screen's link goes. The Haunted Map opens the most recently visited haunt; the Ghost Cam
- * opens the "Start here" step, or step 1 of the first run. Both are null when there are no runs.
- */
-export function screenDestinations(runs: Run[]): ScreenDestinations {
-  const firstHaunt = groupHaunts(runs)[0];
+/** The Ghost Cam's Screen_Destination: the Start_Here_Step, else step 1 of the first run. */
+export function ghostCamTarget(runs: Run[]): { runKey: string; step: number } | null {
   const start = startHereTarget(runs);
-  const cam = start ?? (runs[0] ? { runKey: runs[0].key, step: runs[0].steps[0]?.n ?? 1 } : null);
+  if (start) return start;
+  const first = runs[0];
+  return first ? { runKey: first.key, step: first.steps[0]?.n ?? 1 } : null;
+}
+
+/** Where each Screen's link goes. The Ghost Cam's is null when there are no runs. */
+export function screenDestinations(runs: Run[]): ScreenDestinations {
+  const cam = ghostCamTarget(runs);
   return {
     home: homePath(),
-    map: firstHaunt ? mapPath(firstHaunt.siteKey) : null,
-    graveyard: graveyardPath(),
     ghostcam: cam ? stepPath(cam.runKey, cam.step) : null,
-    seance: seancePath(),
+    graveyard: graveyardPath(),
     exorcise: exorcisePath(),
     coverage: coveragePath(),
   };
 }
 
-/** The next available stop after `current` on the Guided_Path, skipping screens with no destination. */
+/** The next available stop after `current` on the Guided_Path, skipping Screens with no destination. */
 export function nextStop(current: ScreenId, destinations: ScreenDestinations): { id: ScreenId; to: string } | null {
   const start = GUIDED_PATH.indexOf(current);
   if (start === -1) return null;
@@ -75,18 +65,22 @@ export function nextStop(current: ScreenId, destinations: ScreenDestinations): {
   return null;
 }
 
-/** Which screen a route belongs to. Restless files and unknown paths are not screens on the tour. */
+/**
+ * Which Screen a route belongs to. The Old_Link routes belong to the Screen that now holds
+ * their content. Restless files and unknown paths are not on the Guided_Path.
+ */
 export function screenOfRoute(route: Route): ScreenId | null {
   switch (route.screen) {
     case 'home':
     case 'graveyard':
-    case 'seance':
     case 'exorcise':
     case 'coverage':
-    case 'map':
       return route.screen;
+    case 'map':
+      return 'graveyard';
     case 'run':
     case 'step':
+    case 'seance':
       return 'ghostcam';
     case 'restless':
     case 'not_found':

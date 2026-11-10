@@ -44,8 +44,8 @@
   line-height: 1;
 }
 
-/* Each item is the screen's name with its plain-words description under it (Req 20.1).
-   The description is never hidden, truncated or clipped, at any width or zoom (Req 20.4, 20.5). */
+/* Top_Navigation (Req 20.1–20.5). From 900 px: one line per item, a Screen_Icon and the name.
+   Below 900 px: a Menu button opens the full list, one item per row, each with its description. */
 .nav {
   min-width: 0;
 }
@@ -53,8 +53,8 @@
 .nav ul {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-1);
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -64,14 +64,12 @@
   min-width: 0;
 }
 
-/* Tight side padding keeps all seven items, each description on one line, beside the brand at
-   1280 px and wider (the Ghost Cam height budget depends on a one-row header). */
 .nav a {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
   min-height: 44px;
-  padding: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius);
   color: var(--text);
   text-decoration: none;
@@ -79,10 +77,27 @@
   line-height: 1.25;
 }
 
+.navIcon {
+  width: 1.3rem;
+  height: 1.3rem;
+  color: var(--spectral);
+}
+
+.navText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.navLabel {
+  white-space: nowrap;
+}
+
 .nav a:hover .navLabel {
   text-decoration: underline;
 }
 
+/* The current item: an amber bar and a bold name, so it is never shown by color alone. */
 .nav a.active {
   border-bottom-color: var(--amber);
 }
@@ -91,33 +106,84 @@
   font-weight: 700;
 }
 
-/* --text, not --text-muted: --text-muted is only about 3.9:1 on the fog at its opacity ceiling.
-   The text wraps inside its item when the row is too narrow, so it is never cut off. */
+/* Shown only in the open narrow-screen menu. --text, not --text-muted: --text-muted is only about
+   3.9:1 on the fog at its opacity ceiling. It wraps, so it is never cut off. */
 .navHint {
+  display: none;
   font-size: 0.85rem;
   overflow-wrap: break-word;
 }
 
-/* Narrow screens keep every description, in a grid of at least two columns at 320 px (Req 20.5). */
+.menuButton {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--spectral);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menuButton[aria-expanded='true'] {
+  border-color: var(--amber);
+}
+
+.menuIcon {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* Narrow screens: the brand and the Menu button share the first row; the open list spans the
+   header below them, one item per row. Closed, the list is not shown at all. */
 @media (max-width: 899.98px) {
+  .menuButton {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
   .nav {
+    display: none;
     flex: 1 1 100%;
+  }
+
+  .nav.open {
+    display: block;
   }
 
   .nav ul {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
   }
 
   .nav a {
-    justify-content: flex-start;
-    height: 100%;
-    padding: var(--space-1) var(--space-2);
+    align-items: flex-start;
+    padding: var(--space-2);
+  }
+
+  .navIcon {
+    margin-top: 0.1rem;
+  }
+
+  .navLabel {
+    white-space: normal;
+  }
+
+  .navHint {
+    display: block;
   }
 }
 
-/* Ghost Cam fit mode (see GhostCam.module.css): a slimmer header pays for the two-line nav items,
-   so the Ghost Cam still fits at 1536×864 (Req 10.24). The descriptions stay visible. */
+/* Ghost Cam fit mode (see GhostCam.module.css): a slimmer header leaves more room for the stage,
+   so the Ghost Cam fits at 1536×864 (Req 10.24). */
 @media (min-width: 1280px) and (min-height: 800px) {
   :global(body):has([data-cam-area]) .headerInner {
     padding-top: var(--space-2);

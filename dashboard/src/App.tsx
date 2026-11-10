@@ -7,12 +7,11 @@ import { CoverageScreen } from './screens/CoverageScreen';
 import { ExorciseScreen } from './screens/ExorciseScreen';
 import { GhostCamScreen, RunRedirect } from './screens/GhostCamScreen';
 import { GraveyardScreen } from './screens/GraveyardScreen';
-import { HauntedMapScreen } from './screens/HauntedMapScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { NotFoundScreen } from './screens/NotFoundScreen';
+import { MapRedirect, SeanceRedirect } from './screens/redirects';
 import { RestlessScreen } from './screens/RestlessScreen';
 import { RouteErrorScreen } from './screens/RouteErrorScreen';
-import { SeanceScreen } from './screens/SeanceScreen';
 
 export const appRoutes: RouteObject[] = [
   {
@@ -23,15 +22,16 @@ export const appRoutes: RouteObject[] = [
         errorElement: <RouteErrorScreen />,
         children: [
           { path: PATTERNS.home, element: <HomeScreen /> },
-          { path: PATTERNS.map, element: <HauntedMapScreen /> },
           { path: PATTERNS.graveyard, element: <GraveyardScreen /> },
           { path: PATTERNS.run, element: <RunRedirect /> },
           { path: PATTERNS.step, element: <GhostCamScreen /> },
-          { path: PATTERNS.seance, element: <SeanceScreen /> },
-          { path: PATTERNS.seanceAnswer, element: <SeanceScreen /> },
           { path: PATTERNS.exorcise, element: <ExorciseScreen /> },
           { path: PATTERNS.exorcisePair, element: <ExorciseScreen /> },
           { path: PATTERNS.coverage, element: <CoverageScreen /> },
+          // Old_Links (Req 6.10): they replace themselves with the place that holds their content now.
+          { path: PATTERNS.map, element: <MapRedirect /> },
+          { path: PATTERNS.seance, element: <SeanceRedirect /> },
+          { path: PATTERNS.seanceAnswer, element: <SeanceRedirect /> },
           { path: PATTERNS.restless, element: <RestlessScreen /> },
           { path: '*', element: <NotFoundScreen /> },
         ],

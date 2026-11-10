@@ -5,6 +5,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // Three workers locally keeps the machine responsive; CI uses Playwright's default.
+  workers: process.env.CI ? undefined : 3,
   retries: 0,
   // The first tests also pay for cold browser start-up, which can take over 30 s on Windows.
   timeout: 90_000,

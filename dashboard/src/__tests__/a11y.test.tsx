@@ -22,14 +22,18 @@ async function violations(): Promise<string[]> {
 
 const screens: [string, string][] = [
   ['Home', '/'],
-  ['Haunted Map', '/haunt/lantern-bills-demo/map'],
-  ['Haunted Map with fog', '/haunt/lantern-bills-demo/map?ghost=phantom'],
+  ['Graveyard Map view', '/graveyard?view=map'],
+  ['Graveyard Map view with fog', '/graveyard?ghost=phantom&view=map'],
+  ['Old Haunted Map link', '/haunt/lantern-bills-demo/map?ghost=phantom'],
   ['Graveyard', '/graveyard'],
   ['Graveyard filtered', '/graveyard?ghost=listener&site=lantern-bills-demo'],
   ['Ghost Cam (Listener)', `/run/${L}/step/9`],
   ['Ghost Cam (Bebe)', `/run/${B}/step/2`],
-  ['Séance', '/seance'],
-  ['Séance answer', `/seance/${L}/why-give-up`],
+  ['Ghost Cam with the Ask panel open', `/run/${L}/step/9?ask=open`],
+  ['Ghost Cam with an Ask panel answer', `/run/${L}/step/9?ask=why-give-up`],
+  ['Ghost Cam (Bebe) with an Ask panel answer', `/run/${B}/step/3?ask=what-helped`],
+  ['Old Séance link', '/seance'],
+  ['Old Séance answer link', `/seance/${L}/why-give-up`],
   ['Exorcise', `/exorcise/${L}/after`],
   ['Exorcise across ghosts', `/exorcise/${L}/${B}`],
   ['Spec Coverage', '/coverage'],
@@ -45,7 +49,8 @@ describe('axe-core', () => {
     await screen.findByRole('heading', { level: 1 });
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(await violations()).toEqual([]);
-  });
+    // The first axe run in a cold worker can take over 5 s while other test files run in parallel.
+  }, 20_000);
 
   it('Exorcise with no after run has no violations', async () => {
     // Bebe has no same-ghost, same-mission partner in source(), so this shows the "no after run" state.

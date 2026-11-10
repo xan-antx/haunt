@@ -38,24 +38,36 @@ The built site needs a static file host such as `npm run preview` or GitHub Page
 
 URLs use the hash, so they work on any static host:
 
-| Screen | URL |
+The dashboard has five screens: Home, Ghost Cam, Graveyard, Exorcise and Spec Coverage. The Séance is the Ghost Cam's "Ask this ghost" panel, and the Haunted Map is the Graveyard's "Map" view.
+
+| Screen or view | URL |
 |---|---|
 | Home | `#/` |
-| Haunted Map | `#/haunt/<siteKey>/map` and `?ghost=listener` |
-| Graveyard | `#/graveyard`, with `?site=<siteKey>&ghost=<ghost>` |
 | Ghost Cam | `#/run/<runKey>/step/<n>` (`#/run/<runKey>` opens step 1) |
-| Séance | `#/seance` and `#/seance/<runKey>/<question>` |
+| Ghost Cam with "Ask this ghost" open | `#/run/<runKey>/step/<n>?ask=open`, or `?ask=<question>` to show that answer |
+| Graveyard (tombstones) | `#/graveyard`, with `?site=<siteKey>&ghost=<ghost>` |
+| Graveyard (map) | `#/graveyard?view=map`, with the same `site` and `ghost` filters (the ghost filter fogs rooms that ghost never entered) |
 | Exorcise | `#/exorcise` and `#/exorcise/<beforeKey>/<afterKey>` |
 | Spec Coverage | `#/coverage` |
 
-`<runKey>` is the run's `runId`. `<siteKey>` is the site name in lowercase with other characters replaced by `-`. The Séance questions are `why-give-up`, `where-stuck`, `what-heard` and `what-helped`.
+`<runKey>` is the run's `runId`. `<siteKey>` is the site name in lowercase with other characters replaced by `-`. The questions are `why-give-up`, `where-stuck`, `what-heard` and `what-helped`.
+
+Old links still work. Each one replaces itself with the place that holds its content now:
+
+| Old link | Opens |
+|---|---|
+| `#/haunt/<siteKey>/map?ghost=<ghost>` | `#/graveyard?site=<siteKey>&ghost=<ghost>&view=map` |
+| `#/seance` | The Ghost Cam's default step (The Listener's step 9 with the samples) with `?ask=open` |
+| `#/seance/<runKey>/<question>` | That run's key step (its last step, or for a run that made it through, its first problem) with `?ask=<question>` |
 
 Example links with the sample runs:
 
 - The Listener trapped in the payment dialog: <http://localhost:3001/#/run/2026-11-03-listener-pay-bill/step/9>
 - Bebe finding untranslated text: <http://localhost:3001/#/run/2026-11-03-bebe-pay-bill/step/3>
-- The Haunted Map with fog for The Phantom: <http://localhost:3001/#/haunt/lantern-bills-demo/map?ghost=phantom>
-- Asking The Listener why it gave up: <http://localhost:3001/#/seance/2026-11-03-listener-pay-bill/why-give-up>
+- The Graveyard map with fog for The Phantom: <http://localhost:3001/#/graveyard?site=lantern-bills-demo&ghost=phantom&view=map>
+- Asking The Listener why it gave up: <http://localhost:3001/#/run/2026-11-03-listener-pay-bill/step/9?ask=why-give-up>
+
+Home opens with what the ghosts found, one card per ghost with a "Watch it happen" button. "Take the 60-second tour" walks through the results, the Ghost Cam, the Graveyard, Exorcise and Spec Coverage; Escape or Skip leaves it at any time.
 
 All URLs are built in `src/routes.ts`.
 

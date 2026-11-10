@@ -634,3 +634,78 @@
     margin-top: 0;
   }
 }
+
+/* Ask_Button (Req 12.1): at the right end of the Run_Summary. It is shorter than the summary's
+   rows in fit mode, so it adds no height (Req 10.24). */
+.askButton {
+  flex: none;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.askIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+/* Ask_Panel (Req 12.10): the old spirit board, laid exactly over the panel area. `contain: size`
+   keeps its content from growing the grid row; it scrolls inside instead. */
+.askPanel {
+  grid-area: panel;
+  z-index: 2;
+  align-self: stretch;
+  contain: size;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) var(--space-4);
+  border: 3px double var(--bone);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+
+@media (max-width: 899.98px) {
+  .askPanel {
+    margin-top: var(--space-5);
+  }
+}
+
+.askHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.askHeading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-style: italic;
+}
+
+.askIntro {
+  margin: 0 0 var(--space-3);
+  color: var(--text-muted);
+}
+
+.askQuestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.board {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--text-muted);
+}
+
+.boardHeading {
+  font-size: 1.25rem;
+  font-style: italic;
+}
+
+.answerLine {
+  margin: 0 0 var(--space-2);
+}

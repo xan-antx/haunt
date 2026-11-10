@@ -1,4 +1,4 @@
-// Haunts: all runs that share a site.name, plus the Home screen's "Start here" target.
+// Haunts: all runs that share a site.name, plus the Start_Here_Step.
 
 import type { GhostId, Run } from '../data/types';
 import { siteKey } from '../routes';
@@ -64,7 +64,8 @@ export interface StartHere {
 /**
  * 1) the most recent Listener run with a focus_trap finding → that finding's step
  * 2) else the most recent Listener run with any finding → its first finding's step
- * 3) else null (the button is unavailable and a reason is shown)
+ * 3) else null (the Ghost Cam's destination then falls back to step 1 of the first run)
+ * This is the Start_Here_Step: the Ghost Cam's Screen_Destination and the tour's Ghost Cam stop.
  */
 export function startHereTarget(runs: Run[]): StartHere | null {
   const listener = runs.filter((r) => r.ghost === 'listener').sort(byStartedAtDesc);
@@ -77,11 +78,4 @@ export function startHereTarget(runs: Run[]): StartHere | null {
     if (first) return { runKey: run.key, step: first.step };
   }
   return null;
-}
-
-/** Why "Start here" is unavailable, in plain words. */
-export function startHereUnavailableReason(runs: Run[]): string {
-  return runs.some((r) => r.ghost === 'listener')
-    ? "The Listener hasn't found a problem yet, so there is no moment to start from."
-    : 'No Listener run has been recorded yet, so there is no moment to start from.';
 }

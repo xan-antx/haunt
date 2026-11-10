@@ -28,9 +28,7 @@ export function NextStop() {
           <span className={styles.name}>
             <span className={styles.kicker}>Next stop:</span> {info.name}
           </span>
-          <span className={styles.description}>
-            {info.description ?? 'Back to the start'}
-          </span>
+          <span className={styles.description}>{next.id === 'home' ? 'Back to the start' : info.description}</span>
         </span>
         <span className={styles.arrow} aria-hidden="true">
           →

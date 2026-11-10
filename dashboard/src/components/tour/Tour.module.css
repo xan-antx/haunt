@@ -1,0 +1,97 @@
+/* The tour callout (Req 22). Nothing here moves: there is no transition or animation, so the tour
+   is the same with and without Reduced_Motion (Req 22.9). Colors are existing token pairs:
+   --text and --text-muted on --surface, --bg on --amber, --amber on --bg and --surface. */
+.callout {
+  position: fixed;
+  z-index: 1000;
+  width: min(26rem, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5);
+  border: 2px solid var(--amber);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  /* A ring of page background keeps the callout apart from whatever it sits over. */
+  box-shadow: 0 0 0 4px var(--bg);
+}
+
+/* Before the first measurement: bottom centre, so it is never off screen. */
+.pending {
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Narrow viewports: full width at the top or bottom edge, away from the target (Req 22.10). */
+.narrow {
+  left: 12px;
+  right: 12px;
+  width: auto;
+  transform: none;
+}
+
+.progress {
+  margin: 0 0 var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: 1.5rem;
+}
+
+.body {
+  margin: 0 0 var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* Next is the primary action: candle amber. */
+.next {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.next:hover {
+  background: var(--amber);
+  text-decoration: underline;
+}
+
+/* Short windows: a tighter callout, so a tall part of the page and the callout fit on one screen. */
+@media (max-height: 700px) {
+  .callout {
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .progress {
+    margin-bottom: 0;
+    line-height: 1.3;
+  }
+
+  .title {
+    margin-bottom: var(--space-1);
+    font-size: 1.25rem;
+  }
+
+  .body {
+    margin-bottom: var(--space-2);
+    line-height: 1.45;
+  }
+}
+
+/* Tour_Highlight: a still amber outline around the part of the screen the stop talks about. */
+.ring {
+  position: fixed;
+  z-index: 999;
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+  outline: 3px solid var(--amber);
+}

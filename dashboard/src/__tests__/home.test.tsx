@@ -3,9 +3,10 @@ import axe from 'axe-core';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { GHOSTS, RESULT_LABELS } from '../model/ghosts';
-import { renderApp } from './helpers';
+import { memorySource, renderApp } from './helpers';
 
 async function renderHome() {
   renderApp('/');
@@ -127,6 +128,82 @@ describe('Home screen', () => {
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual(
       [],
     );
+  });
+});
+
+describe('Home results first (Req 21, 7.28, 20.8)', () => {
+  function resultsSection(): HTMLElement {
+    return screen.getByRole('region', { name: 'What the ghosts found on Lantern Bills' });
+  }
+
+  it('puts the Results_Section right after the Hero and before "How Haunt works"', async () => {
+    const h1 = await renderHome();
+    const results = resultsSection();
+    const how = screen.getByRole('heading', { level: 2, name: 'How Haunt works' });
+    const sites = screen.getByRole('region', { name: 'Haunted sites' });
+    const hero = h1.closest('div')!.parentElement!.parentElement!;
+    expect(hero.nextElementSibling).toBe(results);
+    expect(results.compareDocumentPosition(how) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(how.compareDocumentPosition(sites) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(results).toHaveAttribute('data-tour', 'results');
+  });
+
+  it('removes the "What\'s in here" Screen_Guide', async () => {
+    await renderHome();
+    expect(screen.queryByRole('heading', { name: "What's in here" })).not.toBeInTheDocument();
+    for (const name of ['Haunted Map', 'Graveyard', 'Ghost Cam', 'Séance', 'Exorcise', 'Spec Coverage']) {
+      expect(screen.queryByRole('link', { name: `Open ${name}` })).not.toBeInTheDocument();
+    }
+  });
+
+  it('shows one Result_Card per ghost, in ghost order, with the plain-words headline', async () => {
+    await renderHome();
+    const cards = within(resultsSection()).getAllByRole('article');
+    expect(cards.map((c) => within(c).getByRole('heading', { level: 3 }).textContent)).toEqual(['The Listener', 'Bebe']);
+    const [listener, bebe] = cards as [HTMLElement, HTMLElement];
+    expect(listener).toHaveAccessibleName('The Listener');
+    expect(within(listener).getByText("The Listener got trapped in a pop-up and couldn't pay.")).toBeInTheDocument();
+    expect(within(listener).getByText("Task: Pay this month's electricity bill")).toBeInTheDocument();
+    expect(within(listener).getByText('Gave up')).toBeInTheDocument();
+    expect(within(bebe).getByText("Bebe managed to pay, but found text that wasn't translated.")).toBeInTheDocument();
+    expect(within(bebe).getByText('Completed')).toBeInTheDocument();
+    for (const card of cards) {
+      const svg = card.querySelector('svg') as SVGElement;
+      expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+    }
+  });
+
+  it('gives each card exactly one main action, "Watch it happen", to its Watch_Step', async () => {
+    await renderHome();
+    const [listener, bebe] = within(resultsSection()).getAllByRole('article') as [HTMLElement, HTMLElement];
+    for (const [card, name, href] of [
+      [listener, 'Watch it happen: The Listener at step 9', '/run/2026-11-03-listener-pay-bill/step/9'],
+      [bebe, 'Watch it happen: Bebe at step 3', '/run/2026-11-03-bebe-pay-bill/step/3'],
+    ] as const) {
+      const links = within(card).getAllByRole('link');
+      expect(links).toHaveLength(1);
+      expect(within(card).queryAllByRole('button')).toHaveLength(0);
+      expect(links[0]).toHaveAccessibleName(name);
+      expect(links[0]).toHaveTextContent(/^Watch it happen/);
+      expect(links[0]).toHaveAttribute('href', href);
+    }
+  });
+
+  it('opens the Ghost Cam at the Watch_Step', async () => {
+    const user = userEvent.setup();
+    const { router } = renderApp('/');
+    await screen.findByRole('heading', { level: 1 });
+    await user.click(within(resultsSection()).getByRole('link', { name: 'Watch it happen: The Listener at step 9' }));
+    const h1 = await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+    expect(h1).toHaveTextContent(/The Listener/);
+    expect(router.state.location.pathname).toBe('/run/2026-11-03-listener-pay-bill/step/9');
+  });
+
+  it('shows no Results_Section when there are no runs', async () => {
+    renderApp('/', memorySource([]));
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('region', { name: /^What the ghosts found/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'No ghosts have walked here yet' })).toBeInTheDocument();
   });
 });
 

@@ -1,6 +1,6 @@
 // The one h1 per screen. Focused after a route change (not on first load), and sets the document title.
 
-import { createContext, useContext, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useLayoutEffect, useRef, type ReactNode } from 'react';
 
 export interface FocusRequest {
   /** True after a route change until a ScreenHeading takes focus. */
@@ -10,7 +10,8 @@ export interface FocusRequest {
 export const HeadingFocusContext = createContext<{ current: FocusRequest }>({ current: { pending: false } });
 
 export function useDocumentTitle(title: string): void {
-  useEffect(() => {
+  // A layout effect, so the title changes in the same commit as the new h1.
+  useLayoutEffect(() => {
     document.title = title ? `${title} · Haunt` : 'Haunt';
   }, [title]);
 }

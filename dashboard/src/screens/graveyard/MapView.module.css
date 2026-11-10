@@ -1,5 +1,9 @@
-.filter {
-  margin: var(--space-5) 0;
+.site + .site {
+  margin-top: var(--space-6);
+}
+
+.siteName {
+  margin-top: var(--space-5);
 }
 
 /* A floor plan: rooms share walls in a grid. */
