@@ -1,7 +1,7 @@
 // One finding, drawn as a bone tombstone.
 
 import { Link } from 'react-router-dom';
-import { GHOSTS } from '../model/ghosts';
+import { GHOSTS, moodFor } from '../model/ghosts';
 import type { TombstoneData } from '../model/graveyard';
 import { stepPath } from '../routes';
 import { GhostBadge } from './ghosts/Ghosts';
@@ -13,7 +13,7 @@ export function Tombstone({ data }: { data: TombstoneData }) {
   return (
     <article className={styles.tombstone}>
       <h2 className={styles.label}>{label}</h2>
-      <GhostBadge ghost={run.ghost} onBone />
+      <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} onBone />
       <p className={styles.title}>{finding.title}</p>
       <p className={styles.evidence}>{finding.evidence}</p>
       <p className={styles.meta}>

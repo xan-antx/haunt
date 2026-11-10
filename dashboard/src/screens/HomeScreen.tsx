@@ -13,7 +13,7 @@ import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tou
 import { useAllRuns } from '../data/hooks';
 import type { InvalidRun, Run } from '../data/types';
 import { formatDate, plural } from '../model/format';
-import { GHOST_ORDER, GHOSTS, resultSentence } from '../model/ghosts';
+import { GHOST_ORDER, GHOSTS, moodFor, resultSentence } from '../model/ghosts';
 import { outcomeLine } from '../model/outcome';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
@@ -43,7 +43,12 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
             const earlier = summary.runs.slice(1);
             return (
               <li key={summary.ghost} className={styles.ghostRow}>
-                <GhostCharacter ghost={summary.ghost} size={72} floating />
+                <GhostCharacter
+                  ghost={summary.ghost}
+                  size={80}
+                  mood={moodFor(latest.result)}
+                  floating
+                />
                 <div className={styles.ghostText}>
                   <p className={styles.ghostName}>{ghost.name}</p>
                   <div className={styles.ghostResult}>
@@ -96,7 +101,7 @@ function RecentWalks({ runs }: { runs: Run[] }) {
           return (
             <li key={run.key} className={styles.recentItem}>
               <p className={styles.recentGhost}>
-                <GhostBadge ghost={run.ghost} />
+                <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} />
               </p>
               <p className={styles.meta}>
                 <span>{run.site.name}</span>
@@ -143,13 +148,18 @@ function ResultCard({ run }: { run: Run }) {
   return (
     <li className={styles.resultCard}>
       <article aria-labelledby={headingId} className={styles.resultInner}>
-        <GhostCharacter ghost={run.ghost} size={80} className={styles.resultGhost} />
+        <GhostCharacter
+          ghost={run.ghost}
+          size={96}
+          mood={moodFor(run.result)}
+          className={styles.resultGhost}
+        />
         <div className={styles.resultText}>
           <h3 id={headingId} className={styles.resultName}>
             {ghost.name}
           </h3>
           <p className={styles.resultTask}>Task: {run.mission.goal}</p>
-          <p className={styles.headline}>{resultHeadline(run)}</p>
+          <p className={styles.resultHeadline}>{resultHeadline(run)}</p>
           <p className={styles.resultBadge}>
             <ResultBadge result={run.result} />
           </p>

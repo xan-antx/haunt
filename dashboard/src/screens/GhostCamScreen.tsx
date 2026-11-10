@@ -17,7 +17,7 @@ import { useRun } from '../data/hooks';
 import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
 import { formatSeconds } from '../model/format';
-import { GHOSTS, RESULT_LABELS, resultSentence } from '../model/ghosts';
+import { GHOSTS, moodFor, RESULT_LABELS, resultSentence } from '../model/ghosts';
 import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import { AskPanel } from './ghostcam/AskPanel';
@@ -168,7 +168,13 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   return (
     <div className={styles.cam}>
       <div className={`${styles.header} ${styles.summary}`} data-cam-area="summary">
-        <GhostCharacter ghost={run.ghost} size={96} floating={playing} />
+        <GhostCharacter
+          ghost={run.ghost}
+          size={96}
+          mood={moodFor(run.result)}
+          floating={playing}
+          lively={playing}
+        />
         <div className={styles.headerText}>
           {/* Row 1: ghost name and mission goal. The hidden prefix keeps "Ghost Cam" in the
               heading's accessible name. */}

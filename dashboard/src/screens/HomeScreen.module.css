@@ -154,12 +154,18 @@
   color: var(--text-muted);
 }
 
-/* The Result_Headline is the card's main text. */
-.headline {
+/* The Result_Headline is the card's main text: a sentence, so it is set in the body font (never the
+   heading serif or italic), at normal weight and a little larger than body text. --text on
+   --surface is 12.21:1. It has its own class: it used to share `.headline` with the hero h1 and
+   inherited that rule's amber italic serif. */
+.resultHeadline {
   margin: 0 0 var(--space-3);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.4;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .resultBadge {

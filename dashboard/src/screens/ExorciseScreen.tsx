@@ -12,7 +12,7 @@ import type { Run } from '../data/types';
 import { EXORCISE_LABELS, afterCandidates, compareRuns, type ExorciseRow, type ExorciseStatus } from '../model/exorcise';
 import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
-import { GHOSTS, RESULT_LABELS } from '../model/ghosts';
+import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
 import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './ExorciseScreen.module.css';
@@ -66,7 +66,7 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
     <section className={styles.summary} aria-labelledby={`summary-${heading}`}>
       <h2 id={`summary-${heading}`}>{heading}</h2>
       <p className={styles.summaryLine}>
-        <GhostBadge ghost={run.ghost} /> <ResultBadge result={run.result} />
+        <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <ResultBadge result={run.result} />
       </p>
       <p>
         {run.mission.goal} · {plural(run.findings.length, 'finding')} ·{' '}

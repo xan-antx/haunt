@@ -19,7 +19,7 @@ export function HeroGhosts() {
             data-float="hero"
             style={{ '--float-delay': FLOAT_DELAYS[index] } as React.CSSProperties}
           >
-            <GhostCharacter ghost={id} size={120} />
+            <GhostCharacter ghost={id} size={120} lively />
             <p className={styles.name} style={{ color: `var(${ghost.accentToken})` }}>
               {ghost.name}
             </p>

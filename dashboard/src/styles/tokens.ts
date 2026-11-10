@@ -23,6 +23,7 @@ export const COLORS = {
   ghostListener: '#8fc8ff',
   ghostPhantom: '#8fe0bf',
   ghostBebe: '#d4b6ff',
+  blush: '#cc5f88',
 } as const;
 
 export type ColorToken = keyof typeof COLORS;
@@ -68,6 +69,8 @@ export const COLOR_PAIRS: ColorPair[] = [
   { fg: 'ghostListener', bg: 'surface', kind: 'text', ratio: 8.57, use: 'The Listener accent on cards' },
   { fg: 'ghostPhantom', bg: 'surface', kind: 'text', ratio: 9.8, use: 'The Phantom accent on cards' },
   { fg: 'ghostBebe', bg: 'surface', kind: 'text', ratio: 8.61, use: 'Bebe accent on cards' },
+  { fg: 'bg', bg: 'spectral', kind: 'ui', ratio: 14.64, use: 'Ghost faces and prop outlines on the ghost body' },
+  { fg: 'blush', bg: 'spectral', kind: 'ui', ratio: 3.12, use: "Bebe's rosy cheeks on the ghost body" },
   // Transcript fade levels 0–3. Level 0 is the current line; level 3 is the floor.
   { fg: 'spokenText', bg: 'spokenBg', kind: 'text', ratio: 19.72, use: 'Spoken transcript, current line (fade 0)' },
   { fg: 'spokenFade1', bg: 'spokenBg', kind: 'text', ratio: 13.04, use: 'Spoken transcript, fade 1' },

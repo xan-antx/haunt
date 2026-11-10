@@ -27,6 +27,8 @@
   --ghost-listener: #8fc8ff;
   --ghost-phantom: #8fe0bf;
   --ghost-bebe: #d4b6ff;
+  /* Bebe's rosy cheeks, drawn on the --spectral ghost body. Decorative only, never text. */
+  --blush: #cc5f88;
 
   /* Fonts (system fallbacks keep text readable while the bundled fonts load) */
   --font-heading: 'IM Fell English', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;

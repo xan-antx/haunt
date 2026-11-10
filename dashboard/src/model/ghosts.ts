@@ -39,6 +39,33 @@ export function ghostName(id: GhostId): string {
   return GHOSTS[id].name;
 }
 
+/** The character's expression: hopeful by default, stuck when its run gave up. */
+export type GhostMood = 'hopeful' | 'stuck';
+
+export function moodFor(result: RunResult): GhostMood {
+  return result === 'gave_up' ? 'stuck' : 'hopeful';
+}
+
+const CHARACTER_DESCRIPTIONS: Record<GhostId, Record<GhostMood, string>> = {
+  listener: {
+    hopeful: 'hopeful, eyes closed under big headphones, listening closely',
+    stuck: 'stuck, one eyebrow raised as its sound waves tangle into a knot',
+  },
+  phantom: {
+    hopeful: 'hopeful, flickering beside a cracked old phone that is still loading',
+    stuck: 'stuck, faded half away and frozen mid-load',
+  },
+  bebe: {
+    hopeful: 'hopeful, smiling in her chunni as she squints at her phone',
+    stuck: 'stuck, peering over the glasses that slid down her nose',
+  },
+};
+
+/** Accessible name for a character shown alone. Starts with the ghost's name. */
+export function characterLabel(id: GhostId, mood: GhostMood): string {
+  return `${GHOSTS[id].name}, ${CHARACTER_DESCRIPTIONS[id][mood]}`;
+}
+
 export function isGhostId(value: string | null | undefined): value is GhostId {
   return value === 'listener' || value === 'phantom' || value === 'bebe';
 }

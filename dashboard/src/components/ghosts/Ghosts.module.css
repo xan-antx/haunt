@@ -1,7 +1,46 @@
+/*
+ * Shared character style (.kiro/steering/dashboard-design.md, "Ghost characters"):
+ * --spectral body with an accent outline, --bg ink for faces and prop outlines, one outline
+ * weight per variant, and a soft glow in the ghost's accent.
+ */
+
 .character {
   display: inline-block;
   flex: none;
   overflow: visible;
+  /* Outline weight in viewBox units, finer detail lines, glass frames and glow radius. */
+  --line: 3;
+  --fine: 2;
+  --lens: 4;
+  --glow: 6px;
+  filter: drop-shadow(0 0 var(--glow) color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+/* Both variants use the same 130 × 160 frame. At 32 px one unit is 0.2 px, so the simple variant's
+   lines are about 2.5 times heavier than the detailed ones to stay visible (7 units = 1.4 px). */
+.simple {
+  --line: 7;
+  --fine: 5;
+  --lens: 5;
+  --glow: 2px;
+}
+
+/* The ink outline on accent props is mostly invisible against the page, but its inner half eats the
+   fill, so at 7 units it turned headphones and the chunni black. Keep it lighter than --line. */
+.simple .prop {
+  stroke-width: 3.5;
+}
+
+.simple .screenLine {
+  stroke-width: 3.5;
+}
+
+.simple .crack {
+  stroke-width: 2.5;
+}
+
+.simple .bubbleText {
+  font-size: 19px;
 }
 
 .listener {
@@ -19,39 +58,152 @@
 .body {
   fill: var(--spectral);
   stroke: var(--accent);
-  stroke-width: 3;
+  stroke-width: var(--line);
   stroke-linejoin: round;
 }
 
-.face {
+/* Props (headphones, phones, chunni): accent fill with an ink outline of the same weight. */
+.prop {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: var(--line);
+  stroke-linejoin: round;
+}
+
+.shawl {
+  fill: var(--spectral);
+  stroke: var(--accent);
+  stroke-width: var(--line);
+  stroke-linejoin: round;
+}
+
+.line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: var(--line);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Accent-colored detail lines (sound waves, wisp, hourglass) at the finer weight, simple variant. */
+.accentFine {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: var(--fine);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ink {
   fill: none;
   stroke: var(--bg);
-  stroke-width: 3;
+  stroke-width: var(--line);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fine {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: var(--fine);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lens {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: var(--lens);
   stroke-linecap: round;
 }
 
-.eye {
+.glint {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.inkFill {
   fill: var(--bg);
 }
 
-.accentStroke {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.shine {
+  fill: var(--spectral);
 }
 
 .accentFill {
   fill: var(--accent);
+}
+
+.blush {
+  fill: var(--blush);
+}
+
+/* Arms and the Listener's headband: a wide stroke under a narrower one makes an outlined tube.
+   Widths are set on the elements so each outline matches --line. */
+.limbOutline {
+  fill: none;
+  stroke: var(--accent);
+}
+
+.limbFill {
+  fill: none;
+  stroke: var(--spectral);
+}
+
+.bandOutline {
+  fill: none;
+  stroke: var(--bg);
+  stroke-linecap: round;
+}
+
+.band {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+}
+
+.trim {
+  fill: none;
   stroke: var(--bg);
   stroke-width: 1.5;
+  stroke-dasharray: 0.1 4;
+  stroke-linecap: round;
+}
+
+.glitch {
+  fill: var(--spectral);
+}
+
+.screen {
+  fill: var(--bg);
+}
+
+.screenFill {
+  fill: var(--accent);
+}
+
+.screenLine {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.crack {
+  fill: none;
+  stroke: var(--spectral);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .bubble {
   fill: var(--bone);
   stroke: var(--accent);
-  stroke-width: 2;
+  stroke-width: var(--fine);
+  stroke-linejoin: round;
 }
 
 .bubbleText {
@@ -59,6 +211,115 @@
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 700;
+}
+
+/* The Phantom when stuck: half-transparent, with a broken outline, frozen mid-load. */
+.faded {
+  opacity: 0.5;
+}
+
+.dashed {
+  stroke-dasharray: 6 4;
+}
+
+.simple .dashed {
+  stroke-dasharray: 14 9;
+}
+
+/* Small character motions. Only on the detailed variant while hopeful (the `.lively` class), and
+   only when the user's motion setting allows it. Limits are in the steering file's motion table. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes wave-ripple {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes phantom-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    30% {
+      opacity: 0.85;
+    }
+    36% {
+      opacity: 1;
+    }
+    64% {
+      opacity: 0.9;
+    }
+    70% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes spinner-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* An impatient double tap, then a pause. The whole cycle is 2.6 s, like every ambient motion. */
+  @keyframes foot-tap {
+    0%,
+    20%,
+    40%,
+    100% {
+      transform: rotate(0deg);
+    }
+    10%,
+    30% {
+      transform: rotate(-16deg);
+    }
+  }
+
+  @keyframes bubble-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .lively .wave {
+    animation: wave-ripple 3s ease-in-out infinite;
+  }
+
+  .lively .wave2 {
+    animation-delay: 0.4s;
+  }
+
+  .lively .wave3 {
+    animation-delay: 0.8s;
+  }
+
+  .lively .flicker {
+    animation: phantom-flicker 4.2s ease-in-out infinite;
+  }
+
+  .lively .spinner {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: spinner-turn 2.6s linear infinite;
+  }
+
+  /* Rotates about the heel, so the toes lift. */
+  .lively .foot {
+    transform-box: view-box;
+    transform-origin: 75px 119px;
+    animation: foot-tap 2.6s ease-in-out infinite;
+  }
+
+  .lively .bubbleGroup {
+    animation: bubble-bob 4s ease-in-out infinite;
+  }
 }
 
 .icon {
@@ -72,9 +333,14 @@
   stroke-linejoin: round;
 }
 
-/* On bone tombstones the pale accents are too light, so badges use bone ink. */
+/* On bone tombstones the pale accents are too light, so badges use bone ink, without the glow. */
 .onBone {
   --accent: var(--bone-ink);
+}
+
+.onBone .character {
+  --accent: var(--bone-ink);
+  filter: none;
 }
 
 .onBone.badge {
@@ -85,10 +351,18 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.1em 0.6em 0.1em 0.4em;
+  padding: 0.1em 0.6em 0.1em 0.25em;
   border: 2px solid var(--accent);
   border-radius: 999px;
   color: var(--text);
   font-weight: 700;
   white-space: nowrap;
+}
+
+/* About 32 px tall on the 18 px root; scales with text size. The width follows the 130:160 frame.
+   Negative margins keep line height. */
+.badgeCharacter {
+  width: 1.42em;
+  height: 1.75em;
+  margin-block: -0.3em;
 }
