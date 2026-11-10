@@ -1,0 +1,330 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-10T1822Z-listener-pay-bill",
+  "ghost": "listener",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo",
+    "url": "http://localhost:3000",
+    "commit": "23fc2f9"
+  },
+  "startedAt": "2026-11-10T18:22:02Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3000",
+      "spoken": "Lantern Bills - Pay your electricity bill, document",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 420
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Next heading",
+      "spoken": "Your electricity bill, heading level 1",
+      "thought": "I've just arrived on 'Lantern Bills - Pay your electricity bill'. Before I look for anything, I'll jump to the next heading to hear where I am.",
+      "screenshot": "shots/002.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 176,
+        "y": 108,
+        "w": 928,
+        "h": 36
+      }
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Next button (Tab ×5)",
+      "spoken": "Pay this bill, button",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying. I'm not on anything I can use yet, so I'll jump to the next button.",
+      "screenshot": "shots/003.png",
+      "waitMs": 327,
+      "focusBox": {
+        "x": 176,
+        "y": 497,
+        "w": 151.890625,
+        "h": 48
+      }
+    },
+    {
+      "n": 4,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Card number, edit text, required",
+      "thought": "I heard 'Pay this bill, button'. That's what I want, so I'll press Enter.",
+      "screenshot": "shots/004.png",
+      "waitMs": 323,
+      "focusBox": {
+        "x": 201,
+        "y": 375.828125,
+        "w": 878,
+        "h": 48
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Type \"4111111111111111\"",
+      "spoken": "4111111111111111",
+      "thought": "I'll enter the card number. I heard 'Card number, edit text, required'. That's the field I want, so I'll type \"4111111111111111\".",
+      "screenshot": "shots/005.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 201,
+        "y": 375.828125,
+        "w": 878,
+        "h": 48
+      }
+    },
+    {
+      "n": 6,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Expiry date, edit text, required",
+      "thought": "Now the expiry date. I'm on 'Card number, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/006.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 201,
+        "y": 468.328125,
+        "w": 431,
+        "h": 48
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Type \"11/28\"",
+      "spoken": "11/28",
+      "thought": "I heard 'Expiry date, edit text, required'. That's the field I want, so I'll type \"11/28\".",
+      "screenshot": "shots/007.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 201,
+        "y": 468.328125,
+        "w": 431,
+        "h": 48
+      }
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "CVV, edit text, required",
+      "thought": "Now the three-digit security code. I'm on 'Expiry date, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/008.png",
+      "waitMs": 304,
+      "focusBox": {
+        "x": 648,
+        "y": 468.328125,
+        "w": 431,
+        "h": 48
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Type \"123\"",
+      "spoken": "123",
+      "thought": "I heard 'CVV, edit text, required'. That's the field I want, so I'll type \"123\".",
+      "screenshot": "shots/009.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 648,
+        "y": 468.328125,
+        "w": 431,
+        "h": 48
+      }
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Cardholder name, edit text, required",
+      "thought": "And the name on the card. I'm on 'CVV, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/010.png",
+      "waitMs": 316,
+      "focusBox": {
+        "x": 201,
+        "y": 560.828125,
+        "w": 878,
+        "h": 48
+      }
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Type \"Asha Kaur\"",
+      "spoken": "Asha Kaur",
+      "thought": "I heard 'Cardholder name, edit text, required'. That's the field I want, so I'll type \"Asha Kaur\".",
+      "screenshot": "shots/011.png",
+      "waitMs": 314,
+      "focusBox": {
+        "x": 201,
+        "y": 560.828125,
+        "w": 878,
+        "h": 48
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Next button (Tab ×1)",
+      "spoken": "button",
+      "thought": "Everything is filled in. I need the button that sends the payment. I'm on 'Cardholder name, edit text, required', which isn't what I'm after, so I'll jump to the next button.",
+      "screenshot": "shots/012.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 201,
+        "y": 636.828125,
+        "w": 56,
+        "h": 56
+      }
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Next button (Tab ×6)",
+      "spoken": "Pay this bill, button",
+      "thought": "I heard 'button'. It has no name, so I can't tell what it does. I'll jump to the next button again.",
+      "screenshot": "shots/013.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 176,
+        "y": 497,
+        "w": 151.890625,
+        "h": 48
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Next button (Tab ×6)",
+      "spoken": "button",
+      "thought": "I heard 'Pay this bill, button'. I've already used that one. I'll jump to the next button again.",
+      "screenshot": "shots/014.png",
+      "waitMs": 302,
+      "focusBox": {
+        "x": 201,
+        "y": 636.828125,
+        "w": 56,
+        "h": 56
+      }
+    },
+    {
+      "n": 15,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Protect your payment, dialog. Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, checked",
+      "thought": "I heard 'button'. This button has no name. I've been all the way round and nothing else fits, so I'll try it and hope it's the one I need.",
+      "screenshot": "shots/015.png",
+      "waitMs": 306,
+      "focusBox": {
+        "x": 439,
+        "y": 319.234375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 16,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I need to confirm the payment. I'm inside the 'Protect your payment' dialog on 'Payment protection for ₹99…, checkbox, checked', which isn't what I'm after. I'll press Tab and listen to where I land.",
+      "screenshot": "shots/016.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 422,
+        "y": 416.046875,
+        "w": 85.359375,
+        "h": 24
+      }
+    },
+    {
+      "n": 17,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, checked",
+      "thought": "I heard 'Learn more, button, collapsed'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/017.png",
+      "waitMs": 306,
+      "focusBox": {
+        "x": 439,
+        "y": 319.234375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 18,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "Tab has brought me back to 'Payment protection for ₹99…, checkbox, checked', where I had already been, so I have been all the way round. I'll go the other way and press Shift+Tab.",
+      "screenshot": "shots/018.png",
+      "waitMs": 317,
+      "focusBox": {
+        "x": 422,
+        "y": 416.046875,
+        "w": 85.359375,
+        "h": 24
+      }
+    },
+    {
+      "n": 19,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, checked",
+      "thought": "I heard 'Learn more, button, collapsed'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/019.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 439,
+        "y": 319.234375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 20,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, checked",
+      "thought": "Shift+Tab has brought me back to 'Payment protection for ₹99…, checkbox, checked', where I had already been, so I have been all the way round. I can hear 'Close dialog' and 'Continue' in the 'Protect your payment' dialog, but Shift+Tab never lands on them. I'll press Escape once to see if the dialog closes. I'm stuck in the 'Protect your payment' dialog. Tab and Shift+Tab only move between 'Payment protection for ₹99…' and 'Learn more', and Escape does nothing. I can hear 'Close dialog' and 'Continue' buttons, but I can't reach them with the keyboard, so I'm giving up.",
+      "screenshot": "shots/020.png",
+      "waitMs": 312,
+      "focusBox": {
+        "x": 439,
+        "y": 319.234375,
+        "w": 20,
+        "h": 20
+      }
+    }
+  ],
+  "findings": [
+    {
+      "type": "focus_trap",
+      "step": 20,
+      "title": "Keyboard focus is trapped in a dialog",
+      "evidence": "Keyboard focus stayed inside the dialog \"Protect your payment\". Tab (2 presses) reached 2 controls, in order: \"Learn more\" (button), \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox). A Tab press landed on \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox), which it had already reached (Step 17). Shift+Tab (2 presses) reached 2 controls, in order: \"Learn more\" (button), \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox). A Shift+Tab press landed on \"Learn more\" (button), which it had already reached (Step 18). 2 visible, enabled controls were never reached: \"Close dialog\" (button, tabindex=\"-1\") and \"Continue\" (button, tabindex=\"-1\"). Escape was pressed at Step 20 and the dialog stayed open, with focus still inside it.",
+      "screenshot": "shots/020.png"
+    },
+    {
+      "type": "unlabeled_button",
+      "step": 12,
+      "title": "Button has no accessible name",
+      "evidence": "On page /, the <button type=\"submit\"> at form > div._actions_ixv69_66 > button[type=submit] (button 2 of 2 on the page), inside a form with no name, within the \"Payment information\" section, contains only an <svg aria-hidden=\"true\" class=\"_icon_1g09q_25\">. It has no text, no aria-label, no aria-labelledby and no title, so a screen reader says only \"button\". The Listener first focused it at Step 12.",
+      "screenshot": "shots/012.png"
+    }
+  ]
+}
