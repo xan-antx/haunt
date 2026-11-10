@@ -17,6 +17,13 @@ export interface BillExtras {
   dueDate: string;
   /** Oldest first; the last entry is the month on this bill. */
   usage: readonly MonthlyUsage[];
+  /** What the amount due is made of, in rupees. The parts add up to SAMPLE_BILL.amountDue. */
+  charges: {
+    /** Charge for the units used this month. */
+    energy: number;
+    /** Fixed monthly and grid charges. */
+    fixedAndGrid: number;
+  };
 }
 
 export const BILL_EXTRAS: BillExtras = {
@@ -31,6 +38,10 @@ export const BILL_EXTRAS: BillExtras = {
     { month: '2026-09-01', units: 372 },
     { month: '2026-10-01', units: 356 },
   ],
+  charges: {
+    energy: 2310,
+    fixedAndGrid: 180,
+  },
 };
 
 /** Contact addresses use the reserved .example domain, so they can never reach a real mailbox. */

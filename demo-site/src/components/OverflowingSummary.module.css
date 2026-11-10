@@ -3,22 +3,55 @@
   border: 2px solid var(--color-marigold);
   border-radius: var(--radius-card);
   padding: 1rem;
-  margin-left: auto;
   box-shadow: var(--shadow-card);
 }
 
 .heading {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   font-size: 1.125rem;
+}
+
+/* The two charges, then the total under a marigold rule. */
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.charge,
+.totalRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.125rem 1rem;
+}
+
+.charge dt {
+  font-size: 0.9375rem;
+  color: var(--color-text-light);
+}
+
+.charge dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.totalRow {
+  margin-top: 0.25rem;
+  padding-top: 0.625rem;
+  border-top: 2px solid var(--color-marigold);
 }
 
 .label {
   color: var(--color-saffron);
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
 .amount {
+  margin: 0;
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.2;
@@ -33,7 +66,7 @@
     white-space: nowrap;
   }
 
-  /* Only the total may be clipped; the heading and label stay readable. */
+  /* Only the total may be clipped; the heading, the charge lines and the label stay readable. */
   .heading,
   .label {
     white-space: normal;
@@ -43,6 +76,16 @@
     font-size: 2.5rem;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .breakdown {
+    white-space: normal;
+  }
+
+  /* Each line stacks: its name, then its amount (the total keeps its fixed, clipping box). */
+  .charge,
+  .totalRow {
+    display: block;
   }
 }
 

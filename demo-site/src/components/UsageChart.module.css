@@ -25,9 +25,14 @@
   min-width: 0;
 }
 
+/*
+ * The bars share one fixed-height track with no padding and no minimum bar height, and each bar's
+ * height is units / largest month (UsageChart.tsx). So every bar starts from zero at the baseline and
+ * is exactly proportional: 356 units is 76% of the 468-unit bar, about 120px against 158px.
+ */
 .visual {
   display: grid;
-  grid-template-rows: auto 6.5rem auto minmax(1.25rem, auto);
+  grid-template-rows: auto 10rem auto minmax(1.25rem, auto);
   justify-items: center;
   row-gap: 0.25rem;
   height: 100%;
@@ -46,7 +51,7 @@
   align-items: flex-end;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  height: 10rem;
   border-bottom: 2px solid var(--color-border-strong);
 }
 

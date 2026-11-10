@@ -1,0 +1,54 @@
+/*
+ * On the navy header: white text 16.81:1, the current option in gold 10.96:1, both bold enough to read
+ * at 200% zoom. The focus ring is gold, which stands out on navy.
+ */
+.languages {
+  flex-shrink: 0;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* The "|" between options, drawn as a border so screen readers do not read it. */
+.item + .item {
+  border-left: 1px solid rgba(215, 219, 245, 0.55);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+/* The Punjabi label uses the Gurmukhi face on every page, so it looks the same in all three languages. */
+.option:lang(pa) {
+  font-family: var(--font-sans-gurmukhi);
+}
+
+.option:hover {
+  text-decoration: underline;
+}
+
+.option:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+.current {
+  color: var(--color-gold);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}

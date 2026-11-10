@@ -10,8 +10,8 @@ import { SilentCardErrors } from '../components/SilentCardErrors';
 import { TrappingProtectionModal } from '../components/TrappingProtectionModal';
 import { UnlabeledPayButton } from '../components/UnlabeledPayButton';
 import { UsageChart } from '../components/UsageChart';
-import { BILL_EXTRAS } from '../data/billExtras';
-import { useLanguage } from '../hooks/useLanguage';
+import { BILL_EXTRAS, CONTACT } from '../data/billExtras';
+import { useLanguage, useLanguageSearch } from '../hooks/useLanguage';
 import { usePaymentForm } from '../hooks/usePaymentForm';
 import { SAMPLE_BILL } from '../types';
 import { formatCurrency } from '../utils/currency';
@@ -35,6 +35,15 @@ function ClockIcon() {
     <svg className={styles.inlineIcon} viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
       <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
       <path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PauseIcon() {
+  return (
+    <svg className={styles.inlineIcon} viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+      <path d="M10 9v6M14 9v6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -102,6 +111,49 @@ const BillCard = memo(function BillCard({ amountText }: BillCardProps) {
       </dl>
 
       <UsageChart usage={BILL_EXTRAS.usage} />
+    </section>
+  );
+});
+
+/**
+ * Autopay status and help, under the Payment Summary. It has no link to the Autopay page: that link
+ * arrives only with the late banner (Problem 4). It also has no image, so the banner stays the page's
+ * first <img>.
+ */
+const HelpCard = memo(function HelpCard() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={`${common.section} ${styles.helpCard}`} aria-labelledby="help-card-heading">
+      <div className={styles.billCardTop}>
+        <h2 id="help-card-heading" className={styles.billCardHeading}>
+          {t('help.heading')}
+        </h2>
+        <span className={`${styles.status} ${styles.statusOff}`}>
+          <PauseIcon />
+          {t('help.autopayOff')}
+        </span>
+      </div>
+
+      <p className={styles.helpLead}>
+        {t('help.payYourself', { date: formatLongDate(t, BILL_EXTRAS.dueDate) })}
+      </p>
+
+      <dl className={styles.helpFacts}>
+        <div className={styles.fact}>
+          <dt>{t('help.questionsHeading')}</dt>
+          <dd>
+            <a href={`mailto:${CONTACT.careEmail}`} className={styles.helpLink}>
+              {CONTACT.careEmail}
+            </a>
+            <span className={styles.helpNote}>{t('help.replyTime')}</span>
+          </dd>
+        </div>
+        <div className={styles.fact}>
+          <dt>{t('help.hoursHeading')}</dt>
+          <dd>{t('help.hoursText')}</dd>
+        </div>
+      </dl>
     </section>
   );
 });
@@ -233,6 +285,7 @@ export function BillPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   useLanguage();
+  const languageSearch = useLanguageSearch();
 
   const form = usePaymentForm();
   const [bannerLoaded, setBannerLoaded] = useState(false);
@@ -256,9 +309,10 @@ export function BillPage() {
       SAMPLE_BILL.amountDue
     );
     if (result.success) {
-      navigate('/confirmation', {
-        state: { totalCharged: result.totalCharged, addOnIncluded: result.addOnIncluded },
-      });
+      navigate(
+        { pathname: '/confirmation', search: languageSearch },
+        { state: { totalCharged: result.totalCharged, addOnIncluded: result.addOnIncluded } }
+      );
     } else {
       setModalOpen(false);
       setPaymentFailed(true);
@@ -280,7 +334,7 @@ export function BillPage() {
       <div className={styles.bannerWrap}>
         <LateBanner onLoaded={() => setBannerLoaded(true)} />
         {bannerLoaded ? (
-          <Link to="/autopay" className={styles.autopayLink}>
+          <Link to={{ pathname: '/autopay', search: languageSearch }} className={styles.autopayLink}>
             {t('autopayLink')}
             <ArrowIcon />
           </Link>
@@ -289,6 +343,7 @@ export function BillPage() {
           <p className={styles.offer}>
             <span className={styles.offerTag}>{t('banner.offerTag')}</span>
             <span className={styles.offerText}>{t('banner.offerText')}</span>
+            <span className={styles.offerTerms}>{t('banner.offerTerms')}</span>
           </p>
         ) : null}
       </div>
@@ -301,9 +356,12 @@ export function BillPage() {
         </p>
       </div>
 
-      <div className={common.row}>
+      <div className={styles.billRow}>
         <BillCard amountText={amountText} />
-        <OverflowingSummary amount={amountText} />
+        <div className={styles.side}>
+          <OverflowingSummary amount={amountText} />
+          <HelpCard />
+        </div>
       </div>
 
       {showForm ? (

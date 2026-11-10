@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BackArrowIcon } from '../components/common/BackArrowIcon';
 import { PageLayout } from '../components/common/PageLayout';
-import { useLanguage } from '../hooks/useLanguage';
+import { useLanguage, useLanguageSearch } from '../hooks/useLanguage';
 import { SAMPLE_BILL } from '../types';
 import { formatCurrency } from '../utils/currency';
 import styles from './Pages.module.css';
@@ -25,6 +25,7 @@ function SuccessIcon() {
 export function ConfirmationPage() {
   const { t } = useTranslation();
   useLanguage();
+  const languageSearch = useLanguageSearch();
   const location = useLocation();
   const state = (location.state ?? {}) as ConfirmationState;
   const totalCharged = state.totalCharged ?? SAMPLE_BILL.amountDue;
@@ -51,7 +52,7 @@ export function ConfirmationPage() {
         </dl>
         <p className={styles.paragraph}>{t('confirmation.thankYou')}</p>
       </section>
-      <Link to="/" className={styles.backLink}>
+      <Link to={{ pathname: '/', search: languageSearch }} className={styles.backLink}>
         <BackArrowIcon />
         {t('confirmation.backToBill')}
       </Link>

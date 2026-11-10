@@ -1,20 +1,21 @@
 {
-  "pageTitle": "Lantern Bills - Pay Your Electricity Bill",
+  "pageTitle": "Lantern Bills - Pay your electricity bill",
   "payBillButton": "Pay this bill",
   "header": {
     "tagline": "Power for every home",
     "greeting": "Namaste, {{name}}",
     "customerName": "Asha Kaur",
-    "accountLabel": "Account no."
+    "accountLabel": "Account no.",
+    "languageNav": "Language"
   },
   "billDetails": {
-    "heading": "Your Electricity Bill",
+    "heading": "Your electricity bill",
     "subtitle": "Check your bill and pay it securely online.",
     "cardHeading": "Bill for {{period}}",
-    "status": "Not paid yet",
-    "accountNumber": "Account Number",
-    "amountDue": "Amount Due",
-    "dueDate": "Due Date",
+    "status": "Unpaid",
+    "accountNumber": "Account number",
+    "amountDue": "Amount due",
+    "dueDate": "Due date",
     "billingPeriod": "Billing period",
     "unitsUsed": "Units used"
   },
@@ -63,15 +64,15 @@
     "hint": "Pay securely by debit or credit card."
   },
   "paymentForm": {
-    "heading": "Payment Information",
-    "secureNote": "Your card details are sent over a secure connection and are never stored.",
-    "cardNumber": "Card Number",
+    "heading": "Payment information",
+    "secureNote": "We send your card details over a secure connection and never store them.",
+    "cardNumber": "Card number",
     "cardNumberPlaceholder": "1234 5678 9012 3456",
-    "expiry": "Expiry Date",
+    "expiry": "Expiry date",
     "expiryPlaceholder": "MM/YY",
     "cvv": "CVV",
     "cvvPlaceholder": "123",
-    "cardholderName": "Cardholder Name",
+    "cardholderName": "Cardholder name",
     "cardholderNamePlaceholder": "Name on card"
   },
   "validation": {
@@ -97,28 +98,40 @@
   },
   "confirmation": {
     "heading": "Payment received",
-    "success": "Your payment has been processed successfully.",
-    "charged": "Total charged",
+    "success": "Your payment is complete.",
+    "charged": "Amount paid",
     "transactionId": "Transaction ID",
     "thankYou": "Thank you for your payment!",
     "backToBill": "Back to bill"
   },
   "autopay": {
-    "heading": "Set Up Autopay",
+    "heading": "Set up autopay",
     "comingSoon": "Autopay coming soon",
-    "description": "Automatic payments will be available soon. Check back later to set up recurring payments.",
+    "description": "Autopay is not ready yet. Soon it will pay each bill for you on its due date.",
     "backToBill": "Back to bill"
   },
   "banner": {
     "alt": "Paper lanterns and diyas glowing on a festival night",
     "offerTag": "Festive offer",
-    "offerText": "Get 5% cashback, up to ₹150 a month, on every bill paid by autopay until 31 December 2026."
+    "offerText": "5% cashback when you pay by autopay",
+    "offerTerms": "Up to ₹150 a month, until 31 December 2026."
   },
   "summary": {
-    "heading": "Payment Summary",
-    "total": "Total Amount",
-    "billAmount": "Bill Amount",
-    "addOn": "Payment Protection"
+    "heading": "Payment summary",
+    "total": "Total",
+    "billAmount": "Bill amount",
+    "addOn": "Payment protection",
+    "energyCharges": "Energy charges ({{units}} units)",
+    "fixedCharges": "Fixed and grid charges"
+  },
+  "help": {
+    "heading": "Autopay status and help",
+    "autopayOff": "Autopay is off",
+    "payYourself": "You pay each bill yourself. Pay this one by {{date}}.",
+    "questionsHeading": "Questions about your bill",
+    "replyTime": "We reply within one working day.",
+    "hoursHeading": "Service centre hours",
+    "hoursText": "Monday to Saturday, 9 am to 6 pm"
   },
   "autopayLink": "Set up autopay",
   "footer": {

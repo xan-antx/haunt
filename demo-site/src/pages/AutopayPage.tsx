@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BackArrowIcon } from '../components/common/BackArrowIcon';
 import { PageLayout } from '../components/common/PageLayout';
-import { useLanguage } from '../hooks/useLanguage';
+import { useLanguage, useLanguageSearch } from '../hooks/useLanguage';
 import styles from './Pages.module.css';
 
 /** A calendar page with a small lantern on it (decorative). */
@@ -21,6 +21,7 @@ function CalendarIcon() {
 export function AutopayPage() {
   const { t } = useTranslation();
   useLanguage();
+  const languageSearch = useLanguageSearch();
 
   return (
     <PageLayout title={`${t('autopay.heading')} - Lantern Bills`}>
@@ -33,7 +34,7 @@ export function AutopayPage() {
             <p className={styles.paragraph}>{t('autopay.description')}</p>
           </div>
         </div>
-        <Link to="/" className={styles.backLink}>
+        <Link to={{ pathname: '/', search: languageSearch }} className={styles.backLink}>
           <BackArrowIcon />
           {t('autopay.backToBill')}
         </Link>

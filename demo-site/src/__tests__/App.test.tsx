@@ -157,7 +157,7 @@ describe('Autopay navigation', () => {
 
     // Router navigation is synchronous inside act, so no waiting is needed.
     expect(window.location.pathname).toBe('/autopay');
-    expect(screen.getByRole('heading', { level: 1, name: 'Set Up Autopay' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Set up autopay' })).toBeInTheDocument();
     expect(screen.getByText('Autopay coming soon')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('link', { name: 'Back to bill' }));

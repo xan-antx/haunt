@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import fc from 'fast-check';
 import i18n from 'i18next';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   futureExpiryArbitrary,
   invalidCardNumberArbitrary,
@@ -53,7 +53,14 @@ describe('Validation error properties', () => {
   /**
    * Feature: lantern-bills, Property 11: Field Validation Error Display
    * Validates: Requirements 6.1, 6.2, 6.3
-   * The error is in the DOM synchronously after blur, which is well within 100ms.
+   *
+   * The requirement is "within 100 ms of the field losing focus". Wall-clock time in jsdom depends on how
+   * busy the machine is, so this test does not read a clock. It proves the stronger fact that makes any
+   * delay impossible: the error is on the page in the same update as the blur, with no timer involved.
+   *   - Every timer is faked and none is advanced, so no time passes after the blur.
+   *   - The blur schedules no timer (no setTimeout, no debounce) that could show the error later.
+   *   - The message is found immediately with a plain query, with no waiting or polling.
+   * An error that needs no timer and no wait cannot take noticeable time in a real browser.
    */
   it('Feature: lantern-bills, Property 11: Field Validation Error Display', async () => {
     const cases = fc
@@ -62,19 +69,28 @@ describe('Validation error properties', () => {
 
     await fc.assert(
       fc.asyncProperty(cases, async ({ field, value }) => {
+        vi.useFakeTimers();
         try {
           renderAppAt('/');
           openPaymentForm();
 
-          const start = performance.now();
-          typeAndBlur(field, value);
-          const message = screen.getByText(errorText(field));
-          const elapsed = performance.now() - start;
+          const input = getInput(field);
+          input.focus();
+          fireEvent.change(input, { target: { value } });
+          // No error before the field loses focus.
+          expect(screen.queryByText(errorText(field))).not.toBeInTheDocument();
 
+          const timersBefore = vi.getTimerCount();
+          fireEvent.blur(input);
+
+          // Same update: the error is already there, with no timer advanced and none waited for.
+          const message = screen.getByText(errorText(field));
           expect(message).toBeVisible();
-          expect(elapsed).toBeLessThan(100);
+          // Nothing was queued to show it later (a debounce or setTimeout would add a timer).
+          expect(vi.getTimerCount()).toBe(timersBefore);
         } finally {
           cleanup();
+          vi.useRealTimers();
         }
       }),
       { numRuns: 100 }

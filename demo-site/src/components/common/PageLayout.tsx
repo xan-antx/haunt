@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CONTACT } from '../../data/billExtras';
 import { SAMPLE_BILL } from '../../types';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { LanternLogo } from './LanternLogo';
 import styles from './PageLayout.module.css';
 
@@ -35,12 +36,15 @@ const SiteHeader = memo(function SiteHeader() {
     <header className={styles.header}>
       <div className={styles.headerInner}>
         <Brand logoSize={46} />
-        <div className={styles.customer}>
-          <p className={styles.greeting}>{t('header.greeting', { name: t('header.customerName') })}</p>
-          <p className={styles.accountLine}>
-            {t('header.accountLabel')}{' '}
-            <span className={styles.accountNumber}>{SAMPLE_BILL.accountNumber}</span>
-          </p>
+        <div className={styles.headerEnd}>
+          <div className={styles.customer}>
+            <p className={styles.greeting}>{t('header.greeting', { name: t('header.customerName') })}</p>
+            <p className={styles.accountLine}>
+              {t('header.accountLabel')}{' '}
+              <span className={styles.accountNumber}>{SAMPLE_BILL.accountNumber}</span>
+            </p>
+          </div>
+          <LanguageSwitcher />
         </div>
       </div>
     </header>
