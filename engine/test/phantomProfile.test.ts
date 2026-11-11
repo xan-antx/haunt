@@ -43,28 +43,28 @@ describe('The Phantom profile (Requirement 13.1)', () => {
 });
 
 describe("The Phantom's pace (Requirements 13.3 to 13.5)", () => {
-  it('Settles for 1200 quiet ms (at most 20 s), reacts in 550 to 650 ms and types at 120 ms per character', () => {
+  it('Settles for 1200 quiet ms (at most 20 s), reacts in 900 to 1100 ms and types at 120 ms per character', () => {
     expect(phantomTiming).toEqual({
       settleQuietMs: 1200,
       settleMaxMs: 20_000,
-      reactionDelay: { minMs: 550, maxMs: 650 },
+      reactionDelay: { minMs: 900, maxMs: 1100 },
       typingDelayMs: 120,
     });
     expect(PHANTOM_LANGUAGES).toEqual(['en']);
   });
 
-  it('draws its Reaction_Delay as 550 + floor(rng() * 101), the same for the same seed', () => {
-    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0)).toBe(550);
-    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0.5)).toBe(600);
-    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0.999_999)).toBe(650);
+  it('draws its Reaction_Delay as 900 + floor(rng() * 201), the same for the same seed', () => {
+    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0)).toBe(900);
+    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0.5)).toBe(1000);
+    expect(reactionDelayMs(phantomTiming.reactionDelay, () => 0.999_999)).toBe(1100);
 
     const first = mulberry32(7);
     const second = mulberry32(7);
     const a = Array.from({ length: 20 }, () => reactionDelayMs(phantomTiming.reactionDelay, first));
     const b = Array.from({ length: 20 }, () => reactionDelayMs(phantomTiming.reactionDelay, second));
     expect(a).toEqual(b);
-    for (const ms of a) expect(ms).toBeGreaterThanOrEqual(550);
-    for (const ms of a) expect(ms).toBeLessThanOrEqual(650);
+    for (const ms of a) expect(ms).toBeGreaterThanOrEqual(900);
+    for (const ms of a) expect(ms).toBeLessThanOrEqual(1100);
   });
 });
 

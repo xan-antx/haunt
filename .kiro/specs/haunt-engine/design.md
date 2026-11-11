@@ -639,7 +639,7 @@ One `VisualMind` class with parameters `{ languages: ('pa' | 'hi' | 'en')[] }`:
 - User agent `Mozilla/5.0 (Linux; Android 8.1.0; Moto G (5S) Plus) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.99 Mobile Safari/537.36`.
 - Through a CDP session: `Network.enable`, then `Network.emulateNetworkConditions` with `latency: 2000`, `downloadThroughput: 50000`, `uploadThroughput: 50000`, `connectionType: 'cellular3g'` (Chrome DevTools' "Slow 3G" values), and `Emulation.setCPUThrottlingRate({ rate: 4 })`.
 - Settle: `load` event fired and 1200 ms with no change on the Page_Change_Clock, for at most 20 s.
-- Reaction_Delay: `550 + floor(rng() * 101)` ms. Typing: 120 ms per character.
+- Reaction_Delay: `900 + floor(rng() * 201)` ms. Typing: 120 ms per character.
 
 ### Detectors
 
@@ -662,8 +662,8 @@ Example: "Aimed at "Pay this bill" (seen at x 16, y 170, 132×48). 1.2 s later t
 
 Let T0 be the moment the bill page mounts (the last DOM change). The banner timer starts at T0 and moves the layout at about T0 + 1500 ms (plus one React commit).
 
-- The Phantom's Settle ends at T0 + 1200 to 1250 ms, and its Sight is taken right away. That is about 250 ms before the shift, so it sees "Pay this bill" in its first position.
-- The click comes at least 550 ms after the Sight is complete, at about T0 + 1800 ms or later. That is at least 250 ms after the shift, so it lands on "Set up autopay".
+- The Phantom's Settle ends at T0 + 1200 to 1300 ms, and its Sight is taken right away. With the 4x CPU slowdown the banner timer fires late: measured over several runs, the shift came 310 to 560 ms after the Sight was complete (T0 + about 1550 to 1800 ms). The Sight therefore still sees "Pay this bill" in its first position.
+- The click comes at least 900 ms after the Sight is complete. That is at least 340 ms after the shift in every measured run, so it lands on "Set up autopay". (A Reaction_Delay of 550 to 650 ms, used first, often tapped before the shift and hit the button: 4 of 10 runs misclicked.)
 - With 2000 ms network latency, the first load takes about 10 to 15 s. The page's load event is pending for most of that, and the translation file arrives about 2 s after it, so `slow_wait` does not fire.
 
 Expected walk:
@@ -775,7 +775,7 @@ Each property is one fast-check test with at least 100 runs, in a top-level `des
 3. **Every finding points to an existing step.** Running `runLoop` with generated fake ghosts (random bodies, minds that act or give up, and detectors that return problems with any `stepN`, including bogus ones) always gives runs where every `finding.step` is an existing `n`. Bogus problems end the Run with `error` instead of being saved. *Validates 7.3, 12.1, 20.1.*
 4. **Steps are numbered 1 to N with no gaps.** In the same generated runs, `steps.map(s => s.n)` equals `[1..N]` with `N ≤ 60`, whatever the mix of success, giving up, step limit and thrown errors. *Validates 6.2, 6.9, 12.1, 20.1.*
 5. **Visual perceptions carry no accessibility data.** For generated HTML (random elements carrying `role`, `aria-label`, `aria-describedby`, `title` and `alt` values that contain a unique marker, plus visible text), the Sight of The Phantom's and Bebe's bodies has only the allowed keys and contains the marker only where it is visible text. *Validates 13.2, 17.2, 20.2.*
-6. **Reaction delays stay in range.** For any 32-bit seed and any number of draws, The Phantom's delays are in [550, 650] and Bebe's in [1300, 1700]. *Validates 13.4, 17.4, 20.2.*
+6. **Reaction delays stay in range.** For any 32-bit seed and any number of draws, The Phantom's delays are in [900, 1100] and Bebe's in [1300, 1700]. *Validates 13.4, 17.4, 20.2.*
 7. **Two misclicks in a row end the Run exactly then.** For generated sequences of click outcomes (correct, misclick, recovery), `misclickStreak` reaches 2 exactly at the second misclick that has no correct click between it and the previous misclick. A Run built from the sequence ends at that Step and not before. *Validates 16.2, 20.2.*
 8. **Run_Ids are well-formed and unique.** For any start time and any set of existing folder names, `makeRunId` returns a value that matches the invariant pattern, encodes the start time to the minute in UTC, and is not in the set. *Validates 2.3, 2.4.*
 

@@ -249,7 +249,7 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 1. THE Phantom SHALL browse in Chromium with a 360 by 640 CSS pixel viewport, device scale factor 2, mobile mode, touch support, an older Android user agent, locale `en-IN`, network throttling of 2000 ms latency with 50 000 bytes per second down and up (a slow 3G profile), and CPU throttling of 4 times.
 2. THE Phantom's Perception SHALL be a Sight: a screenshot of the viewport and the Seen_Items captured at the same moment, with no roles, accessible names, ARIA attributes or DOM references.
 3. THE Phantom SHALL Settle until the page's load event has fired and the Page_Change_Clock shows no change for 1200 ms, checking every 50 ms, or for at most 20 000 ms. It then takes its Sight at once.
-4. WHEN The Phantom decides to click a Seen_Item, THE Phantom SHALL wait a Reaction_Delay between 550 and 650 ms, chosen from the Run's seed and counted from the moment its Sight was complete, and then click the centre of the box where it saw the item, without looking at the page again.
+4. WHEN The Phantom decides to click a Seen_Item, THE Phantom SHALL wait a Reaction_Delay between 900 and 1100 ms, chosen from the Run's seed and counted from the moment its Sight was complete, and then click the centre of the box where it saw the item, without looking at the page again.
 5. THE Phantom SHALL type into the focused field with 120 ms between characters.
 6. THE Phantom SHALL also be able to scroll by most of a screen, wait without acting, and use the browser's Back.
 

@@ -10,7 +10,7 @@ import { reactionDelayMs, type DelayRange } from '../src/ghosts/visual/body.ts';
  * **Validates: Requirements 13.4, 17.4, 20.2**
  *
  * For any 32-bit seed and any number of draws, The Phantom's Reaction_Delays are whole milliseconds in
- * [550, 650] and Bebe's in [1300, 1700], and the same seed always gives the same sequence.
+ * [900, 1100] and Bebe's in [1300, 1700], and the same seed always gives the same sequence.
  */
 
 const RUNS = { numRuns: 100 };
@@ -29,7 +29,7 @@ function delaysFor(range: DelayRange, seed: number, draws: number): number[] {
 }
 
 const GHOSTS: ReadonlyArray<{ name: string; range: DelayRange; min: number; max: number }> = [
-  { name: 'The Phantom', range: phantomTiming.reactionDelay, min: 550, max: 650 },
+  { name: 'The Phantom', range: phantomTiming.reactionDelay, min: 900, max: 1100 },
   { name: 'Bebe', range: BEBE_REACTION_DELAY, min: 1300, max: 1700 },
 ];
 

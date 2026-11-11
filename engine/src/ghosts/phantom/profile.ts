@@ -33,12 +33,17 @@ export const phantomProfile: BrowserProfile = {
 
 /**
  * The Phantom's pace (Requirements 13.3 to 13.5). Settle: `load` fired and 1200 ms with no change on the
- * Page_Change_Clock, for at most 20 s. Reaction_Delay: 550 to 650 ms from the Run's seed
- * (`550 + floor(rng() * 101)`). Typing: 120 ms per character.
+ * Page_Change_Clock, for at most 20 s. Reaction_Delay: 900 to 1100 ms from the Run's seed
+ * (`900 + floor(rng() * 201)`). Typing: 120 ms per character.
+ *
+ * The Reaction_Delay was 550 to 650 ms. On Lantern Bills (measured with the 4x CPU slowdown) the banner
+ * moves the layout about 350 to 600 ms after the Sight is complete, and a 550 to 650 ms tap often came
+ * before that, so the tap hit the button and no misclick happened (4 of 10 runs). From 900 ms on the tap
+ * always comes after the move, while the Sight is still taken before it.
  */
 export const phantomTiming = {
   settleQuietMs: 1200,
   settleMaxMs: 20_000,
-  reactionDelay: { minMs: 550, maxMs: 650 },
+  reactionDelay: { minMs: 900, maxMs: 1100 },
   typingDelayMs: 120,
 } as const satisfies Omit<VisualBodyOptions, 'rng'>;

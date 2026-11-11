@@ -224,7 +224,7 @@ Rules for every task:
   - Run `npm run build`, `npm test` and `npm run test:properties`. Confirm Properties 1 to 8 ran and passed, and that Properties 1, 3 and 4 generate runs for all three ghosts
   - _Requirements: 20.1, 20.2_
 
-- [ ] 23. The Phantom's end-to-end test
+- [x] 23. The Phantom's end-to-end test
   - Write `e2e/phantom.e2e.test.ts`: harness, 10 sequential CLI runs with seeds 1 to 10 and `--out test-output/e2e/phantom`; require a `misclick` Finding in at least 9 runs; schema, invariants and dashboard `validateRun` with no errors; `demo-site` git status unchanged; per-run table on failure
   - _Requirements: 20.4, 20.6_
 
