@@ -8,17 +8,19 @@ import type { GhostId, Run } from '../../data/types';
 import { buildRooms, coldSpotSize, type ColdSpot, type Room } from '../../model/coldSpots';
 import { formatSeconds } from '../../model/format';
 import { GHOSTS } from '../../model/ghosts';
+import { SAMPLE_LABEL, isSample } from '../../model/origin';
 import { siteKey, stepPath } from '../../routes';
 import styles from './MapView.module.css';
 
-export function coldSpotName(spot: ColdSpot): string {
-  return `${GHOSTS[spot.ghost].name} waited ${formatSeconds(spot.waitMs)} at step ${spot.step} — open in Ghost Cam`;
+export function coldSpotName(spot: ColdSpot, sample = false): string {
+  const label = sample ? ` (${SAMPLE_LABEL})` : '';
+  return `${GHOSTS[spot.ghost].name} waited ${formatSeconds(spot.waitMs)} at step ${spot.step}${label} — open in Ghost Cam`;
 }
 
-function ColdSpotLink({ spot }: { spot: ColdSpot }) {
+function ColdSpotLink({ spot, sample }: { spot: ColdSpot; sample: boolean }) {
   const size = coldSpotSize(spot.waitMs);
   return (
-    <Link to={stepPath(spot.runKey, spot.step)} className={styles.spot} aria-label={coldSpotName(spot)}>
+    <Link to={stepPath(spot.runKey, spot.step)} className={styles.spot} aria-label={coldSpotName(spot, sample)}>
       <span className={styles.frost} style={{ width: `${size}px`, height: `${size}px` }} aria-hidden="true" />
       <GhostIcon ghost={spot.ghost} />
       <span>{formatSeconds(spot.waitMs)}</span>
@@ -26,7 +28,17 @@ function ColdSpotLink({ spot }: { spot: ColdSpot }) {
   );
 }
 
-function RoomCard({ room, site, filter }: { room: Room; site: string; filter: GhostId | null }) {
+function RoomCard({
+  room,
+  site,
+  filter,
+  sampleRunKeys,
+}: {
+  room: Room;
+  site: string;
+  filter: GhostId | null;
+  sampleRunKeys: ReadonlySet<string>;
+}) {
   const unvisited = filter !== null && !room.ghosts.includes(filter);
   const headingId = `room-${site}-${room.page.replace(/[^a-zA-Z0-9]+/g, '-')}`;
   return (
@@ -54,8 +66,14 @@ function RoomCard({ room, site, filter }: { room: Room; site: string; filter: Gh
       ) : (
         <ul className={styles.spots}>
           {room.coldSpots.map((spot) => (
-            <li key={`${spot.runKey}-${spot.step}`}>
-              <ColdSpotLink spot={spot} />
+            <li key={`${spot.runKey}-${spot.step}`} className={styles.spotItem}>
+              <ColdSpotLink spot={spot} sample={sampleRunKeys.has(spot.runKey)} />
+              {/* Beside the link, not in it, so the link's visible text stays part of its name (WCAG 2.5.3). */}
+              {sampleRunKeys.has(spot.runKey) && (
+                <span className={styles.sample} aria-hidden="true">
+                  {SAMPLE_LABEL}
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -68,6 +86,8 @@ export interface SiteRooms {
   key: string;
   name: string;
   rooms: Room[];
+  /** Run keys of the sample runs on this map, so their cold spots carry the Sample_Label. */
+  sampleRunKeys: ReadonlySet<string>;
 }
 
 /** One floor plan per site, sites in name order. */
@@ -76,7 +96,12 @@ export function siteRooms(runs: Run[]): SiteRooms[] {
   for (const run of runs) bySite.set(run.site.name, [...(bySite.get(run.site.name) ?? []), run]);
   return [...bySite.entries()]
     .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([name, siteRuns]) => ({ key: siteKey(name), name, rooms: buildRooms(siteRuns) }));
+    .map(([name, siteRuns]) => ({
+      key: siteKey(name),
+      name,
+      rooms: buildRooms(siteRuns),
+      sampleRunKeys: new Set(siteRuns.filter(isSample).map((r) => r.key)),
+    }));
 }
 
 export function MapView({ sites, filter }: { sites: SiteRooms[]; filter: GhostId | null }) {
@@ -89,7 +114,7 @@ export function MapView({ sites, filter }: { sites: SiteRooms[]; filter: GhostId
           </h2>
           <ul className={styles.plan} aria-label={`Rooms of ${site.name}`}>
             {site.rooms.map((room) => (
-              <RoomCard key={room.page} room={room} site={site.key} filter={filter} />
+              <RoomCard key={room.page} room={room} site={site.key} filter={filter} sampleRunKeys={site.sampleRunKeys} />
             ))}
           </ul>
         </section>

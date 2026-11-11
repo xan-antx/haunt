@@ -3,15 +3,26 @@
 
 import type { Run, Step } from '../data/types';
 import { FINDING_LABELS } from './findingLabels';
+import { evidenceSentence } from './findingWords';
 import { ghostName } from './ghosts';
 
+/** One finding at the step, in full, for the notice's expandable details (Req 10.36). */
+export interface StuckDetail {
+  label: string;
+  title: string;
+  /** The finding's evidence exactly as the run file has it. */
+  evidence: string;
+}
+
 export interface StuckNotice {
-  /** At most 3 lines (Req 10.31). */
+  /** At most 3 lines (Req 10.31). The third is one readable sentence, the Evidence_Sentence. */
   lines: string[];
   /** The lines joined with a space, for the element's title. */
   fullText: string;
   /** 'warning' is the amber style for an errored run; 'stuck' is the default style. */
   tone: 'stuck' | 'warning';
+  /** Every finding at the step, in file order, with its full evidence. Empty when there is none. */
+  details: StuckDetail[];
 }
 
 export const ERROR_NOTICE = 'This run stopped because of an error, so its findings may be incomplete.';
@@ -25,10 +36,10 @@ export function stuckNotice(run: Run, step: Step): StuckNotice | null {
 
   const first = found[0];
   if (!first) {
-    if (errored) return { lines: [ERROR_NOTICE], fullText: ERROR_NOTICE, tone: 'warning' };
+    if (errored) return { lines: [ERROR_NOTICE], fullText: ERROR_NOTICE, tone: 'warning', details: [] };
     if (!gaveUp) return null;
     const lines = [`${name} gave up here.`];
-    return { lines, fullText: lines.join(' '), tone: 'stuck' };
+    return { lines, fullText: lines.join(' '), tone: 'stuck', details: [] };
   }
 
   const lead =
@@ -38,6 +49,7 @@ export function stuckNotice(run: Run, step: Step): StuckNotice | null {
   const line1 = gaveUp ? `${lead} and gave up.` : `${lead}.`;
   const more = found.length > 1 ? ` (+${found.length - 1} more at this step)` : '';
   const line2 = `${FINDING_LABELS[first.type].label}: ${first.title}${more}`;
-  const lines = [line1, line2, first.evidence];
-  return { lines, fullText: lines.join(' '), tone: 'stuck' };
+  const lines = [line1, line2, evidenceSentence(run, first)];
+  const details = found.map((f) => ({ label: FINDING_LABELS[f.type].label, title: f.title, evidence: f.evidence }));
+  return { lines, fullText: lines.join(' '), tone: 'stuck', details };
 }

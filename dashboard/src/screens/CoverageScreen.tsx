@@ -9,6 +9,7 @@ import type { GhostId } from '../data/types';
 import { buildCoverage, type GhostCoverage } from '../model/coverage';
 import { formatDate } from '../model/format';
 import { GHOSTS, GHOST_ORDER } from '../model/ghosts';
+import { SAMPLE_LABEL, isSample } from '../model/origin';
 import { stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './CoverageScreen.module.css';
@@ -34,6 +35,7 @@ function CoverageCell({ ghost, coverage }: { ghost: GhostId; coverage: GhostCove
           <li key={run.key}>
             <Link to={stepPath(run.key, 1)}>
               {i === 0 ? 'Latest' : 'Earlier'} run by {GHOSTS[ghost].name}, {formatDate(run.startedAt)}
+              {isSample(run) && ` (${SAMPLE_LABEL})`}
             </Link>
           </li>
         ))}

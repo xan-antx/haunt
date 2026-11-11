@@ -90,7 +90,7 @@ const crowdedRunArb = runArb.chain((run) =>
     })),
 );
 
-// **Validates: Requirements 10.12, 10.13, 10.30, 10.31**
+// **Validates: Requirements 10.12, 10.13, 10.30, 10.31, 10.36**
 describe('Feature: haunt-dashboard, Property 13: One merged Stuck_Notice per step', () => {
   it('builds one notice with the right phrases exactly when a finding or the give-up applies', () => {
     fc.assert(
@@ -135,14 +135,18 @@ describe('Feature: haunt-dashboard, Property 13: One merged Stuck_Notice per ste
             expect(countOf(all, TRAPPED) + countOf(all, PROBLEM)).toBe(1);
             expect(lines[0]!.startsWith(trapped ? 'The Listener got trapped' : `${name} hit a problem`)).toBe(true);
             // The first finding's title and evidence are shown; extra findings are counted, not listed.
+            // Plain-word evidence is one readable sentence, shown with a full stop added (Req 10.36).
             expect(lines).toHaveLength(3);
             expect(lines[1]).toContain(found[0]!.title);
-            expect(lines[2]).toBe(found[0]!.evidence);
+            expect(lines[2]).toBe(`${found[0]!.evidence.trim()}.`);
             if (found.length > 1) expect(lines[1]).toContain(`(+${found.length - 1} more at this step)`);
             else expect(lines[1]).not.toContain('more at this step');
+            // The full details list every finding at the step, in file order, with its evidence unchanged.
+            expect(notice!.details.map((d) => [d.title, d.evidence])).toEqual(found.map((f) => [f.title, f.evidence]));
           } else {
             expect(lines).toEqual([`${name} gave up here.`]);
             expect(countOf(all, TRAPPED) + countOf(all, PROBLEM)).toBe(0);
+            expect(notice!.details).toEqual([]);
           }
         }
       }),

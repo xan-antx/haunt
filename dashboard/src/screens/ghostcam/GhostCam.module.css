@@ -20,8 +20,27 @@
   overflow-wrap: anywhere;
 }
 
+/* The requirement is one ellipsised line at every size (Req 10.29); "Full requirement" opens the
+   whole text in a panel under the row, over the screenshot, so nothing moves. In stacked mode
+   the button, the Sample_Label and the result may wrap onto the next line. */
+.requirementWrap {
+  position: relative;
+}
+
 .requirementRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
   margin: 0 0 var(--space-2);
+}
+
+.requirementText {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Screen_Intro between the two Run_Summary rows. It wraps, and is never ellipsised (Req 20.14). */
@@ -608,12 +627,16 @@
     line-height: 1.4;
   }
 
+  /* One row. Only the requirement text shrinks and clips, so the row itself does not clip the
+     focus ring of the "Full requirement" button. */
   .requirementRow {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     gap: var(--space-3);
     margin: 0;
     line-height: 1.5;
+    overflow: visible;
   }
 
   .requirementText {

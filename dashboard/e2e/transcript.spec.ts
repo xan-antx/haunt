@@ -5,8 +5,10 @@ import { expect, test, type Page } from '@playwright/test';
 const ORIGIN = 'http://localhost:3001';
 const L = '2026-11-03-listener-pay-bill';
 
-// The spoken texts come straight from the sample the dashboard serves, so the check follows the data.
-const samplePath = fileURLToPath(new URL('../../runs/samples/listener-gave-up/run.json', import.meta.url));
+// The spoken texts come straight from the fixture copy of the Listener sample that the e2e build
+// serves (fixtures/runs/), so the check follows the data. The sample is hidden from lists because a
+// real Listener run exists, but it still opens by link.
+const samplePath = fileURLToPath(new URL('../fixtures/runs/samples/listener-gave-up/run.json', import.meta.url));
 const sample = JSON.parse(readFileSync(samplePath, 'utf8')) as { steps: { n: number; spoken: string }[] };
 const SPOKEN = sample.steps.map((s) => s.spoken);
 

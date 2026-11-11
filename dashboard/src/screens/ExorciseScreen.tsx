@@ -7,18 +7,22 @@ import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
+import { SampleTag } from '../components/SampleTag';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
 import { EXORCISE_LABELS, afterCandidates, compareRuns, type ExorciseRow, type ExorciseStatus } from '../model/exorcise';
 import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
+import { SAMPLE_LABEL, isSample } from '../model/origin';
+import { pageName } from '../model/sites';
 import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './ExorciseScreen.module.css';
 
 function runLabel(run: Run): string {
-  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}`;
+  const sample = isSample(run) ? ` · ${SAMPLE_LABEL}` : '';
+  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}${sample}`;
 }
 
 /** The newest other run by the same ghost of the same mission, or null if there is none. */
@@ -66,7 +70,8 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
     <section className={styles.summary} aria-labelledby={`summary-${heading}`}>
       <h2 id={`summary-${heading}`}>{heading}</h2>
       <p className={styles.summaryLine}>
-        <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <ResultBadge result={run.result} />
+        <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <ResultBadge result={run.result} />{' '}
+        <SampleTag run={run} />
       </p>
       <p>
         {run.mission.goal} · {plural(run.findings.length, 'finding')} ·{' '}
@@ -139,8 +144,8 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
                       <StatusCell row={row} />
                       {row.status === 'not_reached' && (
                         <p className={styles.note}>
-                          {GHOSTS[after.ghost].name} never got as far as {row.page} in the after run, so we can't
-                          tell whether your fix worked.
+                          {GHOSTS[after.ghost].name} never got as far as {pageName(after.site.name, row.page)} in
+                          the after run, so we can't tell whether your fix worked.
                         </p>
                       )}
                     </td>
@@ -165,7 +170,10 @@ export function ExorciseScreen() {
   if (state.status === 'loading') return <Loading what="the runs to compare" />;
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
 
-  const runs = [...state.runs].sort(byStartedAtDesc);
+  // The pickers list the shown runs (Req 24.1). A URL may still name a sample that a real run
+  // replaced; it opens and joins the list, labelled as a sample (Req 24.3).
+  const named = new Set([beforeKey, afterKey, searchParams.get('before')]);
+  const runs = [...state.runs, ...state.hidden.filter((r) => named.has(r.key))].sort(byStartedAtDesc);
   const find = (key: string | undefined) => runs.find((r) => r.key === key);
   const beforeParam = searchParams.get('before');
 
@@ -212,7 +220,7 @@ export function ExorciseScreen() {
   const afterOptions = afterCandidates(before, runs);
   const ghostName = GHOSTS[before.ghost].name;
   // True while the dashboard shows only the sample runs from runs/samples/, as in this demo.
-  const onlySamples = runs.every((r) => r.origin === 'samples');
+  const onlySamples = state.runs.every(isSample);
   const choose = (b: Run, a: Run | null) => {
     const nextAfter = a ?? defaultAfter(b, runs);
     if (nextAfter) navigate(exorcisePath(b.key, nextAfter.key), { replace: true });

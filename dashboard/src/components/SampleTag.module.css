@@ -1,0 +1,21 @@
+/* The Sample_Label: text in a dashed outline, so it reads as a label without relying on color.
+   --text on --bg 14.26 and on --surface 12.21; the --text-muted outline is 8.09 and 6.92 (non-text,
+   3:1 needed). On bone: --bone-ink 11.21 for both. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.5em;
+  border: 2px dashed var(--text-muted);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.onBone {
+  border-color: var(--bone-ink);
+  color: var(--bone-ink);
+}

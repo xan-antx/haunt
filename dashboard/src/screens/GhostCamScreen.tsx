@@ -7,9 +7,11 @@ import { GhostCharacter } from '../components/ghosts/Ghosts';
 import { useAnnounce } from '../components/layout/LiveRegion';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
+import { ExpandButton, ExpandPanel } from '../components/Expand';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { RunErrorPanel } from '../components/RunErrorPanel';
+import { SampleTag } from '../components/SampleTag';
 import { ScreenIcon } from '../components/ScreenIcon';
 import { Screenshot } from '../components/Screenshot';
 import { StuckNotice } from '../components/StuckNotice';
@@ -27,6 +29,7 @@ import { SpokenPanel, ThoughtPanel } from './ghostcam/Panels';
 import styles from './ghostcam/GhostCam.module.css';
 
 export const PLAYBACK_INTERVAL_MS = 1500;
+export const FULL_REQUIREMENT = 'Full requirement';
 
 /** #/run/:runKey → step 1, replacing the URL. */
 export function RunRedirect() {
@@ -86,6 +89,15 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   const askParam = ask.open ? (ask.question ?? 'open') : null;
   const askPanelId = useId();
   const askButton = useRef<HTMLButtonElement>(null);
+
+  // "Full requirement" (Req 10.29): closed when the Ghost Cam opens.
+  const [requirementOpen, setRequirementOpen] = useState(false);
+  const requirementPanelId = useId();
+  const requirementButton = useRef<HTMLButtonElement>(null);
+  const closeRequirement = () => {
+    setRequirementOpen(false);
+    requirementButton.current?.focus();
+  };
   const firstQuestion = useRef<HTMLButtonElement>(null);
   const focusPanelOnOpen = useRef(false);
 
@@ -192,18 +204,43 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
             Ghost Cam replays this visit one step at a time, showing each page next to what{' '}
             {run.ghost === 'listener' ? `${ghost.name} heard` : `${ghost.name} was thinking`}.
           </ScreenIntro>
-          {/* Row 2: the requirement (ellipsised) and then the result, which is never cut off. */}
-          <p
-            className={`${styles.summaryRow} ${styles.requirementRow}`}
-            title={`Requirement: ${run.mission.requirement} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`}
-          >
-            <span className={styles.requirementText}>
-              Requirement: <span>{run.mission.requirement}</span>
-            </span>{' '}
-            <span className={styles.result}>
-              <ResultBadge result={run.result} /> <span>{resultSentence(run.ghost, run.result)}.</span>
-            </span>
-          </p>
+          {/* Row 2: the requirement on one ellipsised line with "Full requirement" to expand it
+              (Req 10.29), the Sample_Label for a sample (Req 24.2), then the result, which is
+              never cut off. The full text opens over the screenshot, so nothing moves. */}
+          <div className={styles.requirementWrap}>
+            <p
+              className={`${styles.summaryRow} ${styles.requirementRow}`}
+              title={`Requirement: ${run.mission.requirement} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`}
+            >
+              <span className={styles.requirementText}>
+                Requirement: <span>{run.mission.requirement}</span>
+              </span>{' '}
+              <ExpandButton
+                open={requirementOpen}
+                controls={requirementPanelId}
+                onToggle={() => setRequirementOpen(!requirementOpen)}
+                onClose={closeRequirement}
+                buttonRef={requirementButton}
+              >
+                {FULL_REQUIREMENT}
+              </ExpandButton>{' '}
+              <SampleTag run={run} />{' '}
+              <span className={styles.result}>
+                <ResultBadge result={run.result} /> <span>{resultSentence(run.ghost, run.result)}.</span>
+              </span>
+            </p>
+            <ExpandPanel
+              id={requirementPanelId}
+              open={requirementOpen}
+              label={FULL_REQUIREMENT}
+              placement="below"
+              onClose={closeRequirement}
+            >
+              <p>
+                <strong>Requirement:</strong> {run.mission.requirement}
+              </p>
+            </ExpandPanel>
+          </div>
           {/* Stacked mode only. */}
           <p className={styles.ghostDescription}>{ghost.description}</p>
           <p className={styles.siteLine}>Site: {run.site.name}</p>
@@ -247,7 +284,8 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
         </div>
       </div>
 
-      <StuckNotice run={run} step={step} />
+      {/* Keyed by step, so "Full details" closes when the step changes. */}
+      <StuckNotice key={step.n} run={run} step={step} />
 
       <div className={styles.controlsArea} data-cam-area="controls">
         <p className={styles.stepInfo}>

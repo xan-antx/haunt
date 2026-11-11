@@ -9,11 +9,13 @@ import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { runFilePath } from '../components/RunErrorPanel';
+import { SampleTag } from '../components/SampleTag';
 import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tour';
 import { useAllRuns } from '../data/hooks';
 import type { InvalidRun, Run } from '../data/types';
 import { formatDate, plural } from '../model/format';
 import { GHOST_ORDER, GHOSTS, moodFor, resultSentence } from '../model/ghosts';
+import { SAMPLE_LABEL, isSample } from '../model/origin';
 import { outcomeLine } from '../model/outcome';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
@@ -55,6 +57,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
                   <div className={styles.ghostResult}>
                     <p className={styles.outcome}>{outcomeLine(latest)}</p>
                     <ResultBadge result={latest.result} />
+                    <SampleTag run={latest} />
                   </div>
                   <p>
                     <Link to={stepPath(latest.key, 1)}>Watch {ghost.name} in the Ghost Cam</Link>
@@ -67,6 +70,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
                           <li key={run.key}>
                             <Link to={stepPath(run.key, 1)}>
                               {formatDate(run.startedAt)}: {resultSentence(run.ghost, run.result)}
+                              {isSample(run) && ` (${SAMPLE_LABEL})`}
                             </Link>
                           </li>
                         ))}
@@ -102,7 +106,7 @@ function RecentWalks({ runs }: { runs: Run[] }) {
           return (
             <li key={run.key} className={styles.recentItem}>
               <p className={styles.recentGhost}>
-                <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} />
+                <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <SampleTag run={run} />
               </p>
               <p className={styles.meta}>
                 <span>{run.site.name}</span>
@@ -115,7 +119,8 @@ function RecentWalks({ runs }: { runs: Run[] }) {
                   Watch {name} in the Ghost Cam
                   <span className="visually-hidden">
                     {' '}
-                    ({run.site.name}, {date})
+                    ({run.site.name}, {date}
+                    {isSample(run) && `, ${SAMPLE_LABEL}`})
                   </span>
                 </Link>
               </p>
@@ -163,7 +168,7 @@ function ResultCard({ run }: { run: Run }) {
           <p className={styles.resultTask}>Task: {run.mission.goal}</p>
           <p className={styles.resultHeadline}>{resultHeadline(run)}</p>
           <p className={styles.resultBadge}>
-            <ResultBadge result={run.result} />
+            <ResultBadge result={run.result} /> <SampleTag run={run} />
           </p>
           {step === null ? (
             <CandleButton lit={false} reason="This run has no steps, so there is nothing to watch.">

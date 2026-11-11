@@ -56,7 +56,14 @@ function expectedHeadline(run: Run): string {
 function expectedWatchStep(run: Run): number | null {
   if (run.steps.length === 0) return null;
   const ns = run.steps.map((s) => s.n);
-  if (run.result !== 'succeeded') return Math.max(...ns);
+  if (run.result !== 'succeeded') {
+    // Req 24.4: the first Blocking_Finding, a finding at the last step or any keyboard trap.
+    const last = Math.max(...ns);
+    const blocking = run.findings
+      .filter((f) => ns.includes(f.step) && (f.step === last || f.type === 'focus_trap'))
+      .map((f) => f.step);
+    return blocking.length > 0 ? Math.min(...blocking) : last;
+  }
   const matching = run.findings.map((f) => f.step).filter((n) => ns.includes(n));
   return matching.length > 0 ? Math.min(...matching) : run.steps[0]!.n;
 }

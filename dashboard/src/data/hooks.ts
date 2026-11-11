@@ -1,6 +1,7 @@
 // React hooks over the selected Run_Source. Screens load data only through these.
 
 import { createContext, createElement, useContext, useEffect, useState, type ReactNode } from 'react';
+import { splitRuns } from '../model/origin';
 import { selectRunSource, type RunSource } from './source';
 import type { InvalidRun, Run, RunIndex } from './types';
 
@@ -39,7 +40,14 @@ export function useRunIndex(): IndexState {
 export type AllRunsState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; runs: Run[]; invalid: InvalidRun[] };
+  | {
+      status: 'ready';
+      /** The runs every screen lists: all real runs, and samples only for ghosts with no real run (Req 24.1). */
+      runs: Run[];
+      /** Samples replaced by a real run of the same ghost. Only a link that names one opens it (Req 24.3). */
+      hidden: Run[];
+      invalid: InvalidRun[];
+    };
 
 /** Loads every run in the index. Valid runs and Invalid_Runs keep index order. */
 export function useAllRuns(): AllRunsState {
@@ -51,13 +59,14 @@ export function useAllRuns(): AllRunsState {
       .listRuns()
       .then(async (index) => {
         const loaded = await Promise.all(index.entries.map((entry) => source.loadRun(entry)));
-        const runs: Run[] = [];
+        const valid: Run[] = [];
         const invalid: InvalidRun[] = [];
         for (const item of loaded) {
-          if (item.ok) runs.push(item.run);
+          if (item.ok) valid.push(item.run);
           else invalid.push(item);
         }
-        if (live) setState({ status: 'ready', runs, invalid });
+        const { shown, hidden } = splitRuns(valid);
+        if (live) setState({ status: 'ready', runs: shown, hidden, invalid });
       })
       .catch((err: unknown) => {
         if (live) setState({ status: 'error', message: err instanceof Error ? err.message : String(err) });

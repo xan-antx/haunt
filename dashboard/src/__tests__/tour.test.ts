@@ -49,9 +49,10 @@ describe('buildTour with the samples (Req 22.1, 22.2, 22.11)', () => {
     expect(stops[5]!.body).toContain('Choose Map');
   });
 
-  it('says "was thinking" for Bebe, whose first step is the Ghost Cam stop', () => {
+  // Revised by Req 24.4: with no Listener run, the stop opens Bebe's run at its Watch_Step.
+  it('says "was thinking" for Bebe, whose Watch_Step is the Ghost Cam stop', () => {
     const bebe = buildTour([bebeRun()])!;
-    expect(bebe[1]!.path).toBe(`/run/${B}/step/1`);
+    expect(bebe[1]!.path).toBe(`/run/${B}/step/3`);
     expect(bebe[2]!.title).toBe('What Bebe was thinking');
     expect(bebe[2]!.body).toContain('what Bebe was thinking');
   });

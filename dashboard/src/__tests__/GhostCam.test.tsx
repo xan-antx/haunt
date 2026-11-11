@@ -49,7 +49,8 @@ describe('Ghost Cam panels', () => {
 
   it('shows the Placeholder when the screenshot fails to load', async () => {
     await openStep(LISTENER, 9);
-    const img = screen.getByRole('img', { name: 'Screenshot of /bill at step 9' });
+    // The alt text names the page in plain words, not by its path "/bill" (Req 24.8).
+    const img = screen.getByRole('img', { name: 'Screenshot of the bill page at step 9' });
     fireEvent.error(img);
     expect(screen.getByRole('img', { name: 'No screenshot for step 9' })).toBeInTheDocument();
     expect(screen.getByText('No screenshot for step 9')).toBeInTheDocument();

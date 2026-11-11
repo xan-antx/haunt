@@ -1,25 +1,40 @@
-/* Fixed three-line slot (4.5rem = 3 x 1.5rem), so the notice never moves other elements. */
+/* Fixed three-line slot (4.5rem = 3 x 1.5rem), so the notice never moves other elements.
+   The slot itself does not clip, so the "Full details" panel can open over the content above it;
+   the notice inside it clips its own lines. */
 .slot {
+  position: relative;
   height: 4.5rem;
   min-height: 4.5rem;
-  overflow: hidden;
 }
 
 .notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   height: 100%;
+  overflow: hidden;
   background: var(--surface);
   border-left: 6px solid var(--bone);
   border-radius: var(--radius);
   padding: 0 var(--space-4);
 }
 
-.notice p {
+.text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.text p {
   margin: 0;
   height: 1.5rem;
   line-height: 1.5rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.more {
+  line-height: 1.5rem;
 }
 
 /* Errored run: the amber warning style, never the failure red. The ⚠ icon and the text carry
@@ -34,4 +49,10 @@
 
 .lead {
   font-weight: 700;
+}
+
+.detail + .detail {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--text-muted);
 }

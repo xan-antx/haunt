@@ -17,12 +17,16 @@ describe('stuckNotice with the samples', () => {
     expect(notice).not.toBeNull();
     expect(notice!.lines[0]).toBe('The Listener got trapped here and gave up.');
     const finding = run.findings.find((f) => f.step === 9)!;
+    // The evidence is one readable sentence, so it is shown with a full stop added (Req 10.36).
     expect(notice!.lines).toEqual([
       'The Listener got trapped here and gave up.',
       `${FINDING_LABELS.focus_trap.label}: ${finding.title}`,
-      finding.evidence,
+      `${finding.evidence}.`,
     ]);
     expect(notice!.fullText).toBe(notice!.lines.join(' '));
+    expect(notice!.details).toEqual([
+      { label: FINDING_LABELS.focus_trap.label, title: finding.title, evidence: finding.evidence },
+    ]);
   });
 
   it('reports a plain problem at Listener step 7', () => {
@@ -68,7 +72,9 @@ describe('stuckNotice with the samples', () => {
     expect(notice!.lines[1]).toBe(
       `${FINDING_LABELS[base.type].label}: ${base.title} (+2 more at this step)`,
     );
-    expect(notice!.lines[2]).toBe(base.evidence);
+    expect(notice!.lines[2]).toBe(`${base.evidence}.`);
+    // The expandable details list all three findings in full.
+    expect(notice!.details.map((d) => d.title)).toEqual([base.title, 'Second problem', 'Third problem']);
   });
 
   it('shows the amber error notice on the last step of an errored run', () => {

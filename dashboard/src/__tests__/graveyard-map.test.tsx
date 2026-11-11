@@ -27,11 +27,17 @@ describe('Graveyard Map_View (Req 8, 9.7–9.9)', () => {
     expect(within(rooms).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['/', '/bill']);
 
     const spots = within(map).getAllByRole('link', { name: /open in Ghost Cam$/ });
+    // Only samples here, so every cold spot carries the Sample_Label, in its name and as text (Req 24.2).
     expect(spots.map((s) => s.getAttribute('aria-label'))).toEqual([
-      'The Listener waited 0.2 s at step 7 — open in Ghost Cam',
-      'The Listener waited 0.5 s at step 9 — open in Ghost Cam',
-      'Bebe waited 0.2 s at step 3 — open in Ghost Cam',
+      'The Listener waited 0.2 s at step 7 (Sample run) — open in Ghost Cam',
+      'The Listener waited 0.5 s at step 9 (Sample run) — open in Ghost Cam',
+      'Bebe waited 0.2 s at step 3 (Sample run) — open in Ghost Cam',
     ]);
+    // The visible label sits beside each link, so the link's visible text stays inside its name.
+    for (const spot of spots) {
+      expect(spot).not.toHaveTextContent('Sample run');
+      expect(spot.closest('li')).toHaveTextContent('Sample run');
+    }
     expect(spots[1]).toHaveAttribute('href', `/run/${L}/step/9`);
     expect(spots[2]).toHaveAttribute('href', `/run/${B}/step/3`);
     expect(screen.getByText('2 rooms')).toHaveAttribute('role', 'status');

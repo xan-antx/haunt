@@ -33,11 +33,14 @@ function contentSecurityPolicy(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ command, isPreview }) => ({
+export default defineConfig(({ command, isPreview, mode }) => ({
   plugins: [react(), contentSecurityPolicy()],
   // GitHub project page: production lives under /haunt/. `vite preview` serves that
   // production build, so it uses the same base. Dev keeps normal paths.
   base: command === 'build' || isPreview ? '/haunt/' : '/',
+  // `--mode e2e` builds and previews the fixed test runs from fixtures/runs/ (collected into
+  // .e2e/public/runs/ by `npm run build:e2e`), apart from the real build in dist/.
+  publicDir: mode === 'e2e' ? '.e2e/public' : 'public',
   server: {
     port: 3001,
     strictPort: true,
@@ -47,13 +50,13 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
   },
   build: {
-    outDir: 'dist',
+    outDir: mode === 'e2e' ? '.e2e/dist' : 'dist',
   },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     include: ['**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules/**', 'dist/**', 'e2e/**', 'test-results/**'],
+    exclude: ['node_modules/**', 'dist/**', '.e2e/**', 'e2e/**', 'test-results/**'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
   },
 }));

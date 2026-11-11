@@ -94,3 +94,23 @@
   border: 2px solid var(--spectral);
   box-shadow: 0 0 10px 2px var(--spectral);
 }
+
+.spotItem {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+/* The Sample_Label beside a sample's cold spot: --text on --surface 12.21, outline 6.92. It is
+   aria-hidden because the link's name already ends in "(Sample run)". */
+.sample {
+  color: var(--text);
+  font-weight: 700;
+  padding: 0 0.4em;
+  border: 2px dashed var(--text-muted);
+  border-radius: var(--radius);
+  font-size: 0.85em;
+  white-space: nowrap;
+}

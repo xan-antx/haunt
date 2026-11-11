@@ -43,7 +43,8 @@ export function SeanceRedirect() {
     return <Navigate replace to={askPath(target.runKey, target.step, 'open')} />;
   }
 
-  const run = state.runs.find((r) => r.key === runKey);
+  // A link that names a sample replaced by a real run still opens it (Req 24.3).
+  const run = [...state.runs, ...state.hidden].find((r) => r.key === runKey);
   if (!run) return <UnknownRunScreen />;
   const step = watchStep(run) ?? 1;
   return <Navigate replace to={askPath(run.key, step, isQuestionId(questionId) ? questionId : 'open')} />;

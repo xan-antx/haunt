@@ -59,7 +59,7 @@ describe('Ask_Panel in the Ghost Cam (Req 12)', () => {
 
     const board = within(panel).getByRole('region', { name: 'The Listener answers: Why did you give up?' });
     expect(board).toHaveAttribute('aria-live', 'polite');
-    expect(board).toHaveTextContent('I gave up at step 9 on /bill.');
+    expect(board).toHaveTextContent('I gave up at step 9 on the bill page.');
     expect(board).toHaveTextContent('At step 7, The pay button has no accessible name.');
   });
 

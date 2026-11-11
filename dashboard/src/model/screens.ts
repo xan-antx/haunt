@@ -4,7 +4,8 @@
 
 import type { Run } from '../data/types';
 import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath, type Route } from '../routes';
-import { startHereTarget } from './haunts';
+import { GHOST_ORDER } from './ghosts';
+import { ghostWatchTarget, startHereTarget } from './haunts';
 
 export type ScreenId = 'home' | 'ghostcam' | 'graveyard' | 'exorcise' | 'coverage';
 
@@ -32,10 +33,17 @@ export const GUIDED_PATH: readonly ScreenId[] = ['home', 'ghostcam', 'graveyard'
 
 export type ScreenDestinations = Record<ScreenId, string | null>;
 
-/** The Ghost Cam's Screen_Destination: the Start_Here_Step, else step 1 of the first run. */
+/**
+ * The Ghost Cam's Screen_Destination: the Start_Here_Step; else the next ghost in ghost order
+ * with a run, at its newest real run's Watch_Step (Req 24.4); else step 1 of the first run.
+ */
 export function ghostCamTarget(runs: Run[]): { runKey: string; step: number } | null {
   const start = startHereTarget(runs);
   if (start) return start;
+  for (const ghost of GHOST_ORDER) {
+    const target = ghostWatchTarget(runs, ghost);
+    if (target) return target;
+  }
   const first = runs[0];
   return first ? { runKey: first.key, step: first.steps[0]?.n ?? 1 } : null;
 }

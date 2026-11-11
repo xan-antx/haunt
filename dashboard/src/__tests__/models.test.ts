@@ -54,11 +54,13 @@ describe('haunts with the samples', () => {
     expect(startHereTarget(sampleRuns())).toEqual({ runKey: '2026-11-03-listener-pay-bill', step: 9 });
   });
 
-  it('falls back to the first finding, then to null', () => {
+  // Revised by Req 24.4: the newest Listener run at its Watch_Step, not its first finding.
+  it('falls back to the Watch_Step of the newest Listener run, then to null', () => {
     const noTrap = mustRun(derived.listenerAfterFix(), meta('a'));
     noTrap.findings = [noTrap.findings[0]!, { ...noTrap.findings[0]!, type: 'misclick', step: 4 }];
     noTrap.findings[0]!.type = 'unlabeled_button';
-    expect(startHereTarget([noTrap])).toEqual({ runKey: 'a', step: 4 });
+    // No Blocking_Finding: it gave up at its last step, 9, with no finding there.
+    expect(startHereTarget([noTrap])).toEqual({ runKey: 'a', step: 9 });
     expect(startHereTarget([bebeRun()])).toBeNull();
   });
 });
@@ -99,7 +101,7 @@ describe('séance with the samples', () => {
   it('answers why the Listener gave up', () => {
     expect(answerText(answer(listenerRun(), 'why-give-up'))).toBe(
       [
-        'I gave up at step 9 on /bill.',
+        'I gave up at step 9 on the bill page.',
         'At step 7, The pay button has no accessible name.',
         'At step 9, Cannot escape the payment confirmation dialog.',
       ].join('\n'),
@@ -110,10 +112,19 @@ describe('séance with the samples', () => {
     expect(answerText(answer(bebeRun(), 'why-give-up'))).toBe("I didn't give up. I finished at step 6: Payment received.");
   });
 
+  // Revised by Req 24.6: the findings at each stuck step, in plain words.
   it('answers where the Listener got stuck', () => {
     expect(answerText(answer(listenerRun(), 'where-stuck'))).toBe(
-      'On /bill at step 7, I waited 0.2 s.\nOn /bill at step 9, I waited 0.5 s.',
+      'At step 7 I found a button with no name.\nAt step 9 I got trapped in a pop-up.',
     );
+  });
+
+  it('says where a run with no finding at its last step gave up or stopped, by page name', () => {
+    const gaveUp = mustRun(derived.listenerAfterFix(), meta('g'));
+    gaveUp.findings = [];
+    expect(answerText(answer(gaveUp, 'where-stuck'))).toBe('At step 9 I gave up on the bill page.');
+    const errored = mustRun(derived.listenerNeverReachesBill(), meta('err'));
+    expect(answerText(answer(errored, 'where-stuck'))).toBe('At step 3 a technical error stopped me on the bill page.');
   });
 
   it('answers what Bebe heard and what would have helped', () => {

@@ -4,11 +4,14 @@ import type { GhostId, Run } from '../data/types';
 import { siteKey } from '../routes';
 import { byStartedAtDesc } from './format';
 import { GHOST_ORDER } from './ghosts';
+import { newestRun } from './origin';
+import { watchStep } from './results';
 
 export interface GhostSummary {
   ghost: GhostId;
   /** Most recent run first. */
   runs: Run[];
+  /** The newest real run, or the newest sample when the ghost has no real run here (Req 24.2). */
   latest: Run;
 }
 
@@ -37,7 +40,8 @@ export function groupHaunts(runs: Run[]): Haunt[] {
     const ghosts: GhostSummary[] = [];
     for (const ghost of GHOST_ORDER) {
       const ghostRuns = sorted.filter((r) => r.ghost === ghost);
-      if (ghostRuns.length > 0) ghosts.push({ ghost, runs: ghostRuns, latest: ghostRuns[0]! });
+      const latest = newestRun(ghostRuns, ghost);
+      if (latest) ghosts.push({ ghost, runs: ghostRuns, latest });
     }
     haunts.push({
       siteKey: siteKey(siteName),
@@ -62,20 +66,21 @@ export interface StartHere {
 }
 
 /**
- * 1) the most recent Listener run with a focus_trap finding → that finding's step
- * 2) else the most recent Listener run with any finding → its first finding's step
- * 3) else null (the Ghost Cam's destination then falls back to step 1 of the first run)
- * This is the Start_Here_Step: the Ghost Cam's Screen_Destination and the tour's Ghost Cam stop.
+ * The ghost's newest real run (or newest sample when it has no real run) at its Watch_Step, or
+ * null when the ghost has no run or that run has no steps (Req 24.4).
+ */
+export function ghostWatchTarget(runs: readonly Run[], ghost: GhostId): StartHere | null {
+  const run = newestRun(runs, ghost);
+  const step = run ? watchStep(run) : null;
+  return run && step !== null ? { runKey: run.key, step } : null;
+}
+
+/**
+ * The Start_Here_Step (Req 7.5, 7.6, revised by Req 24.4): The Listener's newest real run at the
+ * step of its first Blocking_Finding (its keyboard trap), by way of the Watch_Step. Null when
+ * there is no Listener run with steps; the Ghost Cam's destination then falls back as described
+ * in `ghostCamTarget`. This is the Ghost Cam's Screen_Destination and the tour's Ghost Cam stop.
  */
 export function startHereTarget(runs: Run[]): StartHere | null {
-  const listener = runs.filter((r) => r.ghost === 'listener').sort(byStartedAtDesc);
-  for (const run of listener) {
-    const trap = run.findings.find((f) => f.type === 'focus_trap');
-    if (trap) return { runKey: run.key, step: trap.step };
-  }
-  for (const run of listener) {
-    const first = [...run.findings].sort((a, b) => a.step - b.step)[0];
-    if (first) return { runKey: run.key, step: first.step };
-  }
-  return null;
+  return ghostWatchTarget(runs, 'listener');
 }

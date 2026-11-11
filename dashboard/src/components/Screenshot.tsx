@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useRunSource } from '../data/hooks';
 import type { FocusBox, Run, Step } from '../data/types';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { pageName } from '../model/sites';
 import styles from './Screenshot.module.css';
 
 /** Reference size for drawing a focus box over the Placeholder. */
@@ -67,7 +68,7 @@ export function Screenshot({ run, step }: { run: Run; step: Step }) {
           <img
             key={url}
             src={url}
-            alt={`Screenshot of ${step.page} at step ${step.n}`}
+            alt={`Screenshot of ${pageName(run.site.name, step.page)} at step ${step.n}`}
             className={styles.image}
             onLoad={(event) => {
               const img = event.currentTarget;

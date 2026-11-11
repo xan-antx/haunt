@@ -4,7 +4,10 @@ import { expect, test, type Page } from '@playwright/test';
 // First visit in 60 seconds (Req 21, 22, 23, 20.1–20.5, 6.10, 12.10): results first on Home, the
 // guided tour by keyboard, the folded Séance and Haunted Map, old links, and the calmer menu.
 
+// The suite runs against fixtures/runs/ (see playwright.config.ts): the real Listener run, which
+// hides the Listener sample from every list, and the Bebe sample, labelled "Sample run".
 const ORIGIN = 'http://localhost:3001';
+const REAL = '2026-11-10T1822Z-listener-pay-bill';
 const L = '2026-11-03-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
 
@@ -36,6 +39,10 @@ test.describe('results first on Home', () => {
     await expect(results).toBeVisible();
     await expect(results.getByText("The Listener got trapped in a pop-up and couldn't pay.")).toBeVisible();
     await expect(results.getByText("Bebe managed to pay, but found text that wasn't translated.")).toBeVisible();
+    // Real runs win; the Bebe card still shows its sample, labelled (Req 24.1, 24.2).
+    const [listenerCard, bebeCard] = [results.getByRole('article').nth(0), results.getByRole('article').nth(1)];
+    await expect(listenerCard.getByText('Sample run', { exact: true })).toHaveCount(0);
+    await expect(bebeCard.getByText('Sample run', { exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: "What's in here" })).toHaveCount(0);
 
     // The results heading starts within the first screen, so a first-time visitor sees it at once.
@@ -50,8 +57,9 @@ test.describe('results first on Home', () => {
 
   test('"Watch it happen" opens the Ghost Cam at the right step with focus on its h1', async ({ page }) => {
     await open(page, '#/');
-    await page.getByRole('link', { name: 'Watch it happen: The Listener at step 9' }).click();
-    await expect(page).toHaveURL(url(`#/run/${L}/step/9`));
+    // The newest real Listener run at its keyboard trap (Req 24.4).
+    await page.getByRole('link', { name: 'Watch it happen: The Listener at step 20' }).click();
+    await expect(page).toHaveURL(url(`#/run/${REAL}/step/20`));
     await expect(page.locator('main h1')).toBeFocused();
     await page.goBack();
     await page.getByRole('link', { name: 'Watch it happen: Bebe at step 3' }).click();
@@ -61,10 +69,10 @@ test.describe('results first on Home', () => {
 
 const STOPS: { title: string; hash: string }[] = [
   { title: 'What the ghosts found', hash: '#/' },
-  { title: 'What the page looked like', hash: `#/run/${L}/step/9` },
-  { title: 'What The Listener heard', hash: `#/run/${L}/step/9` },
-  { title: 'Where it got stuck', hash: `#/run/${L}/step/9` },
-  { title: 'Every step of the visit', hash: `#/run/${L}/step/9` },
+  { title: 'What the page looked like', hash: `#/run/${REAL}/step/20` },
+  { title: 'What The Listener heard', hash: `#/run/${REAL}/step/20` },
+  { title: 'Where it got stuck', hash: `#/run/${REAL}/step/20` },
+  { title: 'Every step of the visit', hash: `#/run/${REAL}/step/20` },
   { title: 'Every problem in one place', hash: '#/graveyard' },
   { title: 'Before and after a fix', hash: '#/exorcise' },
   { title: 'Which requirements people can reach', hash: '#/coverage' },
@@ -236,17 +244,33 @@ test.describe('old links open the right place', () => {
   });
 
   test('a Séance answer opens the Ghost Cam with the Ask panel on that answer', async ({ page }) => {
-    await open(page, `#/seance/${L}/why-give-up`);
-    await expect(page).toHaveURL(url(`#/run/${L}/step/9?ask=why-give-up`));
+    await open(page, `#/seance/${REAL}/why-give-up`);
+    await expect(page).toHaveURL(url(`#/run/${REAL}/step/20?ask=why-give-up`));
     const panel = page.getByRole('region', { name: 'Ask The Listener' });
     await expect(panel).toBeVisible();
-    await expect(panel).toContainText('I gave up at step 9 on /bill.');
+    // A page name, not the path "/" (Req 24.8).
+    await expect(panel).toContainText('I gave up at step 20 on the bill page.');
+  });
+
+  test('a Séance link to the hidden Listener sample still opens it', async ({ page }) => {
+    await open(page, `#/seance/${L}/why-give-up`);
+    await expect(page).toHaveURL(url(`#/run/${L}/step/9?ask=why-give-up`));
+    await expect(page.getByRole('region', { name: 'Ask The Listener' })).toContainText(
+      'I gave up at step 9 on the bill page.',
+    );
   });
 
   test('the Séance opens the Ghost Cam destination with the Ask panel open', async ({ page }) => {
     await open(page, '#/seance');
-    await expect(page).toHaveURL(url(`#/run/${L}/step/9?ask=open`));
+    await expect(page).toHaveURL(url(`#/run/${REAL}/step/20?ask=open`));
     await expect(page.getByRole('region', { name: 'Ask The Listener' })).toContainText('The Listener is listening');
+  });
+
+  test('"Where did you get stuck?" names the findings at each stuck step', async ({ page }) => {
+    await open(page, `#/run/${REAL}/step/20?ask=where-stuck`);
+    const board = page.getByRole('region', { name: 'The Listener answers: Where did you get stuck?' });
+    await expect(board).toContainText('At step 12 I found a button with no name.');
+    await expect(board).toContainText("At step 20 I got trapped in the 'Protect your payment' dialog.");
   });
 });
 
@@ -265,14 +289,14 @@ test.describe('the Ask panel keeps the Ghost Cam on one screen', () => {
   }
 
   test('opening it moves nothing, and it sits exactly over the panel area', async ({ page }) => {
-    await open(page, `#/run/${L}/step/9`);
+    await open(page, `#/run/${REAL}/step/20`);
     const closed = await areaBoxes(page);
     await page.getByRole('button', { name: 'Ask this ghost' }).click();
     const panel = page.getByRole('region', { name: 'Ask The Listener' });
     await expect(panel).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Why did you give up?' })).toBeFocused();
     await panel.getByRole('button', { name: 'Why did you give up?' }).click();
-    await expect(page).toHaveURL(url(`#/run/${L}/step/9?ask=why-give-up`));
+    await expect(page).toHaveURL(url(`#/run/${REAL}/step/20?ask=why-give-up`));
     const opened = await areaBoxes(page);
     const innerHeight = await page.evaluate(() => window.innerHeight);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
@@ -290,7 +314,7 @@ test.describe('the Ask panel keeps the Ghost Cam on one screen', () => {
     await page.keyboard.press('Escape');
     await expect(panel).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Ask this ghost' })).toBeFocused();
-    await expect(page).toHaveURL(url(`#/run/${L}/step/9`));
+    await expect(page).toHaveURL(url(`#/run/${REAL}/step/20`));
   });
 });
 

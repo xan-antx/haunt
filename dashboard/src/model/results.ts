@@ -75,9 +75,29 @@ export function resultHeadline(run: Run): string {
   }
 }
 
-/** Watch_Step (Req 21.5): the step "Watch it happen" opens. Null when there are no steps. */
+/**
+ * Blocking_Findings (Req 24.4): in a run that did not succeed, the findings that stopped the
+ * ghost. These are the findings at its last step, where it stopped, and every `focus_trap`
+ * finding, because a keyboard trap leaves no way on. Only findings at a step of the run count.
+ * A succeeded run has none. Earliest step first, keeping file order for ties.
+ */
+export function blockingFindings(run: Run): Finding[] {
+  if (run.result === 'succeeded' || run.steps.length === 0) return [];
+  const lastN = lastStepN(run);
+  const steps = new Set(run.steps.map((s) => s.n));
+  return byStep(run.findings).filter((f) => steps.has(f.step) && (f.step === lastN || f.type === 'focus_trap'));
+}
+
+/**
+ * Watch_Step (Req 21.5, revised by Req 24.4): the step "Watch it happen" opens. Null when there
+ * are no steps. The step of the first Blocking_Finding; else the last step of a `gave_up` or
+ * `error` run; else, for a `succeeded` run, its earliest finding at a step of the run, or its
+ * first step.
+ */
 export function watchStep(run: Run): number | null {
   if (run.steps.length === 0) return null;
+  const blocking = blockingFindings(run)[0];
+  if (blocking) return blocking.step;
   if (run.result !== 'succeeded') return lastStepN(run);
   const steps = new Set(run.steps.map((s) => s.n));
   const finding = byStep(run.findings).find((f) => steps.has(f.step));

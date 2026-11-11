@@ -16,7 +16,8 @@ Run these in `dashboard/`:
 | `npm run preview` | Serve the built `dist/` at <http://localhost:3001> |
 | `npm test` | Unit, component, axe-core and property tests (Vitest) |
 | `npm run test:properties` | Only the fast-check property tests |
-| `npm run test:e2e` | Playwright checks against the built site (run `npx playwright install chromium` once first) |
+| `npm run test:e2e` | Playwright checks against a build of the fixed test runs in `fixtures/runs/` (run `npx playwright install chromium` once first, and make sure nothing is listening on port 3001) |
+| `npm run build:e2e` / `npm run preview:e2e` | Build and serve only `fixtures/runs/`, into `.e2e/` (used by `test:e2e`; `dist/` and `public/runs/` are untouched) |
 | `npm run collect-runs` | Only the collect step |
 
 The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev` and `preview` stop with an error instead of picking another port.
@@ -31,6 +32,10 @@ Before `dev` and `build`, `scripts/collect-runs.ts` does this:
 4. Validates each file against `contract/run-format.md` and writes `public/runs/index.json`.
 
 It only reads `runs/` and never writes there. A file that fails validation is listed under **Restless files** on Home, with every problem in plain words. A later file with a `runId` that is already used is marked as a duplicate. `public/runs/` is generated and ignored by git.
+
+Real runs win over samples. Once a ghost has a real run (anywhere under `runs/` except `runs/samples/`), its samples are left out of every list; a link that names one still opens it. Samples of ghosts with no real run yet stay, labelled **Sample run**.
+
+The tests never read the real runs, so adding a run doesn't change them. Unit tests import `runs/samples/` and `fixtures/runs/`; the Playwright suite builds and serves only `fixtures/runs/` (see its README).
 
 The built site needs a static file host such as `npm run preview` or GitHub Pages. Opening `dist/index.html` from `file://` does not work, because browsers block module scripts and `fetch` there.
 
@@ -57,15 +62,16 @@ Old links still work. Each one replaces itself with the place that holds its con
 | Old link | Opens |
 |---|---|
 | `#/haunt/<siteKey>/map?ghost=<ghost>` | `#/graveyard?site=<siteKey>&ghost=<ghost>&view=map` |
-| `#/seance` | The Ghost Cam's default step (The Listener's step 9 with the samples) with `?ask=open` |
-| `#/seance/<runKey>/<question>` | That run's key step (its last step, or for a run that made it through, its first problem) with `?ask=<question>` |
+| `#/seance` | The Ghost Cam's default step (The Listener's newest real run at its keyboard trap, step 20 today) with `?ask=open` |
+| `#/seance/<runKey>/<question>` | That run's key step (where the ghost was blocked, else its last step, or for a run that made it through, its first problem) with `?ask=<question>` |
 
-Example links with the sample runs:
+Example links:
 
-- The Listener trapped in the payment dialog: <http://localhost:3001/#/run/2026-11-03-listener-pay-bill/step/9>
-- Bebe finding untranslated text: <http://localhost:3001/#/run/2026-11-03-bebe-pay-bill/step/3>
+- The Listener trapped in the "Protect your payment" dialog (real run): <http://localhost:3001/#/run/2026-11-10T1822Z-listener-pay-bill/step/20>
+- Asking The Listener where it got stuck: <http://localhost:3001/#/run/2026-11-10T1822Z-listener-pay-bill/step/20?ask=where-stuck>
+- Bebe finding untranslated text (sample run): <http://localhost:3001/#/run/2026-11-03-bebe-pay-bill/step/3>
 - The Graveyard map with fog for The Phantom: <http://localhost:3001/#/graveyard?site=lantern-bills-demo&ghost=phantom&view=map>
-- Asking The Listener why it gave up: <http://localhost:3001/#/run/2026-11-03-listener-pay-bill/step/9?ask=why-give-up>
+- The Listener sample (hidden from lists now, still opens): <http://localhost:3001/#/run/2026-11-03-listener-pay-bill/step/9>
 
 Home opens with what the ghosts found, one card per ghost with a "Watch it happen" button. "Take the 60-second tour" walks through the results, the Ghost Cam, the Graveyard, Exorcise and Spec Coverage; Escape or Skip leaves it at any time.
 

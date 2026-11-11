@@ -538,6 +538,59 @@ These tasks implement the fourth amendment (design sections "Amendment: equal si
   - Unit: `siteAbout` returns the Lantern Bills entry and null for other names; Home shows the Site_About sentence and link after the results h2; the Exorcise notice shows the samples-only sentence only while every Run comes from `runs/samples/`
   - _Requirements: 7.29, 7.30, 9.10, 9.11, 13.11, 20.10, 21.9, 21.10_
 
+## Fifth amendment tasks: real runs win
+
+These tasks implement Req 24 and the criteria marked "(Revised in the fifth amendment)" or "(Added in the fifth amendment)" in Req 7, 10, 12, 18 and 21 (design sections "Amendment: real runs win" and "Real runs and plain words (fifth amendment)"). They change only `dashboard/` and the spec. `runs/` and `runs/samples/` are unchanged. Where a test asserted the old behaviour (a page path in a sentence, the old "Where did you get stuck?" wording, the Listener sample as the Start_Here_Step), it is rewritten to assert the new requirement with the same or stricter checks; no test is weakened or deleted.
+
+- [x] 53. Real runs win
+  - [x] 53.1 Write `src/model/origin.ts` (`SAMPLE_LABEL`, `isSample`, `splitRuns`, `byRealThenNewest`, `newestRun`); `useAllRuns` returns `runs` (shown) and `hidden`
+    - _Requirements: 24.1, 24.2_
+  - [x] 53.2 `groupHaunts` picks `latest` with `newestRun`; `buildCoverage` orders each ghost's runs real first and takes the requirement text from the newest real run
+    - _Requirements: 21.2, 24.2, 14.2_
+  - [x] 53.3 `SampleTag` component and CSS; add it to the Result_Cards, haunt card rows and earlier-run links, Recent ghost walks, the Ghost Cam requirement row, Tombstones, Map_View Cold_Spots (and their names), Exorcise choices and summaries, and Coverage links
+    - _Requirements: 24.2, 18.5, 18.9_
+  - [x] 53.4 Hidden_Samples still open by URL: `SeanceRedirect` also looks in `hidden`; `ExorciseScreen` adds a named Hidden_Sample to its list; `useRun` already reads the whole index
+    - _Requirements: 24.3_
+
+- [x] 54. Blocking_Findings
+  - `blockingFindings` and the revised `watchStep` in `results.ts`; `ghostWatchTarget` and `startHereTarget` in `haunts.ts`; the Phantom and Bebe fallback in `ghostCamTarget`
+  - Update Property 14's oracle and the Start_Here fallback and Bebe tour stop unit tests
+  - _Requirements: 7.5, 7.6, 21.5, 22.1, 24.4_
+
+- [x] 55. Plain words
+  - [x] 55.1 `stuck` and `summary` phrases in `FINDING_LABELS`; `src/model/findingWords.ts` (`trapPlace`, `stuckPhrase`, `evidenceSentence`)
+    - _Requirements: 9.4, 10.36, 12.5_
+  - [x] 55.2 `pageNames` and `pageName` in `sites.ts`; use it in "Why did you give up?", "Where did you get stuck?", the Exorcise "Not reached" note and the screenshot `alt`
+    - _Requirements: 24.8_
+  - [x] 55.3 Rewrite "Where did you get stuck?" in `seance.ts`
+    - _Requirements: 12.3, 12.5, 12.9_
+
+- [x] 56. One line, expandable
+  - [x] 56.1 `components/Expand.tsx` (`ExpandButton`, `ExpandPanel`) and CSS
+    - _Requirements: 10.29, 10.36, 18.1, 18.2_
+  - [x] 56.2 Run_Summary: the requirement on one line at every size, "Full requirement" opening under it; fit-mode row no longer clips the focus ring
+    - _Requirements: 10.24, 10.29_
+  - [x] 56.3 Stuck_Notice: `details` in `stuckNotice()`, the Evidence_Sentence as line 3, "Full details" opening above the slot, keyed by step; update Property 13's oracle and the notice unit tests
+    - _Requirements: 10.30, 10.31, 10.36_
+
+- [x] 57. Fixed test data
+  - [x] 57.1 `dashboard/fixtures/runs/` with copies of both samples and the first real run (no screenshots) and a README; `src/__tests__/fixtures/real.ts`; `realAndSampleFiles()` in `helpers.tsx`
+    - _Requirements: 24.9_
+  - [x] 57.2 `--runs` and `--out` in `scripts/collect-runs.ts`; `build:e2e` and `preview:e2e` scripts; `mode === 'e2e'` in `vite.config.ts` (`.e2e/public`, `.e2e/dist`); Playwright `webServer` uses them; `.e2e/` in `.gitignore` and the Vitest exclude
+    - _Requirements: 24.9, 1.4_
+  - [x] 57.3 Write `src/__tests__/realRuns.test.tsx` and update the unit tests listed in the design's "Fifth amendment: fixed test data and new tests"
+    - _Requirements: 24.1–24.9, 10.29, 10.36, 12.5_
+  - [x] 57.4 Point the Playwright specs at the Fixture_Runs (the real run's step 20 for The Listener) and add the new checks
+    - _Requirements: 10.24, 10.29, 10.36, 18.10, 24.1–24.4_
+
+- [x] 58. Update the spec and the README
+  - `requirements.md` (Requirement 24, the Glossary and the revised criteria), `design.md` and this file; `dashboard/README.md` (fixtures, `build:e2e`, links to the real run)
+
+- [x] 59. Verify
+  - `npm run build` and `npm test` in `dashboard/`; confirm nothing is listening on port 3001; run `npm run test:e2e` once
+  - Result: the full run passed 149 of 150. The axe scan of the Graveyard Map view found `label-content-name-mismatch`, because the "Sample run" text was inside a Cold_Spot link whose `aria-label` ends "— open in Ghost Cam". The label moved beside the link (`aria-hidden`, the name keeps " (Sample run)"), and the Map view, Old_Link, reflow and Nav_Fog checks then passed (12 of 12)
+  - _Requirements: 1.4, 18.10, 24.9_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2, 38.2, 39.2) are required.

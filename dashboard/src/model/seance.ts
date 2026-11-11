@@ -5,7 +5,8 @@ import type { Run } from '../data/types';
 import type { QuestionId } from '../routes';
 import { runColdSpots } from './coldSpots';
 import { FINDING_LABELS } from './findingLabels';
-import { formatSeconds } from './format';
+import { stuckPhrase } from './findingWords';
+import { pageName } from './sites';
 
 export type AnswerPart =
   | { kind: 'text'; text: string }
@@ -35,7 +36,9 @@ function whyGiveUp(run: Run): AnswerPart[][] {
   const last = run.steps[run.steps.length - 1]!;
   switch (run.result) {
     case 'gave_up': {
-      const lines: AnswerPart[][] = [[text('I gave up at '), cite(last.n), text(` on ${last.page}.`)]];
+      const lines: AnswerPart[][] = [
+        [text('I gave up at '), cite(last.n), text(` on ${pageName(run.site.name, last.page)}.`)],
+      ];
       const before = run.findings.filter((f) => f.step <= last.n).sort((a, b) => a.step - b.step);
       for (const f of before) lines.push([text('At '), cite(f.step), text(`, ${stripEnd(f.title)}.`)]);
       return lines;
@@ -47,15 +50,31 @@ function whyGiveUp(run: Run): AnswerPart[][] {
   }
 }
 
+/** "a", "a and b", "a, b and c". */
+function joinPhrases(phrases: string[]): string {
+  if (phrases.length <= 1) return phrases.join('');
+  return `${phrases.slice(0, -1).join(', ')} and ${phrases[phrases.length - 1]}`;
+}
+
+/**
+ * One line per Cold_Spot, in step order, naming in plain words what the ghost found there
+ * (Req 12.5, revised by Req 24.6): "At step 12 I found a button with no name." A Cold_Spot with
+ * no finding is where the ghost gave up or a technical error stopped it, on its Page_Name.
+ */
 function whereStuck(run: Run): AnswerPart[][] {
   const spots = runColdSpots(run);
   if (spots.length === 0) return [[text('I never got stuck.')]];
   const pageOf = new Map(run.steps.map((s) => [s.n, s.page]));
-  return spots.map((spot) => [
-    text(`On ${pageOf.get(spot.step)} at `),
-    cite(spot.step),
-    text(`, I waited ${formatSeconds(spot.waitMs)}.`),
-  ]);
+  return spots.map((spot) => {
+    const found = run.findings.filter((f) => f.step === spot.step);
+    if (found.length > 0) {
+      return [text('At '), cite(spot.step), text(` I ${joinPhrases(found.map((f) => stuckPhrase(run, f)))}.`)];
+    }
+    const page = pageName(run.site.name, pageOf.get(spot.step) ?? '');
+    return spot.reason === 'error'
+      ? [text('At '), cite(spot.step), text(` a technical error stopped me on ${page}.`)]
+      : [text('At '), cite(spot.step), text(` I gave up on ${page}.`)];
+  });
 }
 
 function whatHeard(run: Run): AnswerPart[][] {

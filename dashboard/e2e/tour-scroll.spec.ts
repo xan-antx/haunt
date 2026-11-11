@@ -5,14 +5,15 @@ import { expect, test, type Page } from '@playwright/test';
 // screen), the callout is fully on screen, and the callout does not cover the highlight.
 
 const ORIGIN = 'http://localhost:3001';
-const L = '2026-11-03-listener-pay-bill';
+// The tour's Ghost Cam stop: the real Listener run from fixtures/runs/ at its keyboard trap.
+const REAL = '2026-11-10T1822Z-listener-pay-bill';
 
 const STOPS: { title: string; hash: string }[] = [
   { title: 'What the ghosts found', hash: '#/' },
-  { title: 'What the page looked like', hash: `#/run/${L}/step/9` },
-  { title: 'What The Listener heard', hash: `#/run/${L}/step/9` },
-  { title: 'Where it got stuck', hash: `#/run/${L}/step/9` },
-  { title: 'Every step of the visit', hash: `#/run/${L}/step/9` },
+  { title: 'What the page looked like', hash: `#/run/${REAL}/step/20` },
+  { title: 'What The Listener heard', hash: `#/run/${REAL}/step/20` },
+  { title: 'Where it got stuck', hash: `#/run/${REAL}/step/20` },
+  { title: 'Every step of the visit', hash: `#/run/${REAL}/step/20` },
   { title: 'Every problem in one place', hash: '#/graveyard' },
   { title: 'Before and after a fix', hash: '#/exorcise' },
   { title: 'Which requirements people can reach', hash: '#/coverage' },

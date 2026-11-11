@@ -52,7 +52,8 @@ describe('Exorcise', () => {
       expect.stringContaining('Not reached'),
       expect.stringContaining('Not reached'),
     ]);
-    expect(screen.getAllByText(/never got as far as \/bill/)).toHaveLength(2);
+    // The sentence names the page in plain words, not by its path (Req 24.8).
+    expect(screen.getAllByText(/never got as far as the bill page/)).toHaveLength(2);
     expect(screen.queryByText('Exorcised')).not.toBeInTheDocument();
   });
 

@@ -82,6 +82,22 @@ This amendment comes from a read-only layout and copy audit of `dashboard/`. It 
 | Lantern Bills | Never explained | A Site_About sentence and "Try Lantern Bills yourself" link under the Results_Section heading | Active copy |
 | Developer's loop | "Coming soon: live ghosts are not connected yet"; three "How Haunt works" steps; Exorcise copy that does not mention fixing code | Honest copy about recorded runs, a fourth step about fixing code and running again, and Exorcise copy that describes fix → re-run → compare | Active copy |
 
+### Amendment: real runs win (fifth amendment, Req 24 and the revised Req 7.5, 7.6, 10.29, 10.36, 12.5, 18.10, 21.2, 21.5)
+
+The engine wrote the first real run, `runs/lantern-bills/2026-11-10T1822Z-listener-pay-bill/`. This amendment was written after reading the current code. Details are in "Real runs and plain words (fifth amendment)" below.
+
+| Area | Today | Change | Section |
+|---|---|---|---|
+| Which runs are shown | `useAllRuns` returns every valid run, samples included. The real Listener run wins on Home only because its `startedAt` is newer | `splitRuns` in `src/model/origin.ts` hides the Hidden_Samples. `useAllRuns` returns `runs` (shown) and `hidden`. Picking one run per ghost uses `newestRun`, real first, whatever the dates | Origin |
+| Sample_Label | None | `SampleTag` ("Sample run", dashed outline) on every place a sample is shown | Origin |
+| Old links to a hidden sample | n/a | The Ghost Cam (`useRun`), the Séance Old_Link and Exorcise URLs still open it | Origin |
+| Watch_Step and Start_Here_Step | Watch_Step is the last step of a gave-up run; Start_Here_Step is the first `focus_trap` of any recent Listener run | `blockingFindings(run)` in `results.ts`; the Watch_Step is the first Blocking_Finding's step; the Start_Here_Step and the Ghost Cam's fallback use `ghostWatchTarget` (newest real run of a ghost at its Watch_Step) | Blocking |
+| "Where did you get stuck?" | "On / at step 20, I waited 0.3 s." | "At step 20 I got trapped in the 'Protect your payment' dialog.", from a new `stuck` phrase per finding type and `trapPlace` in `src/model/findingWords.ts` | Plain words |
+| Page paths in sentences | "I gave up at step 9 on /bill.", "never got as far as /bill", "Screenshot of / at step 1" | `pageName(siteName, page)` in `sites.ts`, with a `pageNames` entry for Lantern Bills ("/" is the bill page) | Plain words |
+| Run_Summary requirement | One ellipsised line in fit mode only; wraps in full in stacked mode; full text only in `title` | One ellipsised line at every size, and a "Full requirement" disclosure that opens over the screenshot | Expand |
+| Stuck_Notice evidence | Line 3 is the raw evidence, cut with an ellipsis (the real run's evidence is 900 characters of selectors and quotes) | Line 3 is the Evidence_Sentence; "Full details" opens every finding at the step in full, over the content above the slot | Expand |
+| Test data | Unit tests import `runs/samples/`; the e2e build collects the whole `runs/` folder, so every new real run changes what Playwright sees | `dashboard/fixtures/runs/` holds copies of both samples and of the first real run. `npm run build:e2e` collects only that folder into `.e2e/public/runs/` and builds `.e2e/dist/`; Playwright serves it with `npm run preview:e2e` | Testing |
+
 ## Architecture
 
 ```mermaid
@@ -187,6 +203,8 @@ Runs as `predev` and `prebuild`. Steps:
 5. Write `public/runs/index.json`. Print one warning line per invalid file. Exit 0 unless `runs/` itself is unreadable.
 
 It only reads from `runs/`. It never writes there.
+
+(Fifth amendment) The CLI takes `--runs <dir>` and `--out <dir>`, both relative to `dashboard/`. Without them it reads `../runs` and writes `public/runs` as before. `npm run build:e2e` runs it with `--runs fixtures/runs --out .e2e/public/runs`, then `tsc -b && vite build --mode e2e`. In `vite.config.ts`, mode `e2e` sets `publicDir: '.e2e/public'` and `build.outDir: '.e2e/dist'`, so `vite preview --mode e2e` serves the fixture build and the real `dist/` and `public/runs/` are untouched. `.e2e/` is git-ignored and excluded from Vitest.
 
 ### Property test runner (amendment, Req 1.8–1.11)
 
@@ -301,6 +319,8 @@ export function selectRunSource(): RunSource;   // the only place a source is ch
 `StaticRunSource` fetches `./runs/index.json` and `./runs/<folder>/run.json` relative to `import.meta.env.BASE_URL`. A module-level `Map<key, Promise<LoadedRun>>` caches each file once. Fetch or parse failures become `LoadedRun { ok: false }` with a message such as "Could not read run.json (HTTP 404)".
 
 Hooks: `useRunIndex()`, `useAllRuns()` (loads every entry, returns `{ runs: Run[]; invalid: InvalidRun[]; status }`), `useRun(key)`. A later `LiveRunSource` implements the same interface; no screen changes.
+
+(Fifth amendment) `useAllRuns()` passes the valid runs through `splitRuns` and returns `{ runs, hidden, invalid }`: `runs` holds every Real_Run and the Sample_Runs of ghosts with no Real_Run, in index order, and `hidden` holds the Hidden_Samples. Every screen lists `runs` only. `useRun(key)` still looks the key up in the whole Run_Index, so a URL that names a Hidden_Sample opens it.
 
 ### Routes (`src/routes.ts`)
 
@@ -869,6 +889,65 @@ The e2e test for the wide Home layout walks up from a card's article to the firs
 - Exorcise Screen_Intro and Tour stop 7: see their tables above.
 - Exorcise "No after run yet" notice: "No after run yet for {ghost}." (unchanged, from the bugfix spec) then "Fix the problem in your app's code, then run {ghost} on the same mission again, and the new run shows up here as the after run." While every Run has `origin === 'samples'`, it adds "Re-running ghosts is coming soon. This demo only has sample runs, so there is no after run to show yet." Once real runs from `runs/` exist, that sentence goes away, because re-running then works.
 
+### Real runs and plain words (fifth amendment)
+
+**Origin (Req 24.1–24.3).** `src/model/origin.ts`:
+
+```ts
+export const SAMPLE_LABEL = 'Sample run';
+export function isSample(run: Run): boolean;                       // origin === 'samples'
+export function splitRuns(runs: readonly Run[]): { shown: Run[]; hidden: Run[] };
+export function byRealThenNewest(a: Run, b: Run): number;          // real first, then newest
+export function newestRun(runs: readonly Run[], ghost: GhostId): Run | null;
+```
+
+`splitRuns` hides a sample when any Real_Run of the same ghost exists, on any site. That keeps one rule for every screen and matches "samples are shown only for ghosts that have no real run yet". `groupHaunts` sets `GhostSummary.latest` with `newestRun`, and `buildCoverage` orders each ghost's runs with `byRealThenNewest` and takes its row's requirement text from the newest Real_Run. With `splitRuns` in the hook those orderings only matter for direct calls, but they keep "real runs always win" true in the models themselves.
+
+`components/SampleTag.tsx` renders the Sample_Label for a sample and nothing for a real run: bold text in a 2 px dashed `--text-muted` outline (`--text` on `--surface` 12.21, on `--bg` 14.26; the outline 6.92 and 8.09), or `--bone-ink` for both on a Tombstone (11.21). These are existing token pairs, so the contrast test needs no new pair. It appears next to the result badge on Result_Cards and haunt card rows, after the ghost badge in "Recent ghost walks", in the Ghost_Cam's requirement row, under the ghost badge on Tombstones, beside Map_View Cold_Spot links, and next to the Exorcise summary badges. A Cold_Spot link's name gains " (Sample run)", and the visible label sits outside the link with `aria-hidden`, because visible text inside a link whose `aria-label` ends differently fails axe's `label-content-name-mismatch` (WCAG 2.5.3). Links and option text that cannot hold a component get " (Sample run)" or " · Sample run" (earlier-run links, Recent walks' hidden link text, Coverage links, Exorcise run choices).
+
+Hidden_Samples by URL: `GhostCamScreen` already loads through `useRun`. `SeanceRedirect` looks the key up in `runs` and then `hidden`. `ExorciseScreen` adds a Hidden_Sample named by the path or `?before=` to its run list, so the pickers can show it as the selected value; the default pair and the "only sample runs" sentence still use the shown runs.
+
+**Blocking (Req 24.4, 7.5, 7.6, 21.5).** In `results.ts`:
+
+```ts
+/** Findings at a step of the run that stopped the ghost: at the last step, or any focus_trap.
+    Empty for a succeeded run. Earliest step first, file order for ties. */
+export function blockingFindings(run: Run): Finding[];
+export function watchStep(run: Run): number | null;  // first Blocking_Finding, else the old rules
+```
+
+A `focus_trap` counts anywhere in a run that did not succeed, because a trap leaves no way on: if the engine adds a final step after the trap, "Watch it happen" still opens the trap. In a succeeded run nothing blocked the ghost, so the old earliest-finding rule stays. `haunts.ts` gains `ghostWatchTarget(runs, ghost)`: the ghost's `newestRun` at its `watchStep`, or null. `startHereTarget` is `ghostWatchTarget(runs, 'listener')`, and `ghostCamTarget` falls back to The Phantom and then Bebe the same way before step 1 of the first run. With the real run the Start_Here_Step, the tour's stops 2 to 5 and the Listener's "Watch it happen" all open `#/run/2026-11-10T1822Z-listener-pay-bill/step/20`.
+
+**Plain words (Req 12.5, 24.8, 10.36).** `FINDING_LABELS` gains two phrases per type, typed as part of `FindingLabel`, so a missing one fails to compile:
+
+| Type | `stuck` (after "At step n I") | `summary` (Evidence_Sentence fallback) |
+|---|---|---|
+| `unlabeled_button` | found a button with no name | This button has no name, so a screen reader says only "button". |
+| `focus_trap` | got trapped with no keyboard way out | Keyboard focus got stuck here, with no way out by keyboard. |
+| `unannounced_error` | missed an error nobody announced | An error appeared here, but the screen reader never announced it. |
+| `slow_wait` | waited too long for the page | The page took too long to respond here. |
+| `misclick` | clicked the wrong thing | A click here landed on the wrong thing. |
+| `cut_off_text` | couldn't read text that was cut off | Some text here runs off the edge and is cut off. |
+| `untranslated` | found text that wasn't translated | Some text here isn't translated into the reader's language. |
+| `dark_pattern` | ran into a tricky choice | A choice here is worded or set up to trick people. |
+
+`src/model/findingWords.ts`:
+
+- `trapPlace(run, finding)` looks in the evidence, the title, then the step's `spoken` and `thought` for `dialog "Name"`, `'Name' dialog` (straight or curly quotes, at most 60 characters) or the screen-reader form `Name, dialog` at the start of a sentence, and returns "the 'Name' dialog" (modal and pop-up give "pop-up"). Without a name it returns "a pop-up" when the evidence, title or spoken text mentions a dialog, modal or pop-up (the same check as the Result_Headline), else null. The real run's evidence starts `Keyboard focus stayed inside the dialog "Protect your payment"`.
+- `stuckPhrase(run, finding)`: "got trapped in <Trap_Place>" for a trap with a place, else the `stuck` phrase.
+- `evidenceSentence(run, finding)`: the evidence's first sentence (up to the first `.`, `!` or `?` that ends a word, closing quotes included). It is used when it is at most 140 characters and has none of `< > { } [ ] = \ |`, `._`, `http:`/`https:` or a word starting with `/`, with a full stop added if it has none. Otherwise a trap with a Trap_Place gives "Keyboard focus got stuck in <Trap_Place>, with no way out by keyboard.", and anything else the `summary` sentence. The real button evidence starts "On page /, the <button type="submit"> at form > div._actions…", so it gets the summary.
+
+`seance.ts`: "Where did you get stuck?" maps each Cold_Spot to `At step n I <phrases>.` (phrases joined with commas and "and"); a Cold_Spot with no finding says "I gave up on <Page_Name>" or "a technical error stopped me on <Page_Name>". "Why did you give up?" says "on <Page_Name>". `sites.ts` gains `pageNames` in the Site_About table and `pageName(siteName, page)`: the table first, then "the home page" for "/", else the last path part with query, hash, trailing slashes and a file extension removed, percent-decoded, everything but letters, marks and digits turned into spaces, lowercased: "the <words> page" ("this page" when nothing is left). The Exorcise "Not reached" note and the screenshot's `alt` use it too. Labels that show the path (Map_View Room headings, the Exorcise "Page" column, the Control_Row) keep it.
+
+**Expand (Req 10.29, 10.36).** `components/Expand.tsx` has two parts:
+
+- `ExpandButton`: a `<button>` with `aria-expanded`, `aria-controls`, a ▸/▾ marker (`aria-hidden`) and visible text. It is styled as underlined `--spectral` text with no padding and `min-height: 24px`, so it fits inside a 1.5-line-height row and adds no height (the Run_Summary must still fit at 1536×864). Escape on it closes an open panel.
+- `ExpandPanel`: `<div role="region" aria-label hidden>` positioned `absolute` with `left: 0; right: 0; z-index: 3` inside a `position: relative` parent, either `top: calc(100% + space-1)` (below) or `bottom: calc(100% + space-1)` (above). It holds `max-height: min(20rem, 50vh)` and scrolls inside; `useScrollOverflow` makes it focusable only while it overflows, and `scrollKeys('y')` scrolls it. Escape in it closes it and focuses the button. Its children are only rendered while it is open, so the full text is never in the DOM twice. `--text` on `--surface` 12.21, border `--spectral`.
+
+Run_Summary: the requirement row becomes `div.requirementWrap` (relative) holding the `p[title^="Requirement:"]` row and a below-panel. The row is a flex row: `.requirementText` (one line, ellipsis, `flex: 1 1 12rem` in stacked mode so the button, the Sample_Label and the result may wrap under it), the button, the Sample_Label and the result. In fit mode the row is `nowrap` and `overflow: visible`, so only the text clips and the button's focus ring is never cut. The panel opens over the top of the screenshot. Its state is `useState(false)` in `GhostCam`, which is keyed by run, so it is closed on open.
+
+Stuck_Notice: the slot stays `4.5rem` and `position: relative`, but it no longer clips; the `.notice` inside it is a flex row that clips its three lines and holds "Full details" on the right. `stuckNotice()` returns `details: { label, title, evidence }[]` for every finding at the step (empty for the give-up and error notices), and `lines[2]` is the Evidence_Sentence. The above-panel lists each detail as a bold "Label: title" and its full evidence, over the bottom of the screenshot and panel, so the Control_Row and timeline stay usable. `GhostCamScreen` renders `<StuckNotice key={step.n}>`, so the details close when the step changes.
+
 ### Provenance_Panel (amendment, Req 5.6–5.11)
 
 **Problems in the current code** (`ProvenancePanel.tsx` and `.module.css`):
@@ -1056,15 +1135,15 @@ Properties 1–8 are the existing properties, already implemented in `validate.p
 
 ### Property 13: One merged Stuck_Notice per step
 
-*For any* valid run and any step in it, let `F` be the findings at that step and `G` be true when the run's result is `gave_up` and the step is the last one. Then `stuckNotice(run, step)` is `null` exactly when `F` is empty and `G` is false. Otherwise it returns one notice with 1 to 3 lines. The give-up wording ("gave up here" when `F` is empty, " and gave up." after a lead) appears in `lines[0]` exactly once when `G` is true and nowhere in the notice when `G` is false. When `F` is empty and the step is the last step of an `error` run, the notice is the single amber-tone error line. The finding lead ("got trapped here" for a Listener `focus_trap`, otherwise "hit a problem here") appears in `lines[0]` exactly once when `F` is non-empty and nowhere when `F` is empty. When both apply, both phrases are in the same `lines[0]`. The generator includes several findings at one step, findings at non-last steps, all three results and all eight finding types.
+*For any* valid run and any step in it, let `F` be the findings at that step and `G` be true when the run's result is `gave_up` and the step is the last one. Then `stuckNotice(run, step)` is `null` exactly when `F` is empty and `G` is false. Otherwise it returns one notice with 1 to 3 lines. The give-up wording ("gave up here" when `F` is empty, " and gave up." after a lead) appears in `lines[0]` exactly once when `G` is true and nowhere in the notice when `G` is false. When `F` is empty and the step is the last step of an `error` run, the notice is the single amber-tone error line. The finding lead ("got trapped here" for a Listener `focus_trap`, otherwise "hit a problem here") appears in `lines[0]` exactly once when `F` is non-empty and nowhere when `F` is empty. When both apply, both phrases are in the same `lines[0]`. (Fifth amendment) When `F` is non-empty, `lines[2]` is the first finding's Evidence_Sentence (for plain-word evidence, the trimmed evidence with a full stop added) and `details` lists every finding in `F`, in file order, with its evidence unchanged; otherwise `details` is empty. The generator includes several findings at one step, findings at non-last steps, all three results and all eight finding types.
 
-**Validates: Requirements 10.12, 10.13, 10.30, 10.31**
+**Validates: Requirements 10.12, 10.13, 10.30, 10.31, 10.36**
 
 ### Property 14: Result_Headline and Watch_Step follow the rules for every run
 
-*For any* valid run, `resultHeadline(run)` equals the text an independent oracle builds from Req 21.4, starts with the ghost's name (or is the "No steps were recorded" line), and ends with exactly one full stop. `watchStep(run)` is `null` exactly when the run has no steps, and otherwise is the `n` of a step in the run that matches Req 21's Watch_Step rule. The generator includes all three results, all eight finding types, several findings at the last step, findings that point at missing steps, goals with and without a Mission_Verb, and pop-up words in titles.
+*For any* valid run, `resultHeadline(run)` equals the text an independent oracle builds from Req 21.4, starts with the ghost's name (or is the "No steps were recorded" line), and ends with exactly one full stop. `watchStep(run)` is `null` exactly when the run has no steps, and otherwise is the `n` of a step in the run that matches the Watch_Step rule (revised in the fifth amendment: the lowest step of a finding, at a step of the run, that is at the last step or is a `focus_trap`, in a run that did not succeed; else the old rules). The generator includes all three results, all eight finding types, several findings at the last step, `focus_trap` findings before the last step, findings that point at missing steps, goals with and without a Mission_Verb, and pop-up words in titles.
 
-**Validates: Requirements 21.4, 21.5, 21.6**
+**Validates: Requirements 21.4, 21.5, 21.6, 24.4**
 
 ### Property 15: The tour callout stays inside the viewport and off its target
 
@@ -1181,6 +1260,14 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - *End-to-end, updated:* `haunt.spec.ts` and `nav-fog.spec.ts` swap their Haunted Map and Séance entries for the Map_View URL; `nav-fog.spec.ts` opens the Menu_Button below 900 px before checking that every nav link is on top of the fog (and also checks the Menu_Button); the "Start here" deep-link test becomes "the tour's Ghost Cam stop opens the Listener trap", with the same URL and focus checks.
 - *Playwright config:* `workers: process.env.CI ? undefined : 3`. Two groups run in order inside one worker with `test.describe.configure({ mode: 'default' })`: the Nav_Fog size loop in `nav-fog.spec.ts` and the full tour walks in `first-visit.spec.ts`. Each of those tests drives several screens with the animated, blurred fog. One Nav_Fog test at 1920 px takes about 7 s alone, but three at once in parallel workers took over 90 s and also slowed the Ghost Cam layout tests. The assertions are unchanged; only the scheduling is.
 
+**Fifth amendment: fixed test data and new tests**
+
+- *Fixture_Runs.* `dashboard/fixtures/runs/` holds `samples/listener-gave-up/`, `samples/bebe-succeeded/` (copies of `runs/samples/`) and `lantern-bills/2026-11-10T1822Z-listener-pay-bill/` (a copy of the first real run without its `screenshot` fields, so every step shows the Placeholder, like the samples). They are never edited to make a test pass. Unit tests import the real copy through `src/__tests__/fixtures/real.ts`, and `helpers.tsx` gains `realAndSampleFiles()`. The existing unit tests keep importing `runs/samples/` directly, which never changes.
+- *Playwright.* `webServer.command` is `npm run build:e2e && npm run preview:e2e`, so the suite sees the Fixture_Runs only. Outside CI an existing server on 3001 is reused, so nothing else may be listening on 3001 when the suite starts. Specs that named the Listener sample's step 9 as "the Listener" now name the real run's step 20 (the tour stops, the "Watch it happen" link, the Séance, the Ask_Panel layout, the Ghost Cam screens in the keyboard, axe, reflow and Nav_Fog lists, and the Reproduce_Command). The Listener sample stays in the lists as "by link", and `ghostcam-layout.spec.ts` checks all three runs. `transcript.spec.ts` reads the sample from the fixture copy it is served from.
+- *Unit, `src/__tests__/realRuns.test.tsx`:* `splitRuns` hides only the Listener sample, and keeps all samples with no real run; a sample newer than the real run still loses; `blockingFindings` and `watchStep` give the trap at step 20, also when a step follows it; Start here, the Ghost Cam target and tour stops 2 to 5 open step 20; the exact "Where did you get stuck?" answer for the real run; `pageName` for "/", "/bill", a query, another site, a hyphenated path, Gurmukhi and an empty name; `trapPlace` from the evidence, the thought and the spoken text; the Evidence_Sentence for both real findings and the fallbacks; Home, Graveyard, Exorcise, Ghost Cam and Séance with the Fixture_Runs (no Listener sample listed, Sample_Label on Bebe only, step 20 links, hidden sample by URL); "Full requirement" and "Full details" open, close on Escape with focus back on the button, and the details close on a step change; axe with both panels open.
+- *Updated unit tests:* the expected strings that showed a page path ("on /bill", "never got as far as /bill", "Screenshot of /bill"), the old "Where did you get stuck?" wording, the old Start_Here fallback (first finding) and the Bebe-only tour stop (step 1), the Map_View cold spot names with " (Sample run)", and the Stuck_Notice's third line. Property 13's and Property 14's oracles follow the revised rules.
+- *End-to-end, new checks:* the Bebe card has the Sample_Label and the Listener card does not; the Ghost Cam navigation link opens step 20; Exorcise offers two runs and no "only sample runs" sentence; a link to the Listener sample shows the Sample_Label; "Full requirement" and "Full details" work by keyboard; at 1536×864 opening either panel moves none of the Ghost Cam areas, scrolls nothing, stays on screen and above the Control_Row, and the notice's evidence line is the one sentence.
+
 **End-to-end (Playwright against `npm run preview` on port 3001)**
 
 - Keyboard-only walk through all seven screens: the skip link is first, every control can be reached, there are no traps, and the focus ring is visible.
@@ -1200,7 +1287,13 @@ The fixtures are the two sample runs, imported directly from `../runs/samples/*/
 - **(Amendment) New color tokens.** The five transcript fade tokens (`--spoken-fade-1..3`, `--thought-fade-1`, `--thought-fade-3`) are new. The steering file's colour table should list them with their ratios. Until it does, `tokens.css`, `tokens.ts` and the contrast test are the record.
 - **(Amendment) Missing `spoken` or `thought`.** Req 10.27 talks about missing text, but `validateRun` treats a missing `spoken` or `thought` as invalid under Req 4.1. This design keeps that rule. The Transcript model handles `undefined` anyway, so relaxing validation later needs no model change.
 - **(Amendment) Fit-mode height budget.** The earlier version used `--cam-shot-max: calc(100vh - 40rem)` for 1920×1080 only. The new layout must also fit 1536×864, adds a fixed Stuck_Notice slot and a footer to the budget, and moves the Provenance_Panel into a collapsed row. The `calc(100vh - 31rem)` estimate left only about 250 px at 864 px once measured, so the footer and the Provenance_Panel were allowed below the fold and the value is now `calc(100vh - 26rem)` (396 px at 864 px, checked by the Playwright layout tests). The focus box scales with the screenshot.
-- **(Amendment) Stuck_Notice evidence is clamped.** The three-line limit (Req 10.31) means long evidence is cut with an ellipsis in the notice. The full text stays in the DOM and in the `title`, and the Graveyard shows every finding in full. If more than one finding sits on one step, the notice names the first and counts the rest.
+- **(Amendment) Stuck_Notice evidence is clamped.** The three-line limit (Req 10.31) means long evidence is cut with an ellipsis in the notice. The full text stays in the DOM and in the `title`, and the Graveyard shows every finding in full. If more than one finding sits on one step, the notice names the first and counts the rest. (Superseded in the fifth amendment: the notice shows the Evidence_Sentence, and "Full details" holds every finding in full.)
+- **(Fifth amendment) Samples are hidden per ghost, across sites.** A real run of a ghost on any site hides that ghost's samples everywhere. The samples and the real run share `site.name` "Lantern Bills demo" today, so per-site and global give the same result. Per site would be a one-line change in `splitRuns`.
+- **(Fifth amendment) Hidden samples still open by URL.** Earlier shared links (README examples, the video) name the Listener sample. Breaking them would help nobody, so they open, with the Sample_Label.
+- **(Fifth amendment) "/" is the bill page for Lantern Bills.** The demo site serves the bill at "/" (`demo-site/src/App.tsx`), so the Site_About table names it "the bill page". The samples were written before the demo site existed and use "/" for a home page and "/bill" for the bill; with the table, a sentence about a sample's "/" step would also say "the bill page". No current sentence names one: the samples' Cold_Spots and last steps are all on "/bill".
+- **(Fifth amendment) The Evidence_Sentence is a heuristic.** Whether the first sentence "reads well" is judged by length and a few characters that mark code (markup, selectors, attributes, URLs, paths). Engine evidence that starts with a plain sentence, as the trap's does, shows that sentence; anything else shows the type's plain sentence. Adding a short `summary` field to the contract would be cleaner.
+- **(Fifth amendment) A keyboard trap is always blocking in a run that did not succeed.** The ghost cannot move on from a trap, so the trap is where it was stopped even if the engine records a later step. In a succeeded run the ghost got past everything, so no finding blocks it.
+- **(Fifth amendment) The Fixture_Runs have no screenshots.** The fixtures are kept as text files only, and the samples have no screenshots either. The layout tests already cover the Placeholder; the real screenshots are still used by `npm run dev` and `npm run build`.
 - **(Amendment) Ghost description in the Run_Summary.** To keep the summary to two lines in fit mode, the one-line ghost description is shown only in stacked mode. Home's Hero_Ghosts carry the persona descriptions.
 - **(Amendment, Req 20) Home has no Screen_Description.** The six descriptions given cover the other screens, and "Home" explains itself. Home is still on the Guided_Path: it is the start ("Start here") and the end (Séance leads back to it), and its own Next_Stop_Link opens the same Ghost Cam step as "Start here".
 - **(Amendment, Req 20; superseded by the Menu_Button in the third amendment) No collapsed menu on narrow screens.** The navigation has never had a menu button, and Req 20.5 asks that narrow screens keep the descriptions, so the seven items stay visible in a two-column grid. This makes the header taller on phones; a collapsible menu could be added later as long as it shows the descriptions when open.

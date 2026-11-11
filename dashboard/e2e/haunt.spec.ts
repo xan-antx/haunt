@@ -1,7 +1,10 @@
 import { createRequire } from 'node:module';
 import { expect, test, type Page } from '@playwright/test';
 
+// The suite runs against fixtures/runs/ (see playwright.config.ts): the real Listener run, which
+// hides the Listener sample from every list, and the Bebe sample, labelled "Sample run".
 const ORIGIN = 'http://localhost:3001';
+const REAL = '2026-11-10T1822Z-listener-pay-bill';
 const L = '2026-11-03-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
 
@@ -10,9 +13,10 @@ const SCREENS: [string, string][] = [
   ['Home', '#/'],
   ['Graveyard Map view', '#/graveyard?ghost=phantom&view=map'],
   ['Graveyard', '#/graveyard'],
-  ['Ghost Cam (Listener)', `#/run/${L}/step/9`],
-  ['Ghost Cam (Bebe)', `#/run/${B}/step/3`],
-  ['Ghost Cam with the Ask panel', `#/run/${L}/step/9?ask=where-stuck`],
+  ['Ghost Cam (Listener)', `#/run/${REAL}/step/20`],
+  ['Ghost Cam (Listener sample, by link)', `#/run/${L}/step/9`],
+  ['Ghost Cam (Bebe sample)', `#/run/${B}/step/3`],
+  ['Ghost Cam with the Ask panel', `#/run/${REAL}/step/20?ask=where-stuck`],
   ['Exorcise', '#/exorcise'],
   ['Spec Coverage', '#/coverage'],
 ];
@@ -36,15 +40,20 @@ async function open(page: Page, hash: string) {
 
 test.describe('deep links', () => {
   test('a step URL opens that step, paused', async ({ page }) => {
-    await open(page, `#/run/${L}/step/9`);
+    await open(page, `#/run/${REAL}/step/20`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Ghost Cam: The Listener: /);
     await expect(page.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false');
     // Scoped to the Timeline: the current Transcript line also has aria-current="step" (Req 10.18).
     const timeline = page.getByRole('region', { name: 'Timeline' });
     await expect(timeline.locator('[aria-current="step"]')).toHaveCount(1);
-    await expect(timeline.locator('[aria-current="step"]')).toHaveAccessibleName('Step 9, finding: Keyboard trap');
+    await expect(timeline.locator('[aria-current="step"]')).toHaveAccessibleName('Step 20, finding: Keyboard trap');
     await page.waitForTimeout(1800);
-    expect(page.url()).toBe(`${ORIGIN}/haunt/#/run/${L}/step/9`);
+    expect(page.url()).toBe(`${ORIGIN}/haunt/#/run/${REAL}/step/20`);
+  });
+
+  test('a link to the Listener sample still opens it, labelled Sample run', async ({ page }) => {
+    await open(page, `#/run/${L}/step/9`);
+    await expect(page.locator('[data-cam-area="summary"]').getByText('Sample run', { exact: true })).toBeVisible();
   });
 
   test('#/run/:key replaces the URL with step 1', async ({ page }) => {
@@ -52,25 +61,39 @@ test.describe('deep links', () => {
     await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${B}/step/1`);
   });
 
+  // Req 24.4: the newest real Listener run at its first Blocking_Finding, the keyboard trap at step 20.
   test("the tour's Ghost Cam stop opens the Listener trap", async ({ page }) => {
     await open(page, '#/');
     await page.getByRole('button', { name: 'Take the 60-second tour' }).click();
     const next = page.getByRole('dialog').getByRole('button', { name: 'Next' });
     await expect(next).toBeFocused();
     await next.press('Enter');
-    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/9`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${REAL}/step/20`);
     await expect(page.getByRole('dialog', { name: 'What the page looked like' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/9`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${REAL}/step/20`);
     await expect(page.locator('main h1')).toBeFocused();
+  });
+
+  test('the Ghost Cam link in the navigation opens the Listener trap', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page, '#/');
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Ghost Cam', exact: true }).click();
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${REAL}/step/20`);
   });
 });
 
 test.describe('exorcise', () => {
-  test('with sample data, #/exorcise shows no after run for Bebe and no table', async ({ page }) => {
+  // The Listener's only shown run is the real one, so it has no after run yet; with a real run,
+  // the "only sample runs" sentence is gone.
+  test('with the fixture runs, #/exorcise shows no after run for The Listener and no table', async ({ page }) => {
     await open(page, '#/exorcise');
-    await expect(page.getByText('No after run yet for Bebe')).toBeVisible();
+    await expect(page.getByLabel('Before run')).toHaveValue(REAL);
+    const notice = page.getByText('No after run yet for The Listener');
+    await expect(notice).toBeVisible();
+    await expect(notice).not.toContainText('only has sample runs');
+    await expect(page.getByLabel('Before run').locator('option')).toHaveCount(2);
     await expect(page.getByRole('table')).toHaveCount(0);
   });
 });
@@ -124,14 +147,30 @@ test.describe('keyboard', () => {
   });
 
   test('Ghost Cam controls work by keyboard and keep focus', async ({ page }) => {
-    await open(page, `#/run/${L}/step/1`);
+    await open(page, `#/run/${REAL}/step/1`);
     const forward = page.getByRole('button', { name: 'Step forward' });
     await forward.focus();
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/2`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${REAL}/step/2`);
     await expect(forward).toBeFocused();
     await page.keyboard.press('Space');
-    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${L}/step/3`);
+    await expect(page).toHaveURL(`${ORIGIN}/haunt/#/run/${REAL}/step/3`);
+  });
+
+  test('Full requirement and Full details open by keyboard and close with Escape', async ({ page }) => {
+    await open(page, `#/run/${REAL}/step/20`);
+    for (const name of ['Full requirement', 'Full details']) {
+      const button = page.getByRole('button', { name });
+      await button.focus();
+      await expect(button).toHaveAttribute('aria-expanded', 'false');
+      await page.keyboard.press('Enter');
+      await expect(button).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.getByRole('region', { name })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(button).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.getByRole('region', { name })).toBeHidden();
+      await expect(button).toBeFocused();
+    }
   });
 });
 
@@ -142,7 +181,7 @@ test.describe('motion', () => {
       await open(page, hash);
       expect(await page.evaluate(() => document.getAnimations().length), hash).toBe(0);
     }
-    await open(page, `#/run/${L}/step/1`);
+    await open(page, `#/run/${REAL}/step/1`);
     await page.getByRole('button', { name: 'Play' }).click();
     await page.waitForTimeout(700);
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);

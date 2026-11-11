@@ -5,6 +5,7 @@ import { GHOSTS, moodFor } from '../model/ghosts';
 import type { TombstoneData } from '../model/graveyard';
 import { stepPath } from '../routes';
 import { GhostBadge } from './ghosts/Ghosts';
+import { SampleTag } from './SampleTag';
 import styles from './Tombstone.module.css';
 
 export function Tombstone({ data }: { data: TombstoneData }) {
@@ -14,6 +15,7 @@ export function Tombstone({ data }: { data: TombstoneData }) {
     <article className={styles.tombstone}>
       <h2 className={styles.label}>{label}</h2>
       <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} onBone />
+      <SampleTag run={run} onBone />
       <p className={styles.title}>{finding.title}</p>
       <p className={styles.evidence}>{finding.evidence}</p>
       <p className={styles.meta}>

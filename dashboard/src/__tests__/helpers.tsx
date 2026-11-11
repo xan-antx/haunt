@@ -8,6 +8,7 @@ import type { RunSource } from '../data/source';
 import type { InvalidRun, LoadedRun, RunIndex, RunIndexEntry, RunMeta } from '../data/types';
 import { validateRun } from '../data/validate';
 import { resolveScreenshotUrl } from '../data/screenshots';
+import { REAL_LISTENER_META, realListenerSample } from './fixtures/real';
 import { BEBE_META, LISTENER_META, bebeSample, listenerSample } from './fixtures/samples';
 
 export interface MemoryRunFile {
@@ -20,6 +21,11 @@ export function sampleFiles(): MemoryRunFile[] {
     { json: listenerSample(), meta: LISTENER_META },
     { json: bebeSample(), meta: BEBE_META },
   ];
+}
+
+/** The fixed real Listener run plus both samples, in collect (path) order, as in fixtures/runs/. */
+export function realAndSampleFiles(): MemoryRunFile[] {
+  return [{ json: realListenerSample(), meta: REAL_LISTENER_META }, ...sampleFiles()];
 }
 
 export function memorySource(files: MemoryRunFile[], invalid: InvalidRun[] = []): RunSource {

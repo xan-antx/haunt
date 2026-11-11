@@ -4,8 +4,9 @@ import { expect, test, type Page } from '@playwright/test';
 // never makes the page scroll sideways, follows viewport changes without a reload, and never sits
 // on top of a navigation link.
 
+// The fixture runs (fixtures/runs/): the real Listener run and the Bebe sample are shown.
 const ORIGIN = 'http://localhost:3001';
-const L = '2026-11-03-listener-pay-bill';
+const REAL = '2026-11-10T1822Z-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
 
 // The five Screens, plus the two views that replaced the Haunted Map and Séance screens.
@@ -13,9 +14,9 @@ const SCREENS: [string, string][] = [
   ['Home', '#/'],
   ['Graveyard Map view', '#/graveyard?ghost=phantom&view=map'],
   ['Graveyard', '#/graveyard'],
-  ['Ghost Cam (Listener)', `#/run/${L}/step/9`],
+  ['Ghost Cam (Listener)', `#/run/${REAL}/step/20`],
   ['Ghost Cam (Bebe)', `#/run/${B}/step/3`],
-  ['Ghost Cam with the Ask panel', `#/run/${L}/step/9?ask=where-stuck`],
+  ['Ghost Cam with the Ask panel', `#/run/${REAL}/step/20?ask=where-stuck`],
   ['Exorcise', '#/exorcise'],
   ['Spec Coverage', '#/coverage'],
 ];

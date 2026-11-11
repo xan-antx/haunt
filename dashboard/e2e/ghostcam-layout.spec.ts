@@ -14,9 +14,12 @@ const sample = (ghost: string, key: string, steps: number, findingStep: number):
   findingStep,
   hash: (n) => `#/run/${key}/step/${n}`,
 });
-const LISTENER = sample('The Listener', '2026-11-03-listener-pay-bill', 9, 7);
-const BEBE = sample('Bebe', '2026-11-03-bebe-pay-bill', 6, 3);
-const SAMPLES: Sample[] = [LISTENER, BEBE];
+// The fixture runs (fixtures/runs/): the real Listener run, with long requirement, spoken and
+// evidence texts, and the two samples. The Listener sample is hidden from lists but opens by link.
+const LISTENER = sample('The Listener', '2026-11-10T1822Z-listener-pay-bill', 20, 12);
+const LISTENER_SAMPLE = sample('The Listener (sample)', '2026-11-03-listener-pay-bill', 9, 7);
+const BEBE = sample('Bebe (sample)', '2026-11-03-bebe-pay-bill', 6, 3);
+const SAMPLES: Sample[] = [LISTENER, LISTENER_SAMPLE, BEBE];
 
 // Areas above the fold, in reading order. Each is a `data-cam-area` in GhostCamScreen.tsx
 // (the Stuck_Notice slot is rendered by StuckNotice.tsx with `data-cam-area="notice"`).
@@ -200,7 +203,7 @@ test.describe('Ghost Cam layout stability', () => {
     };
 
     const first = await measure();
-    // A finding step (7) and the last step (9, which also has a finding).
+    // A finding step (12) and the last step (20, which also has a finding).
     for (const n of [LISTENER.findingStep, LISTENER.steps]) {
       await goToStep(page, LISTENER, n);
       const now = await measure();
@@ -256,6 +259,53 @@ test.describe('Ghost Cam layout stability', () => {
       expect(panel.left - (frame.left + frame.width), 'no empty gap beside the screenshot').toBeLessThanOrEqual(40);
     });
   }
+
+  // Req 10.29, 10.36: the requirement and the notice's evidence are one line each, and opening their
+  // full text moves nothing, stays inside the viewport and keeps clear of the Control_Row.
+  test('The Listener: Full requirement and Full details open over the page without moving it', async ({ page }) => {
+    await openCam(page, LISTENER.hash(LISTENER.steps));
+    const targets: [string, string][] = [
+      ['screenshot stage', '[data-cam-area="shot"]'],
+      ['Transcript_Viewport', TRANSCRIPT],
+      ['Stuck_Notice slot', NOTICE_SLOT],
+      ['Control_Row', '[data-cam-area="controls"]'],
+      ['timeline', '[data-cam-area="timeline"]'],
+    ];
+    const measure = async () => {
+      const result: Record<string, { top: number; left: number; width: number; height: number }> = {};
+      for (const [name, selector] of targets) result[name] = await boxOf(page, selector);
+      return result;
+    };
+    const closed = await measure();
+
+    // The evidence line is one line box, and its sentence is short and plain.
+    const evidence = page.getByTestId('stuck-notice').locator('p').nth(2);
+    await expect(evidence).toHaveText('Keyboard focus stayed inside the dialog "Protect your payment".');
+    const evidenceBox = await evidence.boundingBox();
+    expect(evidenceBox!.height, 'evidence is one line').toBeLessThan(2 * 24);
+
+    const innerHeight = await page.evaluate(() => window.innerHeight);
+    for (const name of ['Full requirement', 'Full details']) {
+      await page.getByRole('button', { name }).click();
+      const region = page.getByRole('region', { name });
+      await expect(region).toBeVisible();
+      const box = (await region.boundingBox())!;
+      expect(box.y, `${name} top is on screen`).toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height, `${name} bottom is on screen`).toBeLessThanOrEqual(innerHeight);
+      const controls = await boxOf(page, '[data-cam-area="controls"]');
+      expect(box.y + box.height, `${name} stays above the Control_Row`).toBeLessThanOrEqual(controls.top);
+      const now = await measure();
+      for (const [target] of targets) {
+        for (const edge of ['top', 'left', 'width', 'height'] as const) {
+          expect(Math.abs(now[target]![edge] - closed[target]![edge]), `${target} ${edge} with ${name} open`).toBeLessThanOrEqual(1);
+        }
+      }
+      expect(await page.evaluate(() => window.scrollY), `${name}: the page has not scrolled`).toBe(0);
+      await page.keyboard.press('Escape');
+      await expect(region).toBeHidden();
+    }
+    await expect(page.getByRole('region', { name: 'Full requirement' })).toBeHidden();
+  });
 
   test('The Listener: the waveform stays inside the Spoken_Panel', async ({ page }) => {
     await openCam(page, LISTENER.hash(LISTENER.steps));

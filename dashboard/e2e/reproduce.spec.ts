@@ -5,8 +5,9 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 // never going below the 320 CSS px floor of Req 5.7 and 18.8.
 
 const ORIGIN = 'http://localhost:3001';
-const L = '2026-11-03-listener-pay-bill';
-const HASH = `#/run/${L}/step/1`;
+// The real Listener run from fixtures/runs/.
+const REAL = '2026-11-10T1822Z-listener-pay-bill';
+const HASH = `#/run/${REAL}/step/1`;
 const HEIGHT = 1000;
 const WIDTHS = [320, 1280, 2560];
 const ZOOMS = [1, 2, 4];
