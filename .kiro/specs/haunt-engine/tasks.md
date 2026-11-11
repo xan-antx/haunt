@@ -228,7 +228,7 @@ Rules for every task:
   - Write `e2e/phantom.e2e.test.ts`: harness, 10 sequential CLI runs with seeds 1 to 10 and `--out test-output/e2e/phantom`; require a `misclick` Finding in at least 9 runs; schema, invariants and dashboard `validateRun` with no errors; `demo-site` git status unchanged; per-run table on failure
   - _Requirements: 20.4, 20.6_
 
-- [ ] 24. Bebe's end-to-end test
+- [x] 24. Bebe's end-to-end test
   - Write `e2e/bebe.e2e.test.ts`: harness, 10 sequential CLI runs with seeds 1 to 10 and `--out test-output/e2e/bebe`; require `cut_off_text`, `untranslated` and `dark_pattern` Findings in at least 9 runs; schema, invariants and dashboard `validateRun` with no errors; `demo-site` git status unchanged; per-run table on failure
   - _Requirements: 20.5, 20.6, 19.5_
 
