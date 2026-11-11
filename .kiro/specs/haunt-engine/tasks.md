@@ -182,14 +182,14 @@ Rules for every task:
     - Covers The Phantom and Bebe
     - **Validates: Requirements 13.4, 17.4, 20.2**
 
-- [ ] 19. The Phantom's detectors and stop rules
+- [x] 19. The Phantom's detectors and stop rules
   - [x] 19.1 Write `src/detectors/misclick.ts` (aimed versus hit element key, layout-shift entries in the window, seen and after screenshots)
     - _Requirements: 15.3, 15.4_
   - [x] 19.2 Write `src/detectors/slowWait.ts` (no-progress spans across waiting Steps)
     - _Requirements: 15.1, 15.2_
   - [x] 19.3 Write `misclickStreak` and The Phantom's stop rules (`slow_wait`, `misclicks`)
     - _Requirements: 16.1, 16.2, 16.3, 16.4_
-  - [ ] 19.4 Fixture pages and tests: a button that moves 1 s after load under a link versus a stable button; a page blank for 12 s after load versus a page with a visible spinner for 12 s; `NNN-seen.png` is written only when a Finding refers to it
+  - [x] 19.4 Fixture pages and tests: a button that moves 1 s after load under a link versus a stable button; a page blank for 12 s after load versus a page with a visible spinner for 12 s; `NNN-seen.png` is written only when a Finding refers to it
     - _Requirements: 15.1–15.4, 20.3_
   - [x] 19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`
     - **Property 7: Two misclicks in a row end the Run exactly then**
