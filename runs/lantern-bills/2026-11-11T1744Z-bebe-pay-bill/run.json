@@ -1,0 +1,225 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-11T1744Z-bebe-pay-bill",
+  "ghost": "bebe",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo",
+    "url": "http://localhost:3000",
+    "commit": "3e36760"
+  },
+  "startedAt": "2026-11-11T17:44:49Z",
+  "result": "succeeded",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3000",
+      "spoken": "",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 3696
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Scroll down",
+      "spoken": "",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying. I can't see what I'm looking for on the screen, so I'll scroll down.",
+      "screenshot": "shots/002.png",
+      "waitMs": 2055
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Click \"Pay this bill\"",
+      "spoken": "",
+      "thought": "The button says 'Pay this bill' in English, not Punjabi, but I can make it out. I'll press it.",
+      "screenshot": "shots/003.png",
+      "waitMs": 2003,
+      "focusBox": {
+        "x": 32,
+        "y": 251,
+        "w": 303.78,
+        "h": 96
+      }
+    },
+    {
+      "n": 4,
+      "page": "/",
+      "action": "Click \"1234 5678 9012 3456\"",
+      "spoken": "",
+      "thought": "I'll enter the card number. I can see a box labelled 'ਕਾਰਡ ਨੰਬਰ'. I'll click the box so I can type in it.",
+      "screenshot": "shots/004.png",
+      "waitMs": 2055,
+      "focusBox": {
+        "x": 66,
+        "y": 351.44,
+        "w": 1148,
+        "h": 96
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Type \"4111111111111111\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'ਕਾਰਡ ਨੰਬਰ' box. I'll type \"4111111111111111\".",
+      "screenshot": "shots/005.png",
+      "waitMs": 2057
+    },
+    {
+      "n": 6,
+      "page": "/",
+      "action": "Click \"MM/YY\"",
+      "spoken": "",
+      "thought": "Now the expiry date. I can see a box labelled 'ਮਿਆਦ ਪੁੱਗਣ ਦੀ ਤਾਰੀਖ'. I'll click the box so I can type in it.",
+      "screenshot": "shots/006.png",
+      "waitMs": 2058,
+      "focusBox": {
+        "x": 66,
+        "y": 536.44,
+        "w": 1148,
+        "h": 96
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Type \"11/28\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'ਮਿਆਦ ਪੁੱਗਣ ਦੀ ਤਾਰੀਖ' box. I'll type \"11/28\".",
+      "screenshot": "shots/007.png",
+      "waitMs": 2055
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Click \"123\"",
+      "spoken": "",
+      "thought": "Now the three-digit security code. I can see a box labelled 'CVV'. I'll click the box so I can type in it.",
+      "screenshot": "shots/008.png",
+      "waitMs": 2051,
+      "focusBox": {
+        "x": 66,
+        "y": 721.44,
+        "w": 1148,
+        "h": 78.55999999999995
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Type \"123\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'CVV' box. I'll type \"123\".",
+      "screenshot": "shots/009.png",
+      "waitMs": 2052
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Scroll down",
+      "spoken": "",
+      "thought": "And the name on the card. I can't see what I'm looking for on the screen, so I'll scroll down.",
+      "screenshot": "shots/010.png",
+      "waitMs": 2056
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Click \"ਕਾਰਡ ਤੇ ਨਾਮ\"",
+      "spoken": "",
+      "thought": "I can see a box labelled 'ਕਾਰਡਧਾਰਕ ਦਾ ਨਾਮ'. I'll click the box so I can type in it.",
+      "screenshot": "shots/011.png",
+      "waitMs": 2063,
+      "focusBox": {
+        "x": 66,
+        "y": 266.44,
+        "w": 1148,
+        "h": 96
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Type \"Asha Kaur\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'ਕਾਰਡਧਾਰਕ ਦਾ ਨਾਮ' box. I'll type \"Asha Kaur\".",
+      "screenshot": "shots/012.png",
+      "waitMs": 2052
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Click a button with no text",
+      "spoken": "",
+      "thought": "Everything is filled in. I need the button that sends the payment. I can't see a button with words that fit. There is a button with no words on it, so I'll press it and hope it's the one I need.",
+      "screenshot": "shots/013.png",
+      "waitMs": 2044,
+      "focusBox": {
+        "x": 66,
+        "y": 418.44,
+        "w": 112,
+        "h": 112.00000000000006
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Click \"ਜਾਰੀ ਰੱਖੋ\"",
+      "spoken": "",
+      "thought": "I need to confirm the payment. I can see 'ਜਾਰੀ ਰੱਖੋ'. I'll press it.",
+      "screenshot": "shots/014.png",
+      "waitMs": 2865,
+      "focusBox": {
+        "x": 204,
+        "y": 595.1,
+        "w": 234.39999999999998,
+        "h": 96
+      }
+    }
+  ],
+  "findings": [
+    {
+      "type": "untranslated",
+      "step": 2,
+      "title": "Text is in English on a Punjabi page",
+      "evidence": "The button text \"Pay this bill\" is in English on a page shown in Punjabi (lang=\"pa\"). After leaving out the site's allowed terms, acronyms, tokens with digits and what Bebe typed, it still has 3 English words: \"Pay\", \"this\" and \"bill\". It is on page /, inside the \"ਤੁਹਾਡਾ ਬਿਜਲੀ ਬਿੱਲ\" main.",
+      "screenshot": "shots/002.png"
+    },
+    {
+      "type": "dark_pattern",
+      "step": 13,
+      "title": "A paid option was ticked in advance",
+      "evidence": "The paid option \"₹99 ਲਈ ਭੁਗਤਾਨ ਸੁਰੱਖਿਆਜੇਕਰ ਤੁਹਾਡਾ ਭੁਗਤਾਨ ਤਕਨੀਕੀ ਸਮੱਸਿਆ ਕਾਰਨ ਅਸਫਲ ਹੋ ਜਾਂਦਾ ਹੈ ਤਾਂ ਰਿਫੰਡ ਪ੍ਰਾਪਤ ਕਰੋ।\" (₹99) was already ticked when it appeared on / at Step 13. Bebe did not tick it.",
+      "screenshot": "shots/013.png"
+    },
+    {
+      "type": "dark_pattern",
+      "step": 13,
+      "title": "The total is higher than the bill",
+      "evidence": "The total says ₹2,589.00 (\"ਕੁੱਲ:\" ₹2,589.00, on /) but the bill was ₹2,490.00 (₹99.00 more). The bill amount is the amount shown most often on the first page (/), read at Step 1.",
+      "screenshot": "shots/013.png"
+    },
+    {
+      "type": "cut_off_text",
+      "step": 1,
+      "title": "Text is cut off at 200% zoom",
+      "evidence": "The text \"₹2,490.00\" is cut off: only \"₹2,490.\" fits inside its 144 px wide box (ਭੁਗਤਾਨ ਸੰਖੇਪ), and the box can't be scrolled. Measured on page /: the text needs 183 × 53 px and is cut at the side. The box, the <dd> at dl._breakdown_1mhmk_15 > div._totalRow_1mhmk_22 > dd._amount_1mhmk_53, is 144 × 48 px inside (its content is 183 × 50 px), with overflow-x: hidden and overflow-y: hidden. It was outside the visible part of the screen.",
+      "screenshot": "shots/001.png"
+    },
+    {
+      "type": "dark_pattern",
+      "step": 14,
+      "title": "The total is higher than the bill",
+      "evidence": "The total says ₹2,589.00 (\"ਭਰੀ ਰਕਮ\" ₹2,589.00, on /) but the bill was ₹2,490.00 (₹99.00 more). The bill amount is the amount shown most often on the first page (/), read at Step 1. It was outside the visible part of the screen.",
+      "screenshot": "shots/014.png"
+    }
+  ]
+}

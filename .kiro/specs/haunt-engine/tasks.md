@@ -232,10 +232,10 @@ Rules for every task:
   - Write `e2e/bebe.e2e.test.ts`: harness, 10 sequential CLI runs with seeds 1 to 10 and `--out test-output/e2e/bebe`; require `cut_off_text`, `untranslated` and `dark_pattern` Findings in at least 9 runs; schema, invariants and dashboard `validateRun` with no errors; `demo-site` git status unchanged; per-run table on failure
   - _Requirements: 20.5, 20.6, 19.5_
 
-- [ ] 25. Checkpoint: all ghosts
+- [x] 25. Checkpoint: all ghosts
   - Run `npm run build`, `npm test` and `npm run test:e2e` in `engine/`. Fix real failures in the engine; if The Phantom's misclick rate is below 9 of 10, check the timing analysis in the design (Settle length, when the Sight is taken) rather than the threshold. Confirm nothing under `dashboard/`, `demo-site/` or `runs/` changed
 
-- [ ] 26. Demo runs for every ghost
+- [x] 26. Demo runs for every ghost
   - Extend `scripts/demo.ts` with `--all`: empty `test-output/demo-runs/`, write one run per ghost (The Listener, The Phantom and Bebe, seed 1), validate each `run.json` against the Run_Schema, print each absolute path, and stop the server
   - Update `engine/README.md` with install steps, the `haunt run` command and options, exit codes, the safety rules, and the test and demo scripts, all as PowerShell commands
   - Run `npm run demo:all` in `engine/` and report the three printed paths. Confirm with `git status --porcelain -- dashboard demo-site runs` that nothing changed there

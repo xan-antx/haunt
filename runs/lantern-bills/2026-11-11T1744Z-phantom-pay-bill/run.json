@@ -1,0 +1,99 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-11T1744Z-phantom-pay-bill",
+  "ghost": "phantom",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo",
+    "url": "http://localhost:3000",
+    "commit": "3e36760"
+  },
+  "startedAt": "2026-11-11T17:44:31Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3000",
+      "spoken": "",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 4043
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Wait",
+      "spoken": "",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying. The screen is still blank, so I'll wait for something to appear.",
+      "screenshot": "shots/002.png",
+      "waitMs": 3694
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Click \"Pay this bill\"",
+      "spoken": "",
+      "thought": "I can see 'Pay this bill'. I'll tap it.",
+      "screenshot": "shots/003.png",
+      "waitMs": 1273,
+      "focusBox": {
+        "x": 32,
+        "y": 571.96,
+        "w": 303.78,
+        "h": 96
+      }
+    },
+    {
+      "n": 4,
+      "page": "/autopay",
+      "action": "Click \"Back to bill\"",
+      "spoken": "",
+      "thought": "This page says 'Set up autopay'. It isn't where I meant to go. I'll tap 'Back to bill' to go back.",
+      "screenshot": "shots/004.png",
+      "waitMs": 1258,
+      "focusBox": {
+        "x": 66,
+        "y": 839.96,
+        "w": 323.66,
+        "h": 96
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Click \"Pay this bill\"",
+      "spoken": "",
+      "thought": "I can see 'Pay this bill'. I'll tap it again. Twice I tapped 'Pay this bill' and the page jumped just before my finger landed, so I ended up on a page that says 'Set up autopay' instead. I'm giving up.",
+      "screenshot": "shots/005.png",
+      "waitMs": 1264,
+      "focusBox": {
+        "x": 32,
+        "y": 571.96,
+        "w": 303.78,
+        "h": 96
+      }
+    }
+  ],
+  "findings": [
+    {
+      "type": "misclick",
+      "step": 3,
+      "title": "The click landed on a different element than the one aimed at",
+      "evidence": "Aimed at \"Pay this bill\" (seen at x 16, y 286, 152×48). 1.2 s later the click landed on \"Set up autopay\". A layout shift of 0.2504 happened in between: a <div> with no text moved from x 0, y 368, 360×272 to x 0, y 0, 0×0; \"Pay this bill\" moved from x 16, y 286, 328×79 to x 16, y 585, 328×55. Before: shots/003-seen.png. After: shots/003.png.",
+      "screenshot": "shots/003-seen.png"
+    },
+    {
+      "type": "misclick",
+      "step": 5,
+      "title": "The click landed on a different element than the one aimed at",
+      "evidence": "Aimed at \"Pay this bill\" (seen at x 16, y 286, 152×48). 1.0 s later the click landed on \"Set up autopay\". A layout shift of 0.2504 happened in between: a <div> with no text moved from x 0, y 368, 360×272 to x 0, y 0, 0×0; \"Pay this bill\" moved from x 16, y 286, 328×79 to x 16, y 585, 328×55. Before: shots/005-seen.png. After: shots/005.png.",
+      "screenshot": "shots/005-seen.png"
+    }
+  ]
+}
