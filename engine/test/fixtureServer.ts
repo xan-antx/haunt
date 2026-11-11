@@ -50,6 +50,15 @@ export async function startFixtureServer(root: string = FIXTURES_DIR): Promise<F
     }
     requests.push(pathname);
 
+    // `/delay/<ms>` answers 204 after that many milliseconds (at most 5000). A page that fetches it
+    // has a request in flight for exactly that long, so a test does not need a page timer to keep
+    // the page busy.
+    const delay = /^\/delay\/(\d{1,4})$/.exec(pathname);
+    if (delay) {
+      setTimeout(() => res.writeHead(204, { 'cache-control': 'no-store' }).end(), Math.min(Number(delay[1]), 5000));
+      return;
+    }
+
     let file = path.resolve(rootDir, `.${pathname}`);
     if (file !== rootDir && !file.startsWith(rootDir + path.sep)) {
       res.writeHead(403).end('Forbidden');

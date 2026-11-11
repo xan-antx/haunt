@@ -339,9 +339,11 @@ describe('Feature: haunt-engine, Property 1: Saved runs always pass the schema a
       let written = 0;
       let rejectedInvalid = 0;
       let rejectedCollision = 0;
+      const ranFor: Record<GhostId, number> = { listener: 0, phantom: 0, bebe: 0 };
 
       await fc.assert(
         fc.asyncProperty(caseArb, async (c) => {
+          ranFor[c.ghost]++;
           const outRoot = await mkdtemp(path.join(tmpdir(), 'haunt-finalize-'));
           try {
             const vp = PROFILES[c.ghost];
@@ -502,6 +504,9 @@ describe('Feature: haunt-engine, Property 1: Saved runs always pass the schema a
       expect(written).toBeGreaterThan(0);
       expect(rejectedInvalid).toBeGreaterThan(0);
       expect(rejectedCollision).toBeGreaterThan(0);
+      expect(ranFor.listener).toBeGreaterThan(0);
+      expect(ranFor.phantom).toBeGreaterThan(0);
+      expect(ranFor.bebe).toBeGreaterThan(0);
     },
     300_000,
   );

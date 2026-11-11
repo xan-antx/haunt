@@ -25,10 +25,15 @@
       });
       // One second after the load event a notice appears above the button and pushes it down by
       // 64 px, so the notice's link now sits where the button was.
+      function movePay() {
+        document.getElementById('notice').style.display = 'block';
+      }
+      // A test can call window.__movePay() itself at an exact moment. It sets
+      // window.__hauntManualMove in an init script, and then the timer is not started.
+      window.__movePay = movePay;
       window.addEventListener('load', function () {
-        setTimeout(function () {
-          document.getElementById('notice').style.display = 'block';
-        }, 1000);
+        if (window.__hauntManualMove) return;
+        setTimeout(movePay, 1000);
       });
     </script>
   </body>

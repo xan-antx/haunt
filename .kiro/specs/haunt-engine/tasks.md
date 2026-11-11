@@ -220,7 +220,7 @@ Rules for every task:
   - Wire both into the ghost registry. Run each against Lantern Bills (through the harness) with `--out test-output/manual --seed 1`, compare with the design's expected walks, and fix differences in the engine
   - _Requirements: 13–19_
 
-- [ ] 22. Checkpoint: Phase 2a core
+- [x] 22. Checkpoint: Phase 2a core
   - Run `npm run build`, `npm test` and `npm run test:properties`. Confirm Properties 1 to 8 ran and passed, and that Properties 1, 3 and 4 generate runs for all three ghosts
   - _Requirements: 20.1, 20.2_
 

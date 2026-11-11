@@ -63,13 +63,29 @@
       el.textContent = text;
       messages.appendChild(el);
     }
+    var lateAlertPending = false;
+    if (window.__haunt && window.__haunt.clock) {
+      var clock = window.__haunt.clock;
+      var readClock = clock.read;
+      clock.read = function () {
+        var state = readClock.apply(clock, arguments);
+        if (lateAlertPending) {
+          lateAlertPending = false;
+          fetch('/delay/200').then(function () { addAlert('Expiry date is required'); });
+        }
+        return state;
+      };
+    }
     document.getElementById('pay').addEventListener('click', function () { payment.hidden = false; });
     document.getElementById('submit').addEventListener('click', function () {
       if (!card.value) {
         addAlert('Card number is required');
       } else if (!expiry.value) {
-        // Later than the key press: it is made during the Settle that follows the action.
-        setTimeout(function () { addAlert('Expiry date is required'); }, 200);
+        // Later than the key press: it is made during the Settle that follows the action. A page timer
+        // would race with the Settle on a busy machine, so the alert waits for a request that starts
+        // when the Settle first reads the Page_Change_Clock and takes 200 ms. The request is in flight,
+        // so the Settle cannot end before the alert is in the page.
+        lateAlertPending = true;
       } else {
         dlg.hidden = false;
         cover.focus();

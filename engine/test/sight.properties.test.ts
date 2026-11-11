@@ -225,7 +225,11 @@ function renderPage(spec: PageSpec): string {
   return (
     `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
     `<meta name="viewport" content="width=device-width, initial-scale=1">${head}</head>` +
-    `<body style="margin:8px;font:16px/1.4 sans-serif"><p>${CONTROL_TEXT}</p>${body}</body></html>`
+    // `overflow-wrap:anywhere` keeps a long run of marker text (hidden spans have no spaces between
+    // them) inside the 360 px viewport. A page wider than a mobile viewport makes Chromium widen the
+    // layout viewport (innerWidth 363 instead of 360), and the Sight reports that, so the generated
+    // pages must not overflow if the viewport is to equal the profile.
+    `<body style="margin:8px;font:16px/1.4 sans-serif;overflow-wrap:anywhere"><p>${CONTROL_TEXT}</p>${body}</body></html>`
   );
 }
 

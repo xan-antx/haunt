@@ -48,6 +48,13 @@ beforeAll(async () => {
   browser = await chromium.launch();
   context = await browser.newContext({ viewport: { width: 800, height: 600 } });
   for (const source of pageInitScripts) await context.addInitScript(source);
+
+  // Warm up. The first page, navigation and Sight of a fresh Chromium can take many seconds when other
+  // browsers are starting, and that cost would otherwise land in the first test's 30 s limit.
+  const warm = await context.newPage();
+  await warm.goto(server.url('/visual-sight-cases.html'));
+  await readSight(warm);
+  await warm.close();
 }, 60_000);
 
 afterAll(async () => {

@@ -95,6 +95,33 @@ function earlySightBody(page: Page, _cdp: CDPSession, opts: BodyOptions): Body<S
   return createVisualBody(page, { ...phantomTiming, settleQuietMs: 600, rng: opts.rng });
 }
 
+/**
+ * The same Body as `earlySightBody`, but the fixture's button moves at an exact moment instead of on
+ * a timer: right after the first Sight (the one the first click is aimed from) is captured, and
+ * before the click. The fixture's own 1 s timer is switched off for this page.
+ */
+function moveAfterSightBody(page: Page, cdp: CDPSession, opts: BodyOptions): Body<Sight, VisualAction> {
+  const inner = earlySightBody(page, cdp, opts);
+  let moved = false;
+  return {
+    async open(url) {
+      await page.addInitScript(() => {
+        (window as unknown as { __hauntManualMove: boolean }).__hauntManualMove = true;
+      });
+      return inner.open(url);
+    },
+    async perceive() {
+      const result = await inner.perceive();
+      if (!moved) {
+        moved = true;
+        await page.evaluate(() => (window as unknown as { __movePay: () => void }).__movePay());
+      }
+      return result;
+    },
+    act: (action) => inner.act(action),
+  };
+}
+
 /** Sorted, forward-slash relative paths of everything under `dir`. */
 function listing(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -209,8 +236,8 @@ describe("The Phantom's Detectors on fixture pages", () => {
   }
 
   describe('misclick', () => {
-    it('records the tap that lands on the link when the button moves under it 1 s after load, and saves only that seen screenshot', async () => {
-      const { outcome, recorder, runner, folder, run } = await phantomRun('moving', '/phantom-moving.html', earlySightBody);
+    it('records the tap that lands on the link when the button moves under it after the Sight, and saves only that seen screenshot', async () => {
+      const { outcome, recorder, runner, folder, run } = await phantomRun('moving', '/phantom-moving.html', moveAfterSightBody);
 
       // Step 2 hits the link that moved into the button's place; Step 3 taps the button where it is now.
       expect(outcome).toEqual({ result: 'succeeded' });
