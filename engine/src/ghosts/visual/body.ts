@@ -85,6 +85,11 @@ export interface VisualBodyOptions {
   rng: () => number;
 }
 
+/** The one CDP call the visual Body makes: a screenshot that does not wait for fonts and images. */
+export interface ScreenshotCdp {
+  send(method: 'Page.captureScreenshot', params: Record<string, unknown>): Promise<unknown>;
+}
+
 /** How often Settle and the wait action look at the page. */
 export const SETTLE_POLL_MS = 50;
 /** Default upper bound of a Settle. */
@@ -202,7 +207,11 @@ export const SIGHTED_PAGE_KEYS = [
 ] as const satisfies readonly (keyof SightedPage)[];
 
 /** Builds the facade. The only function in this file that holds the real `Page`. */
-export function createSightedPage(page: Page, options: Pick<VisualBodyOptions, 'typingDelayMs'>): SightedPage {
+export function createSightedPage(
+  page: Page,
+  options: Pick<VisualBodyOptions, 'typingDelayMs'>,
+  cdp?: ScreenshotCdp,
+): SightedPage {
   const facade: SightedPage = {
     mouse: Object.freeze({
       click: (x: number, y: number) => page.mouse.click(x, y),
@@ -212,7 +221,21 @@ export function createSightedPage(page: Page, options: Pick<VisualBodyOptions, '
     keyboard: Object.freeze({
       type: (text: string) => page.keyboard.type(text, { delay: options.typingDelayMs }),
     }),
-    screenshot: () => retryScreenshot(() => page.screenshot({ type: 'png' })),
+    screenshot: () =>
+      retryScreenshot(async () => {
+        if (!cdp) return page.screenshot({ type: 'png' });
+        // Page.captureScreenshot does not wait for web fonts and images the way Playwright's screenshot
+        // does. On slow 3G that wait took seconds, and The Phantom's Sight came late, after the page had moved.
+        // The clip's scale keeps the device pixel ratio, so the picture has the same size as Playwright's.
+        const size = page.viewportSize();
+        const dpr = (await page.evaluate('window.devicePixelRatio')) as number;
+        const params: { format: 'png'; clip?: { x: number; y: number; width: number; height: number; scale: number } } = {
+          format: 'png',
+        };
+        if (size) params.clip = { x: 0, y: 0, width: size.width, height: size.height, scale: dpr };
+        const shot = (await cdp.send('Page.captureScreenshot', params)) as { data: string };
+        return Buffer.from(shot.data, 'base64');
+      }),
     navigate: async (url: string) => {
       await page.goto(url, { waitUntil: 'commit', timeout: NAVIGATION_TIMEOUT_MS });
     },
@@ -631,6 +654,6 @@ class VisualBody implements Body<Sight, VisualAction> {
  * own timing, for example `createVisualBody(page, { settleQuietMs: 1200, reactionDelay: { minMs: 550,
  * maxMs: 650 }, typingDelayMs: 120, rng: opts.rng })`.
  */
-export function createVisualBody(page: Page, options: VisualBodyOptions): Body<Sight, VisualAction> {
-  return new VisualBody(createSightedPage(page, options), options);
+export function createVisualBody(page: Page, options: VisualBodyOptions, cdp?: ScreenshotCdp): Body<Sight, VisualAction> {
+  return new VisualBody(createSightedPage(page, options, cdp), options);
 }

@@ -521,7 +521,13 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
     url: args.url,
     checkSuccess: async () => {
       try {
-        await page.locator(mission.successCheck.visible).first().waitFor({ state: 'visible', timeout: 300 });
+        const target = page.locator(mission.successCheck.visible).first();
+        if (ghost.id !== 'listener') {
+          // The visual ghosts have just Settled, so the check does not wait. A 300 ms wait here would
+          // delay their next Sight, and The Phantom's timing depends on taking it right after Settle.
+          return await target.isVisible();
+        }
+        await target.waitFor({ state: 'visible', timeout: 300 });
         return true;
       } catch {
         return false;

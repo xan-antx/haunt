@@ -108,7 +108,7 @@ describe('dark_pattern evidence', () => {
     });
     expect(evidence).toBe(
       'The total says ₹2,589.00 ("Total Amount:" ₹2,589.00, on /) but the bill was ₹2,490.00 (₹99.00 more). ' +
-        'The bill amount is the first amount on the first page (/), read at Step 1. It was outside the visible part of the screen.',
+        'The bill amount is the amount shown most often on the first page (/), read at Step 1. It was outside the visible part of the screen.',
     );
   });
 });

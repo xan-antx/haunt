@@ -5,7 +5,9 @@ import { ELEMENT_KEYS_SOURCE } from '../page/elementKeys.ts';
 import { LAYOUT_SHIFTS_SOURCE } from '../page/layoutShifts.ts';
 import { LIVE_REGIONS_SOURCE } from '../page/liveRegions.ts';
 import { SIGHT_SOURCE } from '../page/sight.ts';
+import { bebeGhost } from './bebe/index.ts';
 import { listenerGhost } from './listener/index.ts';
+import { phantomGhost } from './phantom/index.ts';
 
 /*
  * The ghost registry.
@@ -54,5 +56,7 @@ export const pageInitScripts: string[] = [
   SIGHT_SOURCE,
 ];
 
-// Registered ghosts. `phantom` and `bebe` are added by later tasks.
+// Registered ghosts.
 registerGhost(listenerGhost);
+registerGhost(phantomGhost);
+registerGhost(bebeGhost);

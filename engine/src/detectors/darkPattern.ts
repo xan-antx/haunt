@@ -1,11 +1,13 @@
 import type { DetectedProblem, Detector, DetectorContext } from '../core/types.ts';
-import { AMOUNT_PATTERN_SOURCE, findAmounts, firstAmount, formatAmount, type Amount } from './money.ts';
+import { AMOUNT_PATTERN_SOURCE, billAmount, findAmounts, firstAmount, formatAmount, type Amount } from './money.ts';
 
 /*
  * The `dark_pattern` Detector (Requirements 19.3, 19.4 and 19.5; design "Bebe / Detectors / dark_pattern").
  *
- * The bill amount is the first amount (`money.ts`) in the rendered text (`document.body.innerText`) of
- * the first page, read when Step 1 settles. When Step 1 shows no amount there is no bill amount, and
+ * The bill amount is the amount (`billAmount` in `money.ts`) that the rendered text
+ * (`document.body.innerText`) of the first page shows most often, the earliest one on a tie, read when
+ * Step 1 settles. (Lantern Bills opens with a banner "Up to ₹150 a month" above the bill, so the first
+ * amount on the page is not the bill.) When Step 1 shows no amount there is no bill amount, and
  * no total is compared with it.
  *
  * Two kinds of Finding:
@@ -225,8 +227,12 @@ const READ_SCRIPT: string = String.raw`(function (arg) {
 
 const INSPECT_SCRIPT = `(arg) => ${READ_SCRIPT}(arg)`;
 
-/** The words that label a total: English `total`, Punjabi `ਕੁੱਲ` (either mark order), Hindi `कुल`. */
-const TOTAL_WORD = /\btotal|ਕ(?:ੁੱ|ੱੁ)ਲ|कुल/i;
+/**
+ * The words that label a total: English `total`, Punjabi `ਕੁੱਲ` (either mark order), Hindi `कुल`. Also
+ * the words of a confirmation page, which says what was paid or charged instead: `amount paid`,
+ * `charged`, `ਭਰੀ ਰਕਮ` and `भुगतान राशि` (the labels on Lantern Bills' confirmation page).
+ */
+const TOTAL_WORD = /\btotal|\bamount paid|\bcharged|ਕ(?:ੁੱ|ੱੁ)ਲ|ਭਰੀ ਰਕਮ|कुल|भुगतान राशि/i;
 
 /** Whether a text labels a total. */
 export function isTotalLabel(text: string): boolean {
@@ -285,7 +291,7 @@ export function totalEvidence(f: {
   const labelled = f.label.includes(f.shown.text) ? `"${quote(f.label)}"` : `"${quote(f.label)}" ${f.shown.text}`;
   return (
     `The total says ${f.shown.text} (${labelled}, on ${f.path}) but the bill was ${f.bill.text} (${diff} more). ` +
-    `The bill amount is the first amount on the first page (${f.billPath}), read at Step 1.` +
+    `The bill amount is the amount shown most often on the first page (${f.billPath}), read at Step 1.` +
     `${f.outside ? ` ${OUTSIDE_SENTENCE}` : ''}`
   );
 }
@@ -338,8 +344,8 @@ export function createDarkPatternDetector(): Detector {
       });
       docByStep.set(stepN, report.doc);
       if (stepN === 1) {
-        const first = firstAmount(report.text ?? '');
-        bill = first ? { amount: first, path } : null;
+        const main = billAmount(report.text ?? '');
+        bill = main ? { amount: main, path } : null;
       }
 
       const problems: DetectedProblem[] = [];

@@ -22,13 +22,12 @@ export const PHANTOM_LANGUAGES = ['en'] as const;
  * `applyThrottling` before the page is opened. Its Detectors are `misclick` and `slow_wait`; its stop
  * rule ends the Run with `slow_wait` or `misclicks` (Requirement 16).
  *
- * Not registered yet: task 21 adds it to `registry.ts`. Like The Listener's module, this file must not
- * import `registry.ts`.
+ * Registered in `registry.ts`. Like The Listener's module, this file must not import `registry.ts`.
  */
 export const phantomGhost: Ghost<Sight, VisualAction> = {
   id: 'phantom',
   profile: phantomProfile,
-  createBody: (page, _cdp, opts: BodyOptions) => createVisualBody(page, { ...phantomTiming, rng: opts.rng }),
+  createBody: (page, cdp, opts: BodyOptions) => createVisualBody(page, { ...phantomTiming, rng: opts.rng }, cdp),
   createMind: (mission: Mission, opts: MindOptions) =>
     createVisualMind(mission, { ...opts, languages: PHANTOM_LANGUAGES, pointer: 'tap' }),
   detectors: () => [createMisclickDetector(), createSlowWaitDetector()],

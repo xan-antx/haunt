@@ -216,7 +216,7 @@ Rules for every task:
   - Run `npm run build` and `npm test` in `engine/`
   - _Requirements: 19.2, 19.4_
 
-- [ ] 21. Register The Phantom and Bebe and run each once by hand
+- [x] 21. Register The Phantom and Bebe and run each once by hand
   - Wire both into the ghost registry. Run each against Lantern Bills (through the harness) with `--out test-output/manual --seed 1`, compare with the design's expected walks, and fix differences in the engine
   - _Requirements: 13–19_
 

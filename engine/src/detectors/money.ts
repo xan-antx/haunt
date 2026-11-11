@@ -52,6 +52,25 @@ export function findAmounts(text: string): Amount[] {
   return out;
 }
 
+/**
+ * The bill amount of a page: the amount (same currency and value) that the text shows most often, and
+ * the earliest of them when several are shown equally often. A page can show a smaller figure first,
+ * such as a banner's "Up to ₹150 a month", while the bill is repeated in its details and its summary.
+ * Returns the first occurrence of that amount, or `null` when the text has no amount.
+ */
+export function billAmount(text: string): Amount | null {
+  const counts = new Map<string, { amount: Amount; count: number }>();
+  for (const a of findAmounts(text)) {
+    const id = `${a.currency}:${a.minor}`;
+    const seen = counts.get(id);
+    if (seen) seen.count += 1;
+    else counts.set(id, { amount: a, count: 1 });
+  }
+  let best: { amount: Amount; count: number } | null = null;
+  for (const entry of counts.values()) if (!best || entry.count > best.count) best = entry;
+  return best?.amount ?? null;
+}
+
 /** The first amount in `text`, or `null`. */
 export function firstAmount(text: string): Amount | null {
   return findAmounts(text)[0] ?? null;

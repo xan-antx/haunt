@@ -694,15 +694,15 @@ All three use read-only scripts. Each Finding is reported at the first Step at w
 **untranslated.** This runs only when `document.documentElement.lang` starts with `pa`. For each visible leaf text block and each placeholder of an empty field (typed values are left out), the Detector:
 
 1. removes the site's `allowedTerms` (case-insensitive);
-2. removes acronyms (`\b[A-Z]{2,4}\b`) and tokens that contain a digit;
+2. removes acronyms (`\b[A-Z]{2,4}\b`) and tokens that contain a digit, an `@` (e-mail addresses) or that start like a web address;
 3. counts the words matching `\b[A-Za-z]{3,}\b`.
 
 Two or more is a Finding, with the key `<element key>|<text>`. Evidence: "The button text "Pay this bill" is in English on a page shown in Punjabi (lang="pa")." On Lantern Bills, "Lantern Bills" is an allowed term, "CVV" and "MM/YY" are acronyms, and the footer "© 2026 Lantern Bills" is left with nothing.
 
-**dark_pattern.** `money.ts` parses `₹`, `Rs.`, `INR`, `$`, `€` and `£` amounts with Indian or Western grouping. The bill amount is the first amount in the rendered text of the first page, read when Step 1 settles: ₹2,490.00. Two kinds of Finding:
+**dark_pattern.** `money.ts` parses `₹`, `Rs.`, `INR`, `$`, `€` and `£` amounts with Indian or Western grouping. The bill amount is the amount the rendered text of the first page shows most often (the earliest on a tie), read when Step 1 settles: ₹2,490.00. The late banner's "Up to ₹150 a month" comes first on the page but is shown once, so it is not the bill. Two kinds of Finding:
 
 - `pre-ticked|<key>`: a visible checkbox whose label text contains an amount, checked when it first appears, and not in `touchedKeys` of any Step so far. Evidence: "The paid option "₹99 ਲਈ ਭੁਗਤਾਨ ਸੁਰੱਖਿਆ" (₹99) was already ticked when it appeared. Bebe did not tick it."
-- `total|<key>`: an element whose text, or whose nearest preceding label (`dt`, `label`, or the preceding text in the same block), contains `total`, `ਕੁੱਲ` or `कुल`, and which shows an amount higher than the bill amount. Evidence: "The total says ₹2,589.00 but the bill was ₹2,490.00 (₹99.00 more)." The modal total and the confirmation total are separate elements, so both are recorded.
+- `total|<key>`: an element whose text, or whose nearest preceding label (`dt`, `label`, or the preceding text in the same block), contains `total`, `ਕੁੱਲ` or `कुल` (or, for a confirmation page, `amount paid`, `charged`, `ਭਰੀ ਰਕਮ` or `भुगतान राशि`, which are Lantern Bills' labels there), and which shows an amount higher than the bill amount. Evidence: "The total says ₹2,589.00 but the bill was ₹2,490.00 (₹99.00 more)." The modal total and the confirmation total are separate elements, so both are recorded.
 
 Bebe has no stop rule from Findings.
 

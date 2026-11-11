@@ -1,4 +1,7 @@
 import type { GiveUpReason, Ghost, RunState } from '../../core/types.ts';
+import { createCutOffTextDetector } from '../../detectors/cutOffText.ts';
+import { createDarkPatternDetector } from '../../detectors/darkPattern.ts';
+import { createUntranslatedDetector } from '../../detectors/untranslated.ts';
 import { createVisualBody } from '../visual/body.ts';
 import { createVisualMind } from '../visual/mind.ts';
 import type { Sight, VisualAction } from '../visual/types.ts';
@@ -24,9 +27,8 @@ export function bebeStopRule(_state: RunState): GiveUpReason | null {
  * Bebe (Requirements 17 and 18, Phase 2a): reads at 200% zoom in Punjabi, at a slow and careful
  * pace, and clicks with a mouse.
  *
- * Her Detectors (`cut_off_text`, `untranslated`, `dark_pattern`) are added by tasks 20.2 to 20.4, and
- * task 21 registers her in `registry.ts`. Like the Listener's module, this one must not import the
- * registry, which would be an import cycle once she is registered.
+ * Her Detectors are `cut_off_text`, `untranslated` and `dark_pattern`. She is registered in
+ * `registry.ts`, so like the Listener's module this one must not import the registry (an import cycle).
  */
 export const bebeGhost: Ghost<Sight, VisualAction> = {
   id: 'bebe',
@@ -40,6 +42,6 @@ export const bebeGhost: Ghost<Sight, VisualAction> = {
       rng: opts.rng,
     }),
   createMind: (mission, opts) => createVisualMind(mission, { ...opts, languages: BEBE_LANGUAGES, pointer: 'click' }),
-  detectors: () => [],
+  detectors: () => [createCutOffTextDetector(), createUntranslatedDetector(), createDarkPatternDetector()],
   stopRule: bebeStopRule,
 };

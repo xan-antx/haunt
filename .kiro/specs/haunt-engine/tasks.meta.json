@@ -1606,6 +1606,16 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369219937
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392797826
+      },
+      {
+        "executionId": "b4f49f95-2e32-4b70-af6d-360287ffd61b",
+        "chatSessionId": "sess_6f49efd9-2d58-4742-9422-99ad846c236d",
+        "timestamp": 1794393005137
       }
     ],
     "22. Checkpoint: Phase 2a core": [
@@ -1623,6 +1633,11 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369220010
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392781441
       }
     ],
     "23. The Phantom's end-to-end test": [
@@ -1640,6 +1655,11 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369220082
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392781503
       }
     ],
     "24. Bebe's end-to-end test": [
@@ -1657,6 +1677,11 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369220151
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392781568
       }
     ],
     "25. Checkpoint: all ghosts": [
@@ -1674,6 +1699,11 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369220223
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392781628
       }
     ],
     "26. Demo runs for every ghost": [
@@ -1691,6 +1721,11 @@
         "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
         "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
         "timestamp": 1794369220291
+      },
+      {
+        "executionId": "586878a3-2706-46e4-b7df-4bf6b3e71c5b",
+        "chatSessionId": "sess_ac12520d-9d0e-4942-9ebe-498661310972",
+        "timestamp": 1794392781689
       }
     ],
     "4. Missions": [

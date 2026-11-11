@@ -219,7 +219,7 @@ describe("Bebe's Detectors on fixture pages", () => {
           1,
           TOTAL_TITLE,
           'The total says ₹2,589.00 ("ਕੁੱਲ" ₹2,589.00, on /bebe-total-raised.html) but the bill was ₹2,490.00 (₹99.00 more). ' +
-            'The bill amount is the first amount on the first page (/bebe-total-raised.html), read at Step 1.',
+            'The bill amount is the amount shown most often on the first page (/bebe-total-raised.html), read at Step 1.',
         ],
       ]);
     });

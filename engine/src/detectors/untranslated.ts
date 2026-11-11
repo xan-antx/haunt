@@ -11,7 +11,8 @@ import type { DetectedProblem, Detector, DetectorContext, RecordedStep } from '.
  *      a name she typed, echoed somewhere on the page, does not count. Fields that hold a value are
  *      not read at all, only placeholders of empty fields;
  *   2. removes the site's `allowedTerms` from the Haunt_Config (case-insensitive);
- *   3. removes acronyms (`\b[A-Z]{2,4}\b`) and tokens that contain a digit;
+ *   3. removes acronyms (`\b[A-Z]{2,4}\b`) and tokens that contain a digit, an `@` (an e-mail
+ *      address) or that start like a web address;
  *   4. counts the words matching `\b[A-Za-z]{3,}\b`.
  *
  * Two or more words is a Finding, with the key `<document>:<element key>|<text>`, so the same English
@@ -304,7 +305,8 @@ export function englishWords(text: string, leaveOut: LeaveOut): string[] {
   rest = removeTerms(rest, leaveOut.allowedTerms);
   rest = rest
     .split(/\s+/)
-    .filter((token) => !/\p{Nd}/u.test(token))
+    // Digits, e-mail addresses and web addresses are not words that could be translated.
+    .filter((token) => !/\p{Nd}/u.test(token) && !/@|^(?:https?:\/\/|www\.)/i.test(token))
     .join(' ');
   rest = rest.replace(/\b[A-Z]{2,4}\b/g, ' ');
   return rest.match(/\b[A-Za-z]{3,}\b/g) ?? [];

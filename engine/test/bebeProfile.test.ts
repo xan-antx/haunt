@@ -68,7 +68,7 @@ describe('Bebe profile values', () => {
       mission: {} as RunState['mission'],
     };
     expect(bebeStopRule(state)).toBeNull();
-    expect(bebeGhost.detectors()).toEqual([]);
+    expect(bebeGhost.detectors().map((d) => d.type)).toEqual(['cut_off_text', 'untranslated', 'dark_pattern']);
   });
 });
 
