@@ -17,6 +17,39 @@ export interface WriteRunOptions {
   rename?: RenameFn;
   /** Process id used in the temporary folder name. Defaults to `process.pid`. */
   pid?: number;
+  /** Waits between rename attempts. Injectable so a test does not really wait. */
+  sleep?: (ms: number) => Promise<void>;
+}
+
+/** Windows antivirus and file indexers can hold a file briefly, which makes the rename fail with these codes. */
+const RETRYABLE_RENAME_CODES = new Set(['EPERM', 'EACCES', 'EBUSY']);
+const RENAME_MAX_ATTEMPTS = 10;
+const RENAME_DELAY_STEP_MS = 50;
+
+function defaultSleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Renames, retrying on EPERM, EACCES and EBUSY: up to 10 attempts in total, waiting 50 ms, 100 ms,
+ * 150 ms ... between them. Any other error, or the last failure, is thrown at once.
+ */
+async function renameWithRetry(
+  rename: RenameFn,
+  from: string,
+  to: string,
+  sleep: (ms: number) => Promise<void>,
+): Promise<void> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await rename(from, to);
+      return;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | null)?.code;
+      if (attempt >= RENAME_MAX_ATTEMPTS || code === undefined || !RETRYABLE_RENAME_CODES.has(code)) throw error;
+      await sleep(RENAME_DELAY_STEP_MS * attempt);
+    }
+  }
 }
 
 /** Thrown instead of writing when the run did not pass validation. */
@@ -74,7 +107,7 @@ export async function writeRunFolder(options: WriteRunOptions): Promise<WrittenR
     for (const [name, png] of files) {
       await writeFile(path.join(tempFolder, ...name.split('/')), png);
     }
-    await rename(tempFolder, finalFolder);
+    await renameWithRetry(rename, tempFolder, finalFolder, options.sleep ?? defaultSleep);
   } catch (error) {
     await rm(tempFolder, { recursive: true, force: true }).catch(() => undefined);
     throw error;

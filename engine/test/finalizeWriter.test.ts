@@ -473,6 +473,54 @@ describe('writeRunFolder', () => {
     expect(listing(path.join(outRoot, SITE_KEY))).toEqual([]);
   });
 
+  it('retries the rename after two EPERM failures and then succeeds', async () => {
+    const result = finalizeRun(finalizeInput(threeStepRecorder(), referencedFindings));
+    let attempts = 0;
+    const waits: number[] = [];
+
+    const written = await writeRunFolder({
+      outRoot,
+      siteKey: SITE_KEY,
+      result,
+      sleep: async (ms) => {
+        waits.push(ms);
+      },
+      rename: async (from, to) => {
+        attempts++;
+        if (attempts <= 2) throw Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+        const { rename } = await import('node:fs/promises');
+        await rename(from, to);
+      },
+    });
+
+    expect(attempts).toBe(3);
+    expect(waits).toHaveLength(2);
+    expect(waits[1]!).toBeGreaterThan(waits[0]!);
+    expect(existsSync(written.runJsonPath)).toBe(true);
+    expect(readdirSync(path.join(outRoot, SITE_KEY))).toEqual([RUN_ID]);
+  });
+
+  it('gives up after 10 EBUSY attempts and leaves nothing on disk', async () => {
+    const result = finalizeRun(finalizeInput(threeStepRecorder(), referencedFindings));
+    let attempts = 0;
+
+    await expect(
+      writeRunFolder({
+        outRoot,
+        siteKey: SITE_KEY,
+        result,
+        sleep: async () => undefined,
+        rename: async () => {
+          attempts++;
+          throw Object.assign(new Error('EBUSY: resource busy or locked, rename'), { code: 'EBUSY' });
+        },
+      }),
+    ).rejects.toThrow(/EBUSY/);
+
+    expect(attempts).toBe(10);
+    expect(listing(path.join(outRoot, SITE_KEY))).toEqual([]);
+  });
+
   it('refuses to overwrite an existing final folder', async () => {
     const finalFolder = path.join(outRoot, SITE_KEY, RUN_ID);
     mkdirSync(finalFolder, { recursive: true });
