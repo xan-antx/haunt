@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual body</title>
+    <style>
+      body { margin: 0; font: 16px/1.4 sans-serif; }
+      #go { display: block; width: 120px; height: 40px; margin: 8px; }
+      #card { display: block; margin: 8px; }
+      #tall { height: 3000px; }
+    </style>
+  </head>
+  <body>
+    <h1>Visual body</h1>
+    <button id="go" type="button">Go</button>
+    <p id="out">Not clicked</p>
+    <label for="card">Card number</label>
+    <input id="card" />
+    <a id="next" href="/visual-page-scripts.html">Next page</a>
+    <div id="tall"></div>
+    <p>Bottom</p>
+    <script>
+      document.getElementById('go').addEventListener('click', function () {
+        document.getElementById('out').textContent = 'Clicked';
+      });
+    </script>
+  </body>
+</html>

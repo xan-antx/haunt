@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pa">
+<head>
+<meta charset="utf-8">
+<title>ਭੁਗਤਾਨ</title>
+<style>
+  html { scroll-behavior: auto; }
+  body { margin: 0; font: 16px/1.25 sans-serif; }
+  p, dl, label { margin: 0 0 8px; }
+  dd { margin: 0; }
+  label { display: block; }
+  input[type=checkbox] { width: 20px; height: 20px; vertical-align: middle; }
+  /* The first screen: 0 to 760 px. At 400 px high, one scroll of 320 px does not reach "later", two do. */
+  .top { height: 760px; padding: 8px; box-sizing: border-box; }
+  .part { height: 240px; padding: 8px; box-sizing: border-box; }
+  .gap { height: 4000px; }
+  .box { width: 120px; margin-bottom: 8px; overflow: hidden; white-space: nowrap; font-size: 24px; }
+</style>
+</head>
+<body>
+  <div class="top"><p>ਤੁਹਾਡਾ ਬਿੱਲ ₹2,490.00</p></div>
+
+  <!-- 760 to 1000 px: comes into view after two scrolls. -->
+  <section class="part" id="later" aria-label="ਹੇਠਾਂ">
+    <div class="box">ਭੁਗਤਾਨ ਦਾ ਪੂਰਾ ਵੇਰਵਾ ਇੱਥੇ</div>
+    <p>Your card was declined</p>
+    <label><input type="checkbox" checked> ₹99 ਲਈ ਭੁਗਤਾਨ ਸੁਰੱਖਿਆ</label>
+    <dl><dt>ਕੁੱਲ</dt><dd>₹2,589.00</dd></dl>
+  </section>
+
+  <div class="gap"></div>
+
+  <!-- 5000 to 5240 px: never scrolled into view in the test. -->
+  <section class="part" id="never" aria-label="ਬਹੁਤ ਹੇਠਾਂ">
+    <div class="box">ਸ਼ਰਤਾਂ ਅਤੇ ਨਿਯਮ ਬਹੁਤ ਲੰਬੇ ਹਨ</div>
+    <p>Card number is invalid</p>
+    <label><input type="checkbox" checked> ₹49 ਲਈ SMS ਯਾਦ-ਦਹਾਨੀ</label>
+    <dl><dt>ਕੁੱਲ</dt><dd>₹2,539.00</dd></dl>
+  </section>
+</body>
+</html>

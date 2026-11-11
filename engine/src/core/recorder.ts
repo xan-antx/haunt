@@ -1,9 +1,9 @@
 import type { FocusBox, Step } from '../contract/types.ts';
-import type { ActionResult, Box, Probe, RecordedStep, RecorderViewport, StepTrace } from './types.ts';
+import type { ActionResult, Box, Probe, RecordedStep, RecorderViewport, StepIntention, StepTrace } from './types.ts';
 
 // The shared core types now live in ./types.ts. They are re-exported so that
 // existing imports from './recorder.ts' keep working.
-export type { ActionResult, Box, Probe, RecordedStep, RecorderViewport, StepTrace };
+export type { ActionResult, Box, Probe, RecordedStep, RecorderViewport, StepIntention, StepTrace };
 
 export type ShotKind = 'step' | 'seen';
 
@@ -73,9 +73,10 @@ export class Recorder {
 
   /**
    * Records one action as the next Step. `probe` is the data captured with the
-   * Perception the decision was based on; Step 1 (opening the page) has none.
+   * Perception the decision was based on, and `intention` the Intention the decision
+   * was for; Step 1 (opening the page) has neither.
    */
-  add(result: ActionResult, thought: string, probe?: Probe): RecordedStep {
+  add(result: ActionResult, thought: string, probe?: Probe, intention?: StepIntention): RecordedStep {
     const n = this.recorded.length + 1;
     const screenshot = shotPath(n);
     const { trace } = result;
@@ -94,6 +95,7 @@ export class Recorder {
     if (focusBox) step.focusBox = focusBox;
 
     const entry: RecordedStep = { step, trace, probe: probe ?? { at: trace.readyAt } };
+    if (intention) entry.intention = { intentionId: intention.intentionId, recovery: intention.recovery };
     this.recorded.push(entry);
     this.shots.set(screenshot, result.screenshot);
     if (result.seenScreenshot) this.shots.set(shotPath(n, 'seen'), result.seenScreenshot);

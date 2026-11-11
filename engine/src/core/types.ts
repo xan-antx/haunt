@@ -33,7 +33,18 @@ export interface StepTrace {
   pathAfter: string;
   /** One entry per key press. */
   keys: { key: string; focusKey: string | null; dialogKey: string | null }[];
-  click?: { aimed: Box; point: { x: number; y: number }; hitKey: string | null; at: number };
+  click?: {
+    aimed: Box;
+    point: { x: number; y: number };
+    hitKey: string | null;
+    at: number;
+    /** Visual ghosts: the Seen_Item id the click aimed at, a key of the Step's `probe.itemKeys`. */
+    aimedItem?: string;
+    /** Visual ghosts: the aimed item's visible text in the Sight. */
+    aimedText?: string;
+    /** The visible text of the element that received the click, read when the click arrived. */
+    hitText?: string;
+  };
   /** Elements the ghost clicked or typed into. */
   touchedKeys: string[];
   /** Page clock, ms. */
@@ -67,11 +78,20 @@ export interface ActionResult {
   seenScreenshot?: Buffer;
 }
 
-/** A recorded Step together with the data the detectors need. */
+/** Which Intention a Step's action was for, copied from the Mind's `act` Decision. Never given to a Mind. */
+export interface StepIntention {
+  intentionId: string;
+  /** The Decision was marked `recovery: true` (going back from an unexpected page). */
+  recovery: boolean;
+}
+
+/** A recorded Step together with the data the detectors and the stop rules need. */
 export interface RecordedStep {
   step: Step;
   trace: StepTrace;
   probe: Probe;
+  /** Absent for Step 1 (opening the page), which no Decision made. */
+  intention?: StepIntention;
 }
 
 /** The browser profile values the recorder needs to convert boxes. */
@@ -99,6 +119,8 @@ export interface NetworkThrottling {
   downloadBytesPerSecond: number;
   /** Bytes per second. */
   uploadBytesPerSecond: number;
+  /** CDP `Network.ConnectionType`, for example `cellular3g`. Absent means none is reported. */
+  connectionType?: 'none' | 'cellular2g' | 'cellular3g' | 'cellular4g' | 'bluetooth' | 'ethernet' | 'wifi' | 'wimax' | 'other';
 }
 
 /** How a Ghost's browser looks and behaves. */

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phantom: a stable button</title>
+    <style>
+      body { margin: 0; padding: 16px; font: 16px/1.4 sans-serif; }
+      h1 { margin: 0 0 16px; font-size: 22px; }
+      #notice { margin: 0 0 16px; }
+      #notice a { display: block; width: 200px; height: 48px; line-height: 48px; }
+      #pay { display: block; width: 200px; height: 48px; margin: 0; font: inherit; }
+      #paid { margin: 16px 0 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Your bill</h1>
+    <!-- The same page as phantom-moving.html, but the notice is there from the start and nothing moves. -->
+    <p id="notice"><a href="#changes">See what changed</a></p>
+    <button id="pay" type="button">Pay this bill</button>
+    <p id="paid" data-haunt="paid" hidden>Paid</p>
+    <script>
+      document.getElementById('pay').addEventListener('click', function () {
+        document.getElementById('paid').hidden = false;
+      });
+    </script>
+  </body>
+</html>

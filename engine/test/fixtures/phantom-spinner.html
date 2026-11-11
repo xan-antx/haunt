@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phantom: a spinner for 12 seconds</title>
+    <style>
+      body { margin: 0; padding: 16px; font: 16px/1.4 sans-serif; }
+      /* A still spinner: it does not animate, so the only sign of progress is that it is visible. */
+      .spinner {
+        width: 48px;
+        height: 48px;
+        margin: 120px auto 0;
+        border: 6px solid #ccc;
+        border-top-color: #333;
+        border-radius: 50%;
+        box-sizing: border-box;
+      }
+      #pay { display: block; width: 200px; height: 48px; font: inherit; }
+    </style>
+  </head>
+  <body>
+    <main id="app">
+      <div class="spinner" role="progressbar" aria-label="Loading your bill"></div>
+    </main>
+    <script>
+      // The spinner stays on the screen for 12 seconds after the load event, then the bill replaces it.
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          document.getElementById('app').innerHTML =
+            '<h1 id="bill">Your bill</h1><button id="pay" type="button">Pay this bill</button>';
+        }, 12000);
+      });
+    </script>
+  </body>
+</html>

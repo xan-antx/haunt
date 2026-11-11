@@ -4,6 +4,9 @@ import { pageInitScripts } from '../src/ghosts/registry.ts';
 import { CHANGE_CLOCK_SOURCE, quietForMs, readChangeClock } from '../src/page/changeClock.ts';
 import { ELEMENT_KEYS_SOURCE, readElementKey, readFocusKeys } from '../src/page/elementKeys.ts';
 import { drainLiveAnnouncements, LIVE_REGIONS_SOURCE } from '../src/page/liveRegions.ts';
+import { CLICK_LOG_SOURCE, readClicksSince } from '../src/page/clickLog.ts';
+import { LAYOUT_SHIFTS_SOURCE, readLayoutShifts } from '../src/page/layoutShifts.ts';
+import { readSight, readVisibleText, SIGHT_SOURCE } from '../src/page/sight.ts';
 import { startFixtureServer, type FixtureServer } from './fixtureServer.ts';
 
 /**
@@ -82,17 +85,28 @@ describe('registration', () => {
   it('lists the three scripts in pageInitScripts so every Run installs them', () => {
     expect(pageInitScripts).toEqual(expect.arrayContaining([CHANGE_CLOCK_SOURCE, LIVE_REGIONS_SOURCE, ELEMENT_KEYS_SOURCE]));
   });
+
+  it("installs every page script in the design's order", () => {
+    expect(pageInitScripts).toEqual([
+      CHANGE_CLOCK_SOURCE,
+      LIVE_REGIONS_SOURCE,
+      CLICK_LOG_SOURCE,
+      LAYOUT_SHIFTS_SOURCE,
+      ELEMENT_KEYS_SOURCE,
+      SIGHT_SOURCE,
+    ]);
+  });
 });
 
 describe('installation', () => {
   it('guards against double installation: a second run keeps the first one', async () => {
     await openFixture(PAGE);
     await page.evaluate(
-      'window.__first = { clock: window.__haunt.clock, live: window.__haunt.live, keys: window.__haunt.keys, changes: window.__haunt.clock.read().changes }',
+      'window.__first = Object.assign({}, window.__haunt)',
     );
     for (const source of pageInitScripts) await page.evaluate(source);
     const same = await page.evaluate(
-      'window.__haunt.clock === window.__first.clock && window.__haunt.live === window.__first.live && window.__haunt.keys === window.__first.keys',
+      "['clock', 'live', 'keys', 'clicks', 'shifts', 'sight'].every((name) => window.__haunt[name] !== undefined && window.__haunt[name] === window.__first[name])",
     );
     expect(same).toBe(true);
     expect(pageErrors).toEqual([]);
@@ -106,9 +120,9 @@ describe('installation', () => {
     await child!.waitForLoadState('load');
     for (const frame of page.frames()) {
       const api = await frame.evaluate(
-        '[typeof window.__haunt.clock.read, typeof window.__haunt.live.drain, typeof window.__haunt.keys.key].join(",")',
+        '[typeof window.__haunt.clock.read, typeof window.__haunt.live.drain, typeof window.__haunt.keys.key, typeof window.__haunt.clicks.since, typeof window.__haunt.shifts.since, typeof window.__haunt.sight.look].join(",")',
       );
-      expect(api).toBe('function,function,function');
+      expect(api).toBe('function,function,function,function,function,function');
     }
     const parentKey = await readElementKey(page, 'h1');
     const childKey = await child!.evaluate("window.__haunt.keys.key(document.querySelector('h1'))");
@@ -120,7 +134,7 @@ describe('installation', () => {
   it.each(['/ok.txt', '/dot.svg'])('is tolerated on a document that is not a normal page (%s)', async (pathname) => {
     await openFixture(pathname);
     const names = (await page.evaluate('Object.keys(window.__haunt).sort()')) as string[];
-    expect(names).toEqual(['clock', 'keys', 'live']);
+    expect(names).toEqual(['clicks', 'clock', 'keys', 'live', 'shifts', 'sight']);
     expect(await readChangeClock(page)).not.toBeNull();
     expect(await drainLiveAnnouncements(page)).toEqual([]);
     expect(pageErrors).toEqual([]);
@@ -460,6 +474,10 @@ describe('the scripts are passive', () => {
       await page.evaluate(
         "window.__haunt.keys.dialogKey(document.getElementById('in-dialog')) + window.__haunt.keys.activeDialogKey() + window.__haunt.keys.activeKey()",
       );
+      await readSight(page);
+      await readVisibleText(page, '#form');
+      await readClicksSince(page, 0);
+      await readLayoutShifts(page, 0);
       await sleep(100);
     }
 

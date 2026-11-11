@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual modal</title>
+    <style>
+      body { margin: 0; padding: 8px; font: 16px/1.4 sans-serif; }
+      #behind { display: block; width: 160px; height: 40px; margin: 8px 0; }
+      #backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); }
+      #dialog { position: fixed; top: 200px; left: 200px; width: 360px; padding: 16px; background: #fff; }
+    </style>
+  </head>
+  <body>
+    <h1>Your bill</h1>
+    <button id="behind" type="button">Pay this bill</button>
+    <a id="behind-link" href="#autopay">Set up autopay</a>
+    <p>Amount due</p>
+    <div id="backdrop"></div>
+    <div id="dialog">
+      <p>Are you sure?</p>
+      <button id="close" type="button">Close</button>
+    </div>
+  </body>
+</html>

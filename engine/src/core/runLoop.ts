@@ -138,7 +138,10 @@ export async function runLoop<P, A>(options: RunLoopOptions<P, A>): Promise<RunL
       if (decision.kind === 'give_up') return { result: 'gave_up', reason: decision.reason };
 
       const result = await body.act(decision.action);
-      recorder.add(result, decision.thought, probe);
+      recorder.add(result, decision.thought, probe, {
+        intentionId: decision.intentionId,
+        recovery: decision.recovery === true,
+      });
     }
   }
 

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual sight cases</title>
+    <style>
+      body { margin: 0; padding: 8px; font: 16px/1.4 sans-serif; }
+      .mono { font: 20px/30px monospace; white-space: nowrap; }
+      #clip-x { overflow: hidden; width: 1000px; height: 30px; margin: 8px 0; }
+      #clip-y { overflow: hidden; width: 300px; height: 30px; margin: 8px 0; font: 20px/30px sans-serif; }
+      #measure { position: absolute; top: 0; left: 0; }
+      .row { display: block; margin: 8px 0; }
+    </style>
+  </head>
+  <body>
+    <span id="measure" class="mono">ABCDEFGHIJ</span>
+    <div id="clip-x" class="mono">ABCDEFGHIJ</div>
+    <div id="clip-y">First line<br />Second line</div>
+    <a id="role-link" class="row" href="#autopay" role="button" aria-label="Open autopay settings">Set up autopay</a>
+    <button id="role-btn" class="row" type="button" role="link">Pay this bill</button>
+    <span id="role-span" class="row" role="button" tabindex="0">Remind me later</span>
+    <script>
+      // Make the clipping box exactly five and a half characters wide, whatever the monospace font is.
+      (function () {
+        var measure = document.getElementById('measure');
+        var charWidth = measure.getBoundingClientRect().width / 10;
+        document.getElementById('clip-x').style.width = charWidth * 5.5 + 'px';
+        measure.remove();
+      })();
+    </script>
+  </body>
+</html>

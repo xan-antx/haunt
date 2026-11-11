@@ -1,5 +1,18 @@
 {
-  "pbtResults": {},
+  "pbtResults": {
+    "18.3 Write property test for reaction delays in `test/delays.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794386571064
+    },
+    "16.4 Write property test for visual perception purity in `test/sight.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794386694419
+    },
+    "19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794389392969
+    }
+  },
   "executionHistory": {
     "1. Set up the engine project": [
       {
@@ -1021,6 +1034,11 @@
         "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
         "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
         "timestamp": 1794324805587
+      },
+      {
+        "executionId": "e82da6c1-2d64-4339-ae7c-02576dcdb528",
+        "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
+        "timestamp": 1794325329674
       }
     ],
     "15. Listener demo run": [
@@ -1033,6 +1051,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285779903
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218250
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369234288
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369595202
       }
     ],
     "16.1 Write `src/page/sight.ts` (Seen_Items, looks, occlusion check, visible text per character, probe item keys), `src/page/clickLog.ts` and `src/page/layoutShifts.ts`": [
@@ -1045,6 +1078,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780087
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218369
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369604648
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794371447878
       }
     ],
     "16.2 Write `src/ghosts/visual/body.ts`: Sight then screenshot, click after the Reaction_Delay at the seen centre, typing with the ghost's delay, scroll over the viewport centre, wait, back, Settle on the Page_Change_Clock, waiting spans for `slow_wait`, focusBox of the aimed box": [
@@ -1057,6 +1105,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780225
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218502
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794371457394
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385791361
       }
     ],
     "16.3 Unit tests on fixture pages: clipped text gives only the visible characters; items under a modal backdrop are left out; a link with `role=\"button\"` looks like a link; the click lands at the centre seen earlier even when the page moved": [
@@ -1069,6 +1132,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780332
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218581
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385802768
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386459216
       }
     ],
     "16.4 Write property test for visual perception purity in `test/sight.properties.test.ts`": [
@@ -1081,6 +1159,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780459
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218675
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386481728
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387086870
       }
     ],
     "17.1 Write `src/ghosts/visual/mind.ts` and `thoughts.ts`: language-ordered matching, field labels above or to the left, used items skipped, two-Step type intentions, last resort on empty-text buttons, unexpected-page recovery marked `recovery: true`, waiting on empty Sights, scroll search down then up, `no_match`, and the Give_Up_Thoughts": [
@@ -1093,6 +1186,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780664
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218755
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794371458458
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385792548
       }
     ],
     "17.2 Unit tests with scripted Sights copying Lantern Bills in English and in Punjabi: the decisions match the design's expected walks; \"Pay this bill\" is found through the `en` fallback for Bebe; the autopay page triggers \"Back to bill\" as a recovery": [
@@ -1105,6 +1213,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780825
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218831
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385804346
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386460491
       }
     ],
     "18.1 Write `src/ghosts/phantom/profile.ts` (viewport, scale, mobile, touch, user agent, locale) and the CDP throttling setup; Settle 1200 ms; Reaction_Delay 550–650 ms from the seed; typing 120 ms": [
@@ -1117,6 +1240,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285780962
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369218924
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385805882
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386461954
       }
     ],
     "18.2 Throttling test: a 100 000-byte fixture loaded through The Phantom's profile with the request guard on takes at least 2 seconds, and the same file without throttling takes less than 1 second": [
@@ -1129,6 +1267,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781133
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219010
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386482250
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387087383
       }
     ],
     "18.3 Write property test for reaction delays in `test/delays.properties.test.ts`": [
@@ -1141,6 +1294,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781241
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219088
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386482917
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387087890
       }
     ],
     "19.1 Write `src/detectors/misclick.ts` (aimed versus hit element key, layout-shift entries in the window, seen and after screenshots)": [
@@ -1153,6 +1321,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781358
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219180
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386483320
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387089271
       }
     ],
     "19.2 Write `src/detectors/slowWait.ts` (no-progress spans across waiting Steps)": [
@@ -1165,6 +1348,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781495
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219255
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386483670
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387089931
       }
     ],
     "19.3 Write `misclickStreak` and The Phantom's stop rules (`slow_wait`, `misclicks`)": [
@@ -1177,6 +1375,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781665
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219323
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387730931
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794389246465
       }
     ],
     "19.4 Fixture pages and tests: a button that moves 1 s after load under a link versus a stable button; a page blank for 12 s after load versus a page with a visible spinner for 12 s; `NNN-seen.png` is written only when a Finding refers to it": [
@@ -1189,6 +1402,26 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285781878
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219395
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794389258343
+      },
+      {
+        "executionId": "89f9c304-153f-4def-8a4c-613290c5c154",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794390038430
+      },
+      {
+        "executionId": "16c93c81-2045-4935-a2e4-413756504415",
+        "chatSessionId": "sess_099a744f-acb9-4283-9bc9-ab50378637cc",
+        "timestamp": 1794391884550
       }
     ],
     "19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`": [
@@ -1201,6 +1434,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285782109
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219471
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794389258889
+      },
+      {
+        "executionId": "89f9c304-153f-4def-8a4c-613290c5c154",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794390038275
       }
     ],
     "20.1 Write `src/ghosts/bebe/profile.ts` (640×400, scale 2, `pa-IN`, Accept-Language), Settle 2000 ms, Reaction_Delay 1300–1700 ms, typing 300 ms, languages `pa`, `hi`, `en`; no stop rule from Findings": [
@@ -1213,6 +1461,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285782333
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219558
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794385807141
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386463387
       }
     ],
     "20.2 Write `src/detectors/cutOffText.ts`": [
@@ -1225,6 +1488,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285782601
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219634
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387111926
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387719178
       }
     ],
     "20.3 Write `src/detectors/untranslated.ts` (allowed terms from the site config, acronyms, digit tokens, typed values left out)": [
@@ -1237,6 +1515,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285782841
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219713
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387113208
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387720297
       }
     ],
     "20.4 Write `src/detectors/money.ts` and `src/detectors/darkPattern.ts` (bill amount from the first page, pre-ticked paid checkbox not touched by the ghost, total higher than the bill)": [
@@ -1249,6 +1542,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285783123
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219783
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387113950
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387721323
       }
     ],
     "20.5 Fixture pages and tests, one positive and one negative per detector: clipped versus scrollable overflow; English words versus allowed terms, acronyms and numbers on a `lang=\"pa\"` page; a pre-ticked ₹99 option versus an unticked one and one the ghost ticked itself; a raised total versus an equal one. The viewport-or-first-present step rule is tested with an element below the fold": [
@@ -1261,6 +1569,21 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285783365
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219858
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387732272
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794389247836
       }
     ],
     "21. Register The Phantom and Bebe and run each once by hand": [
@@ -1273,6 +1596,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285783631
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369219937
       }
     ],
     "22. Checkpoint: Phase 2a core": [
@@ -1285,6 +1613,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285783877
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369220010
       }
     ],
     "23. The Phantom's end-to-end test": [
@@ -1297,6 +1630,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285784142
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369220082
       }
     ],
     "24. Bebe's end-to-end test": [
@@ -1309,6 +1647,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285784432
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369220151
       }
     ],
     "25. Checkpoint: all ghosts": [
@@ -1321,6 +1664,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285784683
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369220223
       }
     ],
     "26. Demo runs for every ghost": [
@@ -1333,6 +1681,11 @@
         "executionId": "0b9f1aaa-044d-4a81-8f5c-5a5b3050589c",
         "chatSessionId": "sess_6372efad-d8aa-4e8c-8b0f-81c220800c51",
         "timestamp": 1794285784887
+      },
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794369220291
       }
     ],
     "4. Missions": [
@@ -1403,6 +1756,34 @@
         "executionId": "8cceb923-6ad0-4751-974d-286f875fd4d8",
         "chatSessionId": "sess_9f62a17c-f616-4783-9200-b01e6399929a",
         "timestamp": 1794324795199
+      }
+    ],
+    "17. Shared visual mind": [
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794386461068
+      }
+    ],
+    "16. Shared visual body": [
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387087531
+      }
+    ],
+    "18. The Phantom": [
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794387088089
+      }
+    ],
+    "20. Bebe": [
+      {
+        "executionId": "c064918c-8164-49a5-b152-3dafaa44da2c",
+        "chatSessionId": "sess_462e7866-4ceb-4588-9e81-d733cc5ca072",
+        "timestamp": 1794389248696
       }
     ]
   }

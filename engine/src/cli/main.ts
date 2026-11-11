@@ -14,6 +14,8 @@ import { findRepositoryRoot, getShortCommit } from '../core/git.ts';
 import { Recorder } from '../core/recorder.ts';
 import { mulberry32 } from '../core/rng.ts';
 import { folderExistsIn, makeRunId } from '../core/runId.ts';
+import { applyThrottling } from '../core/throttling.ts';
+import { applyAcceptLanguage } from '../core/acceptLanguage.ts';
 import { runLoop } from '../core/runLoop.ts';
 import type { RunLoopRecorder } from '../core/runLoop.ts';
 import type { ActionResult, GhostId } from '../core/types.ts';
@@ -483,17 +485,8 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
   for (const script of ctx.initScripts) await page.addInitScript(script);
 
   const cdp = await context.newCDPSession(page);
-  const network = profile.throttling?.network;
-  if (network) {
-    await cdp.send('Network.emulateNetworkConditions', {
-      offline: false,
-      latency: network.latencyMs,
-      downloadThroughput: network.downloadBytesPerSecond,
-      uploadThroughput: network.uploadBytesPerSecond,
-    });
-  }
-  const cpuRate = profile.throttling?.cpuRate;
-  if (cpuRate !== undefined) await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
+  await applyThrottling(cdp, profile);
+  await applyAcceptLanguage(cdp, profile);
 
   // The Mind gets a copy of the mission with the template values filled in; the run file keeps the original text.
   const mindMission = expandMission(mission, startedAt);
@@ -504,8 +497,8 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
   const detectors = new DetectorRunner({ detectors: ghost.detectors(), page, cdp, config, site, recorder });
 
   const loopRecorder: RunLoopRecorder = {
-    add(result, thought, probe) {
-      const recorded = recorder.add(result, thought, probe);
+    add(result, thought, probe, intention) {
+      const recorded = recorder.add(result, thought, probe, intention);
       say(`Step ${recorded.step.n}: ${recorded.step.action}`);
       return recorded;
     },

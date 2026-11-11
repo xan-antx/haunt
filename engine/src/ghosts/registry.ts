@@ -1,7 +1,10 @@
 import type { Ghost, GhostId } from '../core/types.ts';
 import { CHANGE_CLOCK_SOURCE } from '../page/changeClock.ts';
+import { CLICK_LOG_SOURCE } from '../page/clickLog.ts';
 import { ELEMENT_KEYS_SOURCE } from '../page/elementKeys.ts';
+import { LAYOUT_SHIFTS_SOURCE } from '../page/layoutShifts.ts';
 import { LIVE_REGIONS_SOURCE } from '../page/liveRegions.ts';
+import { SIGHT_SOURCE } from '../page/sight.ts';
 import { listenerGhost } from './listener/index.ts';
 
 /*
@@ -37,11 +40,19 @@ export function getGhost(id: GhostId): AnyGhost | undefined {
 
 /**
  * Sources of the page scripts (clock, live regions, click log, ...) that the CLI installs with
- * `page.addInitScript` before the page loads. It holds the Page_Change_Clock, the live region
- * recorder and the element keys; the scripts that come later in `src/page/` add their source here.
- * Tests can pass their own list to `main()` instead.
+ * `page.addInitScript` before the page loads, in the design's order: the Page_Change_Clock, the live
+ * region recorder, the click log, the layout-shift recorder, the element keys and Sight. Every Run
+ * installs all of them, whatever the ghost; each one only observes, so The Listener is not affected by
+ * the visual ghosts' scripts. Tests can pass their own list to `main()` instead.
  */
-export const pageInitScripts: string[] = [CHANGE_CLOCK_SOURCE, LIVE_REGIONS_SOURCE, ELEMENT_KEYS_SOURCE];
+export const pageInitScripts: string[] = [
+  CHANGE_CLOCK_SOURCE,
+  LIVE_REGIONS_SOURCE,
+  CLICK_LOG_SOURCE,
+  LAYOUT_SHIFTS_SOURCE,
+  ELEMENT_KEYS_SOURCE,
+  SIGHT_SOURCE,
+];
 
 // Registered ghosts. `phantom` and `bebe` are added by later tasks.
 registerGhost(listenerGhost);

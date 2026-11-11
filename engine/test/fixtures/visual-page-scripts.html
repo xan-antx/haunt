@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual page scripts</title>
+    <style>
+      body { margin: 0; font: 16px/1.4 sans-serif; }
+      #spacer { height: 0; }
+      .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+      #pay { display: block; width: 160px; height: 40px; margin: 8px; }
+      #icon { width: 40px; height: 40px; margin: 8px; }
+      #faded { opacity: 0; }
+      #invisible { visibility: hidden; }
+      #below-fold { position: absolute; top: 3000px; }
+    </style>
+  </head>
+  <body>
+    <div id="spacer"></div>
+    <h1 id="title">Your bill</h1>
+    <p id="intro">Amount due <b id="amount">₹2,490.00</b></p>
+    <button id="pay" aria-label="Aria name" data-x="1"><span id="pay-inner">Pay this bill</span></button>
+    <button id="icon" aria-label="Pay now"><svg width="20" height="20" aria-hidden="true"><rect width="20" height="20" /></svg><span class="sr-only">Pay now</span></button>
+    <a id="autopay" href="#autopay" role="button">Set up autopay</a>
+    <label for="card" id="card-label">Card number</label>
+    <input id="card" placeholder="1234 5678" aria-describedby="card-label" />
+    <input id="name" value="Asha" />
+    <input id="secret" type="password" value="abc" />
+    <label><input id="agree" type="checkbox" checked /> Agree</label>
+    <div id="stage" style="position: relative; height: 160px"><div id="mover" style="position: absolute; top: 0; left: 0; width: 120px; height: 30px">Moving box</div></div>
+    <p id="faded">Faded text</p>
+    <p id="invisible">Invisible text</p>
+    <p id="nobox" style="display: none">No box</p>
+    <p id="below-fold">Far below</p>
+  </body>
+</html>

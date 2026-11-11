@@ -144,68 +144,77 @@ Rules for every task:
   - [x] 13.3 Harness tests: with a dummy server on port 3000 the harness fails with the port message; the server is stopped after a failing test
     - _Requirements: 12.5, 12.6_
 
-- [ ] 14. Checkpoint: The Listener works
+- [x] 14. Checkpoint: The Listener works
   - Run `npm run build`, `npm test` and `npm run test:e2e:listener` in `engine/`. Fix real failures in the engine; never change the thresholds, the demo site or the tests' expectations. Confirm that nothing under `dashboard/`, `demo-site/` or `runs/` changed
 
-- [ ] 15. Listener demo run
+- [x] 15. Listener demo run
   - Write `scripts/demo.ts` (empty `test-output/demo-run/`, start the harness, run The Listener with `--out test-output/demo-run`, validate the `run.json` against the Run_Schema, print its absolute path, stop the server in `finally`)
   - Run `npm run demo` in `engine/` and report the printed path
   - _Requirements: 12.7_
 
 ### Phase 2a: The Phantom and Bebe
 
-- [ ] 16. Shared visual body
-  - [ ] 16.1 Write `src/page/sight.ts` (Seen_Items, looks, occlusion check, visible text per character, probe item keys), `src/page/clickLog.ts` and `src/page/layoutShifts.ts`
+- [x] 16. Shared visual body
+  - [x] 16.1 Write `src/page/sight.ts` (Seen_Items, looks, occlusion check, visible text per character, probe item keys), `src/page/clickLog.ts` and `src/page/layoutShifts.ts`
     - _Requirements: 13.2, 17.2, 15.3, 15.4_
-  - [ ] 16.2 Write `src/ghosts/visual/body.ts`: Sight then screenshot, click after the Reaction_Delay at the seen centre, typing with the ghost's delay, scroll over the viewport centre, wait, back, Settle on the Page_Change_Clock, waiting spans for `slow_wait`, focusBox of the aimed box
+  - [x] 16.2 Write `src/ghosts/visual/body.ts`: Sight then screenshot, click after the Reaction_Delay at the seen centre, typing with the ghost's delay, scroll over the viewport centre, wait, back, Settle on the Page_Change_Clock, waiting spans for `slow_wait`, focusBox of the aimed box
     - _Requirements: 13.3, 13.4, 13.5, 13.6, 17.3, 17.4, 17.5, 6.6_
-  - [ ] 16.3 Unit tests on fixture pages: clipped text gives only the visible characters; items under a modal backdrop are left out; a link with `role="button"` looks like a link; the click lands at the centre seen earlier even when the page moved
+  - [x] 16.3 Unit tests on fixture pages: clipped text gives only the visible characters; items under a modal backdrop are left out; a link with `role="button"` looks like a link; the click lands at the centre seen earlier even when the page moved
     - _Requirements: 13.2, 13.4, 17.2_
-  - [ ] 16.4 Write property test for visual perception purity in `test/sight.properties.test.ts`
+  - [x] 16.4 Write property test for visual perception purity in `test/sight.properties.test.ts`
     - **Property 5: Visual perceptions carry no accessibility data**
     - Generated HTML rendered in Chromium through both profiles; at least 100 runs
     - **Validates: Requirements 13.2, 17.2, 20.2**
 
-- [ ] 17. Shared visual mind
-  - [ ] 17.1 Write `src/ghosts/visual/mind.ts` and `thoughts.ts`: language-ordered matching, field labels above or to the left, used items skipped, two-Step type intentions, last resort on empty-text buttons, unexpected-page recovery marked `recovery: true`, waiting on empty Sights, scroll search down then up, `no_match`, and the Give_Up_Thoughts
+- [x] 17. Shared visual mind
+  - [x] 17.1 Write `src/ghosts/visual/mind.ts` and `thoughts.ts`: language-ordered matching, field labels above or to the left, used items skipped, two-Step type intentions, last resort on empty-text buttons, unexpected-page recovery marked `recovery: true`, waiting on empty Sights, scroll search down then up, `no_match`, and the Give_Up_Thoughts
     - _Requirements: 14.1–14.5, 18.1, 18.2, 18.4, 18.5, 16.4_
-  - [ ] 17.2 Unit tests with scripted Sights copying Lantern Bills in English and in Punjabi: the decisions match the design's expected walks; "Pay this bill" is found through the `en` fallback for Bebe; the autopay page triggers "Back to bill" as a recovery
+  - [x] 17.2 Unit tests with scripted Sights copying Lantern Bills in English and in Punjabi: the decisions match the design's expected walks; "Pay this bill" is found through the `en` fallback for Bebe; the autopay page triggers "Back to bill" as a recovery
     - _Requirements: 14.1–14.5, 18.1–18.4_
 
-- [ ] 18. The Phantom
-  - [ ] 18.1 Write `src/ghosts/phantom/profile.ts` (viewport, scale, mobile, touch, user agent, locale) and the CDP throttling setup; Settle 1200 ms; Reaction_Delay 550–650 ms from the seed; typing 120 ms
+- [x] 18. The Phantom
+  - [x] 18.1 Write `src/ghosts/phantom/profile.ts` (viewport, scale, mobile, touch, user agent, locale) and the CDP throttling setup; Settle 1200 ms; Reaction_Delay 550–650 ms from the seed; typing 120 ms
     - _Requirements: 13.1, 13.3, 13.4, 13.5_
-  - [ ] 18.2 Throttling test: a 100 000-byte fixture loaded through The Phantom's profile with the request guard on takes at least 2 seconds, and the same file without throttling takes less than 1 second
+  - [x] 18.2 Throttling test: a 100 000-byte fixture loaded through The Phantom's profile with the request guard on takes at least 2 seconds, and the same file without throttling takes less than 1 second
     - _Requirements: 20.3_
-  - [ ] 18.3 Write property test for reaction delays in `test/delays.properties.test.ts`
+  - [x] 18.3 Write property test for reaction delays in `test/delays.properties.test.ts`
     - **Property 6: Reaction delays stay in range**
     - Covers The Phantom and Bebe
     - **Validates: Requirements 13.4, 17.4, 20.2**
 
 - [ ] 19. The Phantom's detectors and stop rules
-  - [ ] 19.1 Write `src/detectors/misclick.ts` (aimed versus hit element key, layout-shift entries in the window, seen and after screenshots)
+  - [x] 19.1 Write `src/detectors/misclick.ts` (aimed versus hit element key, layout-shift entries in the window, seen and after screenshots)
     - _Requirements: 15.3, 15.4_
-  - [ ] 19.2 Write `src/detectors/slowWait.ts` (no-progress spans across waiting Steps)
+  - [x] 19.2 Write `src/detectors/slowWait.ts` (no-progress spans across waiting Steps)
     - _Requirements: 15.1, 15.2_
-  - [ ] 19.3 Write `misclickStreak` and The Phantom's stop rules (`slow_wait`, `misclicks`)
+  - [x] 19.3 Write `misclickStreak` and The Phantom's stop rules (`slow_wait`, `misclicks`)
     - _Requirements: 16.1, 16.2, 16.3, 16.4_
   - [ ] 19.4 Fixture pages and tests: a button that moves 1 s after load under a link versus a stable button; a page blank for 12 s after load versus a page with a visible spinner for 12 s; `NNN-seen.png` is written only when a Finding refers to it
     - _Requirements: 15.1–15.4, 20.3_
-  - [ ] 19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`
+  - [x] 19.5 Write property test for the misclick streak in `test/misclick.properties.test.ts`
     - **Property 7: Two misclicks in a row end the Run exactly then**
     - **Validates: Requirements 16.2, 20.2**
 
-- [ ] 20. Bebe
-  - [ ] 20.1 Write `src/ghosts/bebe/profile.ts` (640×400, scale 2, `pa-IN`, Accept-Language), Settle 2000 ms, Reaction_Delay 1300–1700 ms, typing 300 ms, languages `pa`, `hi`, `en`; no stop rule from Findings
+- [x] 20. Bebe
+  - [x] 20.1 Write `src/ghosts/bebe/profile.ts` (640×400, scale 2, `pa-IN`, Accept-Language), Settle 2000 ms, Reaction_Delay 1300–1700 ms, typing 300 ms, languages `pa`, `hi`, `en`; no stop rule from Findings
     - _Requirements: 17.1, 17.3, 17.4, 17.5, 18.3_
-  - [ ] 20.2 Write `src/detectors/cutOffText.ts`
+  - [x] 20.2 Write `src/detectors/cutOffText.ts`
     - _Requirements: 19.1, 19.4_
-  - [ ] 20.3 Write `src/detectors/untranslated.ts` (allowed terms from the site config, acronyms, digit tokens, typed values left out)
+  - [x] 20.3 Write `src/detectors/untranslated.ts` (allowed terms from the site config, acronyms, digit tokens, typed values left out)
     - _Requirements: 19.2, 19.4_
-  - [ ] 20.4 Write `src/detectors/money.ts` and `src/detectors/darkPattern.ts` (bill amount from the first page, pre-ticked paid checkbox not touched by the ghost, total higher than the bill)
+  - [x] 20.4 Write `src/detectors/money.ts` and `src/detectors/darkPattern.ts` (bill amount from the first page, pre-ticked paid checkbox not touched by the ghost, total higher than the bill)
     - _Requirements: 19.3, 19.4, 19.5_
-  - [ ] 20.5 Fixture pages and tests, one positive and one negative per detector: clipped versus scrollable overflow; English words versus allowed terms, acronyms and numbers on a `lang="pa"` page; a pre-ticked ₹99 option versus an unticked one and one the ghost ticked itself; a raised total versus an equal one. The viewport-or-first-present step rule is tested with an element below the fold
+  - [x] 20.5 Fixture pages and tests, one positive and one negative per detector: clipped versus scrollable overflow; English words versus allowed terms, acronyms and numbers on a `lang="pa"` page; a pre-ticked ₹99 option versus an unticked one and one the ghost ticked itself; a raised total versus an equal one. The viewport-or-first-present step rule is tested with an element below the fold
     - _Requirements: 19.1–19.4, 20.3_
+
+- [x] 21.0 Key alignment and steering note
+  - In `.kiro/specs/haunt-engine/design.md`, state in the `cut_off_text` paragraph that the Finding key is the page path + a short selector of the text block + the block's full text (not the element key), so the same cut-off text is one problem after a re-render or reload. This matches `cutOffKey` in `src/detectors/cutOffText.ts`
+  - Change the `untranslated` paragraph in `design.md` and `src/detectors/untranslated.ts` to the same key pattern: `<path>|<selector of the text block>|<text>`. Add a short selector helper to its page-side script like the one in `cutOffText.ts`
+  - Add a test in `test/untranslated.test.ts`: the same English button is removed and re-created (new element, same place and text) between two Steps, and the Detector reports it only once. The existing untranslated, `bebeDetectors` and `cutOffText` tests must still pass
+  - Add a note to `.kiro/steering/tech.md`: piping terminal output through `Select-String` or `Select-Object` just to filter it is allowed because it is read-only, and it must never be used to write or edit files
+  - Check `engine/test/` and `engine/test/fixtures/` for half-finished files left by the interrupted attempt at 19.4 (new fixture or test files that no passing test uses, or files that fail to build). Delete only those, and list what was removed. Leave every file that belongs to a completed task
+  - Run `npm run build` and `npm test` in `engine/`
+  - _Requirements: 19.2, 19.4_
 
 - [ ] 21. Register The Phantom and Bebe and run each once by hand
   - Wire both into the ghost registry. Run each against Lantern Bills (through the harness) with `--out test-output/manual --seed 1`, compare with the design's expected walks, and fix differences in the engine
@@ -233,6 +242,7 @@ Rules for every task:
   - _Requirements: 20.7, 1.3, 1.7_
 ## Notes
 
+- Task 21.0 sits alone in its own wave right before task 21, because it changes detector code that task 21 then runs.
 - Tasks 14, 21, 23 and 24 run a browser against The Listener or The Phantom. Each one sits alone in its own wave, because browsers running in parallel change The Phantom's timing. Tasks 24 and 21 wait for the task before them, so no two of these tasks overlap.
 - Phase 2a (tasks 16 to 26) starts only after task 14 and task 15 pass. Task 26 also extends `scripts/demo.ts` from task 15.
 - Tasks in the same wave do not depend on each other. Waves run in the order of their `id`.
@@ -270,12 +280,13 @@ Rules for every task:
     { "id": 24, "tasks": ["16.4", "18.2", "18.3", "19.1", "19.2", "20.2", "20.3", "20.4"] },
     { "id": 25, "tasks": ["19.3", "20.5"] },
     { "id": 26, "tasks": ["19.4", "19.5"] },
-    { "id": 27, "tasks": ["21"] },
-    { "id": 28, "tasks": ["22"] },
-    { "id": 29, "tasks": ["23"] },
-    { "id": 30, "tasks": ["24"] },
-    { "id": 31, "tasks": ["25"] },
-    { "id": 32, "tasks": ["26"] }
+    { "id": 27, "tasks": ["21.0"] },
+    { "id": 28, "tasks": ["21"] },
+    { "id": 29, "tasks": ["22"] },
+    { "id": 30, "tasks": ["23"] },
+    { "id": 31, "tasks": ["24"] },
+    { "id": 32, "tasks": ["25"] },
+    { "id": 33, "tasks": ["26"] }
   ]
 }
 ```

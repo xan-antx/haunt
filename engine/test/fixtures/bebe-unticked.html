@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pa">
+<head>
+<meta charset="utf-8">
+<title>ਭੁਗਤਾਨ</title>
+<style>
+  body { margin: 0; padding: 8px; font: 16px/1.25 sans-serif; }
+  label { display: block; margin: 8px 0; }
+  input[type=checkbox] { width: 20px; height: 20px; vertical-align: middle; }
+</style>
+</head>
+<body>
+  <p>ਤੁਹਾਡਾ ਬਿੱਲ ₹2,490.00</p>
+  <!-- A paid option that is not ticked when it appears. -->
+  <label><input type="checkbox" id="protection"> ₹99 ਲਈ ਭੁਗਤਾਨ ਸੁਰੱਖਿਆ</label>
+  <!-- A paid option that only appears when the test calls window.showReminder(). -->
+  <div id="more" hidden>
+    <label><input type="checkbox" id="reminder"> ₹49 ਲਈ SMS ਯਾਦ-ਦਹਾਨੀ</label>
+  </div>
+  <script>
+    window.showReminder = function () { document.getElementById('more').hidden = false; };
+  </script>
+</body>
+</html>
