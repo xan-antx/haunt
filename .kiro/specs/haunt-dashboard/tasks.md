@@ -591,6 +591,20 @@ These tasks implement Req 24 and the criteria marked "(Revised in the fifth amen
   - Result: the full run passed 149 of 150. The axe scan of the Graveyard Map view found `label-content-name-mismatch`, because the "Sample run" text was inside a Cold_Spot link whose `aria-label` ends "— open in Ghost Cam". The label moved beside the link (`aria-hidden`, the name keeps " (Sample run)"), and the Map view, Old_Link, reflow and Nav_Fog checks then passed (12 of 12)
   - _Requirements: 1.4, 18.10, 24.9_
 
+- [x] 60. Summon a live ghost and the Read aloud row (seventh amendment)
+  - [x] 60.1 `scripts/liveGhost.ts` (job, request guard, middleware, real processes) and the `summonLiveGhost` plugin in `vite.config.ts` (`apply: 'serve'`, `.live/` ignored by git and the watcher)
+    - _Requirements: 26.1–26.4, 26.7_
+  - [x] 60.2 `RunSource.refresh()` and `subscribe()`, and the three data hooks loading again after a refresh
+    - _Requirements: 26.5_
+  - [x] 60.3 `SummonGhost` (progress, polling, explanation with the two commands) in `HomeScreen`
+    - _Requirements: 26.5, 26.6_
+  - [x] 60.4 Read aloud button and its note as two children of the Control_Row; the note takes a full line under the row
+    - _Requirements: 27.1, 27.2_
+  - [x] 60.5 Tests: `scripts/__tests__/liveGhost.test.ts`, `src/__tests__/summon-ghost.test.tsx`, and a Control_Row case in `ghostcam-structure.test.tsx`
+    - _Requirements: 26.1–26.6, 27.1, 27.2_
+  - [x] 60.6 Update the spec and READMEs; run `npm run build` and `npm test`. The end-to-end suite was not run for this amendment. One live run was started by hand against the dev server: the site was built, the ghost saved a run, it was collected and port 3000 was free afterwards.
+    - _Requirements: 26, 27_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2, 38.2, 39.2) are required.

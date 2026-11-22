@@ -2,7 +2,7 @@
 
 **Owner:** House Builder
 
-The Haunt dashboard replays ghost runs and shows where the ghosts got stuck. It is a static React + Vite + TypeScript site. It never runs ghosts itself, and it makes no requests outside its own origin.
+The Haunt dashboard replays ghost runs and shows where the ghosts got stuck. It is a static React + Vite + TypeScript site, and it makes no requests outside its own origin. The built site never runs ghosts. Only `npm run dev` adds one local-only endpoint, for the **Summon a live ghost** button (see below).
 
 ## Commands
 
@@ -11,7 +11,7 @@ Run these in `dashboard/`:
 | Command | What it does |
 |---|---|
 | `npm install` | Install dependencies |
-| `npm run dev` | Collect runs, then serve the dashboard at <http://localhost:3001> |
+| `npm run dev` | Collect runs, then serve the dashboard at <http://localhost:3001>, with the live ghost button working |
 | `npm run build` | Collect runs, type-check, and build a static site into `dist/` |
 | `npm run preview` | Serve the built `dist/` at <http://localhost:3001> |
 | `npm test` | Unit, component, axe-core and property tests (Vitest) |
@@ -21,6 +21,14 @@ Run these in `dashboard/`:
 | `npm run collect-runs` | Only the collect step |
 
 The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev` and `preview` stop with an error instead of picking another port.
+
+## Summon a live ghost
+
+Needs `npm install` in `dashboard/`, `demo-site/` and `engine/`, and `npx playwright install chromium` in `engine/`.
+
+With `npm run dev`, the button on Home starts Lantern Bills on port 3000 if nothing is there (built into `dashboard/.live/`), runs The Listener on the `pay-bill` mission with `haunt run` (scripted mind), writes the run into `runs/`, adds it to the dashboard, and stops the site again if it started it. Progress shows on Home. If Lantern Bills is already running on port 3000, it is used and left running; anything else on that port stops the job.
+
+Only requests from your own computer are accepted (loopback address, local host name, this page's origin, and an `x-haunt-summon` header). The ghost, mission and address are fixed in `scripts/liveGhost.ts`. `npm run build` and the published site have no such endpoint, so there the button explains that live ghosts run on your own computer and shows `cd dashboard` and `npm run dev`.
 
 ## Where runs come from
 

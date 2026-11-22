@@ -8,6 +8,7 @@ import { GhostBadge, GhostCharacter } from '../components/ghosts/Ghosts';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
+import { SummonGhost } from '../components/SummonGhost';
 import { runFilePath } from '../components/RunErrorPanel';
 import { SampleTag } from '../components/SampleTag';
 import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tour';
@@ -289,12 +290,7 @@ export function HomeScreen() {
                   Take the 60-second tour
                 </CandleButton>
               )}
-              <CandleButton
-                lit={false}
-                reason="Coming soon. For now, this dashboard shows runs the ghosts already recorded."
-              >
-                Summon a live ghost
-              </CandleButton>
+              <SummonGhost />
             </div>
             {tourAvailable && (
               <p className={styles.tourNote}>

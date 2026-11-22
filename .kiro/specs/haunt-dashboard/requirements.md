@@ -212,7 +212,7 @@ Verification process: after each change, the House Builder runs `npm run build` 
 4. (Revised) WHEN showing a Haunt, THE Home screen SHALL link to its Map_View in the Graveyard (`#/graveyard?site=<siteKey>&view=map`) and to each of its Runs' Ghost_Cam.
 5. (Revised in the fifth amendment) THE Dashboard SHALL compute the Start_Here_Step as the Watch_Step of The Listener's newest Real_Run (by `startedAt`), or of its newest Sample_Run when it has no Real_Run, so that it opens the step of that Run's first Blocking_Finding (for the real Listener Run, its keyboard trap at step 20) and not a fixed step number. The Start_Here_Step is the Ghost Cam's Screen_Destination and the Ghost Cam stop of the Tour.
 6. (Revised in the fifth amendment) IF there is no Listener Run with at least one step, THEN there is no Start_Here_Step, and THE Ghost Cam's Screen_Destination SHALL be the Watch_Step of the newest Real_Run (else newest Sample_Run) of the next ghost in the order The Phantom, Bebe that has a Run with steps, else step 1 of the first Run.
-7. (Revised in the fourth amendment) THE Home screen SHALL show a "Summon a live ghost" button that is marked unavailable with `aria-disabled="true"`, stays reachable by keyboard, does nothing when activated, and shows the visible text "Coming soon. For now, this dashboard shows runs the ghosts already recorded."
+7. (Revised in the fourth amendment; superseded in the seventh amendment by Requirement 26) THE Home screen SHALL show a "Summon a live ghost" button. Its behavior is defined in Requirement 26.
 8. WHEN Invalid_Runs exist, THE Home screen SHALL list them in a "Restless files" section with each file path and a link to its errors.
 9. WHEN no valid Runs exist, THE Home screen SHALL show an empty state that explains where run files go.
 10. THE Home screen SHALL show the Haunt logo only in the Top_Navigation, and THE Hero SHALL NOT contain the Haunt logo or any other visible heading that reads only "Haunt".
@@ -554,3 +554,24 @@ Verification process: after each change, the House Builder runs `npm run build` 
 5. EVERY other screen SHALL show the Fixed_Copy as a site of its own, under its full name (for example "Lantern Bills demo (exorcised)"), with its own haunt card on Home and its own entry in the Graveyard's site choice.
 6. THE Exorcise screen SHALL offer the Fixed_Copy's Runs for the same ghost and mission as after Runs of a before Run on the Original_Site, and SHALL end the label of each such option with "after the fix". WHEN the before Run has such a Run, the default after Run SHALL be the newest of them. WHEN no before Run is chosen, the default pair SHALL be the newest Fixed_Copy_Run as the after Run and the newest Run of its Original_Site with the same ghost and mission as the before Run, when there is one.
 7. THE Exorcise "Not reached" note SHALL name the page of a Fixed_Copy_Run with the page names of its Original_Site (Requirement 24.8).
+
+### Requirement 26: Summon a live ghost (seventh amendment)
+
+**User Story:** As a developer running the dashboard on my own computer, I want "Summon a live ghost" to send a real ghost, so that I can watch a new run appear. As a visitor to the published site, I want the button to tell me plainly why it cannot run there.
+
+#### Acceptance Criteria
+
+1. WHILE the Dashboard runs with `npm run dev`, THE dev server SHALL offer one local-only endpoint, `/__haunt/summon`, and THE published site and every build SHALL contain no such endpoint.
+2. WHEN the Home screen's "Summon a live ghost" button is activated in dev, THE endpoint SHALL, in this order: start Lantern Bills on port 3000 when nothing answers there (built from `demo-site/` into `dashboard/.live/`, never into `demo-site/`), run The Listener on the `pay-bill` mission against `http://localhost:3000` through the engine's `haunt run` command with its scripted mind, copy the new run into `public/runs/` the way the Collect_Step does, and stop Lantern Bills again WHEN it started it. A Lantern Bills that was already running SHALL be used and left running. WHEN something other than Lantern Bills answers on port 3000, THE endpoint SHALL refuse to run and say so.
+3. THE ghost, the mission and the address SHALL be fixed in the dashboard's code and SHALL NOT come from the request. THE run SHALL follow the engine's safety rules (Ghosts only visit `localhost`, `127.0.0.1` and allowed domains; no third-party production site), and no command SHALL go through a shell.
+4. THE endpoint SHALL serve a request only WHEN it comes from a loopback address, names `localhost`, `127.0.0.1` or `[::1]` as its host and, if it has an `Origin`, that origin is the dashboard's own. A POST SHALL also carry the header `x-haunt-summon: 1`. Any other request SHALL be refused (403, or 400 for the missing header). Only one job SHALL run at a time (a second POST answers 409).
+5. WHILE a ghost is out, THE Home screen SHALL show progress in a `role="status"` region (what is starting, the step the ghost is at, adding the run), THE button SHALL be unlit with the visible reason "A ghost is already on its way.", and THE screen SHALL poll the endpoint every second. WHEN the job ends well, THE Dashboard SHALL load the Run_Index again so the new run shows on every screen, and the status SHALL link to the new run's Ghost Cam. WHEN it fails, THE status SHALL say why in a sentence.
+6. WHEN there is no endpoint (the published site, or a built preview), THE button SHALL stay unlit with `aria-disabled="true"`, stay reachable by keyboard, do nothing when activated, and show one sentence, "Live ghosts run on your own computer, so to summon one, run these two commands in a clone of Haunt.", followed by the two commands `cd dashboard` and `npm run dev` in a code block.
+7. THE Dashboard SHALL NOT change any file under `demo-site/`, `demo-site-exorcised/` or `engine/`. A live run is written to `runs/` by the engine.
+
+### Requirement 27: Read aloud lines up with the other controls (seventh amendment)
+
+#### Acceptance Criteria
+
+1. IN the Control_Row, THE "Read aloud (approximation)" button SHALL sit on the same line as the Play, Step back and Step forward buttons, centered on the same axis, and SHALL NOT have its explanation stacked under it.
+2. THE explanation ("This uses your browser's built-in voice. It is an approximation, not real screen reader output.", and the reason when voice is unavailable) SHALL sit below the whole row, take a full line, and stay the button's accessible description. Requirement 10, criteria 24, 33 and 34 otherwise stand.

@@ -16,6 +16,13 @@ export function useRunSource(): RunSource {
   return useContext(RunSourceContext) ?? selectRunSource();
 }
 
+/** Changes whenever the source refreshes (a live ghost added a run), so the hooks below load again. */
+function useRefreshCount(source: RunSource): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => source.subscribe?.(() => setCount((n) => n + 1)), [source]);
+  return count;
+}
+
 export type IndexState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
@@ -24,6 +31,7 @@ export type IndexState =
 export function useRunIndex(): IndexState {
   const source = useRunSource();
   const [state, setState] = useState<IndexState>({ status: 'loading' });
+  const refreshed = useRefreshCount(source);
   useEffect(() => {
     let live = true;
     source.listRuns().then(
@@ -33,7 +41,7 @@ export function useRunIndex(): IndexState {
     return () => {
       live = false;
     };
-  }, [source]);
+  }, [source, refreshed]);
   return state;
 }
 
@@ -53,6 +61,7 @@ export type AllRunsState =
 export function useAllRuns(): AllRunsState {
   const source = useRunSource();
   const [state, setState] = useState<AllRunsState>({ status: 'loading' });
+  const refreshed = useRefreshCount(source);
   useEffect(() => {
     let live = true;
     source
@@ -74,7 +83,7 @@ export function useAllRuns(): AllRunsState {
     return () => {
       live = false;
     };
-  }, [source]);
+  }, [source, refreshed]);
   return state;
 }
 
@@ -89,6 +98,7 @@ export type RunState =
 export function useRun(key: string | undefined): RunState {
   const source = useRunSource();
   const [state, setState] = useState<RunState>({ status: 'loading' });
+  const refreshed = useRefreshCount(source);
   useEffect(() => {
     let live = true;
     setState({ status: 'loading' });
@@ -110,6 +120,6 @@ export function useRun(key: string | undefined): RunState {
     return () => {
       live = false;
     };
-  }, [source, key]);
+  }, [source, key, refreshed]);
   return state;
 }

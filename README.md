@@ -87,7 +87,7 @@ The dashboard (`dashboard/`) is a static React and Vite site. It only reads run 
 | **Exorcise** | Compares a run before a fix with a run after it, by the same ghost on the same mission. The repo has one real run per ghost, so there is no real before and after pair yet. |
 | **Spec Coverage** | Each mission is one requirement. Shows whether each ghost's latest run completed it. |
 
-The reproduce command in the dashboard (`npx haunt run ...`) is the real engine command. The **Summon a live ghost** button on Home is disabled. The dashboard is static and cannot start the engine.
+The reproduce command in the dashboard (`npx haunt run ...`) is the real engine command. The **Summon a live ghost** button on Home works only when you run the dashboard yourself with `npm run dev` (in `dashboard/`): it starts Lantern Bills on port 3000 if needed, runs The Listener through `haunt run`, adds the new run to the dashboard and stops the site again. It only accepts requests from your own computer. On the published site the button explains this and shows the two commands.
 
 ## Tests
 

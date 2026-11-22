@@ -162,6 +162,21 @@ describe('Control_Row', () => {
     expect(within(row).getByText(/Step 9 of/)).toBeInTheDocument();
   });
 
+  it('keeps the Read aloud button alone in its row slot and puts its note after the whole row', async () => {
+    await openCam(L.key, 9);
+    const row = controlRow();
+    const button = within(row).getByRole('button', { name: /Read aloud \(approximation\)/ });
+    const note = document.getElementById('voice-note')!;
+    // The button's wrapper holds nothing else, so it lines up with the playback buttons.
+    expect(button.parentElement!.textContent).toBe('Read aloud (approximation)');
+    expect(button.parentElement!.parentElement).toBe(row);
+    // The note is a direct child of the row, after the playback group and the button.
+    expect(note.parentElement).toBe(row);
+    expect(follows(within(row).getByRole('group', { name: 'Playback' }), note)).toBe(true);
+    expect(follows(button, note)).toBe(true);
+    expect(button).toHaveAccessibleDescription(/built-in voice/);
+  });
+
   it('holds the playback controls but no Read aloud toggle for Bebe', async () => {
     await openCam(B.key, 6);
     const row = controlRow();

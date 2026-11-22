@@ -11,6 +11,10 @@ export interface RunSource {
   loadRun(entry: RunIndexEntry): Promise<LoadedRun>;
   /** URL for a screenshot path of the run, or null when the path is unsafe. */
   screenshotUrl(run: Run, path: string): string | null;
+  /** Forgets what was loaded and tells subscribers to load again. Used after a live ghost adds a run. */
+  refresh?(): void;
+  /** Calls `listener` after every refresh. Returns a function that stops the calls. */
+  subscribe?(listener: () => void): () => void;
 }
 
 let selected: RunSource | null = null;

@@ -81,7 +81,18 @@ export function createStaticRunSource(options: StaticSourceOptions): RunSource {
     return validateRun(json, { key: entry.key, folder: entry.folder, origin: entry.origin });
   }
 
+  const listeners = new Set<() => void>();
+
   return {
+    refresh() {
+      indexPromise = null;
+      runCache.clear();
+      for (const listener of [...listeners]) listener();
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => void listeners.delete(listener);
+    },
     listRuns() {
       if (!indexPromise) indexPromise = fetchIndex();
       return indexPromise;

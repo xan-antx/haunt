@@ -465,9 +465,9 @@
   /* Control_Row: step info, the controls and (Listener) the voice toggle on one row. */
   .controlsArea {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-4);
+    gap: 0 var(--space-4);
     min-width: 0;
   }
 
@@ -489,10 +489,12 @@
   }
 
   .voice {
-    flex: 0 1 22rem;
+    flex: none;
   }
 
+  /* The note takes its own line under the whole row. */
   .voiceNote {
+    flex: 0 0 100%;
     margin-top: var(--space-1);
     font-size: 0.8rem;
     line-height: 1.3;

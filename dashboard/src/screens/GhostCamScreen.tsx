@@ -52,23 +52,27 @@ function VoiceToggle({ step }: { step: Step }) {
     setEnabled(!enabled);
   };
 
+  // Two siblings of the Control_Row: the button joins the row, and the note takes a full line
+  // under the whole row, so the button lines up with the playback buttons.
   return (
-    <div className={styles.voice}>
-      <button
-        type="button"
-        className="button"
-        aria-pressed={voice.available ? enabled : undefined}
-        aria-disabled={voice.available ? undefined : 'true'}
-        aria-describedby="voice-note"
-        onClick={toggle}
-      >
-        Read aloud (approximation)
-      </button>
+    <>
+      <div className={styles.voice}>
+        <button
+          type="button"
+          className="button"
+          aria-pressed={voice.available ? enabled : undefined}
+          aria-disabled={voice.available ? undefined : 'true'}
+          aria-describedby="voice-note"
+          onClick={toggle}
+        >
+          Read aloud (approximation)
+        </button>
+      </div>
       <p id="voice-note" className={styles.voiceNote}>
         This uses your browser's built-in voice. It is an approximation, not real screen reader output.
         {!voice.available && <> Unavailable: {voice.reason}</>}
       </p>
-    </div>
+    </>
   );
 }
 

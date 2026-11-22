@@ -1,5 +1,8 @@
 import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { LiveGhost, createNodeDeps, createSummonMiddleware } from './scripts/liveGhost';
 
 export const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
@@ -32,9 +35,27 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+/**
+ * The local-only "Summon a live ghost" endpoint. `apply: 'serve'` means it exists in `npm run dev`
+ * and in no build, so the published site has nothing to call.
+ */
+function summonLiveGhost(): Plugin {
+  const dashboardDir = dirname(fileURLToPath(import.meta.url));
+  return {
+    name: 'haunt-summon-live-ghost',
+    apply: 'serve',
+    configureServer(server) {
+      const ghost = new LiveGhost(
+        createNodeDeps({ repoRoot: join(dashboardDir, '..'), dashboardDir, log: (line) => server.config.logger.info(line) }),
+      );
+      server.middlewares.use(createSummonMiddleware(ghost));
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ command, isPreview, mode }) => ({
-  plugins: [react(), contentSecurityPolicy()],
+  plugins: [react(), contentSecurityPolicy(), summonLiveGhost()],
   // GitHub project page: production lives under /haunt/. `vite preview` serves that
   // production build, so it uses the same base. Dev keeps normal paths.
   base: command === 'build' || isPreview ? '/haunt/' : '/',
@@ -44,6 +65,8 @@ export default defineConfig(({ command, isPreview, mode }) => ({
   server: {
     port: 3001,
     strictPort: true,
+    // The live ghost builds Lantern Bills into .live/; the dev server has no reason to watch it.
+    watch: { ignored: ['**/.live/**'] },
   },
   preview: {
     port: 3001,
