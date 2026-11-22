@@ -1,0 +1,36 @@
+{
+  "name": "haunt-patrol",
+  "version": "0.1.0",
+  "displayName": "Haunt Patrol",
+  "description": "Nightly accessibility patrol: three ghosts visit Lantern Bills and the page shows what changed.",
+  "author": "haunt",
+  "agents": ["agents/patrol-guide.json"],
+  "skills": ["skills/reading-patrols"],
+  "ui": {
+    "entry": "dist/index.mjs",
+    "pages": [{ "route": "/apps/haunt-patrol", "label": "Haunt Patrol", "icon": "Ghost" }]
+  },
+  "backend": {
+    "entryPoint": "src/backend/server.ts",
+    "port": "auto",
+    "healthCheck": "/health",
+    "routes": "/api/apps/haunt-patrol",
+    "type": "node"
+  },
+  "permissions": { "network": false, "cron": true, "storage": false },
+  "setup": {
+    "onInstall": "npm install && npm run build",
+    "onUpdate": "npm install && npm run build"
+  },
+  "crons": [
+    {
+      "name": "nightly-patrol",
+      "cron_expr": "0 0 * * *",
+      "timezone": "Asia/Kolkata",
+      "strict_schedule": true,
+      "command": "node crew-app/src/patrol.ts",
+      "timeout": 900,
+      "timeout_secs": 905
+    }
+  ]
+}

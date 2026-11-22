@@ -38,3 +38,13 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Devpost media from tools/media
+/media/
+
+# Haunt Patrol (crew-app)
+crew-app/data/*
+!crew-app/data/.gitkeep
+crew-app/.patrol/
+crew-app/ui/dist/
+crew-app/node_modules/

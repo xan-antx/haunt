@@ -1,0 +1,31 @@
+{
+  "name": "haunt-patrol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "vitest --run",
+    "typecheck": "tsc -p tsconfig.json && tsc -p ui/tsconfig.json",
+    "build:ui": "vite build ui",
+    "build": "npm run build:ui",
+    "patrol": "node src/patrol.ts",
+    "check:protected": "node scripts/check-protected.ts"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "fast-check": "^4.11.0",
+    "jsdom": "^31.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}
