@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import fc from 'fast-check';
 import i18n from 'i18next';
 import { useState } from 'react';
@@ -26,7 +27,10 @@ function Host() {
 }
 
 function openModal() {
-  fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+  const opener = screen.getByRole('button', { name: 'Open' });
+  // Focus the opener first, as a real click or key press would.
+  opener.focus();
+  fireEvent.click(opener);
 }
 
 function getCheckbox() {
@@ -37,9 +41,6 @@ function getLearnMore() {
   return screen.getByText(i18n.t('modal.learnMore'));
 }
 
-function pressTab(shift: boolean) {
-  fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Tab', shiftKey: shift });
-}
 
 describe('Modal properties', () => {
   /**
@@ -56,7 +57,7 @@ describe('Modal properties', () => {
             // Checked by default on every open, whatever happened before.
             expect(getCheckbox().checked).toBe(true);
             if (leaveUnchecked) fireEvent.click(getCheckbox());
-            // Dismiss with the mouse-only close control, then reopen.
+            // Dismiss with the close control, then reopen.
             fireEvent.click(screen.getByRole('button', { name: i18n.t('accessibility.closeDialog') }));
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
           }
@@ -69,40 +70,61 @@ describe('Modal properties', () => {
   }, RUN_TIMEOUT);
 
   /**
-   * Feature: lantern-bills, Property 10: Keyboard Trap Cycling
-   * Validates: Requirements 5.6
+   * Feature: lantern-bills, Property 10: Keyboard Order and Wrap
+   * Tab and Shift+Tab move through checkbox, Learn more, Continue and Close, wrapping at the ends.
+   * Validates: Requirements 5.6, exorcised-payment-a11y-fix 2.2
    */
-  it('Feature: lantern-bills, Property 10: Keyboard Trap Cycling', () => {
-    fc.assert(
-      fc.property(fc.array(fc.boolean(), { minLength: 1, maxLength: 40 }), presses => {
+  it('Feature: lantern-bills, Property 10: Keyboard Order and Wrap', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(fc.boolean(), { minLength: 1, maxLength: 20 }), async presses => {
         try {
+          const user = userEvent.setup();
           render(<Host />);
           openModal();
-          const checkbox = getCheckbox();
-          const learnMore = getLearnMore();
           const continueButton = screen.getByRole('button', { name: i18n.t('modal.continue') });
           const closeButton = screen.getByRole('button', {
             name: i18n.t('accessibility.closeDialog'),
           });
+          const stops = [getCheckbox(), getLearnMore(), continueButton, closeButton];
 
-          expect(document.activeElement).toBe(checkbox);
-          let expected: Element = checkbox;
+          expect(document.activeElement).toBe(stops[0]);
+          let index = 0;
           for (const shift of presses) {
-            pressTab(shift);
-            // With two focusable stops, Tab and Shift+Tab both move to the other one.
-            expected = expected === checkbox ? learnMore : checkbox;
-            expect(document.activeElement).toBe(expected);
-            expect(document.activeElement).not.toBe(continueButton);
-            expect(document.activeElement).not.toBe(closeButton);
+            await user.tab({ shift });
+            index = (index + (shift ? stops.length - 1 : 1)) % stops.length;
+            expect(document.activeElement).toBe(stops[index]);
           }
-          // Continue and Close are not in the tab order.
-          expect(continueButton).toHaveAttribute('tabindex', '-1');
-          expect(closeButton).toHaveAttribute('tabindex', '-1');
+          // Continue and Close are in the tab order.
+          expect(continueButton).not.toHaveAttribute('tabindex', '-1');
+          expect(closeButton).not.toHaveAttribute('tabindex', '-1');
         } finally {
           cleanup();
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 25 }
+    );
+  }, RUN_TIMEOUT);
+
+  /**
+   * Feature: exorcised-payment-a11y-fix, Property: Escape closes from any stop
+   * Validates: Requirements 2.4, 2.5
+   */
+  it('Escape closes from any stop and focus returns to the opener', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(fc.boolean(), { maxLength: 12 }), async presses => {
+        try {
+          const user = userEvent.setup();
+          render(<Host />);
+          openModal();
+          for (const shift of presses) await user.tab({ shift });
+          await user.keyboard('{Escape}');
+          expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+          expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Open' }));
+        } finally {
+          cleanup();
+        }
+      }),
+      { numRuns: 25 }
     );
   }, RUN_TIMEOUT);
 });

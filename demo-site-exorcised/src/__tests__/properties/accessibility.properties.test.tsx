@@ -43,6 +43,20 @@ const flush = async () => {
   });
 };
 
+/** Render the app, submit a valid card and wait for the protection dialog. */
+async function openProtectionModal() {
+  renderAppAt('/');
+  openPaymentForm();
+  fillPaymentForm({
+    cardNumber: '4111111111111111',
+    expiry: '12/99',
+    cvv: '123',
+    cardholderName: 'Asha',
+  });
+  (document.querySelector('form button[type="submit"]') as HTMLElement).click();
+  await flush();
+}
+
 const scenarios: Scenario[] = [
   {
     name: 'Pay this bill button',
@@ -126,6 +140,26 @@ const scenarios: Scenario[] = [
     },
     observe: () => `expanded=${screen.getByText(i18n.t('modal.learnMoreExpanded')).hidden === false}`,
   },
+  {
+    name: 'Close button (modal)',
+    keys: ['enter', 'space'],
+    setup: async () => {
+      await openProtectionModal();
+      return screen.getByRole('button', { name: i18n.t('accessibility.closeDialog') });
+    },
+    observe: () => `dialog=${!!screen.queryByRole('dialog')}`,
+  },
+  {
+    name: 'Continue button (modal)',
+    keys: ['enter', 'space'],
+    setup: async () => {
+      await openProtectionModal();
+      return screen.getByRole('button', { name: i18n.t('modal.continue') });
+    },
+    // Its name changes while processing, so observe aria-busy only.
+    observe: () =>
+      `busy=${document.querySelector('[role="dialog"] button[aria-busy]')?.getAttribute('aria-busy')}`,
+  },
 ];
 
 async function activate(target: HTMLElement, how: Activation) {
@@ -160,7 +194,7 @@ describe('Accessibility properties', () => {
    * Feature: lantern-bills, Property 16: Keyboard Interaction Equivalence
    * Validates: Requirements 10.5
    * Buttons and checkboxes: Enter/Space. Links: Enter (Space never activates a native link).
-   * Continue and Close in the modal are excluded by requirement.
+   * Continue and Close in the modal are native buttons and are covered too.
    */
   it('Feature: lantern-bills, Property 16: Keyboard Interaction Equivalence', async () => {
     const cases = fc.constantFrom(...scenarios).chain(scenario =>

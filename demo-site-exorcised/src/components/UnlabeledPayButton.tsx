@@ -1,19 +1,23 @@
+import type { MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './UnlabeledPayButton.module.css';
 
 export interface UnlabeledPayButtonProps {
-  onClick: () => void;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }
 
 /**
- * PROBLEM 1 (deliberate): icon-only submit button with no accessible name.
- * No aria-label, aria-labelledby, title or text content. Do not add any.
+ * Icon-only submit button. It is labeled from `accessibility.payButton` in the translation files,
+ * so screen readers announce a localized name. The icon stays hidden from assistive technology.
  */
 export function UnlabeledPayButton({ onClick, disabled = false }: UnlabeledPayButtonProps) {
+  const { t } = useTranslation();
   return (
     <button
       type="submit"
       className={styles.button}
+      aria-label={t('accessibility.payButton')}
       onClick={onClick}
       disabled={disabled}
     >

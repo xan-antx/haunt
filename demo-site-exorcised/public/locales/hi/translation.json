@@ -142,6 +142,7 @@
   "accessibility": {
     "loading": "लोड हो रहा है",
     "closeDialog": "संवाद बंद करें",
+    "payButton": "अभी भुगतान करें",
     "required": "आवश्यक",
     "optional": "वैकल्पिक"
   }

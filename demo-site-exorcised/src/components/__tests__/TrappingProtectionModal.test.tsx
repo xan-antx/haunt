@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrappingProtectionModal } from '../TrappingProtectionModal';
 
@@ -26,11 +27,22 @@ function pressTab(shiftKey = false) {
   fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Tab', shiftKey });
 }
 
+/** Renders the modal after focusing a separate opener button, as BillPage does. */
+function setupWithOpener(overrides: Partial<React.ComponentProps<typeof TrappingProtectionModal>> = {}) {
+  const opener = document.createElement('button');
+  opener.textContent = 'Opener';
+  document.body.appendChild(opener);
+  opener.focus();
+  const view = setup(overrides);
+  return { opener, ...view };
+}
+
 afterEach(() => {
   vi.useRealTimers();
+  document.body.querySelectorAll(':scope > button').forEach(el => el.remove());
 });
 
-describe('TrappingProtectionModal (Problem 2: keyboard trap, mouse-only controls)', () => {
+describe('TrappingProtectionModal (Problem 2 fixed: keyboard operable)', () => {
   it('renders nothing when closed', () => {
     setup({ isOpen: false });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -56,41 +68,124 @@ describe('TrappingProtectionModal (Problem 2: keyboard trap, mouse-only controls
     expect(checkbox().checked).toBe(true);
   });
 
-  it('Tab never reaches the Continue or Close controls', () => {
+  it('Tab and Shift+Tab visit checkbox, Learn more, Continue and Close in order and wrap', async () => {
+    const user = userEvent.setup();
     setup();
-    const seen = new Set<Element | null>();
-    for (let i = 0; i < 12; i += 1) {
-      seen.add(document.activeElement);
-      pressTab(false);
+    const order = [checkbox(), learnMore(), continueControl(), closeControl()];
+    expect(document.activeElement).toBe(order[0]);
+    for (const expected of [order[1], order[2], order[3], order[0], order[1]]) {
+      await user.tab();
+      expect(document.activeElement).toBe(expected);
     }
-    for (let i = 0; i < 12; i += 1) {
-      seen.add(document.activeElement);
-      pressTab(true);
+    for (const expected of [order[0], order[3], order[2]]) {
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(expected);
     }
-    expect(seen).toEqual(new Set([checkbox(), learnMore()]));
-    expect(seen.has(continueControl())).toBe(false);
-    expect(seen.has(closeControl())).toBe(false);
   });
 
-  it('pulls focus back into the modal even if it was on a mouse-only control', () => {
+  it('wraps from Close to the checkbox on Tab and from the checkbox to Close on Shift+Tab', () => {
     setup();
     closeControl().focus();
     pressTab(false);
-    expect([checkbox(), learnMore()]).toContain(document.activeElement);
+    expect(document.activeElement).toBe(checkbox());
+    pressTab(true);
+    expect(document.activeElement).toBe(closeControl());
   });
 
-  it('marks Continue and Close with tabindex="-1"', () => {
+  it('brings focus into the dialog if it is outside', () => {
+    setupWithOpener();
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+    pressTab(false);
+    expect(document.activeElement).toBe(checkbox());
+  });
+
+  it('Continue and Close are native buttons with no tabindex="-1"', () => {
     setup();
-    expect(continueControl()).toHaveAttribute('tabindex', '-1');
-    expect(closeControl()).toHaveAttribute('tabindex', '-1');
+    for (const control of [continueControl(), closeControl()]) {
+      expect(control.tagName).toBe('BUTTON');
+      expect(control).not.toHaveAttribute('tabindex', '-1');
+    }
   });
 
-  it('does not close on Escape', () => {
-    const { onClose } = setup();
+  it('closes on Escape', () => {
+    const first = setup();
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expect(first.onClose).toHaveBeenCalledTimes(1);
+    first.unmount();
+
+    const second = setup();
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(onClose).not.toHaveBeenCalled();
+    expect(second.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('activates Close with Enter and Space', async () => {
+    for (const key of ['{Enter}', ' ']) {
+      const user = userEvent.setup();
+      const { onClose, unmount } = setup();
+      closeControl().focus();
+      await user.keyboard(key);
+      expect(onClose).toHaveBeenCalledTimes(1);
+      unmount();
+    }
+  });
+
+  it('activates Continue with Enter and Space', async () => {
+    for (const key of ['{Enter}', ' ']) {
+      const user = userEvent.setup();
+      const { onContinue, unmount } = setup();
+      continueControl().focus();
+      await user.keyboard(key);
+      expect(onContinue).toHaveBeenCalledWith(true);
+      unmount();
+    }
+  });
+
+  it('returns focus to the opener after Close click, Escape and isOpen=false', () => {
+    const props = { onContinue: vi.fn(), onClose: vi.fn(), amount: 2490 };
+
+    const a = setupWithOpener();
+    fireEvent.click(closeControl());
+    a.rerender(<TrappingProtectionModal isOpen={false} {...props} />);
+    expect(document.activeElement).toBe(a.opener);
+    a.unmount();
+
+    const b = setupWithOpener();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    b.rerender(<TrappingProtectionModal isOpen={false} {...props} />);
+    expect(document.activeElement).toBe(b.opener);
+    b.unmount();
+
+    const c = setupWithOpener();
+    c.rerender(<TrappingProtectionModal isOpen={false} {...props} />);
+    expect(document.activeElement).toBe(c.opener);
+  });
+
+  it('returns focus to returnFocusRef when it differs from the active element', () => {
+    const target = document.createElement('button');
+    document.body.appendChild(target);
+    const view = setupWithOpener({ returnFocusRef: { current: target } });
+    view.rerender(
+      <TrappingProtectionModal
+        isOpen={false}
+        onContinue={vi.fn()}
+        onClose={vi.fn()}
+        amount={2490}
+        returnFocusRef={{ current: target }}
+      />
+    );
+    expect(document.activeElement).toBe(target);
+  });
+
+  it('does not throw when the opener is removed before close', () => {
+    const view = setupWithOpener();
+    view.opener.remove();
+    expect(() =>
+      view.rerender(
+        <TrappingProtectionModal isOpen={false} onContinue={vi.fn()} onClose={vi.fn()} amount={2490} />
+      )
+    ).not.toThrow();
   });
 
   it('does not close when the backdrop is clicked', () => {

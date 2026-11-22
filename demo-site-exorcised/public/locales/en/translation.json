@@ -146,6 +146,7 @@
   "accessibility": {
     "loading": "Loading",
     "closeDialog": "Close dialog",
+    "payButton": "Pay now",
     "required": "required",
     "optional": "optional"
   }

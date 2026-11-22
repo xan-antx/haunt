@@ -53,6 +53,7 @@ describe('Translation files (Problem 6: incomplete pa/hi)', () => {
       'banner.alt',
       'summary.total',
       'autopayLink',
+      'accessibility.payButton',
     ];
     for (const key of required) {
       expect(enKeys, `en is missing ${key}`).toContain(key);

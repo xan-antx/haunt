@@ -1,4 +1,5 @@
 import { act, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import i18n from 'i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -6,6 +7,7 @@ import {
   fillAndSubmit,
   fillPaymentForm,
   getContinueButton,
+  getSubmitButton,
   openPaymentForm,
   renderAppAt,
   submitPaymentForm,
@@ -115,6 +117,70 @@ describe('End-to-end payment flow', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(window.location.pathname).toBe('/');
+  });
+
+  it('Enter in an input opens the dialog with focus on the checkbox; Escape closes it and focus returns to the pay button', async () => {
+    const user = userEvent.setup();
+    renderAppAt('/');
+    openPaymentForm();
+    fillPaymentForm(VALID);
+    await user.click(document.getElementById('cardholder-name') as HTMLElement);
+    await user.keyboard('{Enter}');
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(document.activeElement).toBe(screen.getByRole('checkbox'));
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(getSubmitButton());
+  });
+
+  it('returns focus to the pay button when the dialog is closed with Close', async () => {
+    const user = userEvent.setup();
+    renderAppAt('/');
+    fillAndSubmit(VALID);
+    await user.click(screen.getByRole('button', { name: 'Close dialog' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(getSubmitButton());
+  });
+
+  it('returns focus to the pay button after a failed payment closes the dialog', async () => {
+    vi.useFakeTimers();
+    renderAppAt('/');
+    fillAndSubmit({ ...VALID, cardNumber: '4000000000000002' });
+    fireEvent.click(getContinueButton());
+    await advance(800);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(document.activeElement).toBe(getSubmitButton());
+  });
+
+  it('navigates to the confirmation page after Continue with no errors', async () => {
+    vi.useFakeTimers();
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    renderAppAt('/');
+    fillAndSubmit(VALID);
+    fireEvent.click(getContinueButton());
+    await advance(800);
+
+    expect(window.location.pathname).toBe('/confirmation');
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
+  });
+
+  it('names the pay button in the current language while Pay this bill keeps its English fallback', async () => {
+    const names: Record<string, string> = { en: 'Pay now', pa: 'ਭੁਗਤਾਨ ਕਰੋ', hi: 'अभी भुगतान करें' };
+    for (const lang of ['en', 'pa', 'hi']) {
+      renderAppAt('/');
+      await act(async () => {
+        await i18n.changeLanguage(lang);
+      });
+      expect(screen.getByRole('button', { name: 'Pay this bill' })).toBeInTheDocument();
+      openPaymentForm();
+      expect(getSubmitButton()).toHaveAccessibleName(names[lang]);
+      document.body.innerHTML = '';
+    }
   });
 
   it('shows errors and no modal when the form is invalid', () => {

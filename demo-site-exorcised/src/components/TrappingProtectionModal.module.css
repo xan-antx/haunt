@@ -1,4 +1,4 @@
-/* Problem 2 lives in the component (focus trap, mouse-only controls, pre-ticked add-on). This file only styles it. */
+/* Keyboard behavior lives in the component. Still deliberate there: backdrop clicks do not close the dialog, and the add-on is pre-ticked. This file only styles it. */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -89,7 +89,7 @@
   font-size: 1.0625rem;
 }
 
-/* Problem 2: both of these are mouse-only (tabIndex={-1} in the component). */
+/* Continue and Close are native buttons in the tab order. */
 .continueButton {
   display: inline-flex;
   align-items: center;

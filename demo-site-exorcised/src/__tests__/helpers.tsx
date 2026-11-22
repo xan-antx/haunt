@@ -28,7 +28,7 @@ export function fillPaymentForm(data: PaymentFormData) {
   setValue('cardholder-name', data.cardholderName);
 }
 
-/** The icon-only submit button (it has no accessible name, so query by type). */
+/** The icon-only submit button (named "Pay now" via aria-label; querying by type stays stable across languages). */
 export function getSubmitButton(): HTMLButtonElement {
   const button = document.querySelector<HTMLButtonElement>('form button[type="submit"]');
   if (!button) throw new Error('Submit button not found');

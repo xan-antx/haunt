@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import i18n from 'i18next';
 import { describe, expect, it, vi } from 'vitest';
 import { UnlabeledPayButton } from '../UnlabeledPayButton';
 
@@ -8,21 +9,24 @@ function renderButton(onClick = vi.fn(), disabled = false) {
   return { button, onClick };
 }
 
-describe('UnlabeledPayButton (Problem 1: no accessible name)', () => {
-  it('has an empty accessible name', () => {
+describe('UnlabeledPayButton (Problem 1 fixed: accessible name)', () => {
+  it('has the accessible name Pay now', () => {
     const { button } = renderButton();
-    expect(button).toHaveAccessibleName('');
+    expect(button).toHaveAccessibleName('Pay now');
   });
 
-  it('has no aria-label, aria-labelledby, or title', () => {
+  it('is labeled from the translation file', async () => {
     const { button } = renderButton();
-    expect(button).not.toHaveAttribute('aria-label');
-    expect(button).not.toHaveAttribute('aria-labelledby');
-    expect(button).not.toHaveAttribute('title');
-    expect(button.querySelector('title')).toBeNull();
+    expect(button).toHaveAttribute('aria-label', i18n.t('accessibility.payButton'));
+
+    await i18n.changeLanguage('pa');
+    expect(renderButton().button).toHaveAccessibleName('ਭੁਗਤਾਨ ਕਰੋ');
+
+    await i18n.changeLanguage('hi');
+    expect(renderButton().button).toHaveAccessibleName('अभी भुगतान करें');
   });
 
-  it('has no text content', () => {
+  it('keeps the icon-only look', () => {
     const { button } = renderButton();
     expect(button.textContent?.trim()).toBe('');
   });
@@ -32,6 +36,11 @@ describe('UnlabeledPayButton (Problem 1: no accessible name)', () => {
     const svg = button.querySelector('svg');
     expect(svg).not.toBeNull();
     expect(svg).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('is a submit button', () => {
+    const { button } = renderButton();
+    expect(button).toHaveAttribute('type', 'submit');
   });
 
   it('is keyboard focusable', () => {

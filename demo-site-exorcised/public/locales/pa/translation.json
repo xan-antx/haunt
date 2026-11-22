@@ -142,6 +142,7 @@
   "accessibility": {
     "loading": "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ",
     "closeDialog": "ਡਾਇਲਾਗ ਬੰਦ ਕਰੋ",
+    "payButton": "ਭੁਗਤਾਨ ਕਰੋ",
     "required": "ਲਾਜ਼ਮੀ",
     "optional": "ਵਿਕਲਪਿਕ"
   }

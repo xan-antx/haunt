@@ -1,4 +1,5 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/common/Button';
@@ -163,7 +164,7 @@ type PaymentForm = ReturnType<typeof usePaymentForm>;
 interface PaymentFormSectionProps {
   form: PaymentForm;
   paymentFailed: boolean;
-  onSubmit: () => void;
+  onSubmit: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 /** The payment form: four inputs, card errors, and the icon-only submit button. */
@@ -292,12 +293,15 @@ export function BillPage() {
   const [showForm, setShowForm] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [paymentFailed, setPaymentFailed] = useState(false);
+  /** The pay button that opened the dialog; focus returns here when the dialog closes. */
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const amountText = formatCurrency(SAMPLE_BILL.amountDue);
 
-  function handleSubmit() {
+  function handleSubmit(event: MouseEvent<HTMLButtonElement>) {
     setPaymentFailed(false);
     if (form.validateAll()) {
+      openerRef.current = event.currentTarget;
       setModalOpen(true);
     }
   }
@@ -373,6 +377,7 @@ export function BillPage() {
         onContinue={handleContinue}
         onClose={() => setModalOpen(false)}
         amount={SAMPLE_BILL.amountDue}
+        returnFocusRef={openerRef}
       />
     </PageLayout>
   );
