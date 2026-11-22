@@ -164,7 +164,7 @@ Rules for every task:
   - Run `git status --porcelain -- dashboard demo-site demo-site-exorcised runs` and confirm it prints nothing
   - Ensure all tests pass, ask the user if questions arise
 
-- [ ] 11. Self-check (manual, run by the agent executing the tasks)
+- [x] 11. Self-check (manual, run by the agent executing the tasks)
   - [ ] 11.1 Run the Listener with the AI mind on Lantern Bills and compare
     - Ask the user to start Lantern Bills and give its URL. Do not start a dev server and do not run e2e tests
     - From `engine/`, run `npx haunt run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `C:\Users\Lenovo\AppData\Local\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
