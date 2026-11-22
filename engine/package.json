@@ -26,7 +26,8 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "ajv": "^8",
     "playwright": "^1.65.0",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

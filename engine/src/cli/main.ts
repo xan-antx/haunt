@@ -17,11 +17,24 @@ import { folderExistsIn, makeRunId } from '../core/runId.ts';
 import { applyThrottling } from '../core/throttling.ts';
 import { applyAcceptLanguage } from '../core/acceptLanguage.ts';
 import { runLoop } from '../core/runLoop.ts';
-import type { RunLoopRecorder } from '../core/runLoop.ts';
-import type { ActionResult, GhostId } from '../core/types.ts';
+import type { RunLoopOutcome, RunLoopRecorder } from '../core/runLoop.ts';
+import type { ActionResult, Body, GhostId } from '../core/types.ts';
 import { writeRunFolder } from '../core/writer.ts';
 import { GHOST_IDS, getGhost, pageInitScripts } from '../ghosts/registry.ts';
 import type { AnyGhost } from '../ghosts/registry.ts';
+import type { Heard } from '../ghosts/listener/ax.ts';
+import type { ListenerAction } from '../ghosts/listener/body.ts';
+import { startBridge } from '../mind/ai/bridge.ts';
+import { AiRunDriver } from '../mind/ai/driver.ts';
+import {
+  buildKiroArgs,
+  creditsLine,
+  defaultKiroLauncher,
+  parseCredits,
+  parseTimeoutMs,
+  resolveKiroCli,
+} from '../mind/ai/kiro.ts';
+import type { KiroLauncher } from '../mind/ai/kiro.ts';
 import { loadMission, MissionLoadError } from '../missions/loadMission.ts';
 import type { Intention, Mission } from '../missions/loadMission.ts';
 import { applyTemplates } from '../missions/templates.ts';
@@ -29,7 +42,7 @@ import { applyTemplates } from '../missions/templates.ts';
 export const USAGE = `Usage:
   npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url>
                 [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
-                [--config <file>] [--missions <dir>]
+                [--config <file>] [--missions <dir>] [--mind <scripted|ai>]
   npx haunt --help | npx haunt run --help
 
 Ghosts:
@@ -48,6 +61,7 @@ Options:
   --headed            show the browser window
   --config <file>     use this config file instead of engine/haunt.config.json
   --missions <dir>    read missions from this folder instead of engine/missions
+  --mind <name>       scripted (default) or ai: a Kiro agent chooses the Listener's keys (listener only)
   -h, --help          show this text
 
 Exit codes:
@@ -101,7 +115,16 @@ export interface CliDeps {
   getCommit?: () => Promise<string>;
   /** Registers a Ctrl+C handler and returns a function that removes it. Defaults to `process.on('SIGINT')`. */
   onInterrupt?: (handler: () => void) => () => void;
+  /** Starts the Kiro CLI for `--mind ai`. Defaults to `child_process.spawn`. Tests pass a fake. */
+  kiroLauncher?: KiroLauncher;
+  /** Tells whether a file exists, for finding the Kiro CLI. Defaults to `fs.existsSync`. */
+  kiroExists?: (file: string) => boolean;
+  /** How long Kiro gets to exit on its own after the run has ended, so its credits line is printed. Default 5000. */
+  kiroGraceMs?: number;
 }
+
+export type MindKind = 'scripted' | 'ai';
+export const MIND_KINDS: readonly MindKind[] = ['scripted', 'ai'];
 
 export interface RunArgs {
   ghost: GhostId;
@@ -114,6 +137,8 @@ export interface RunArgs {
   headed: boolean;
   config?: string;
   missions?: string;
+  /** `scripted` when absent. */
+  mind?: MindKind;
 }
 
 export type ParsedArgs =
@@ -132,6 +157,7 @@ const OPTIONS = {
   headed: { type: 'boolean' },
   config: { type: 'string' },
   missions: { type: 'string' },
+  mind: { type: 'string' },
   help: { type: 'boolean', short: 'h' },
 } as const;
 
@@ -172,6 +198,13 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     problems.push(`Unknown ghost "${ghost}". Allowed values: ${GHOST_IDS.join(', ')}.`);
   }
 
+  const mind = opts.mind;
+  if (mind !== undefined && !(MIND_KINDS as readonly string[]).includes(mind)) {
+    problems.push(`Unknown mind "${mind}". Allowed values: ${MIND_KINDS.join(', ')}.`);
+  } else if (mind === 'ai' && ghost !== undefined && ghost !== '' && ghost !== 'listener' && (GHOST_IDS as readonly string[]).includes(ghost)) {
+    problems.push('The AI mind supports only the listener ghost.');
+  }
+
   if (opts.mission === undefined || opts.mission === '') problems.push('--mission is missing. Give a mission id, for example pay-bill.');
   if (opts.url === undefined || opts.url === '') problems.push('--url is missing. Give the address of the page to open, for example http://localhost:3000.');
 
@@ -199,6 +232,8 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     url: opts.url as string,
     headed: opts.headed === true,
   };
+  // Only set when given, so a command line without --mind parses exactly as it did before. Absent means scripted.
+  if (mind !== undefined) args.mind = mind as MindKind;
   if (opts.out !== undefined) args.out = opts.out;
   if (opts.site !== undefined) args.site = opts.site;
   if (opts['site-name'] !== undefined) args.siteName = opts['site-name'];
@@ -368,6 +403,23 @@ export async function main(argv: string[], deps: CliDeps = {}): Promise<number> 
     return EXIT.usage;
   }
 
+  // 7b. The Kiro CLI, for the AI mind. Not finding it is a usage problem, and no browser has started.
+  let kiro: AiRunContext | undefined;
+  if (args.mind === 'ai') {
+    const found = resolveKiroCli(env, deps.kiroExists ?? existsSync);
+    if (!found.ok) {
+      for (const line of found.help.split('\n')) say(line);
+      return EXIT.usage;
+    }
+    kiro = {
+      command: found.path,
+      launcher: deps.kiroLauncher ?? defaultKiroLauncher,
+      env,
+      timeoutMs: parseTimeoutMs(env.HAUNT_AI_TIMEOUT_MS),
+      graceMs: deps.kiroGraceMs ?? 5000,
+    };
+  }
+
   // 8. Chromium.
   if (!(await launcher.isInstalled())) {
     say('Chromium for Playwright is not installed. Install it with:');
@@ -390,6 +442,8 @@ export async function main(argv: string[], deps: CliDeps = {}): Promise<number> 
     initScripts: deps.initScripts ?? pageInitScripts,
     now: deps.now ?? (() => new Date()),
     getCommit: deps.getCommit ?? (() => getShortCommit({ warn: say })),
+    repoRoot,
+    ...(kiro ? { kiro } : {}),
   };
   return runWithInterrupt(context, deps.onInterrupt ?? defaultOnInterrupt);
 }
@@ -408,11 +462,23 @@ interface RunContext {
   initScripts: readonly string[];
   now: () => Date;
   getCommit: () => Promise<string>;
+  repoRoot: string;
+  /** Set when `--mind ai` is on. */
+  kiro?: AiRunContext;
+}
+
+/** What the AI run path needs from the outside world. */
+interface AiRunContext {
+  command: string;
+  launcher: KiroLauncher;
+  env: NodeJS.ProcessEnv;
+  timeoutMs: number;
+  graceMs: number;
 }
 
 /** Runs the ghost and handles Ctrl+C: the browser is closed, nothing is written, the exit code is 130. */
 async function runWithInterrupt(ctx: RunContext, onInterrupt: (handler: () => void) => () => void): Promise<number> {
-  const state = { interrupted: false, committing: false, browser: undefined as Browser | undefined };
+  const state: RunState = { interrupted: false, committing: false, browser: undefined, stopAi: undefined };
   let wake: () => void = () => undefined;
   const interruption = new Promise<'interrupted'>((resolve) => {
     wake = () => resolve('interrupted');
@@ -436,6 +502,7 @@ async function runWithInterrupt(ctx: RunContext, onInterrupt: (handler: () => vo
     return EXIT.failed;
   } finally {
     stopListening();
+    await state.stopAi?.().catch(() => undefined);
     await state.browser?.close().catch(() => undefined);
   }
 }
@@ -444,6 +511,80 @@ interface RunState {
   interrupted: boolean;
   committing: boolean;
   browser: Browser | undefined;
+  /** Kills the Kiro child and closes the Bridge. Set while an AI run is going. */
+  stopAi: (() => Promise<void>) | undefined;
+}
+
+/**
+ * The AI run: the driver owns the Body, the Bridge lets haunt-mcp reach it, and Kiro is the child that
+ * calls the tools. The run ends when the driver's pipeline ends it, when Kiro exits, or on timeout.
+ * Afterwards the child is killed and the Bridge closed, and the caller goes on into finalize.
+ */
+async function runAiMind(
+  ctx: RunContext,
+  state: RunState,
+  driver: AiRunDriver,
+  kiro: AiRunContext,
+): Promise<RunLoopOutcome> {
+  await driver.start();
+  if (driver.outcome) return driver.outcome; // the page could not be opened; nothing to hand to Kiro
+
+  const bridge = await startBridge(driver);
+  const child = kiro.launcher({
+    command: kiro.command,
+    args: buildKiroArgs(ctx.mission.goal),
+    env: {
+      ...Object.fromEntries(Object.entries(kiro.env).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+      HAUNT_BRIDGE_URL: bridge.url,
+      HAUNT_BRIDGE_TOKEN: bridge.token,
+    },
+    cwd: ctx.repoRoot,
+  });
+  let exitedWith: { code: number | null; output: string } | undefined;
+  void child.exited.then((exit) => {
+    exitedWith = exit;
+  });
+  const stop = async (): Promise<void> => {
+    child.kill();
+    await bridge.close();
+  };
+  state.stopAi = stop;
+
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<'timeout'>((resolve) => {
+    timer = setTimeout(() => resolve('timeout'), kiro.timeoutMs);
+  });
+  try {
+    const first = await Promise.race([
+      driver.ended.then(() => 'ended' as const),
+      child.exited.then((exit) => exit),
+      timeout,
+    ]);
+    if (first === 'timeout') await driver.endExternally({ kind: 'timeout', ms: kiro.timeoutMs });
+    else if (first !== 'ended') await driver.endExternally({ kind: 'exit', code: first.code });
+
+    // The run is over. Give Kiro a moment to finish by itself, so it can print its credits line.
+    if (!exitedWith && !state.interrupted) {
+      let grace: NodeJS.Timeout | undefined;
+      await Promise.race([
+        child.exited,
+        new Promise<void>((resolve) => {
+          grace = setTimeout(resolve, kiro.graceMs);
+        }),
+      ]);
+      clearTimeout(grace);
+    }
+  } finally {
+    clearTimeout(timer);
+    await stop();
+    state.stopAi = undefined;
+  }
+
+  if (!state.interrupted) {
+    const output = exitedWith ? exitedWith.output : (await Promise.race([child.exited, new Promise<null>((r) => setTimeout(() => r(null), 500))]))?.output ?? '';
+    ctx.say(creditsLine(parseCredits(output)));
+  }
+  return driver.outcome ?? { result: 'error', errorMessage: 'The AI run ended without an outcome.' };
 }
 
 async function doRun(ctx: RunContext, state: RunState): Promise<number> {
@@ -517,51 +658,70 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
     },
   };
 
-  const outcome = await runLoop({
-    body,
-    mind,
-    stopRule: (runState) => ghost.stopRule(runState),
-    detectors,
-    recorder: loopRecorder,
-    mission: mindMission,
-    url: args.url,
-    checkSuccess: async () => {
-      try {
-        const target = page.locator(mission.successCheck.visible).first();
-        if (ghost.id !== 'listener') {
-          // The visual ghosts have just Settled, so the check does not wait. A 300 ms wait here would
-          // delay their next Sight, and The Phantom's timing depends on taking it right after Settle.
-          return await target.isVisible();
-        }
-        await target.waitFor({ state: 'visible', timeout: 300 });
-        return true;
-      } catch {
-        return false;
+  const checkSuccess = async (): Promise<boolean> => {
+    try {
+      const target = page.locator(mission.successCheck.visible).first();
+      if (ghost.id !== 'listener') {
+        // The visual ghosts have just Settled, so the check does not wait. A 300 ms wait here would
+        // delay their next Sight, and The Phantom's timing depends on taking it right after Settle.
+        return await target.isVisible();
       }
-    },
-    onOpenFailure: async (): Promise<ActionResult | null> => {
-      // Chromium shows an error page when it cannot load the address; keep a picture of it as Step 1.
-      const screenshot = await page.screenshot({ type: 'png' });
-      const now = Date.now();
-      const where = pathOf(page.url());
-      return {
-        actionText: `Open ${args.url}`,
-        spoken: '',
-        focusBox: null,
-        screenshot,
-        trace: {
-          pathBefore: where,
-          pathAfter: where,
-          keys: [],
-          touchedKeys: [],
-          actionEndedAt: now,
-          readyAt: now,
-          waits: [],
-          announcements: [],
-        },
-      };
-    },
-  });
+      await target.waitFor({ state: 'visible', timeout: 300 });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const onOpenFailure = async (): Promise<ActionResult | null> => {
+    // Chromium shows an error page when it cannot load the address; keep a picture of it as Step 1.
+    const screenshot = await page.screenshot({ type: 'png' });
+    const now = Date.now();
+    const where = pathOf(page.url());
+    return {
+      actionText: `Open ${args.url}`,
+      spoken: '',
+      focusBox: null,
+      screenshot,
+      trace: {
+        pathBefore: where,
+        pathAfter: where,
+        keys: [],
+        touchedKeys: [],
+        actionEndedAt: now,
+        readyAt: now,
+        waits: [],
+        announcements: [],
+      },
+    };
+  };
+
+  let outcome: RunLoopOutcome;
+  if (ctx.kiro) {
+    // Only the Listener has an AI mind (checked in parseArgs). The driver replaces the loop, not the pipeline.
+    const driver = new AiRunDriver({
+      body: body as unknown as Body<Heard, ListenerAction>,
+      url: args.url,
+      mission: mindMission,
+      detectors,
+      recorder: loopRecorder,
+      stopRule: (runState) => ghost.stopRule(runState),
+      checkSuccess,
+      onOpenFailure,
+    });
+    outcome = await runAiMind(ctx, state, driver, ctx.kiro);
+  } else {
+    outcome = await runLoop({
+      body,
+      mind,
+      stopRule: (runState) => ghost.stopRule(runState),
+      detectors,
+      recorder: loopRecorder,
+      mission: mindMission,
+      url: args.url,
+      checkSuccess,
+      onOpenFailure,
+    });
+  }
 
   if (state.interrupted) return EXIT.interrupted;
 

@@ -99,66 +99,66 @@ Rules for every task:
     - _Requirements: 1.10_
   - Run `npm run build` and `npm test` in `engine/`
 
-- [ ] 6. haunt-mcp server
-  - [ ] 6.1 Write `engine/src/mcp/server.ts`
+- [x] 6. haunt-mcp server
+  - [x] 6.1 Write `engine/src/mcp/server.ts`
     - `McpServer` over `StdioServerTransport` with exactly the seven tools and input schemas that mirror `tools.ts`; each handler POSTs to `HAUNT_BRIDGE_URL` with `HAUNT_BRIDGE_TOKEN` and returns the result as MCP content (`isError: true` for errors); exit with a clear message on stderr when either variable is missing
     - _Requirements: 1.1, 1.2, 1.11, 4.3_
-  - [ ] 6.2 Write `engine/bin/haunt-mcp.mjs`
+  - [x] 6.2 Write `engine/bin/haunt-mcp.mjs`
     - Thin launcher that imports the TypeScript entry the same way `bin/haunt.mjs` does
     - _Requirements: 1.1, 7.2_
-  - [ ] 6.3 Unit tests for the server in `engine/test/mcp.test.ts`
+  - [x] 6.3 Unit tests for the server in `engine/test/mcp.test.ts`
     - Tool list equals exactly `read_page`, `read_announcements`, `press_key`, `type_text`, `jump`, `think`, `finish`; no tool name mentions findings; a call is forwarded to a fake Bridge with the token; missing environment variables give the stderr message and a non-zero exit
     - _Requirements: 1.2, 1.11, 4.3_
   - Run `npm run build` and `npm test` in `engine/`
 
-- [ ] 7. Kiro launcher
-  - [ ] 7.1 Write `engine/src/mind/ai/kiro.ts`
+- [x] 7. Kiro launcher
+  - [x] 7.1 Write `engine/src/mind/ai/kiro.ts`
     - `resolveKiroCli` (`KIRO_CLI_PATH` first, then each PATH entry with `.exe` and `.cmd` on Windows, else install help), `parseTimeoutMs` (positive integer, default 600000), `buildKiroArgs` as recorded in task 1, `parseCredits` as recorded in task 1, and the default launcher using `child_process.spawn` without a shell, merging stdout and stderr into `output`
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.8, 5.9_
-  - [ ]* 7.2 Write property test for resolution in `engine/test/kiroResolve.properties.test.ts`
+  - [x]* 7.2 Write property test for resolution in `engine/test/kiroResolve.properties.test.ts`
     - **Property 10: Kiro CLI resolution order**
     - **Validates: Requirements 5.2, 5.3**
-  - [ ]* 7.3 Write property test for timeout parsing in `engine/test/kiroTimeout.properties.test.ts`
+  - [x]* 7.3 Write property test for timeout parsing in `engine/test/kiroTimeout.properties.test.ts`
     - **Property 11: Timeout parsing**
     - **Validates: Requirements 5.4**
-  - [ ]* 7.4 Write property test for credits parsing in `engine/test/kiroCredits.properties.test.ts`
+  - [x]* 7.4 Write property test for credits parsing in `engine/test/kiroCredits.properties.test.ts`
     - **Property 12: Credits parsing**
     - **Validates: Requirements 5.8, 5.9**
-  - [ ] 7.5 Unit tests for the launcher in `engine/test/kiro.test.ts`
+  - [x] 7.5 Unit tests for the launcher in `engine/test/kiro.test.ts`
     - `buildKiroArgs` contains the agent name, the non-interactive flag, the trust flag for haunt-mcp tools and the goal; a real credits line from task 1 parses; install help mentions `KIRO_CLI_PATH`
     - _Requirements: 5.1, 5.3, 5.8, 5.9_
   - Run `npm run build` and `npm test` in `engine/`
 
-- [ ] 8. Listener agent
-  - [ ] 8.1 Write `.kiro/agents/listener.json`
+- [x] 8. Listener agent
+  - [x] 8.1 Write `.kiro/agents/listener.json`
     - Keys and environment wiring exactly as verified in task 1. Register `haunt-mcp`, allow only `@haunt-mcp/*`, no `fs_read`, `fs_write` or `execute_bash`, `includeMcpJson: false`
     - The prompt describes The Listener respectfully, tells the agent to read the page before acting, to call `think` with one plain sentence on every step, not to give up early, and to leave the judgement of what is wrong to the engine
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 7.6_
-  - [ ] 8.2 Unit tests for the agent file in `engine/test/agent.test.ts`
+  - [x] 8.2 Unit tests for the agent file in `engine/test/agent.test.ts`
     - Parse `.kiro/agents/listener.json`: `haunt-mcp` is registered, `allowedTools` and `tools` contain only `@haunt-mcp` entries, no built-in tool names appear, the prompt contains instructions to read, to `think` and not to give up early
     - _Requirements: 2.1, 2.2, 2.3, 2.5_
   - Run `npm run build` and `npm test` in `engine/`
 
-- [ ] 9. CLI wiring
-  - [ ] 9.1 Add the `--mind` option to `parseArgs` in `engine/src/cli/main.ts`
+- [x] 9. CLI wiring
+  - [x] 9.1 Add the `--mind` option to `parseArgs` in `engine/src/cli/main.ts`
     - `scripted` (default) or `ai`; a bad value gives exit 2 with the accepted values; `ai` with another ghost gives exit 2 with "The AI mind supports only the listener ghost."; add one line to `USAGE`
     - _Requirements: 3.1, 3.2, 3.4, 3.5_
-  - [ ]* 9.2 Write property test for option parsing in `engine/test/mindOption.properties.test.ts`
+  - [x]* 9.2 Write property test for option parsing in `engine/test/mindOption.properties.test.ts`
     - **Property 6: Mind option parsing**
     - **Validates: Requirements 3.1, 3.2, 3.4, 3.5**
-  - [ ] 9.3 Add the AI run path to `engine/src/cli/main.ts`
+  - [x] 9.3 Add the AI run path to `engine/src/cli/main.ts`
     - Add optional `kiroLauncher` and `kiroExists` to `CliDeps`. After the address guard, mission and site checks and before any browser starts, resolve Kiro; not found prints install help and exits 2
     - Replace only the `runLoop` call for the AI path: build the driver, start the Bridge, spawn Kiro with `HAUNT_BRIDGE_URL` and `HAUNT_BRIDGE_TOKEN` in its environment (as verified in task 1), and race `driver.ended`, Kiro's exit and the timeout (`HAUNT_AI_TIMEOUT_MS`). Then kill the child, close the Bridge and continue into the existing `finalize`, write and exit-code code unchanged, so a run that fails validation is never written
     - Extend `runWithInterrupt` cleanup to kill the child and close the Bridge; nothing is written and the exit code is 130
     - Print the credits line ("Kiro credits used: N" or "Kiro credits used: unknown (reason)") on the status stream, not on the line that carries the run path
     - The scripted path must produce the same output as before
     - _Requirements: 3.3, 3.6, 3.7, 5.1, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 1.11_
-  - [ ] 9.4 Unit tests for the CLI in `engine/test/cli.ai.test.ts`
+  - [x] 9.4 Unit tests for the CLI in `engine/test/cli.ai.test.ts`
     - Fake Body, fake detectors and fake launcher only: the launcher receives both environment variables and the agent arguments; Kiro not found exits 2 before any browser launch; a disallowed address is refused in AI mode; `--mind ai --ghost phantom` exits 2; an early exit, a `finish` call and a timeout end the run through the right outcome; Ctrl+C kills the fake child, closes the Bridge, writes nothing and exits 130; credits are printed or reported unknown; the scripted run output is unchanged
     - _Requirements: 3.3, 3.5, 3.6, 3.7, 5.3, 5.4, 5.5, 5.6, 5.8, 5.9_
   - Run `npm run build` and `npm test` in `engine/`
 
-- [ ] 10. Checkpoint: before the self-check
+- [x] 10. Checkpoint: before the self-check
   - Run `npm run build` and `npm test` in `engine/`. `npm test` is `vitest run` and does not include the `test:e2e*` scripts
   - Run `npx vitest run -t "Feature: listener-ai-mind, Property"` in `engine/` (the existing `npm run test:properties` script filters on `Feature: haunt-engine` only, so it does not select these tests). Confirm Properties 1 to 12 ran and passed if the optional tests were written, and that every existing test still passes unchanged
   - Run `git status --porcelain -- dashboard demo-site demo-site-exorcised runs` and confirm it prints nothing
