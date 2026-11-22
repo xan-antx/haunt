@@ -409,6 +409,7 @@ describe('Feature: haunt-engine, Property 1: Saved runs always pass the schema a
             const result = finalizeRun({
               runId,
               ghost: c.ghost,
+              mind: 'scripted',
               mission: {
                 id: c.missionId,
                 goal: c.goal,

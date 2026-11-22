@@ -113,12 +113,24 @@ describe('Run_Schema', () => {
     it('accepts a valid engine-style run', () => {
       expect(validateSchema(makeRun())).toEqual([]);
     });
+
+    it('accepts a run without a mind, and runs with mind "scripted" or "ai"', () => {
+      expect('mind' in makeRun()).toBe(false);
+      for (const mind of ['scripted', 'ai'] as const) {
+        expect(validateSchema(derive((r) => (r.mind = mind)))).toEqual([]);
+      }
+    });
   });
 
   describe('rejects invalid copies with a problem at the right path', () => {
     it('rejects ghost "poltergeist"', () => {
       const run = derive((r) => setField(r, 'ghost', 'poltergeist'));
       expect(paths(validateSchema(run))).toContain('ghost');
+    });
+
+    it('rejects mind "human"', () => {
+      const run = derive((r) => setField(r, 'mind', 'human'));
+      expect(paths(validateSchema(run))).toContain('mind');
     });
 
     it('rejects result "success"', () => {

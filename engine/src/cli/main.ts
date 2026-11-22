@@ -733,6 +733,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
   const finalized = finalizeRun({
     runId,
     ghost: ghost.id,
+    mind: args.mind === 'ai' ? 'ai' : 'scripted',
     mission,
     site: { name: args.siteName ?? site.name },
     url: args.url,

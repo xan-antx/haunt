@@ -80,6 +80,7 @@ function finalizeInput(recorder: Recorder, findings: FindingInput[], overrides: 
   return {
     runId: RUN_ID,
     ghost: 'listener',
+    mind: 'scripted',
     mission: MISSION,
     site: { name: 'Lantern Bills' },
     url: 'http://localhost:3000/',
@@ -260,6 +261,13 @@ describe('finalizeRun', () => {
     expect(run.ghost).toBe('listener');
     expect(run.result).toBe('gave_up');
     expect(run.steps.map((s) => s.n)).toEqual([1, 2, 3]);
+  });
+
+  it('writes the mind it was given', () => {
+    expect(finalizeRun(finalizeInput(threeStepRecorder(), [])).run.mind).toBe('scripted');
+    const ai = finalizeRun(finalizeInput(threeStepRecorder(), [], { mind: 'ai' }));
+    expect(ai.run.mind).toBe('ai');
+    expect(ai.problems).toEqual([]);
   });
 
   it('formats startedAt as UTC YYYY-MM-DDTHH:mm:ssZ with the milliseconds dropped', () => {

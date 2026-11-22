@@ -58,6 +58,8 @@ export interface Run {
   formatVersion: 1;
   runId: string;
   ghost: GhostId;
+  /** What chose the actions. Absent in older runs, which count as scripted. */
+  mind?: 'scripted' | 'ai';
   mission: RunMission;
   site: RunSite;
   startedAt: string;

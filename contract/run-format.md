@@ -18,6 +18,13 @@ The accessibility persona that performed this test. Exactly one of:
 
 Any other value is invalid.
 
+**mind** (string, optional)  
+What chose the ghost's actions. Exactly one of:
+- `scripted` - The ghost's built-in rules chose the actions
+- `ai` - A Kiro agent chose the actions (the Listener only)
+
+A run without this field counts as `scripted`, so every run written before the field existed stays valid. Any other value is invalid.
+
 **mission** (object)  
 Describes what the ghost was trying to accomplish:
 - **id** (string) - Short identifier for the mission (e.g., `pay-bill`)

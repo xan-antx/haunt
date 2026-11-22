@@ -219,6 +219,7 @@ describe('The Listener Detectors together in Chromium', () => {
       const { problems, run } = finalizeRun({
         runId: formatRunId(new Date(Date.UTC(2026, 9, 31, 14, 5, 59)), 'listener', 'pay-bill'),
         ghost: 'listener',
+        mind: 'scripted',
         mission,
         site,
         url: 'http://localhost:3000/',

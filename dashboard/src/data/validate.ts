@@ -5,12 +5,14 @@ import { isSafeScreenshotPath } from './screenshots';
 import {
   FINDING_TYPES,
   GHOST_IDS,
+  MIND_KINDS,
   RUN_RESULTS,
   type Finding,
   type FindingType,
   type FocusBox,
   type GhostId,
   type LoadedRun,
+  type MindKind,
   type Mission,
   type RunMeta,
   type RunResult,
@@ -194,6 +196,8 @@ function validateUnsafe(input: unknown, meta: RunMeta): LoadedRun {
   }
   const runId = c.string(input, 'runId', 'runId', { nonEmpty: true });
   const ghost = c.oneOf<GhostId>(input, 'ghost', 'ghost', GHOST_IDS);
+  // Optional: a run written before the field existed is scripted.
+  const mind: MindKind = input.mind === undefined ? 'scripted' : c.oneOf<MindKind>(input, 'mind', 'mind', MIND_KINDS);
 
   const missionObj = c.object(input, 'mission', 'mission');
   const mission: Mission = {
@@ -264,6 +268,7 @@ function validateUnsafe(input: unknown, meta: RunMeta): LoadedRun {
       formatVersion: 1,
       runId,
       ghost,
+      mind,
       mission,
       site,
       startedAt,

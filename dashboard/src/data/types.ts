@@ -3,6 +3,10 @@
 export const GHOST_IDS = ['listener', 'phantom', 'bebe'] as const;
 export type GhostId = (typeof GHOST_IDS)[number];
 
+/** What chose a run's actions. A run file without `mind` is scripted. */
+export const MIND_KINDS = ['scripted', 'ai'] as const;
+export type MindKind = (typeof MIND_KINDS)[number];
+
 export const RUN_RESULTS = ['succeeded', 'gave_up', 'error'] as const;
 export type RunResult = (typeof RUN_RESULTS)[number];
 
@@ -74,6 +78,8 @@ export interface Run {
   formatVersion: 1;
   runId: string;
   ghost: GhostId;
+  /** "scripted" when the file has no `mind` */
+  mind: MindKind;
   mission: Mission;
   site: Site;
   /** validated as parseable ISO 8601 */

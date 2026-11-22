@@ -256,6 +256,7 @@ runMission(args):
 - **Run_Id.** `YYYY-MM-DDTHHmmZ-<ghost>-<mission>`. If that folder exists under `<Out_Root>/<Site_Key>/`, the suffixes `-2`, `-3`… are tried until one is free. Ten e2e runs in the same minute get `…-pay-bill`, `…-pay-bill-2` … `…-pay-bill-10`.
 - **Commit.** `git rev-parse --short HEAD`, run with the repository root as the working folder (found by walking up from `engine/` to the folder that contains `.git`). If it fails, the value is `unknown` and a warning is printed.
 - **Writer.** It writes into `<Out_Root>/<Site_Key>/.<runId>.tmp-<pid>/` and then calls `fs.rename` to the final name. If the rename fails, it removes the temp folder and exits 1.
+- **Mind (Requirement 21).** `Run` has an optional `mind?: 'scripted' | 'ai'`, and the schema allows exactly those two values. `FinalizeInput.mind` is required, so no caller can forget it, and `finalizeRun` copies it into the run right after `ghost`. The CLI passes `ai` when `args.mind === 'ai'` and `scripted` otherwise. Schema validation still accepts a file without the field, because earlier runs have none.
 
 ## Run_Schema and invariants
 
@@ -800,7 +801,8 @@ Each property is one fast-check test with at least 100 runs, in a top-level `des
 ## Testing strategy
 
 - **Unit tests** (`npm test`):
-  - schema against `contract/example-run.json`, `runs/samples/*/run.json` and derived invalid files (`ghost: "poltergeist"`, `result: "success"`, `type: "keyboard_trap"`, an extra field, no steps);
+  - schema against `contract/example-run.json`, `runs/samples/*/run.json` and derived invalid files (`ghost: "poltergeist"`, `mind: "human"`, `result: "success"`, `type: "keyboard_trap"`, an extra field, no steps), and valid runs with `mind` `scripted`, `ai` and no `mind`;
+  - `mind` written by `finalizeRun` and by the CLI (`scripted` for a scripted run, `ai` for `--mind ai`);
   - invariants, address checks, config and mission loading, `{{futureExpiry}}`, and the requirement text match;
   - CLI argument errors with an injected launcher;
   - writer atomicity (simulated rename failure);

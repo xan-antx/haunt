@@ -10,6 +10,8 @@ import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { SummonGhost } from '../components/SummonGhost';
 import { runFilePath } from '../components/RunErrorPanel';
+import { MindTag } from '../components/MindTag';
+import { AI_MIND_LABEL, isAiRun } from '../model/mind';
 import { SampleTag } from '../components/SampleTag';
 import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tour';
 import { useAllRuns } from '../data/hooks';
@@ -60,6 +62,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
                     <p className={styles.outcome}>{outcomeLine(latest)}</p>
                     <ResultBadge result={latest.result} />
                     <SampleTag run={latest} />
+                    <MindTag run={latest} />
                   </div>
                   <p>
                     <Link to={stepPath(latest.key, 1)}>Watch {ghost.name} in the Ghost Cam</Link>
@@ -73,6 +76,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
                             <Link to={stepPath(run.key, 1)}>
                               {formatDate(run.startedAt)}: {resultSentence(run.ghost, run.result)}
                               {isSample(run) && ` (${SAMPLE_LABEL})`}
+                              {isAiRun(run) && ` (${AI_MIND_LABEL})`}
                             </Link>
                           </li>
                         ))}
@@ -108,7 +112,7 @@ function RecentWalks({ runs }: { runs: Run[] }) {
           return (
             <li key={run.key} className={styles.recentItem}>
               <p className={styles.recentGhost}>
-                <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <SampleTag run={run} />
+                <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <SampleTag run={run} /> <MindTag run={run} />
               </p>
               <p className={styles.meta}>
                 <span>{run.site.name}</span>
@@ -170,7 +174,7 @@ function ResultCard({ run }: { run: Run }) {
           <p className={styles.resultTask}>Task: {run.mission.goal}</p>
           <p className={styles.resultHeadline}>{resultHeadline(run)}</p>
           <p className={styles.resultBadge}>
-            <ResultBadge result={run.result} /> <SampleTag run={run} />
+            <ResultBadge result={run.result} /> <SampleTag run={run} /> <MindTag run={run} />
           </p>
           {step === null ? (
             <CandleButton lit={false} reason="This run has no steps, so there is nothing to watch.">

@@ -783,6 +783,7 @@ describe('a run with a fake ghost and a fake browser', () => {
     expect(run.formatVersion).toBe(1);
     expect(run.runId).toBe(RUN_ID);
     expect(run.ghost).toBe('listener');
+    expect(run.mind).toBe('scripted');
     expect(run.result).toBe('succeeded');
     expect(run.startedAt).toBe('2026-11-10T15:30:12Z');
     expect(run.site).toEqual({ name: 'Lantern Bills demo', url: 'http://localhost:3000', commit: 'abc1234' });

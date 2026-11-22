@@ -9,6 +9,7 @@
     "formatVersion": { "const": 1 },
     "runId": { "type": "string", "minLength": 1 },
     "ghost": { "enum": ["listener", "phantom", "bebe"] },
+    "mind": { "enum": ["scripted", "ai"] },
     "mission": {
       "type": "object", "additionalProperties": false,
       "required": ["id", "goal", "requirement", "successCheck"],

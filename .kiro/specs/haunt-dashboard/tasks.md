@@ -605,6 +605,16 @@ These tasks implement Req 24 and the criteria marked "(Revised in the fifth amen
   - [x] 60.6 Update the spec and READMEs; run `npm run build` and `npm test`. The end-to-end suite was not run for this amendment. One live run was started by hand against the dev server: the site was built, the ghost saved a run, it was collected and port 3000 was free afterwards.
     - _Requirements: 26, 27_
 
+- [x] 61. Show which runs the AI mind made (eighth amendment)
+  - [x] 61.1 Add `Run.mind`, `MIND_KINDS` and the optional `mind` check to the validator (absent loads as scripted, other values are errors)
+    - _Requirements: 28.1_
+  - [x] 61.2 Add `model/mind.ts` and the `MindTag` component
+    - _Requirements: 28.2_
+  - [x] 61.3 Show the label on Result_Cards, haunt card ghost rows and earlier-run links, "Recent ghost walks", the Ghost_Cam Run_Summary, Exorcise run pickers and Exorcise run summaries
+    - _Requirements: 28.2_
+  - [x] 61.4 Tests: `src/__tests__/mind.test.tsx`; add `mind` to the test fixtures that build a `Run` by hand. Run `npm test` in `dashboard/` (no e2e)
+    - _Requirements: 28.1, 28.2_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP. Property-test sub-tasks (23.3, 23.4, 26.2, 28.2, 30.2, 38.2, 39.2) are required.
@@ -624,7 +634,10 @@ These tasks implement Req 24 and the criteria marked "(Revised in the fifth amen
     { "id": 4, "tasks": ["30.4", "31.5"] },
     { "id": 5, "tasks": ["31.6"] },
     { "id": 6, "tasks": ["32.5"] },
-    { "id": 7, "tasks": ["33.1", "33.2"] }
+    { "id": 7, "tasks": ["33.1", "33.2"] },
+    { "id": 8, "tasks": ["61.1", "61.2"] },
+    { "id": 9, "tasks": ["61.3"] },
+    { "id": 10, "tasks": ["61.4"] }
   ]
 }
 ```

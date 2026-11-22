@@ -111,6 +111,7 @@ const runArb: fc.Arbitrary<Run> = fc
       formatVersion: 1,
       runId: 'k',
       ghost,
+      mind: 'scripted',
       mission: { id: 'm', goal, requirement: 'r', successCheck: 's' },
       site: { name: 'Site', url: 'http://localhost:3000', commit: 'abc' },
       startedAt: '2026-11-03T14:22:15Z',

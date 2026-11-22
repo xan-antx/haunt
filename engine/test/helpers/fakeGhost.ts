@@ -467,6 +467,7 @@ export async function runScenario(scenario: Scenario): Promise<ScenarioRun> {
   const finalized = finalizeRun({
     runId: formatRunId(STARTED_AT, scenario.ghost, FAKE_MISSION.id),
     ghost: scenario.ghost,
+    mind: 'scripted',
     mission: FAKE_MISSION,
     site: FAKE_SITE,
     url: 'http://localhost:3000/',

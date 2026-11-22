@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { Browser } from 'playwright';
@@ -257,6 +257,7 @@ describe('haunt run --mind ai', () => {
     const runPath = result.stdout.trim();
     expect(runPath.endsWith('run.json')).toBe(true);
     expect(existsSync(runPath)).toBe(true);
+    expect(JSON.parse(readFileSync(runPath, 'utf8')).mind).toBe('ai');
     expect(result.stdout.trim().split(/\r?\n/)).toHaveLength(1);
     expect(kiro.killed()).toBeGreaterThanOrEqual(0);
   });
@@ -409,5 +410,6 @@ describe('haunt run --mind ai', () => {
     expect(stderr).not.toContain('Kiro');
     expect(stderr).toContain('Result: gave_up');
     expect(stdout.trim().endsWith('run.json')).toBe(true);
+    expect(JSON.parse(readFileSync(stdout.trim(), 'utf8')).mind).toBe('scripted');
   });
 });

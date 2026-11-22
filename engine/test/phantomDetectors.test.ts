@@ -212,6 +212,7 @@ describe("The Phantom's Detectors on fixture pages", () => {
       const finalized = finalizeRun({
         runId: formatRunId(startedAt, 'phantom', mission.id),
         ghost: 'phantom',
+        mind: 'scripted',
         mission,
         site,
         url,

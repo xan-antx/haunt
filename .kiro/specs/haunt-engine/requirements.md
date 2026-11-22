@@ -337,3 +337,13 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 5. THE end-to-end test for Bebe SHALL start Lantern Bills on port 3000 through the Lantern_Bills_Harness, run Bebe 10 times through the CLI with the `pay-bill` Mission into `engine/test-output/`, and pass only when at least 9 Runs each have `cut_off_text`, `untranslated` and `dark_pattern` Findings.
 6. EACH end-to-end test SHALL check that every Run_File it produced passes the Run_Schema, the Run_Invariants and the dashboard's `validateRun` with no errors.
 7. WHEN a developer runs `npm run demo:all` in `engine/`, THE Engine SHALL start Lantern Bills, write one Run per Ghost (The Listener, The Phantom and Bebe) into `engine/test-output/demo-runs/`, confirm that each Run_File passes the Run_Schema, print the path of each `run.json`, and stop the server.
+
+### Requirement 21: Runs say which mind made them
+
+**User Story:** As a reader of a run, I want to know whether the scripted mind or the AI mind chose its actions, so that I can tell the two apart.
+
+#### Acceptance Criteria
+
+1. THE Run_Schema (`contract/run.schema.json`) and `contract/run-format.md` SHALL define an optional top-level `mind` field with the values `scripted` and `ai`. A Run_File without it counts as scripted, so every earlier Run_File stays valid.
+2. THE Engine SHALL write `mind` on every new Run: `ai` for a Run made with `--mind ai`, `scripted` for every other Run.
+3. THE Engine SHALL include unit tests showing that the Run_Schema accepts a Run with `mind` `scripted`, a Run with `mind` `ai` and a Run without `mind`, and rejects any other value, and that the CLI writes `scripted` for a scripted Run and `ai` for an AI Run.

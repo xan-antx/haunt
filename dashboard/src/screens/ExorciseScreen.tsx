@@ -7,6 +7,7 @@ import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
+import { MindTag } from '../components/MindTag';
 import { SampleTag } from '../components/SampleTag';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
@@ -16,6 +17,7 @@ import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../model/origin';
+import { AI_MIND_LABEL, isAiRun } from '../model/mind';
 import { pageName } from '../model/sites';
 import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
@@ -25,7 +27,8 @@ import styles from './ExorciseScreen.module.css';
 function runLabel(run: Run, before?: Run): string {
   const sample = isSample(run) ? ` · ${SAMPLE_LABEL}` : '';
   const fixed = before && isAfterTheFix(before, run) ? ` · ${AFTER_THE_FIX_LABEL}` : '';
-  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}${fixed}${sample}`;
+  const mind = isAiRun(run) ? ` · ${AI_MIND_LABEL}` : '';
+  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}${fixed}${mind}${sample}`;
 }
 
 /**
@@ -86,7 +89,7 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
       <h2 id={`summary-${heading}`}>{heading}</h2>
       <p className={styles.summaryLine}>
         <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <ResultBadge result={run.result} />{' '}
-        <SampleTag run={run} />
+        <SampleTag run={run} /> <MindTag run={run} />
       </p>
       <p>
         {run.mission.goal} · {plural(run.findings.length, 'finding')} ·{' '}

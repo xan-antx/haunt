@@ -240,6 +240,15 @@ Rules for every task:
   - Update `engine/README.md` with install steps, the `haunt run` command and options, exit codes, the safety rules, and the test and demo scripts, all as PowerShell commands
   - Run `npm run demo:all` in `engine/` and report the three printed paths. Confirm with `git status --porcelain -- dashboard demo-site runs` that nothing changed there
   - _Requirements: 20.7, 1.3, 1.7_
+
+- [x] 27. Runs say which mind made them
+  - [x] 27.1 Add the optional `mind` field (`scripted` or `ai`) to `contract/run.schema.json` and `contract/run-format.md`, and to the `Run` type
+    - _Requirements: 21.1_
+  - [x] 27.2 Make `FinalizeInput.mind` required, copy it into the run in `finalizeRun`, and pass it from the CLI (`ai` for `--mind ai`, else `scripted`)
+    - _Requirements: 21.2_
+  - [x] 27.3 Tests: schema cases in `contract.test.ts`, `finalizeWriter.test.ts`, and the CLI cases in `cli.test.ts` and `cli.ai.test.ts`; add `mind` to the existing `finalizeRun` callers in tests. Run `npm test` in `engine/` (no e2e, no AI run)
+    - _Requirements: 21.3_
+
 ## Notes
 
 - Task 21.0 sits alone in its own wave right before task 21, because it changes detector code that task 21 then runs.
@@ -286,7 +295,10 @@ Rules for every task:
     { "id": 30, "tasks": ["23"] },
     { "id": 31, "tasks": ["24"] },
     { "id": 32, "tasks": ["25"] },
-    { "id": 33, "tasks": ["26"] }
+    { "id": 33, "tasks": ["26"] },
+    { "id": 34, "tasks": ["27.1"] },
+    { "id": 35, "tasks": ["27.2"] },
+    { "id": 36, "tasks": ["27.3"] }
   ]
 }
 ```

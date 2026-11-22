@@ -22,6 +22,8 @@ export interface FindingInput {
 export interface FinalizeInput {
   runId: string;
   ghost: GhostId;
+  /** What chose the actions. Written to the run as `mind`. */
+  mind: 'scripted' | 'ai';
   mission: Pick<Mission, 'id' | 'goal' | 'requirement' | 'successCheck'>;
   /** The Haunt_Config entry of the Site_Key. */
   site: Pick<SiteConfig, 'name'>;
@@ -103,6 +105,7 @@ export function finalizeRun(input: FinalizeInput): FinalizeResult {
     formatVersion: 1,
     runId: input.runId,
     ghost: input.ghost,
+    mind: input.mind,
     mission: {
       id: input.mission.id,
       goal: input.mission.goal,

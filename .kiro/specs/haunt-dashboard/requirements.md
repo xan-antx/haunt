@@ -575,3 +575,12 @@ Verification process: after each change, the House Builder runs `npm run build` 
 
 1. IN the Control_Row, THE "Read aloud (approximation)" button SHALL sit on the same line as the Play, Step back and Step forward buttons, centered on the same axis, and SHALL NOT have its explanation stacked under it.
 2. THE explanation ("This uses your browser's built-in voice. It is an approximation, not real screen reader output.", and the reason when voice is unavailable) SHALL sit below the whole row, take a full line, and stay the button's accessible description. Requirement 10, criteria 24, 33 and 34 otherwise stand.
+
+### Requirement 28: Show which runs the AI mind made
+
+**User Story:** As a viewer, I want AI runs marked, so that I can tell them from scripted runs.
+
+#### Acceptance Criteria
+
+1. THE validator SHALL accept an optional `mind` field with the values `scripted` and `ai`, and SHALL report any other value as an error that names the allowed values. A Run without `mind` SHALL load as scripted.
+2. EVERY AI run the Dashboard names SHALL carry the visible text "AI mind" next to it: on its Result_Card, on its haunt card ghost row and earlier-run link, in its "Recent ghost walks" item, in the Ghost_Cam Run_Summary, in its option in each Exorcise run picker, and in its Exorcise run summary. A scripted run SHALL carry no such label. The label SHALL NOT rely on color alone and SHALL meet Requirement 18.5.

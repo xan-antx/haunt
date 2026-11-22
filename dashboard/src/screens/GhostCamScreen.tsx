@@ -11,6 +11,7 @@ import { ExpandButton, ExpandPanel } from '../components/Expand';
 import { ProvenancePanel } from '../components/ProvenancePanel';
 import { ResultBadge } from '../components/ResultBadge';
 import { RunErrorPanel } from '../components/RunErrorPanel';
+import { MindTag } from '../components/MindTag';
 import { SampleTag } from '../components/SampleTag';
 import { ScreenIcon } from '../components/ScreenIcon';
 import { Screenshot } from '../components/Screenshot';
@@ -228,7 +229,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
               >
                 {FULL_REQUIREMENT}
               </ExpandButton>{' '}
-              <SampleTag run={run} />{' '}
+              <SampleTag run={run} /> <MindTag run={run} />{' '}
               <span className={styles.result}>
                 <ResultBadge result={run.result} /> <span>{resultSentence(run.ghost, run.result)}.</span>
               </span>

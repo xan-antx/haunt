@@ -57,6 +57,7 @@ const runArb = fc
         formatVersion: 1,
         runId: 'r',
         ghost,
+        mind: 'scripted',
         mission: { id: 'm', goal: 'g', requirement: 'r', successCheck: 's' },
         site: { name: 'Site', url: 'http://localhost', commit: 'abc' },
         startedAt: '2026-01-01T00:00:00Z',
