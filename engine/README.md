@@ -16,7 +16,7 @@ npx playwright install chromium
 ## Run a ghost
 
 ```powershell
-npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url> [--out <dir>] [--site <key>] [--seed <int>] [--headed] [--config <file>] [--missions <dir>]
+npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url> [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed] [--config <file>] [--missions <dir>]
 ```
 
 Example:
@@ -32,6 +32,7 @@ npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000
 | `--url <url>` | The page to open (required). Only `localhost`, `127.0.0.1` and `allowedDomains` are accepted. |
 | `--out <dir>` | Where run folders go, resolved against the current folder. Default: `runs/` at the repository root. |
 | `--site <key>` | Site key to use instead of the mission's own. Must be in `haunt.config.json`. |
+| `--site-name <text>` | Name written to `site.name` in the run file. Default: the site's name in `haunt.config.json`. The run folder does not change. To record a fixed copy so the dashboard pairs it with the original, add ` (exorcised)`, for example `--site-name "Lantern Bills demo (exorcised)"`. |
 | `--seed <int>` | Seed for the visual ghosts' timing jitter. Default: random, and printed. |
 | `--headed` | Show the browser window. |
 | `--config <file>` | Use this config file instead of `engine/haunt.config.json`. |

@@ -28,7 +28,7 @@ import { applyTemplates } from '../missions/templates.ts';
 
 export const USAGE = `Usage:
   npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url>
-                [--out <dir>] [--site <key>] [--seed <int>] [--headed]
+                [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
                 [--config <file>] [--missions <dir>]
   npx haunt --help | npx haunt run --help
 
@@ -43,6 +43,7 @@ Options:
   --url <url>         the page to open; only localhost, 127.0.0.1 and allowedDomains (required)
   --out <dir>         where run folders go, resolved against the current folder (default: runs/)
   --site <key>        site key to use instead of the mission's own (must be in haunt.config.json)
+  --site-name <text>  name written to the run's site.name (default: the site's name in haunt.config.json)
   --seed <int>        seed for the visual ghosts' timing jitter (default: random, printed)
   --headed            show the browser window
   --config <file>     use this config file instead of engine/haunt.config.json
@@ -108,6 +109,7 @@ export interface RunArgs {
   url: string;
   out?: string;
   site?: string;
+  siteName?: string;
   seed?: number;
   headed: boolean;
   config?: string;
@@ -125,6 +127,7 @@ const OPTIONS = {
   url: { type: 'string' },
   out: { type: 'string' },
   site: { type: 'string' },
+  'site-name': { type: 'string' },
   seed: { type: 'string' },
   headed: { type: 'boolean' },
   config: { type: 'string' },
@@ -176,6 +179,8 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     if (opts[name] === '') problems.push(`--${name} must not be empty.`);
   }
 
+  if (opts['site-name'] !== undefined && opts['site-name'].trim() === '') problems.push('--site-name must not be empty.');
+
   let seed: number | undefined;
   if (opts.seed !== undefined) {
     const parsed = Number(opts.seed);
@@ -196,6 +201,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   };
   if (opts.out !== undefined) args.out = opts.out;
   if (opts.site !== undefined) args.site = opts.site;
+  if (opts['site-name'] !== undefined) args.siteName = opts['site-name'];
   if (opts.config !== undefined) args.config = opts.config;
   if (opts.missions !== undefined) args.missions = opts.missions;
   if (seed !== undefined) args.seed = seed;
@@ -568,7 +574,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
     runId,
     ghost: ghost.id,
     mission,
-    site,
+    site: { name: args.siteName ?? site.name },
     url: args.url,
     commit,
     startedAt,

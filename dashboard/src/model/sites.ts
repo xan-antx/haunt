@@ -2,6 +2,8 @@
 // plain names for its pages. Keyed by the run files' exact `site.name`. A site that is not listed
 // shows no Site_About, and its pages get names built from their paths.
 
+import { originalSiteName } from './fixedCopy';
+
 export interface SiteAbout {
   /** One plain sentence saying what the site is. */
   description: string;
@@ -40,7 +42,8 @@ function cleanPath(page: string): string {
  */
 export function pageName(siteName: string, page: string): string {
   const path = cleanPath(page);
-  const named = siteAbout(siteName)?.pageNames;
+  // A fixed copy has the same pages as its original, so it uses the original's page names.
+  const named = siteAbout(originalSiteName(siteName) ?? siteName)?.pageNames;
   if (named && Object.hasOwn(named, path)) return named[path]!;
   if (path === '/') return 'the home page';
   const last = path.split('/').filter(Boolean).pop() ?? '';

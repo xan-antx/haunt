@@ -213,6 +213,7 @@ runMission(args):
   config  = loadConfig(args.config)            # exit 2 on any problem
   mission = loadMission(args.missions, id)     # exit 2
   siteKey = args.site ?? mission.site          # must be in config.sites, exit 2
+  siteName = args.siteName ?? config.sites[siteKey].name   # written to run.site.name only
   checkAddress(args.url, config)               # exit 2, before Playwright is imported
   checkOutRoot(args.out)                       # exit 2 under the test runner when inside runs/
   ensureChromium()                             # exit 1 with "npx playwright install chromium"
@@ -736,11 +737,12 @@ The production build is used because Slow 3G against Vite's dev server would loa
 
 ```
 npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url>
-              [--out <dir>] [--site <key>] [--seed <int>] [--headed]
+              [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
               [--config <file>] [--missions <dir>]
 npx haunt --help | npx haunt run --help
 ```
 
+- `--site-name <text>` replaces only `run.site.name`. `main` passes `args.siteName ?? site.name` to `finalizeRun`; the Site_Key, the Run_Folder path and the `SiteConfig` given to the Body and the Detectors still come from the Site_Key's config entry. A blank value is refused during argument parsing.
 - `bin/haunt.mjs`: `import { register } from 'tsx/esm/api'; register(); const { main } = await import('../src/cli/main.ts'); process.exitCode = await main(process.argv.slice(2));`. npm runs a package's own `bin` from inside that package, so `npx haunt` works in `engine/` after `npm install`.
 - Exit codes: 0 succeeded or gave_up; 1 run invalid, Chromium missing, or the browser could not start; 2 bad arguments, config, mission, site, address, or a test run aimed at `runs/`; 3 result `error` (file written); 130 interrupted.
 - Standard output: progress lines (`step 3: Next button (Tab ×2) → "Pay this bill, button"`), then the absolute `run.json` path as the last line. Warnings, the generated seed and blocked URLs go to standard error.

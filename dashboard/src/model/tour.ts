@@ -3,6 +3,7 @@
 
 import type { Run } from '../data/types';
 import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath } from '../routes';
+import { originalSiteRuns } from './fixedCopy';
 import { groupHaunts } from './haunts';
 import { ghostName } from './ghosts';
 import { siteShortName } from './results';
@@ -20,7 +21,9 @@ export interface TourStop {
 }
 
 /** The eight Tour_Stops, or null when there are no runs (the tour is then unavailable). */
-export function buildTour(runs: Run[]): TourStop[] | null {
+export function buildTour(allRuns: Run[]): TourStop[] | null {
+  // The tour shows the original site; a fixed copy's runs are left out.
+  const runs = originalSiteRuns(allRuns);
   const cam = ghostCamTarget(runs);
   const haunt = groupHaunts(runs)[0];
   if (!cam || !haunt) return null;

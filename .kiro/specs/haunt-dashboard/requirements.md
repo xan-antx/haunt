@@ -74,6 +74,7 @@ Verification process: after each change, the House Builder runs `npm run build` 
 - **Sample_Run**: A Run whose Run_File is under `runs/samples/` (Run_Index origin `samples`). (Added in the fifth amendment.)
 - **Hidden_Sample**: A Sample_Run whose ghost has at least one Real_Run. The Dashboard lists it nowhere, but a URL that names its Run_Key still opens it (Requirement 24.3). (Added in the fifth amendment.)
 - **Sample_Label**: The visible text "Sample run" shown with every Sample_Run the Dashboard shows. (Added in the fifth amendment.)
+- **Fixed_Copy**: A site whose `site.name` is another site's name followed by " (exorcised)", for example "Lantern Bills demo (exorcised)" for "Lantern Bills demo". Its runs are Fixed_Copy_Runs, and the other site is its Original_Site. (Added in the sixth amendment, Requirement 25.)
 - **Blocking_Finding**: In a Run whose result is `gave_up` or `error`, a finding at a step of the Run that stopped the ghost: a finding at the Run's last step, or any `focus_trap` finding, because a keyboard trap leaves no way on. A `succeeded` Run has none. The first Blocking_Finding is the one with the lowest step, and among equal steps the first in findings order. (Added in the fifth amendment.)
 - **Page_Name**: A plain name for a step's `page`, used in sentences instead of the path: the name from the Site_About table when the site lists the path (Lantern Bills: "/" is "the bill page"); otherwise "the home page" for "/", and "the <words> page" from the path's last part, with other characters turned into spaces (for example "/pay-now/" gives "the pay now page"). (Added in the fifth amendment.)
 - **Trap_Place**: Where a `focus_trap` finding held the ghost, in plain words, such as "the 'Protect your payment' dialog": a dialog, modal or pop-up name in quotes in the finding's evidence or title, or the step's spoken or thought text; else "a pop-up" when one of those mentions a dialog, modal or pop-up; else none. (Added in the fifth amendment.)
@@ -366,6 +367,8 @@ Verification process: after each change, the House Builder runs `npm run build` 
 10. THE Exorcise screen SHALL show each status with a text label and an icon, not color alone.
 11. (Added in the fourth amendment) WHEN the before Run's ghost has no other Run of the same mission, THE Exorcise screen SHALL follow "No after run yet for <ghost>." (from the `exorcise-different-ghost-fix` bugfix) with the next step in the developer's loop: fix the problem in the app's code, then run the same ghost on the same mission again, and the new run shows up as the after run. WHILE every Run comes from `runs/samples/`, THE notice SHALL also say that re-running ghosts is coming soon and that the demo only has sample runs, so there is no after run to show yet.
 
+12. (Added in the sixth amendment) Requirement 25 adds how Exorcise offers the Fixed_Copy's Runs as "after the fix" Runs.
+
 ### Requirement 14: Spec Coverage
 
 **User Story:** As a developer, I want each mission requirement listed with which ghosts completed it, so that I can see which requirements real users can't reach.
@@ -537,3 +540,17 @@ Verification process: after each change, the House Builder runs `npm run build` 
 7. THE Stuck_Notice SHALL follow Requirement 10.36, and the Run_Summary SHALL follow Requirement 10.29.
 8. WHEREVER the Dashboard builds a sentence that names a step's page (the Ask_Panel answers, the Exorcise "Not reached" note and the screenshot's alternative text), it SHALL use the Page_Name instead of the path, for example "I gave up at step 20 on the bill page." An Evidence_Sentence never contains a page path, because evidence with one falls back to the table sentence. Labels that show the path itself (Map_View Room headings, the Exorcise "Page" column and the Control_Row's step information) SHALL keep the path.
 9. THE tests SHALL read fixed data so that they do not change when new Real_Runs are added: unit tests SHALL use the two files in `runs/samples/` and the Fixture_Runs, and the end-to-end suite SHALL build and serve only the Fixture_Runs (`npm run build:e2e` and `npm run preview:e2e`, used by `npm run test:e2e`), in a separate output folder so that the normal `npm run build` still collects `runs/`. The Fixture_Runs SHALL NOT be edited to make a test pass.
+
+### Requirement 25: The fixed copy of a site (sixth amendment)
+
+**User Story:** As a developer who fixed the demo site and recorded the ghosts again on the fixed copy, I want the dashboard to tell the two sites apart, so that the first-visit story stays about the original site and Exorcise can show the before and after.
+
+#### Acceptance Criteria
+
+1. A Run whose `site.name` ends in " (exorcised)" is a Fixed_Copy_Run, and the site it was made on is the Fixed_Copy of the site whose name is the same text without that suffix (the Original_Site). A name that is only the suffix, or has no text before it, is not a Fixed_Copy name. The Dashboard SHALL NOT read any other field, and the contract is unchanged.
+2. THE Home Results_Sections and their Result_Cards SHALL be built only from Runs of Original_Sites, so no Result_Card shows or links to a Fixed_Copy_Run, however new it is.
+3. THE Tour (Requirement 22) SHALL be built only from Runs of Original_Sites. WHEN only Fixed_Copy_Runs exist, THE Tour SHALL be unavailable as it is when there are no Runs.
+4. THE Top_Navigation's Ghost Cam destination and the Old_Link `#/seance` without a Run_Key SHALL be computed only from Runs of Original_Sites. WHEN only Fixed_Copy_Runs exist, the Ghost Cam has no destination, as when there are no Runs.
+5. EVERY other screen SHALL show the Fixed_Copy as a site of its own, under its full name (for example "Lantern Bills demo (exorcised)"), with its own haunt card on Home and its own entry in the Graveyard's site choice.
+6. THE Exorcise screen SHALL offer the Fixed_Copy's Runs for the same ghost and mission as after Runs of a before Run on the Original_Site, and SHALL end the label of each such option with "after the fix". WHEN the before Run has such a Run, the default after Run SHALL be the newest of them. WHEN no before Run is chosen, the default pair SHALL be the newest Fixed_Copy_Run as the after Run and the newest Run of its Original_Site with the same ghost and mission as the before Run, when there is one.
+7. THE Exorcise "Not reached" note SHALL name the page of a Fixed_Copy_Run with the page names of its Original_Site (Requirement 24.8).

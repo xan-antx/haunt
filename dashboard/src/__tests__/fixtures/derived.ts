@@ -107,6 +107,20 @@ export function listenerAfterFix(): Json {
   return json;
 }
 
+/**
+ * A Listener run on the fixed copy: the sample's site name plus " (exorcised)", with the
+ * unlabeled_button finding fixed. It is newer than every other fixture, so a screen that
+ * wrongly counted it would show it first.
+ */
+export function listenerOnFixedCopy(): Json {
+  const json = listenerAfterFix();
+  json.runId = '2026-11-09-listener-pay-bill';
+  json.startedAt = '2026-11-09T10:00:00Z';
+  const site = json.site as Json;
+  json.site = { ...site, name: `${site.name as string} (exorcised)`, url: 'http://localhost:3002' };
+  return json;
+}
+
 /** "After" Listener run that never reaches /bill. */
 export function listenerNeverReachesBill(): Json {
   const json = listenerSample();

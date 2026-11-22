@@ -17,6 +17,7 @@ import { formatDate, plural } from '../model/format';
 import { GHOST_ORDER, GHOSTS, moodFor, resultSentence } from '../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../model/origin';
 import { outcomeLine } from '../model/outcome';
+import { originalSiteRuns } from '../model/fixedCopy';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
 import { siteAbout } from '../model/sites';
@@ -263,6 +264,8 @@ export function HomeScreen() {
 
   const { runs, invalid } = state;
   const haunts = groupHaunts(runs);
+  // Results and their cards use only the original sites' runs. A fixed copy is its own site below.
+  const resultHaunts = groupHaunts(originalSiteRuns(runs));
   const tourAvailable = buildTour(runs) !== null;
 
   return (
@@ -304,7 +307,7 @@ export function HomeScreen() {
       </div>
 
       {/* Results first, right after the Hero (Req 7.28, 21.1). */}
-      {haunts.map((haunt, i) => (
+      {resultHaunts.map((haunt, i) => (
         <Results key={haunt.siteKey} haunt={haunt} first={i === 0} />
       ))}
 

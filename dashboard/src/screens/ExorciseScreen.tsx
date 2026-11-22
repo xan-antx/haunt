@@ -10,6 +10,7 @@ import { ResultBadge } from '../components/ResultBadge';
 import { SampleTag } from '../components/SampleTag';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
+import { AFTER_THE_FIX_LABEL, isAfterTheFix, isFixedCopyRun } from '../model/fixedCopy';
 import { EXORCISE_LABELS, afterCandidates, compareRuns, type ExorciseRow, type ExorciseStatus } from '../model/exorcise';
 import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
@@ -20,24 +21,38 @@ import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './ExorciseScreen.module.css';
 
-function runLabel(run: Run): string {
+/** `before` is given for after-run options: a run on the before run's fixed copy is "after the fix". */
+function runLabel(run: Run, before?: Run): string {
   const sample = isSample(run) ? ` · ${SAMPLE_LABEL}` : '';
-  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}${sample}`;
-}
-
-/** The newest other run by the same ghost of the same mission, or null if there is none. */
-export function defaultAfter(before: Run, runs: Run[]): Run | null {
-  return afterCandidates(before, runs)[0] ?? null;
+  const fixed = before && isAfterTheFix(before, run) ? ` · ${AFTER_THE_FIX_LABEL}` : '';
+  return `${GHOSTS[run.ghost].name} · ${run.mission.id} · ${formatDate(run.startedAt)} · ${RESULT_LABELS[run.result]}${fixed}${sample}`;
 }
 
 /**
- * A default pair: the newest run that has a same-ghost, same-mission partner as "after",
- * and its newest partner as "before". Null when no run has such a partner.
+ * The default after run: the newest run of the before run's fixed copy by the same ghost and
+ * mission when there is one, else the newest other run by the same ghost of the same mission.
+ * Null if there is none.
+ */
+export function defaultAfter(before: Run, runs: Run[]): Run | null {
+  const candidates = afterCandidates(before, runs);
+  return candidates.find((r) => isAfterTheFix(before, r)) ?? candidates[0] ?? null;
+}
+
+/**
+ * A default pair. When a fixed copy has runs, the newest of them is "after" and the newest run
+ * of the original site by the same ghost and mission is "before". Otherwise the newest run that
+ * has a same-ghost, same-mission partner is "after", and its newest partner is "before".
+ * Null when no run has such a partner.
  */
 export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
   const sorted = [...runs].sort(byStartedAtDesc);
   for (const after of sorted) {
-    const before = defaultAfter(after, sorted);
+    if (!isFixedCopyRun(after)) continue;
+    const before = afterCandidates(after, sorted).find((r) => isAfterTheFix(r, after));
+    if (before) return { before, after };
+  }
+  for (const after of sorted) {
+    const before = afterCandidates(after, sorted)[0];
     if (before) return { before, after };
   }
   return null;
@@ -284,7 +299,7 @@ export function ExorciseScreen() {
                 {!afterSelected && <option value="">Choose a run by {ghostName}</option>}
                 {afterOptions.map((r) => (
                   <option key={r.key} value={r.key}>
-                    {runLabel(r)}
+                    {runLabel(r, before)}
                   </option>
                 ))}
               </select>

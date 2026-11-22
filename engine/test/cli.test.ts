@@ -420,6 +420,8 @@ describe('CLI argument errors exit 2 without launching a browser', () => {
     { name: 'unknown mission', overrides: { mission: 'nope' }, expected: ['nope', 'Available missions', 'pay-bill'] },
     { name: 'unknown --site key', overrides: { extra: ['--site', 'nope'] }, expected: ['"nope"', 'lantern-bills', 'other-site'] },
     { name: 'bad --site format', overrides: { extra: ['--site', 'Bad_Key'] }, expected: ['"Bad_Key"', 'not valid'] },
+    { name: 'empty --site-name', overrides: { extra: ['--site-name', ''] }, expected: ['--site-name must not be empty'] },
+    { name: 'blank --site-name', overrides: { extra: ['--site-name', '   '] }, expected: ['--site-name must not be empty'] },
     { name: '--seed with a fraction', overrides: { extra: ['--seed', '4.5'] }, expected: ['--seed must be a whole number', '"4.5"'] },
     { name: '--seed with letters', overrides: { extra: ['--seed', 'abc'] }, expected: ['--seed must be a whole number', '"abc"'] },
     { name: '--seed in exponent form', overrides: { extra: ['--seed', '1e3'] }, expected: ['--seed must be a whole number'] },
@@ -516,7 +518,7 @@ describe('address refusal (Requirement 4.3)', () => {
 // ---------------------------------------------------------------------------------------------
 
 describe('--help', () => {
-  const OPTION_NAMES = ['--ghost', '--mission', '--url', '--out', '--site', '--seed', '--headed', '--config', '--missions', '--help'];
+  const OPTION_NAMES = ['--ghost', '--mission', '--url', '--out', '--site', '--site-name', '--seed', '--headed', '--config', '--missions', '--help'];
 
   it.each([
     ['--help', ['--help']],
@@ -547,6 +549,14 @@ describe('--help', () => {
     expect(parsed).toEqual({
       kind: 'run',
       args: { ghost: 'bebe', mission: 'pay-bill', url: 'http://localhost:3000', headed: true, seed: 7 },
+    });
+  });
+
+  it('parseArgs reads --site-name as text, spaces and brackets included', () => {
+    const parsed = parseArgs(['run', '--ghost', 'listener', '--mission', 'pay-bill', '--url', 'http://localhost:3002', '--site-name', 'Lantern Bills demo (exorcised)']);
+    expect(parsed).toEqual({
+      kind: 'run',
+      args: { ghost: 'listener', mission: 'pay-bill', url: 'http://localhost:3002', headed: false, siteName: 'Lantern Bills demo (exorcised)' },
     });
   });
 });
@@ -861,6 +871,27 @@ describe('a run with a fake ghost and a fake browser', () => {
     expect(result.code).toBe(0);
     expect(lastLine(result.stdout)).toBe(path.join(out, 'other-site', RUN_ID, 'run.json'));
     expect(readRun(lastLine(result.stdout) as string).site.name).toBe('Other site');
+  });
+
+  it('writes the site name from the config when --site-name is not given', async () => {
+    const result = await runCli(runArgs());
+    expect(result.code).toBe(0);
+    expect(readRun(lastLine(result.stdout) as string).site.name).toBe('Lantern Bills demo');
+  });
+
+  it('--site-name sets site.name and leaves the site key and the run folder alone', async () => {
+    const out = freshOut();
+    const result = await runCli(runArgs({ extra: ['--site-name', 'Lantern Bills demo (exorcised)'] }, out));
+    expect(result.code).toBe(0);
+    expect(lastLine(result.stdout)).toBe(path.join(out, 'lantern-bills', RUN_ID, 'run.json'));
+    expect(readRun(lastLine(result.stdout) as string).site.name).toBe('Lantern Bills demo (exorcised)');
+  });
+
+  it('--site-name wins over the name of a --site key', async () => {
+    const out = freshOut();
+    const result = await runCli(runArgs({ extra: ['--site', 'other-site', '--site-name', 'Renamed'] }, out));
+    expect(result.code).toBe(0);
+    expect(readRun(lastLine(result.stdout) as string).site.name).toBe('Renamed');
   });
 
   it('uses the browser profile of the ghost, the guard, the init scripts and headless mode', async () => {

@@ -948,6 +948,19 @@ Run_Summary: the requirement row becomes `div.requirementWrap` (relative) holdin
 
 Stuck_Notice: the slot stays `4.5rem` and `position: relative`, but it no longer clips; the `.notice` inside it is a flex row that clips its three lines and holds "Full details" on the right. `stuckNotice()` returns `details: { label, title, evidence }[]` for every finding at the step (empty for the give-up and error notices), and `lines[2]` is the Evidence_Sentence. The above-panel lists each detail as a bold "Label: title" and its full evidence, over the bottom of the screenshot and panel, so the Control_Row and timeline stay usable. `GhostCamScreen` renders `<StuckNotice key={step.n}>`, so the details close when the step changes.
 
+### Fixed copy of a site (sixth amendment, Req 25)
+
+`model/fixedCopy.ts` is the one place that knows the naming rule. It exports `EXORCISED_SUFFIX` (`" (exorcised)"`), `originalSiteName(siteName)` (the name without the suffix, or null when the name does not end in it or nothing is left before it; only the last suffix is removed), `fixedCopyName`, `isFixedCopyRun(run)`, `originalSiteRuns(runs)` (the runs that are not fixed-copy runs, order kept), `isAfterTheFix(before, after)` (`after.site.name === fixedCopyName(before.site.name)`) and `AFTER_THE_FIX_LABEL` ("after the fix"). Nothing is added to the contract: the engine writes the name through `--site-name`, and `site.name` stays free text.
+
+| Place | Runs it uses |
+| --- | --- |
+| Home Results_Section and Result_Cards | `groupHaunts(originalSiteRuns(runs))` |
+| `screenDestinations(runs)` (the Top_Navigation's Ghost Cam link) and `SeanceRedirect` without a run key | `ghostCamTarget(originalSiteRuns(runs))`; null when only fixed-copy runs exist |
+| `buildTour(runs)` | `originalSiteRuns(runs)` for the Ghost Cam target and the first stop's site name; it returns null when only fixed-copy runs exist |
+| Home haunt cards and "Recent ghost walks", the Graveyard and its filter, Spec Coverage, Exorcise pickers | all runs; the fixed copy is a Haunt of its own with its own `siteKey` (the slug of its name) |
+
+Exorcise: `afterCandidates` is unchanged (same ghost, same mission, other run, newest first), so the fixed copy's runs are already candidates. `defaultAfter(before, runs)` returns the newest candidate that `isAfterTheFix`, else the newest candidate. `defaultPair(runs)` first looks for the newest fixed-copy run that has a run on its original site with the same ghost and mission, and uses it as "after" with the newest such original run as "before"; otherwise it behaves as before. In the after picker, the option of a run for which `isAfterTheFix(before, run)` holds ends its label with " · after the fix". `pageName` looks up the page names of the original site for a fixed copy, so the "Not reached" note still says "the bill page".
+
 ### Provenance_Panel (amendment, Req 5.6–5.11)
 
 **Problems in the current code** (`ProvenancePanel.tsx` and `.module.css`):

@@ -81,9 +81,10 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 5. THE CLI SHALL take the Site_Key from the Mission_File's `site` field, and WHERE `--site <key>` is given THE CLI SHALL use that key instead. The Site_Key SHALL be listed in the Haunt_Config `sites` section and SHALL contain only lowercase letters, digits and single hyphens.
 6. WHEN a Run_File has been saved, THE CLI SHALL print the absolute path of `run.json` as the last line of standard output and exit with code 0 when the result is `succeeded` or `gave_up`, and with code 3 when the result is `error`.
 7. IF an argument is missing, unknown or invalid, including an unknown Ghost, an unknown Mission or an unknown Site_Key, THEN THE CLI SHALL print what is wrong and the allowed values, exit with code 2, and not open a browser.
-8. THE CLI SHALL accept the options `--seed <integer>` (seed for the visual Ghosts' timing jitter, random and printed to standard error when absent), `--headed` (show the browser window), `--config <file>` and `--missions <dir>` (used by tests to point at fixture files).
+8. THE CLI SHALL accept the options `--site-name <text>` (Requirement 2.11), `--seed <integer>` (seed for the visual Ghosts' timing jitter, random and printed to standard error when absent), `--headed` (show the browser window), `--config <file>` and `--missions <dir>` (used by tests to point at fixture files).
 9. WHEN `npx haunt --help` or `npx haunt run --help` is run, THE CLI SHALL print the usage, the options and the allowed Ghost values, and exit with code 0.
 10. IF the Engine runs under the test runner and the Out_Root resolves to a folder inside the repository's `runs/` folder, THEN THE CLI SHALL refuse to run and exit with code 2.
+11. WHERE `--site-name <text>` is given, THE CLI SHALL write `<text>` as `site.name` in the Run_File, for example to record the fixed copy of a site as "Lantern Bills demo (exorcised)". Without it, THE CLI SHALL write the `name` of the Site_Key's entry in the Haunt_Config. `--site-name` SHALL NOT change the Site_Key, the Run_Folder's location or any other field, and THE CLI SHALL treat an empty or blank value as an invalid argument (exit code 2, no browser).
 
 ### Requirement 3: Run files and the Run_Schema
 

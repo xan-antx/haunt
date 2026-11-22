@@ -4,6 +4,7 @@
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { useAllRuns } from '../data/hooks';
+import { originalSiteRuns } from '../model/fixedCopy';
 import { isGhostId } from '../model/ghosts';
 import { watchStep } from '../model/results';
 import { ghostCamTarget } from '../model/screens';
@@ -28,7 +29,7 @@ export function SeanceRedirect() {
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
 
   if (runKey === undefined) {
-    const target = ghostCamTarget(state.runs);
+    const target = ghostCamTarget(originalSiteRuns(state.runs));
     if (!target) {
       return (
         <>

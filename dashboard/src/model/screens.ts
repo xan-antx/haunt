@@ -4,6 +4,7 @@
 
 import type { Run } from '../data/types';
 import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath, type Route } from '../routes';
+import { originalSiteRuns } from './fixedCopy';
 import { GHOST_ORDER } from './ghosts';
 import { ghostWatchTarget, startHereTarget } from './haunts';
 
@@ -50,7 +51,8 @@ export function ghostCamTarget(runs: Run[]): { runKey: string; step: number } | 
 
 /** Where each Screen's link goes. The Ghost Cam's is null when there are no runs. */
 export function screenDestinations(runs: Run[]): ScreenDestinations {
-  const cam = ghostCamTarget(runs);
+  // The Ghost Cam link stays on the original site; a fixed copy's runs are left out (Req 25.7).
+  const cam = ghostCamTarget(originalSiteRuns(runs));
   return {
     home: homePath(),
     ghostcam: cam ? stepPath(cam.runKey, cam.step) : null,
