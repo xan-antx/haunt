@@ -5,7 +5,8 @@
   "description": "Haunt engine: drives ghost personas through a website and writes run.json files",
   "type": "module",
   "bin": {
-    "haunt": "bin/haunt.mjs"
+    "haunt": "bin/haunt.mjs",
+    "haunt-mcp": "bin/haunt-mcp.mjs"
   },
   "engines": {
     "node": ">=24"
@@ -22,6 +23,7 @@
     "demo:all": "tsx scripts/demo.ts --all"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "ajv": "^8",
     "playwright": "^1.65.0",
     "tsx": "^4.23.15"

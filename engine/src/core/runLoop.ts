@@ -1,6 +1,8 @@
 import type { Mission } from '../missions/loadMission.ts';
 import type { DetectorFailure } from './detectors.ts';
 import type { Recorder } from './recorder.ts';
+import { afterStep, closeRun, engineErrorSentence, messageOf } from './stepPipeline.ts';
+import type { StepPipelineOptions } from './stepPipeline.ts';
 import type { ActionResult, Body, FindingType, GiveUpReason, Mind, RecordedStep, RunState } from './types.ts';
 
 /*
@@ -26,14 +28,11 @@ import type { ActionResult, Body, FindingType, GiveUpReason, Mind, RecordedStep,
  * Detectors and success checks and never needs a browser.
  */
 
-/** Highest number of Steps in one Run (Requirement 6.9). */
-export const MAX_STEPS = 60;
+// The per-step pipeline lives in stepPipeline.ts and is shared with the AI run driver.
+export { ENGINE_ERROR_PREFIX, MAX_STEPS, engineErrorSentence } from './stepPipeline.ts';
 
 /** The thought recorded with Step 1. */
 export const OPENING_THOUGHT = "I'm opening the page.";
-
-/** Plain-words start of every engine error sentence. */
-export const ENGINE_ERROR_PREFIX = 'Something went wrong in the engine:';
 
 /** The part of the DetectorRunner the loop uses. */
 export interface RunLoopDetectors {
@@ -89,8 +88,8 @@ export interface RunLoopOutcome {
  * (exit code 3).
  */
 export async function runLoop<P, A>(options: RunLoopOptions<P, A>): Promise<RunLoopOutcome> {
-  const { body, mind, detectors, recorder, mission, url } = options;
-  const maxSteps = options.maxSteps ?? MAX_STEPS;
+  const { body, mind, recorder, url } = options;
+  const pipeline: StepPipelineOptions = options;
 
   let outcome: RunLoopOutcome;
 
@@ -111,26 +110,9 @@ export async function runLoop<P, A>(options: RunLoopOptions<P, A>): Promise<RunL
 
   async function steps(): Promise<RunLoopOutcome> {
     for (;;) {
-      const current = recorder.last;
-      if (!current) throw new Error('no Step was recorded');
-
-      // 1. Detectors.
-      const failure = await detectors.observe(current);
-      if (failure) return { result: 'error', errorMessage: failure.thought };
-
-      // 2. Success.
-      if (await options.checkSuccess()) return { result: 'succeeded' };
-
-      // 3. The Ghost's stop rule.
-      const stopped = options.stopRule({
-        steps: recorder.steps,
-        findingCounts: detectors.findingCounts,
-        mission,
-      });
-      if (stopped) return { result: 'gave_up', reason: stopped };
-
-      // 4. The Step limit.
-      if (recorder.steps.length >= maxSteps) return { result: 'gave_up', reason: 'step_limit' };
+      // 1 to 4. Detectors, success, the Ghost's stop rule and the Step limit.
+      const ended = await afterStep(pipeline);
+      if (ended) return ended;
 
       // 5. Decide and act. The Mind gets the Perception only; the Probe stays with the engine.
       const { perception, probe } = await body.perceive();
@@ -145,33 +127,8 @@ export async function runLoop<P, A>(options: RunLoopOptions<P, A>): Promise<RunL
     }
   }
 
-  // After the loop: the Detectors' end-of-Run checks. They are skipped when the Run already ended
-  // in an error, because the browser may be gone.
-  if (outcome.result !== 'error') {
-    try {
-      const failure = await detectors.finish();
-      if (failure) outcome = { result: 'error', errorMessage: failure.thought };
-    } catch (error) {
-      outcome = { result: 'error', errorMessage: messageOf(error) };
-    }
-  }
-
-  // The closing sentence on the last Step.
-  if (outcome.result === 'gave_up' && outcome.reason) {
-    try {
-      const sentence = mind.giveUpThought(outcome.reason).trim();
-      if (sentence) recorder.appendToLastThought(sentence);
-    } catch (error) {
-      outcome = { result: 'error', errorMessage: messageOf(error) };
-    }
-  }
-  if (outcome.result === 'error') {
-    const message = outcome.errorMessage ?? 'unknown error';
-    outcome = { result: 'error', errorMessage: message };
-    recorder.appendToLastThought(engineErrorSentence(message));
-  }
-
-  return outcome;
+  // After the loop: the Detectors' end-of-Run checks and the closing sentence.
+  return closeRun(pipeline, outcome, (reason) => mind.giveUpThought(reason));
 }
 
 /**
@@ -197,14 +154,3 @@ async function endAfterOpenFailure<P, A>(options: RunLoopOptions<P, A>, error: u
   return { result: 'error', errorMessage: message };
 }
 
-/** "Something went wrong in the engine: <message>" */
-export function engineErrorSentence(message: string): string {
-  return `${ENGINE_ERROR_PREFIX} ${message}`;
-}
-
-/** The first non-empty line of an error's message, so a Playwright call log does not flood a thought. */
-function messageOf(error: unknown): string {
-  const raw = error instanceof Error ? error.message : String(error);
-  const line = raw.split(/\r?\n/).find((l) => l.trim() !== '');
-  return line ? line.trim() : 'unknown error';
-}
