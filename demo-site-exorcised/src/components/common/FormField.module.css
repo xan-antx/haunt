@@ -1,0 +1,38 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+.input {
+  padding: 0.625rem 0.875rem;
+  font-size: 1.0625rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  min-height: 48px;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--color-text-light);
+  opacity: 1;
+}
+
+.input:hover {
+  border-color: var(--color-text);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}

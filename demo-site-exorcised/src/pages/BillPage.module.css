@@ -1,0 +1,248 @@
+.intro {
+  margin-bottom: 1.25rem;
+}
+
+.heading {
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--color-text-light);
+  font-size: 1.0625rem;
+}
+
+/*
+ * Problem 4 (deliberate). This wrapper has no size, padding or background of its own, so before the
+ * banner loads it takes no space and Pay this bill sits at its top-left corner.
+ */
+.bannerWrap {
+  position: relative;
+}
+
+/*
+ * The Autopay link is placed at the top of the banner wrapper. Before the banner
+ * loads, the Pay button sits at this same position; after the shift the link
+ * is where the button used to be.
+ *
+ * It is drawn as a navy tab in the banner's top-left corner, in the same navy and gold as the offer
+ * strip under the art, so the tab, the art and the strip read as one offer card.
+ * Gold on navy is 10.96:1; gold on the hover navy (--color-night-2) is 9.3:1.
+ */
+.autopayLink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.625rem 1.5rem;
+  background-color: var(--color-night);
+  color: var(--color-gold);
+  border-radius: var(--radius-card) 0 var(--radius-card) 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.autopayLink:hover {
+  background-color: var(--color-night-2);
+  text-decoration: underline;
+}
+
+.autopayLink:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-night);
+}
+
+/* The offer text under the banner art. It only exists once the banner has loaded. */
+.offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1.25rem 0.875rem;
+  background-color: var(--color-night);
+  color: #ffffff;
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+}
+
+.offerTag {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background-color: var(--color-gold);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.offerText {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+/* The conditions, in plain weight after the offer (--color-night-text on navy is 12.28:1). */
+.offerTerms {
+  font-size: 0.9375rem;
+  color: var(--color-night-text);
+}
+
+.payRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.payHint,
+.secureNote {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-text-light);
+  font-size: 0.9375rem;
+}
+
+.secureNote {
+  margin-bottom: 1rem;
+  color: var(--color-success);
+}
+
+.inlineIcon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/*
+ * ---- Bill row ----
+ * Two columns: the bill card, and the Payment Summary with the help card under it. Both columns
+ * stretch to the same height, and the help card grows so its bottom lines up with the bill card's.
+ * Below about 760px the right column wraps under the bill card.
+ */
+.billRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0 1.5rem;
+}
+
+.side {
+  flex: 1 1 18rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---- Bill card ---- */
+
+.billCard {
+  flex: 2 1 26rem;
+  min-width: 0;
+}
+
+.billCardTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.billCardHeading {
+  font-size: 1.25rem;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--color-marigold-light);
+  border: 1px solid var(--color-marigold);
+  color: var(--color-saffron);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+}
+
+.fact {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background-color: var(--color-page);
+}
+
+.fact dt {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+
+.fact dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: break-word;
+}
+
+.factWide {
+  grid-column: 1 / -1;
+  background-color: var(--color-primary-light);
+}
+
+.amountDue {
+  font-size: 2rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary-dark);
+}
+
+.accountNumber {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Autopay status and help card ---- */
+
+.helpCard {
+  flex: 1 1 auto;
+}
+
+/* A neutral pill: autopay being off is a fact, not a warning (--color-text-light on page 6.28:1). */
+.statusOff {
+  background-color: var(--color-page);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-light);
+}
+
+.helpLead {
+  margin-bottom: 1rem;
+}
+
+.helpFacts {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.helpLink {
+  overflow-wrap: anywhere;
+}
+
+.helpNote {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--color-text-light);
+}

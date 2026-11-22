@@ -1,0 +1,10 @@
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.errorText {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}

@@ -47,6 +47,24 @@ jobs:
       - name: Copy demo-site into site folder
         run: cp -r demo-site/dist/. _site/lantern-bills/
 
+      # --- Exorcised demo site -> /lantern-bills-exorcised/ ---
+      - name: Install demo-site-exorcised dependencies
+        run: npm ci
+        working-directory: demo-site-exorcised
+
+      - name: Test demo-site-exorcised
+        run: npm test
+        working-directory: demo-site-exorcised
+
+      - name: Build demo-site-exorcised
+        run: npm run build
+        working-directory: demo-site-exorcised
+
+      - name: Copy demo-site-exorcised into site folder
+        run: |
+          mkdir -p _site/lantern-bills-exorcised
+          cp -r demo-site-exorcised/dist/. _site/lantern-bills-exorcised/
+
       # --- Dashboard -> site root (/haunt/) ---
       # The dashboard build uses base "/haunt/" (see dashboard/vite.config.ts).
       # Copying into _site/ merges with the existing lantern-bills folder.

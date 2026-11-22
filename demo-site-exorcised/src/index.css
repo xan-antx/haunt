@@ -1,0 +1,134 @@
+/* CSS reset and base styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Colour tokens. Contrast ratios (WCAG 2.1 AA) are against the stated background.
+ *   --color-text          #1b1d36 on #ffffff 16.46:1, on --color-page 14.85:1
+ *   --color-text-light    #545872 on #ffffff  6.96:1, on --color-page 6.28:1, on --color-primary-light 5.92:1
+ *   --color-primary       #2d3a8c on #ffffff 10.02:1, on --color-page 9.04:1; white text on it 10.02:1
+ *   --color-primary-dark  #1f2a6e: white text on it 13.01:1
+ *   --color-night         #141a3f: white text on it 16.81:1, --color-night-text 12.28:1, --color-gold 10.96:1
+ *   --color-marigold      #f4a62a: decoration and fills only; --color-text on it 8.10:1
+ *   --color-saffron       #8a4700 on #ffffff 7.04:1, on --color-marigold-light 6.41:1
+ *   --color-error         #b3261e on #ffffff  6.54:1
+ *   --color-success       #1b6e2d on #ffffff  6.34:1, on --color-success-light 5.59:1
+ *   --color-border-strong #74716a on #ffffff  4.87:1 (UI component boundary, needs 3:1)
+ */
+:root {
+  --color-primary: #2d3a8c;
+  --color-primary-dark: #1f2a6e;
+  --color-primary-light: #e9ecfa;
+  --color-night: #141a3f;
+  --color-night-2: #1e2657;
+  --color-night-text: #d7dbf5;
+  --color-gold: #ffc861;
+  --color-marigold: #f4a62a;
+  --color-marigold-light: #fff3dc;
+  --color-saffron: #8a4700;
+  --color-error: #b3261e;
+  --color-success: #1b6e2d;
+  --color-success-light: #e7f4ea;
+  --color-text: #1b1d36;
+  --color-text-light: #545872;
+  --color-border: #dedad0;
+  --color-border-strong: #74716a;
+  --color-background: #ffffff;
+  --color-page: #f5f3ee;
+
+  --radius-card: 16px;
+  --shadow-card: 0 1px 2px rgba(20, 26, 63, 0.06), 0 4px 16px rgba(20, 26, 63, 0.06);
+  --page-width: 960px;
+
+  --font-sans: 'Lantern Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans',
+    'Nirmala UI', 'Noto Sans Devanagari', 'Noto Sans Gurmukhi', sans-serif;
+  --font-sans-gurmukhi: 'Lantern Sans Gurmukhi', 'Lantern Sans', system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Noto Sans', 'Nirmala UI', 'Noto Sans Gurmukhi', sans-serif;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-page);
+}
+
+/* Gurmukhi first on Punjabi pages, so shared marks such as the danda (।) come from the Gurmukhi file. */
+html:lang(pa) body {
+  font-family: var(--font-sans-gurmukhi);
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/*
+ * Focus indicator for keyboard navigation: a dark ring with a white gap, so it stays visible on
+ * light cards and on the dark banner alike.
+ */
+:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+header,
+main,
+footer {
+  display: block;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: var(--color-primary);
+  text-underline-offset: 0.15em;
+}
+
+h1 {
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+/* Visually hidden but available to assistive technology */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
