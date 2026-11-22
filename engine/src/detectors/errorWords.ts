@@ -88,6 +88,22 @@ export function looksLikeErrorText(text: string): boolean {
   return ERROR_WORD_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
+/** A sentence that opens with one of these describes a possible case ("If your payment fails ..."), not what just happened. */
+const CONDITIONAL_OPENING = /^(if|when|whenever|in case|unless|should|once|suppose)\b/iu;
+
+/**
+ * `true` when the text is worded as an error about what the user did: at least one sentence matches the
+ * error wording list and does not open with a condition. "Please enter a valid card number" and
+ * "Invalid card number" qualify. "If your payment fails due to a system error, you'll receive a full
+ * refund" does not: it explains what the site does in a case that has not happened.
+ */
+export function looksLikeErrorAboutInput(text: string): boolean {
+  const normalized = normalizeText(text);
+  if (normalized === '') return false;
+  const sentences = normalized.split(/(?<=[.!?।])\s+/u);
+  return sentences.some((sentence) => !CONDITIONAL_OPENING.test(sentence.trim()) && looksLikeErrorText(sentence));
+}
+
 /** `true` when the class or the id contains `error` or `invalid`, in any letter case. */
 export function elementLooksLikeError(className: string | null | undefined, id: string | null | undefined): boolean {
   return CLASS_ID_PATTERN.test(className ?? '') || CLASS_ID_PATTERN.test(id ?? '');

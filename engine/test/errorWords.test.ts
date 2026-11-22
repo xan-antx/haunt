@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { elementLooksLikeError, ERROR_CLASS_ID_SOURCE, looksLikeErrorText, normalizeText } from '../src/detectors/errorWords.ts';
+import { elementLooksLikeError, ERROR_CLASS_ID_SOURCE, looksLikeErrorAboutInput, looksLikeErrorText, normalizeText } from '../src/detectors/errorWords.ts';
 
 /**
  * Unit tests for the error wording list.
@@ -132,5 +132,23 @@ describe('helpers', () => {
 
   it('shares the class and id rule with the page-side script', () => {
     expect(new RegExp(ERROR_CLASS_ID_SOURCE, 'i').test('errorText')).toBe(true);
+  });
+});
+
+describe('looksLikeErrorAboutInput', () => {
+  it.each(['Invalid card number', 'Please enter your name', 'Card number is required. If you need help, call us.'])(
+    'accepts %j',
+    (text) => {
+      expect(looksLikeErrorAboutInput(text)).toBe(true);
+    },
+  );
+
+  it.each([
+    "If your payment fails due to a system error, you'll receive a full refund.",
+    "Payment protection covers you against technical failures during the payment process. If your payment fails due to a system error, you'll receive a full refund within 3-5 business days.",
+    'When a payment is declined, we tell you why.',
+    'Pay this bill',
+  ])('rejects %j', (text) => {
+    expect(looksLikeErrorAboutInput(text)).toBe(false);
   });
 });

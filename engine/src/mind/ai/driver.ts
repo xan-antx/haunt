@@ -161,12 +161,14 @@ export class AiRunDriver {
     }
     const probe = this.latest?.probe;
 
-    const result = await body.act(action);
+    // A thought belongs to the action that follows it: take it before acting, so that it is used once, by this action.
     const thought = this.pendingThought ?? fallbackThought(action);
+    this.pendingThought = null;
+
+    const result = await body.act(action);
     recorder.add(result, thought, probe, { intentionId: AI_INTENTION_ID, recovery: false });
     this.memory.recordAction();
     this.latest = null;
-    this.pendingThought = null;
 
     const ended = await afterStep(this.options);
     if (ended) {

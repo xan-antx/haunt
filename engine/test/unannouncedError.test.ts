@@ -203,6 +203,40 @@ describe('unannounced_error Detector', () => {
     expect(findings.map((f) => f.stepN)).toEqual([2, 3]);
   });
 
+  describe('text that is not an error about the user\'s input or action', () => {
+    // The exact text from the first AI run (step 22): revealed by "Learn more" in the payment protection dialog.
+    const EXPLANATION =
+      "Payment protection covers you against technical failures during the payment process. If your payment fails due to a system error, you'll receive a full refund within 3-5 business days.";
+
+    it('records no Finding for the explanation a "Learn more" disclosure revealed', async () => {
+      const { findings } = await run([call('showDisclosure', EXPLANATION), nothing, nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('records no Finding for text inside a <details> the user opened', async () => {
+      const { findings } = await run([call('showDetails', 'This is an error you can ignore: it is only an example.'), nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('records no Finding for the same text when it is on the page with no disclosure, because it is worded as a condition', async () => {
+      const { findings } = await run([call('showNote', EXPLANATION), nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('still records the silent error next to an open disclosure, and only that', async () => {
+      const { findings } = await run([call('showDisclosure', EXPLANATION), call('showSilentError', SILENT), nothing]);
+      expect(findings).toHaveLength(1);
+      expect(findings[0]!.stepN).toBe(3);
+      expect(findings[0]!.evidence).toContain(`"${SILENT}"`);
+      expect(findings[0]!.evidence).not.toContain('full refund');
+    });
+
+    it('sees nothing in a disclosure that is closed, because its text is hidden', async () => {
+      const { findings } = await run([call('showClosedDisclosure', 'Invalid card number'), nothing]);
+      expect(findings).toEqual([]);
+    });
+  });
+
   it('does not move focus or change the page while it looks', async () => {
     const { page, session } = await openFixture();
     try {

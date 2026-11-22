@@ -61,6 +61,30 @@
       // Plain text with no error class: only its wording says it is an error.
       window.showNote = (text) => add('p', text, { class: 'note' });
 
+      // A "Learn more" disclosure the user has just opened (React-style id): the button has aria-expanded="true"
+      // and aria-controls, and the revealed paragraph is its target. This is the payment protection dialog of Lantern Bills.
+      window.showDisclosure = (text) => {
+        const button = add('button', 'Learn more', { type: 'button', 'aria-expanded': 'true', 'aria-controls': ':r1:' });
+        const explanation = add('p', text, { id: ':r1:', class: 'explanation' });
+        return [button, explanation];
+      };
+
+      // The same explanation with the disclosure closed: aria-expanded="false" and the text hidden.
+      window.showClosedDisclosure = (text) => {
+        add('button', 'Learn more', { type: 'button', 'aria-expanded': 'false', 'aria-controls': ':r1:' });
+        add('p', text, { id: ':r1:', class: 'explanation', hidden: '' });
+      };
+
+      // A native <details> the user has opened.
+      window.showDetails = (text) => {
+        const details = add('details', '', { open: '' });
+        const summary = document.createElement('summary');
+        summary.textContent = 'More about this';
+        const body = document.createElement('p');
+        body.textContent = text;
+        details.append(summary, body);
+      };
+
       window.clearSlot = () => {
         slot.textContent = '';
         document.getElementById('live').textContent = '';

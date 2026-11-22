@@ -85,6 +85,42 @@ describe('haunt-mcp tools', () => {
     expect(calls).toEqual([{ name: 'read_page' }, { name: 'finish' }]);
   });
 
+  it('sends calls made together to the Bridge in the order they were made, so a think stays before its action', async () => {
+    const arrived: string[] = [];
+    const bridge: Bridge = await startBridge(
+      {
+        handle: async (call) => {
+          arrived.push(call.name);
+          return { ok: true, text: 'ok' };
+        },
+      },
+      { token: TOKEN },
+    );
+    // The first request is slow to leave: without ordering, the second would overtake it.
+    let first = true;
+    const slowFirst: typeof fetch = async (input, init) => {
+      if (first) {
+        first = false;
+        await new Promise((resolve) => setTimeout(resolve, 60));
+      }
+      return fetch(input, init);
+    };
+    const server = createHauntMcpServer({ url: bridge.url, token: TOKEN }, slowFirst);
+    const client = new Client({ name: 'test', version: '1.0.0' });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    await Promise.all([server.connect(serverSide), client.connect(clientSide)]);
+    cleanups.push(async () => {
+      await client.close();
+      await bridge.close();
+    });
+
+    await Promise.all([
+      client.callTool({ name: 'think', arguments: { text: 'I press Tab.' } }),
+      client.callTool({ name: 'press_key', arguments: { key: 'Tab' } }),
+    ]);
+    expect(arrived).toEqual(['think', 'press_key']);
+  });
+
   it('returns a Bridge error as a tool error', async () => {
     const { client } = await connect(TOKEN, () => ({ ok: false, error: 'The run has ended. Stop now.' }));
     const result = await client.callTool({ name: 'read_page', arguments: {} });

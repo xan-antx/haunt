@@ -95,6 +95,33 @@ describe('AiRunDriver', () => {
     ]);
   });
 
+  it('puts each thought on the action that follows it, and on no other', async () => {
+    const { driver, recorder } = makeDriver();
+    await driver.start();
+    await driver.handle({ name: 'think', text: 'I press Tab to leave the CVV field.' });
+    await driver.handle({ name: 'press_key', key: 'Tab' });
+    // No think before this action: it gets the plain fallback, not the thought of the step before.
+    await driver.handle({ name: 'type_text', text: 'Asha Kaur' });
+    await driver.handle({ name: 'think', text: 'I type my name.' });
+    await driver.handle({ name: 'think', text: 'I type my name into the cardholder field.' });
+    await driver.handle({ name: 'type_text', text: 'Asha Kaur' });
+    expect(recorder.steps.slice(1).map((r) => [r.step.action, r.step.thought])).toEqual([
+      ['Press Tab', 'I press Tab to leave the CVV field.'],
+      ['Type text', 'I type some text and listen.'],
+      ['Type text', 'I type my name into the cardholder field.'],
+    ]);
+  });
+
+  it('keeps a thought for the next action when a read comes between the think and the action', async () => {
+    const { driver, recorder } = makeDriver();
+    await driver.start();
+    await driver.handle({ name: 'think', text: 'I jump to the next field.' });
+    await driver.handle({ name: 'read_page' });
+    await driver.handle({ name: 'read_announcements' });
+    await driver.handle({ name: 'jump', to: 'field', dir: 'next' });
+    expect(recorder.steps[1]?.step.thought).toBe('I jump to the next field.');
+  });
+
   it('records the AI intention id and no recovery flag', async () => {
     const { driver, recorder } = makeDriver();
     await driver.start();

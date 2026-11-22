@@ -61,6 +61,12 @@ describe('.kiro/agents/listener.json', () => {
     expect(agent.prompt).toMatch(/not here to judge|not here to .*report problems/i);
   });
 
+  it('tells the agent that a thought goes with the next action, and to make one call at a time', () => {
+    expect(agent.prompt).toMatch(/kept with the very next action/i);
+    expect(agent.prompt).toMatch(/not the one you just did/i);
+    expect(agent.prompt).toMatch(/one tool call at a time/i);
+  });
+
   it('describes The Listener as a person who uses a screen reader and the keyboard', () => {
     expect(agent.prompt).toMatch(/person who uses a screen reader/i);
     expect(agent.prompt).toMatch(/keyboard/i);

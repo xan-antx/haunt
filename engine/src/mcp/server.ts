@@ -72,7 +72,15 @@ function asContent(result: ToolResult): { content: { type: 'text'; text: string 
 /** Builds the server with its seven tools. `fetchImpl` is injectable for tests. */
 export function createHauntMcpServer(endpoint: BridgeEndpoint, fetchImpl: Fetch = fetch): McpServer {
   const server = new McpServer({ name: 'haunt-mcp', version: '1.0.0' });
-  const forward = (name: string) => async (args: unknown) => asContent(await callBridge(endpoint, name, args, fetchImpl));
+  // Calls go to the Bridge one at a time, in the order they reached this server. An agent may send a
+  // `think` and the action that follows it together; concurrent requests could reach the Bridge in the
+  // other order and put the thought on the wrong step.
+  let queue: Promise<unknown> = Promise.resolve();
+  const forward = (name: string) => (args: unknown) => {
+    const result = queue.then(() => callBridge(endpoint, name, args, fetchImpl));
+    queue = result.catch(() => undefined);
+    return result.then(asContent);
+  };
 
   server.registerTool(
     'read_page',
@@ -114,7 +122,8 @@ export function createHauntMcpServer(endpoint: BridgeEndpoint, fetchImpl: Fetch 
   server.registerTool(
     'think',
     {
-      description: 'Say in one plain sentence what you are thinking before your next action. It is kept with the next step.',
+      description:
+        'Call this right before each action (press_key, type_text or jump) and say in one plain sentence what that action is and why. It is kept with the action that comes next, so describe the action you are about to take, not the one you just took.',
       inputSchema: { text: z.string().max(MAX_THINK_TEXT * 2).describe(`One plain sentence, at most ${MAX_THINK_TEXT} characters.`) },
     },
     forward('think'),

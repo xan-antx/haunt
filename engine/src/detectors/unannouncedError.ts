@@ -1,11 +1,13 @@
 import type { DetectedProblem, Detector, DetectorContext, RecordedStep } from '../core/types.ts';
-import { ERROR_CLASS_ID_SOURCE, looksLikeErrorText, normalizeText } from './errorWords.ts';
+import { ERROR_CLASS_ID_SOURCE, looksLikeErrorAboutInput, normalizeText } from './errorWords.ts';
 
 /*
  * The `unannounced_error` Detector (Requirements 10.5 and 10.6).
  *
- * Error text is any visible text that matches the error wording list (`errorWords.ts`), or that sits in an
- * element whose class or id contains `error` or `invalid`. After every Step, `observe` lists the visible
+ * Error text is visible text worded as an error about the user's input or action (`errorWords.ts`; a
+ * sentence that opens with "if" or "when" is a description, not an error), or text in an element whose class
+ * or id contains `error` or `invalid`. Text that a disclosure revealed (a button with aria-expanded="true"
+ * and its aria-controls target, or an open <details>) is never error text. After every Step, `observe` lists the visible
  * error texts and tracks each one, by element position and text, from the Step where it first appeared
  * until it disappears or the Run ends.
  *
@@ -34,6 +36,8 @@ interface PageEntry {
   text: string;
   /** The class or the id contains `error` or `invalid`. */
   byClass: boolean;
+  /** Inside text that a disclosure the user opened has revealed (see `LIST_VISIBLE_TEXT_SCRIPT`). */
+  revealed: boolean;
 }
 
 /** An error text that is being tracked. */
@@ -85,6 +89,20 @@ const LIST_VISIBLE_TEXT_SCRIPT = String.raw`(arg) => {
     const rect = el.getBoundingClientRect();
     return rect.width > 0 && rect.height > 0;
   };
+  // Targets of disclosures that are open: aria-controls of a trigger whose aria-expanded is true.
+  // getElementById, because React ids such as ":r1:" are not valid in a CSS selector.
+  const opened = new Set();
+  for (const trigger of document.querySelectorAll('[aria-expanded="true"][aria-controls]')) {
+    for (const id of (trigger.getAttribute('aria-controls') || '').split(/\s+/)) {
+      const target = id ? document.getElementById(id) : null;
+      if (target) opened.add(target);
+    }
+  }
+  const isRevealed = (el) => {
+    for (let n = el; n; n = n.parentElement) if (opened.has(n)) return true;
+    const details = el.closest('details');
+    return !!details && details.open && !el.closest('summary');
+  };
   const out = [];
   const all = document.body ? document.body.querySelectorAll('*') : [];
   for (const el of all) {
@@ -100,7 +118,7 @@ const LIST_VISIBLE_TEXT_SCRIPT = String.raw`(arg) => {
     if (el.querySelector('input, select, textarea, button')) continue;
     const text = (el.innerText || '').replace(/\s+/g, ' ').trim();
     if (!text || text.length > 300) continue;
-    out.push({ path: pathOf(el), tag: el.localName, className, id, text, byClass });
+    out.push({ path: pathOf(el), tag: el.localName, className, id, text, byClass, revealed: isRevealed(el) });
   }
   return out;
 }`;
@@ -120,9 +138,15 @@ function contains(haystack: string, needle: string): boolean {
   return needle !== '' && key(haystack).includes(needle);
 }
 
-/** Keeps the entries that are error text, and drops an element when something inside it is reported too. */
+/**
+ * Keeps the entries that are error text, and drops an element when something inside it is reported too.
+ * Text revealed by a disclosure the user opened is an explanation, not an error. Text found only by its
+ * wording must be worded as an error about the user's input or action, not as a conditional description.
+ */
 function errorEntries(entries: readonly PageEntry[]): PageEntry[] {
-  const errors = entries.filter((entry) => entry.byClass || looksLikeErrorText(entry.text));
+  const errors = entries.filter(
+    (entry) => !entry.revealed && (entry.byClass || looksLikeErrorAboutInput(entry.text)),
+  );
   return errors.filter((entry) => !errors.some((other) => other.path.startsWith(`${entry.path}>`)));
 }
 
