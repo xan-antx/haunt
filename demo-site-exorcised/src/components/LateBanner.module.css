@@ -1,17 +1,16 @@
-/* Deliberately no min-height, aspect-ratio or placeholder before the image loads. */
+/*
+ * The banner is 1200x300. Its box is the same size before and after the image arrives, so nothing
+ * below it moves: a 4:1 aspect ratio, a 120px minimum height for very narrow widths, and a pale
+ * placeholder colour until the art loads.
+ */
 .banner {
   display: block;
   width: 100%;
   height: auto;
-}
-
-/*
- * Applies only after the src is set: keeps the shift at 100px or more even at
- * very narrow widths, where a scaled 1200x300 image would be shorter than that.
- */
-.loaded {
+  aspect-ratio: 4 / 1;
   min-height: 120px;
   object-fit: cover;
+  background-color: var(--color-marigold-light);
   /* Rounded on top; the offer text under the image (BillPage) rounds the bottom. */
   border-radius: var(--radius-card) var(--radius-card) 0 0;
 }

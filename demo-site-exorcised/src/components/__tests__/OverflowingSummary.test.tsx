@@ -32,33 +32,39 @@ const narrowSummary = block(narrow, '.summary');
 const narrowAmount = block(narrow, '.amount');
 const wide = block(css, '@media (min-width: 641px)');
 
-describe('OverflowingSummary (Problem 5: clips at narrow viewports)', () => {
+describe('OverflowingSummary (Problem 5 fixed: total wraps at narrow viewports)', () => {
   it('renders the full amount text in the DOM', () => {
     render(<OverflowingSummary amount="₹2,490.00" />);
     expect(screen.getByTestId('summary-amount')).toHaveTextContent('₹2,490.00');
   });
 
-  it('applies a fixed 180px width, hidden overflow and no wrapping at 640px and below', () => {
-    expect(narrowSummary).toMatch(/width:\s*180px/);
-    expect(narrowSummary).toMatch(/overflow:\s*hidden/);
-    expect(narrowSummary).toMatch(/white-space:\s*nowrap/);
-    expect(narrowAmount).toMatch(/white-space:\s*nowrap/);
-    expect(narrowAmount).toMatch(/overflow:\s*hidden/);
+  it('has no fixed width, hidden overflow or nowrap at 640px and below', () => {
+    expect(narrowSummary).not.toMatch(/width:\s*\d+px/);
+    expect(narrowSummary).toMatch(/width:\s*auto/);
+    expect(narrowSummary).toMatch(/max-width:\s*100%/);
+    expect(narrowSummary).not.toMatch(/overflow:\s*hidden/);
+    expect(narrowSummary).not.toMatch(/white-space:\s*nowrap/);
+    expect(narrowAmount).not.toMatch(/white-space:\s*nowrap/);
+    expect(narrowAmount).not.toMatch(/overflow:\s*hidden/);
   });
 
-  it('uses a large font so the last characters overflow the box', () => {
+  it('lets the total wrap instead of being cut off', () => {
+    expect(narrowAmount).toMatch(/white-space:\s*normal/);
+    expect(narrowAmount).toMatch(/overflow-wrap:\s*anywhere/);
+  });
+
+  it('clips nothing anywhere in the stylesheet', () => {
+    expect(css).not.toMatch(/overflow(-[xy])?:\s*(hidden|clip)/);
+    expect(css).not.toMatch(/white-space:\s*nowrap/);
+    expect(css).not.toMatch(/text-overflow/);
+  });
+
+  it('uses a total font size that fits a narrow box', () => {
     const size = /font-size:\s*([\d.]+)rem/.exec(narrowAmount)?.[1];
-    expect(Number(size)).toBeGreaterThanOrEqual(2.25);
+    expect(Number(size)).toBeLessThanOrEqual(2);
   });
 
-  it('provides no way to scroll or reflow the cut-off content', () => {
-    // No scroll overflow anywhere in the stylesheet, and no wrapping on the amount.
-    expect(css).not.toMatch(/overflow(-[xy])?:\s*(auto|scroll)/);
-    expect(narrowAmount).not.toMatch(/white-space:\s*(normal|wrap|pre-wrap)/);
-    expect(narrowAmount).not.toMatch(/word-break|overflow-wrap|text-overflow/);
-  });
-
-  it('keeps the heading and label wrappable so only the total is affected', () => {
+  it('keeps the heading and label wrappable', () => {
     expect(block(narrow, '.heading')).toMatch(/white-space:\s*normal/);
   });
 
@@ -76,7 +82,7 @@ describe('OverflowingSummary (Problem 5: clips at narrow viewports)', () => {
     expect(energy + fixedAndGrid).toBe(SAMPLE_BILL.amountDue);
   });
 
-  it('keeps the charge lines wrappable at 640px and below, so only the total is clipped', () => {
+  it('keeps the charge lines wrappable at 640px and below', () => {
     expect(block(narrow, '.breakdown')).toMatch(/white-space:\s*normal/);
   });
 

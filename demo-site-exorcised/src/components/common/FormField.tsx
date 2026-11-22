@@ -9,6 +9,10 @@ export interface FormFieldProps {
   onBlur: () => void;
   /** Properly announced error message. */
   error?: string;
+  /** For fields whose error is rendered elsewhere: marks the input invalid. */
+  invalid?: boolean;
+  /** For fields whose error is rendered elsewhere: id of that error element. */
+  describedBy?: string;
   required?: boolean;
   placeholder?: string;
   autoComplete?: string;
@@ -17,8 +21,8 @@ export interface FormFieldProps {
 }
 
 /**
- * Generic accessible form field. Not used for the card fields, whose errors
- * are rendered by SilentCardErrors.
+ * Generic accessible form field. The card fields render their errors with
+ * SilentCardErrors and link to them through `invalid` and `describedBy`.
  */
 export function FormField({
   id,
@@ -28,6 +32,8 @@ export function FormField({
   onChange,
   onBlur,
   error,
+  invalid,
+  describedBy,
   required = false,
   placeholder,
   autoComplete,
@@ -54,8 +60,8 @@ export function FormField({
         autoComplete={autoComplete}
         inputMode={inputMode}
         maxLength={maxLength}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
+        aria-invalid={error || invalid ? true : undefined}
+        aria-describedby={error ? errorId : describedBy}
       />
       {error ? (
         <div id={errorId} role="alert" className={styles.error}>

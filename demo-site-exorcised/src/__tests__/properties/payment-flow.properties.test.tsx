@@ -134,8 +134,8 @@ describe('Payment flow properties', () => {
           renderAppAt('/');
           fillAndSubmit(data);
           const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
-          expect(checkbox.checked).toBe(true);
-          if (!addOn) fireEvent.click(checkbox);
+          expect(checkbox.checked).toBe(false);
+          if (addOn) fireEvent.click(checkbox);
           fireEvent.click(getContinueButton());
           await advance(800);
 

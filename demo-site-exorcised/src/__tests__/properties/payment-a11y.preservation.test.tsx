@@ -43,19 +43,19 @@ afterEach(() => {
 });
 
 describe('Preservation: payment accessibility fix', () => {
-  it('the dialog is role=dialog, aria-modal, named, focused on the checkbox and checked on every open', () => {
+  it('the dialog is role=dialog, aria-modal, named, focused on the checkbox and unchecked on every open', () => {
     fc.assert(
       fc.property(fc.array(fc.boolean(), { minLength: 1, maxLength: 6 }), toggles => {
         try {
           render(<Host onContinue={() => undefined} />);
-          for (const uncheck of toggles) {
+          for (const tick of toggles) {
             openModal();
             const dialog = screen.getByRole('dialog');
             expect(dialog).toHaveAttribute('aria-modal', 'true');
             expect(dialog).toHaveAccessibleName(i18n.t('modal.protectHeading'));
             expect(document.activeElement).toBe(getCheckbox());
-            expect(getCheckbox().checked).toBe(true);
-            if (uncheck) fireEvent.click(getCheckbox());
+            expect(getCheckbox().checked).toBe(false);
+            if (tick) fireEvent.click(getCheckbox());
             fireEvent.click(getClose());
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
           }
@@ -73,7 +73,7 @@ describe('Preservation: payment accessibility fix', () => {
         try {
           render(<Host onContinue={() => undefined} />);
           openModal();
-          let checked = true;
+          let checked = false;
           for (let i = 0; i < clicks.length; i += 1) {
             fireEvent.click(getCheckbox());
             checked = !checked;
@@ -90,11 +90,11 @@ describe('Preservation: payment accessibility fix', () => {
 
   it('a mouse click on Continue passes the checkbox state and shows the 800 ms indicator', async () => {
     vi.useFakeTimers();
-    for (const addOn of [true, false]) {
+    for (const addOn of [false, true]) {
       const onContinue = vi.fn();
       const { unmount } = render(<Host onContinue={onContinue} />);
       openModal();
-      if (!addOn) fireEvent.click(getCheckbox());
+      if (addOn) fireEvent.click(getCheckbox());
       const button = getContinue();
       fireEvent.click(button);
       expect(onContinue).toHaveBeenCalledWith(addOn);
@@ -155,12 +155,14 @@ describe('Preservation: payment accessibility fix', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('pa and hi still fall back to English for payBillButton and the card validation keys', async () => {
+  it('pa and hi show their own text for payBillButton and the card validation keys, not English', async () => {
     const keys = ['payBillButton', 'validation.cardNumber', 'validation.expiry', 'validation.cvv'];
     const english = keys.map(key => i18n.t(key, { lng: 'en' }));
     for (const lng of ['pa', 'hi']) {
       await i18n.changeLanguage(lng);
-      expect(keys.map(key => i18n.t(key))).toEqual(english);
+      const own = keys.map(key => i18n.t(key));
+      own.forEach((text, i) => expect(text).not.toBe(english[i]));
+      expect(own).toEqual(keys.map(key => i18n.t(key, { lng })));
     }
   });
 });

@@ -13,10 +13,8 @@ export interface OverflowingSummaryProps {
 /**
  * The payment summary: the two charges that make up the bill, then the total.
  *
- * PROBLEM 5 (deliberate): at viewport widths of 640px or less the box has a fixed
- * width, overflow hidden and nowrap, so the end of the total is clipped and
- * cannot be reached by scrolling or reflow. The charge lines above it wrap and stay
- * readable. The behaviour lives in the CSS module.
+ * At viewport widths of 640px or less the box fits its container and the total wraps instead
+ * of being clipped. The behaviour lives in the CSS module.
  */
 // Memoised so typing in the payment form does not re-render it; it still follows language changes.
 export const OverflowingSummary = memo(function OverflowingSummary({ amount }: OverflowingSummaryProps) {

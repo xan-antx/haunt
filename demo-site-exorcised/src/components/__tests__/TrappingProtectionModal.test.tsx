@@ -63,9 +63,10 @@ describe('TrappingProtectionModal (Problem 2 fixed: keyboard operable)', () => {
     expect(document.activeElement).toBe(checkbox());
   });
 
-  it('has the checkbox checked by default', () => {
+  it('has the paid add-on checkbox unchecked by default', () => {
     setup();
-    expect(checkbox().checked).toBe(true);
+    expect(checkbox().checked).toBe(false);
+    expect(screen.getByRole('dialog')).toHaveTextContent('₹2,490.00');
   });
 
   it('Tab and Shift+Tab visit checkbox, Learn more, Continue and Close in order and wrap', async () => {
@@ -137,7 +138,7 @@ describe('TrappingProtectionModal (Problem 2 fixed: keyboard operable)', () => {
       const { onContinue, unmount } = setup();
       continueControl().focus();
       await user.keyboard(key);
-      expect(onContinue).toHaveBeenCalledWith(true);
+      expect(onContinue).toHaveBeenCalledWith(false);
       unmount();
     }
   });
@@ -224,7 +225,7 @@ describe('TrappingProtectionModal (Problem 2 fixed: keyboard operable)', () => {
     // Hold the element: its accessible name changes while processing.
     const button = continueControl();
     fireEvent.click(button);
-    expect(onContinue).toHaveBeenCalledWith(true);
+    expect(onContinue).toHaveBeenCalledWith(false);
     expect(button).toHaveAttribute('aria-busy', 'true');
     expect(button).toHaveTextContent('Processing payment...');
 
@@ -240,23 +241,25 @@ describe('TrappingProtectionModal (Problem 2 fixed: keyboard operable)', () => {
     expect(button).toHaveTextContent('Continue');
   });
 
-  it('passes false when the checkbox has been unchecked', () => {
+  it('passes true when the user has ticked the checkbox', () => {
     const { onContinue } = setup();
     fireEvent.click(checkbox());
+    expect(checkbox().checked).toBe(true);
+    expect(screen.getByRole('dialog')).toHaveTextContent('₹2,589.00');
     fireEvent.click(continueControl());
-    expect(onContinue).toHaveBeenCalledWith(false);
+    expect(onContinue).toHaveBeenCalledWith(true);
   });
 
-  it('resets the checkbox to checked after being closed and reopened', () => {
+  it('resets the checkbox to unchecked after being closed and reopened', () => {
     const view = setup();
     fireEvent.click(checkbox());
-    expect(checkbox().checked).toBe(false);
+    expect(checkbox().checked).toBe(true);
     view.rerender(
       <TrappingProtectionModal isOpen={false} onContinue={vi.fn()} onClose={vi.fn()} amount={2490} />
     );
     view.rerender(
       <TrappingProtectionModal isOpen onContinue={vi.fn()} onClose={vi.fn()} amount={2490} />
     );
-    expect(checkbox().checked).toBe(true);
+    expect(checkbox().checked).toBe(false);
   });
 });

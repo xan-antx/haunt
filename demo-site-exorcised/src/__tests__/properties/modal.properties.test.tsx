@@ -52,11 +52,11 @@ describe('Modal properties', () => {
       fc.property(fc.array(fc.boolean(), { minLength: 1, maxLength: 6 }), toggles => {
         try {
           render(<Host />);
-          for (const leaveUnchecked of toggles) {
+          for (const tick of toggles) {
             openModal();
-            // Checked by default on every open, whatever happened before.
-            expect(getCheckbox().checked).toBe(true);
-            if (leaveUnchecked) fireEvent.click(getCheckbox());
+            // Unchecked by default on every open, whatever happened before.
+            expect(getCheckbox().checked).toBe(false);
+            if (tick) fireEvent.click(getCheckbox());
             // Dismiss with the close control, then reopen.
             fireEvent.click(screen.getByRole('button', { name: i18n.t('accessibility.closeDialog') }));
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

@@ -58,31 +58,29 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Problem 5: clipping at narrow viewports (200% zoom on a 1280px display). */
+/*
+ * Narrow viewports (and 200% zoom on a 1280px display): the box fits its container and every
+ * line, including the total, wraps instead of being cut off.
+ */
 @media (max-width: 640px) {
   .summary {
-    width: 180px;
-    overflow: hidden;
-    white-space: nowrap;
+    width: auto;
+    max-width: 100%;
   }
 
-  /* Only the total may be clipped; the heading, the charge lines and the label stay readable. */
   .heading,
-  .label {
-    white-space: normal;
-  }
-
-  .amount {
-    font-size: 2.5rem;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
+  .label,
   .breakdown {
     white-space: normal;
   }
 
-  /* Each line stacks: its name, then its amount (the total keeps its fixed, clipping box). */
+  .amount {
+    font-size: 1.75rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Each line stacks: its name, then its amount. */
   .charge,
   .totalRow {
     display: block;

@@ -25,7 +25,7 @@ function getImg(container: HTMLElement) {
   return container.querySelector('img') as HTMLImageElement;
 }
 
-describe('LateBanner (Problem 4: late image, no reserved space)', () => {
+describe('LateBanner (Problem 4 fixed: late image, space reserved)', () => {
   it('has no src at first', () => {
     const { container } = render(<LateBanner />);
     expect(getImg(container)).not.toHaveAttribute('src');
@@ -49,30 +49,35 @@ describe('LateBanner (Problem 4: late image, no reserved space)', () => {
     expect(onLoaded).toHaveBeenCalledTimes(1);
   });
 
-  it('sets no width or height attributes, before or after loading', async () => {
+  it('sets the 1200x300 width and height attributes, before and after loading', async () => {
     const { container } = render(<LateBanner />);
-    expect(getImg(container)).not.toHaveAttribute('width');
-    expect(getImg(container)).not.toHaveAttribute('height');
+    expect(getImg(container)).toHaveAttribute('width', '1200');
+    expect(getImg(container)).toHaveAttribute('height', '300');
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1500);
     });
-    expect(getImg(container)).not.toHaveAttribute('width');
-    expect(getImg(container)).not.toHaveAttribute('height');
+    expect(getImg(container)).toHaveAttribute('width', '1200');
+    expect(getImg(container)).toHaveAttribute('height', '300');
   });
 
-  it('reserves no space before load: no min-height, aspect-ratio, fixed height or placeholder', () => {
+  it('reserves its space before load with a 4:1 aspect ratio and a 120px minimum height', () => {
     expect(bannerRule).not.toBe('');
-    expect(bannerRule).not.toMatch(/min-height/);
-    expect(bannerRule).not.toMatch(/aspect-ratio/);
-    expect(bannerRule).not.toMatch(/(^|[;\s])height:\s*\d/);
-    expect(bannerRule).not.toMatch(/background/);
+    expect(bannerRule).toMatch(/aspect-ratio:\s*4\s*\/\s*1/);
+    expect(bannerRule).toMatch(/min-height:\s*120px/);
+    expect(bannerRule).toMatch(/width:\s*100%/);
+  });
+
+  it('has the same box before and after load: one element, same class, no size change on load', async () => {
     const { container } = render(<LateBanner />);
     const img = getImg(container);
-    expect(img.style.minHeight).toBe('');
-    expect(img.style.aspectRatio).toBe('');
-    expect(img.style.height).toBe('');
-    // No sibling placeholder element either.
+    const classBefore = img.className;
     expect(container.children).toHaveLength(1);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+    expect(getImg(container)).toBe(img);
+    expect(img.className).toBe(classBefore);
+    expect(css).not.toMatch(/\.loaded/);
   });
 
   it('uses no network URL for the image', async () => {

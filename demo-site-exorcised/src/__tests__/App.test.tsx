@@ -52,23 +52,23 @@ describe('App smoke test', () => {
 });
 
 describe('End-to-end payment flow', () => {
-  it('pays ₹2,589.00 with the add-on checked (default)', async () => {
+  it('pays ₹2,490.00 with the add-on unchecked (default)', async () => {
     vi.useFakeTimers();
     renderAppAt('/');
     fillAndSubmit(VALID);
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false);
     fireEvent.click(getContinueButton());
     await advance(800);
 
     expect(window.location.pathname).toBe('/confirmation');
     expect(screen.getByRole('heading', { level: 1, name: 'Payment received' })).toBeInTheDocument();
     expect(document.querySelector('[data-haunt="payment-success"]')).not.toBeNull();
-    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,589.00');
+    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,490.00');
   });
 
-  it('pays ₹2,490.00 with the add-on unchecked', async () => {
+  it('pays ₹2,589.00 when the user ticks the add-on', async () => {
     vi.useFakeTimers();
     renderAppAt('/');
     fillAndSubmit(VALID);
@@ -77,7 +77,7 @@ describe('End-to-end payment flow', () => {
     fireEvent.click(getContinueButton());
     await advance(800);
 
-    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,490.00');
+    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,589.00');
     expect(document.querySelector('[data-haunt="payment-success"]')).not.toBeNull();
   });
 
@@ -169,14 +169,19 @@ describe('End-to-end payment flow', () => {
     errors.mockRestore();
   });
 
-  it('names the pay button in the current language while Pay this bill keeps its English fallback', async () => {
+  it('names the pay button and Pay this bill in the current language', async () => {
     const names: Record<string, string> = { en: 'Pay now', pa: 'ਭੁਗਤਾਨ ਕਰੋ', hi: 'अभी भुगतान करें' };
+    const payThisBill: Record<string, string> = {
+      en: 'Pay this bill',
+      pa: 'ਇਹ ਬਿੱਲ ਭਰੋ',
+      hi: 'इस बिल का भुगतान करें',
+    };
     for (const lang of ['en', 'pa', 'hi']) {
       renderAppAt('/');
       await act(async () => {
         await i18n.changeLanguage(lang);
       });
-      expect(screen.getByRole('button', { name: 'Pay this bill' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: payThisBill[lang] })).toBeInTheDocument();
       openPaymentForm();
       expect(getSubmitButton()).toHaveAccessibleName(names[lang]);
       document.body.innerHTML = '';

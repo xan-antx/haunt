@@ -13,17 +13,21 @@ function flatten(obj: Record<string, unknown>, prefix = ''): string[] {
   });
 }
 
-/** Keys deliberately missing from pa and hi (Problem 6). */
-const MISSING = [
+/** Keys that used to be missing from pa and hi (Problem 6, now translated). */
+const FORMERLY_MISSING = [
   'payBillButton',
   'validation.cardNumber',
   'validation.expiry',
   'validation.cvv',
 ] as const;
 
+function valueAt(obj: unknown, key: string): unknown {
+  return key.split('.').reduce<unknown>((acc, part) => (acc as Record<string, unknown>)[part], obj);
+}
+
 const enKeys = flatten(en);
 
-describe('Translation files (Problem 6: incomplete pa/hi)', () => {
+describe('Translation files (Problem 6 fixed: complete pa/hi)', () => {
   it('en contains every key required by the design', () => {
     const required = [
       'pageTitle',
@@ -75,15 +79,18 @@ describe('Translation files (Problem 6: incomplete pa/hi)', () => {
     describe(name, () => {
       const keys = flatten(file);
 
-      it('lacks the Pay button text and the card validation messages', () => {
-        for (const missing of MISSING) {
-          expect(keys, `${name} should not define ${missing}`).not.toContain(missing);
+      it('defines the Pay button text and the card validation messages, translated', () => {
+        for (const key of FORMERLY_MISSING) {
+          expect(keys, `${name} should define ${key}`).toContain(key);
+          const value = valueAt(file, key);
+          expect(typeof value).toBe('string');
+          expect((value as string).trim().length).toBeGreaterThan(0);
+          expect(value, `${name} ${key} should differ from English`).not.toBe(valueAt(en, key));
         }
       });
 
-      it('defines every other key that en defines', () => {
-        const expected = enKeys.filter(key => !(MISSING as readonly string[]).includes(key));
-        expect([...keys].sort()).toEqual([...expected].sort());
+      it('defines every key that en defines', () => {
+        expect([...keys].sort()).toEqual([...enKeys].sort());
       });
 
       it('does not define keys that en lacks', () => {

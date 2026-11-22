@@ -7,7 +7,7 @@ import { FormField } from '../components/common/FormField';
 import { PageLayout } from '../components/common/PageLayout';
 import { LateBanner } from '../components/LateBanner';
 import { OverflowingSummary } from '../components/OverflowingSummary';
-import { SilentCardErrors } from '../components/SilentCardErrors';
+import { CARD_ERROR_IDS, SilentCardErrors } from '../components/SilentCardErrors';
 import { TrappingProtectionModal } from '../components/TrappingProtectionModal';
 import { UnlabeledPayButton } from '../components/UnlabeledPayButton';
 import { UsageChart } from '../components/UsageChart';
@@ -172,8 +172,7 @@ function PaymentFormSection({ form, paymentFailed, onSubmit }: PaymentFormSectio
   const { t } = useTranslation();
   const { formData, errors, touched, updateField, validateField } = form;
 
-  // Card validation messages are translated here. In pa/hi the validation.* card keys
-  // are missing, so i18next falls back to English (Problem 6).
+  // Card validation messages are translated here, in en, pa and hi.
   const cardNumberError = errors.cardNumber ? t('validation.cardNumber') : undefined;
   const expiryError = errors.expiry ? t('validation.expiry') : undefined;
   const cvvError = errors.cvv ? t('validation.cvv') : undefined;
@@ -221,6 +220,8 @@ function PaymentFormSection({ form, paymentFailed, onSubmit }: PaymentFormSectio
               value={formData.cardNumber}
               onChange={value => updateField('cardNumber', value)}
               onBlur={() => validateField('cardNumber')}
+              invalid={Boolean(cardNumberError)}
+              describedBy={cardNumberError ? CARD_ERROR_IDS.cardNumber : undefined}
               required
             />
             <SilentCardErrors errors={{ cardNumber: cardNumberError }} />
@@ -237,6 +238,8 @@ function PaymentFormSection({ form, paymentFailed, onSubmit }: PaymentFormSectio
               value={formData.expiry}
               onChange={value => updateField('expiry', value)}
               onBlur={() => validateField('expiry')}
+              invalid={Boolean(expiryError)}
+              describedBy={expiryError ? CARD_ERROR_IDS.expiry : undefined}
               required
             />
             <SilentCardErrors errors={{ expiry: expiryError }} />
@@ -253,6 +256,8 @@ function PaymentFormSection({ form, paymentFailed, onSubmit }: PaymentFormSectio
               value={formData.cvv}
               onChange={value => updateField('cvv', value)}
               onBlur={() => validateField('cvv')}
+              invalid={Boolean(cvvError)}
+              describedBy={cvvError ? CARD_ERROR_IDS.cvv : undefined}
               required
             />
             <SilentCardErrors errors={{ cvv: cvvError }} />
@@ -331,9 +336,10 @@ export function BillPage() {
       </div>
 
       {/*
-        Problem 4 (deliberate): nothing in this wrapper takes space until the banner arrives after
-        1500 ms. Then the image, the Autopay link (placed where Pay this bill was) and the offer
-        text all appear at once and push everything below down.
+        The banner arrives after 1500 ms, but its space is reserved from the start: the image has a
+        fixed aspect ratio, and the offer text is always laid out and hidden (visibility: hidden keeps
+        its space and keeps it out of the accessibility tree) until the banner loads. The Autopay
+        link is absolutely positioned over the banner, so it takes no space.
       */}
       <div className={styles.bannerWrap}>
         <LateBanner onLoaded={() => setBannerLoaded(true)} />
@@ -343,13 +349,14 @@ export function BillPage() {
             <ArrowIcon />
           </Link>
         ) : null}
-        {bannerLoaded ? (
-          <p className={styles.offer}>
-            <span className={styles.offerTag}>{t('banner.offerTag')}</span>
-            <span className={styles.offerText}>{t('banner.offerText')}</span>
-            <span className={styles.offerTerms}>{t('banner.offerTerms')}</span>
-          </p>
-        ) : null}
+        <p
+          className={bannerLoaded ? styles.offer : `${styles.offer} ${styles.offerPending}`}
+          data-testid="banner-offer"
+        >
+          <span className={styles.offerTag}>{t('banner.offerTag')}</span>
+          <span className={styles.offerText}>{t('banner.offerText')}</span>
+          <span className={styles.offerTerms}>{t('banner.offerTerms')}</span>
+        </p>
       </div>
 
       <div className={styles.payRow}>

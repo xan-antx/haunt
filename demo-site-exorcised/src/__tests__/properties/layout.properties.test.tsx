@@ -84,37 +84,43 @@ describe('Layout properties', () => {
    */
   it('Feature: lantern-bills, Property 13: Layout Shift Magnitude', async () => {
     const css = stripComments(lateBannerCss);
-    const before = declarations(blockAfter(css, '.banner'));
-    const after = declarations(blockAfter(css, '.loaded'));
+    // One rule styles the banner before and after load; there is no separate "loaded" size.
+    expect(css).not.toMatch(/\.loaded/);
+    const box = declarations(blockAfter(css, '.banner'));
 
-    // No space is reserved before the image loads.
-    expect(before).not.toHaveProperty('min-height');
-    expect(before).not.toHaveProperty('aspect-ratio');
-    expect(before).not.toHaveProperty('height', expect.stringMatching(/px|rem|vh/));
+    // Space is reserved before the image loads.
+    expect(box['aspect-ratio']).toMatch(/^4\s*\/\s*1$/);
+    expect(box).toHaveProperty('min-height');
 
-    // Intrinsic aspect ratio of the banner asset.
+    // Intrinsic aspect ratio of the banner asset matches the reserved ratio.
     const svgWidth = Number(/<svg[^>]*\swidth="(\d+)"/.exec(bannerSvg)?.[1]);
     const svgHeight = Number(/<svg[^>]*\sheight="(\d+)"/.exec(bannerSvg)?.[1]);
     expect(svgWidth).toBe(1200);
     expect(svgHeight).toBe(300);
-    const minHeight = toPx(after['min-height']);
+    const minHeight = toPx(box['min-height']);
 
     await fc.assert(
       fc.asyncProperty(fc.integer({ min: 320, max: 1920 }), async viewport => {
-        // The image fills the container (width: 100%) up to the 800px page column minus padding.
+        // The box fills the container (width: 100%) up to the 800px page column minus padding.
         const containerWidth = Math.min(viewport - 32, 768);
-        const renderedHeight = Math.max(minHeight, (containerWidth * svgHeight) / svgWidth);
-        // Everything below the banner (the Pay button) moves down by that height.
-        expect(renderedHeight).toBeGreaterThanOrEqual(100);
+        const reservedHeight = Math.max(minHeight, (containerWidth * 300) / 1200);
+        // The loaded image has the same intrinsic ratio and object-fit: cover in the same box.
+        const loadedHeight = Math.max(minHeight, (containerWidth * svgHeight) / svgWidth);
+        // Nothing below the banner moves when the image arrives.
+        expect(loadedHeight - reservedHeight).toBe(0);
+        expect(reservedHeight).toBeGreaterThanOrEqual(100);
 
-        // Runtime: nothing is reserved at first, and the image arrives at exactly 1500ms.
         vi.useFakeTimers();
         try {
           renderAppAt('/');
           const img = document.querySelector('img') as HTMLImageElement;
           expect(img).not.toHaveAttribute('src');
-          expect(img).not.toHaveAttribute('width');
-          expect(img).not.toHaveAttribute('height');
+          // Size hints are there from the start, so the browser reserves the ratio.
+          expect(img).toHaveAttribute('width', '1200');
+          expect(img).toHaveAttribute('height', '300');
+          // The offer text takes its space from the start (hidden, not removed).
+          expect(screen.getByTestId('banner-offer').className).toContain('offerPending');
+          const classBefore = img.className;
           expect(screen.queryByRole('link', { name: /autopay/i })).not.toBeInTheDocument();
 
           await act(async () => {
@@ -126,7 +132,11 @@ describe('Layout properties', () => {
             await vi.advanceTimersByTimeAsync(1);
           });
           expect(img).toHaveAttribute('src');
-          // The Autopay link now occupies the spot where the Pay button started.
+          expect(img.className).toBe(classBefore);
+          expect(img).toHaveAttribute('width', '1200');
+          expect(img).toHaveAttribute('height', '300');
+          expect(screen.getByTestId('banner-offer').className).not.toContain('offerPending');
+          // The Autopay link is absolutely positioned over the banner, so it adds no height.
           expect(screen.getByRole('link', { name: /autopay/i })).toBeInTheDocument();
         } finally {
           cleanup();
@@ -142,10 +152,6 @@ describe('Layout properties', () => {
    * Validates: Requirements 8.2, 8.3
    */
   it('Feature: lantern-bills, Property 14: Content Clipping at Narrow Viewport', () => {
-    // Average advance widths in em, deliberately on the low side for a bold UI font.
-    const glyphEm = (ch: string) => (/\d/.test(ch) ? 0.55 : ch === '₹' ? 0.6 : 0.28);
-    const amount = '₹2,490.00';
-
     const box = narrowRule('.summary');
     const text = narrowRule('.amount');
 
@@ -154,25 +160,17 @@ describe('Layout properties', () => {
         // The 640px breakpoint covers every generated width.
         expect(viewport).toBeLessThanOrEqual(640);
 
-        // Box: fixed pixel width, clips, never scrolls, never wraps.
-        const boxWidth = toPx(box.width);
-        expect(boxWidth).toBe(180);
-        expect(box.overflow).toBe('hidden');
-        expect(box['white-space']).toBe('nowrap');
-        expect(text['white-space']).toBe('nowrap');
-        expect(box).not.toHaveProperty('overflow-x', expect.stringMatching(/auto|scroll/));
-        expect(text.overflow).toBe('hidden');
+        // Box: no fixed pixel width, fits its container, never clips.
+        expect(box.width).toBe('auto');
+        expect(box['max-width']).toBe('100%');
+        expect(box).not.toHaveProperty('overflow');
+        expect(box['white-space']).not.toBe('nowrap');
 
-        // The fixed box fits inside even the narrowest viewport.
-        expect(boxWidth).toBeLessThan(viewport);
-
-        // Content box = width - padding (1rem each side) - border (2px each side).
-        const contentWidth = boxWidth - 2 * REM_PX - 2 * 2;
-        const fontPx = toPx(text['font-size']);
-        const textWidth = [...amount].reduce((sum, ch) => sum + glyphEm(ch) * fontPx, 0);
-
-        // At least the last character (a digit) does not fit.
-        expect(textWidth - contentWidth).toBeGreaterThanOrEqual(0.55 * fontPx);
+        // Total: wraps, even in the middle of a long number, and never clips.
+        expect(text['white-space']).toBe('normal');
+        expect(text['overflow-wrap']).toBe('anywhere');
+        expect(text).not.toHaveProperty('overflow');
+        expect(text['font-size']).toBeDefined();
       }),
       { numRuns: 100 }
     );

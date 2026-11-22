@@ -11,9 +11,9 @@ export interface LateBannerProps {
 }
 
 /**
- * PROBLEM 4 (deliberate): the banner image appears 1500ms after the page renders
- * and reserves no space beforehand, so content below it jumps down.
- * No width/height attributes, no min-height before load, no aspect-ratio, no placeholder.
+ * The banner image appears 1500ms after the page renders. Its space is reserved from the start
+ * (width and height attributes plus an aspect ratio and minimum height in the CSS module), so
+ * content below it does not move when it arrives.
  */
 export function LateBanner({ onLoaded }: LateBannerProps) {
   const { t } = useTranslation();
@@ -30,8 +30,10 @@ export function LateBanner({ onLoaded }: LateBannerProps) {
 
   return (
     <img
-      className={src ? `${styles.banner} ${styles.loaded}` : styles.banner}
+      className={styles.banner}
       src={src}
+      width={1200}
+      height={300}
       alt={src ? t('banner.alt') : ''}
     />
   );

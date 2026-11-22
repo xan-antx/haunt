@@ -1,5 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import en from '../../public/locales/en/translation.json';
 import hi from '../../public/locales/hi/translation.json';
@@ -43,6 +45,28 @@ describe('Bill page labels and wording', () => {
     await advance(1500);
     expect(screen.getByText('5% cashback when you pay by autopay')).toBeInTheDocument();
     expect(screen.getByText('Up to ₹150 a month, until 31 December 2026.')).toBeInTheDocument();
+  });
+});
+
+describe('Banner offer space (Problem 4 fixed)', () => {
+  it('lays the offer out before the banner loads, hidden from sight and assistive tech, then reveals it', async () => {
+    vi.useFakeTimers();
+    renderAppAt('/');
+    const offer = screen.getByTestId('banner-offer');
+    expect(offer.className).toContain('offerPending');
+    await advance(1500);
+    expect(screen.getByTestId('banner-offer')).toBe(offer);
+    expect(offer.className).not.toContain('offerPending');
+  });
+
+  it('hides the pending offer with visibility: hidden, which keeps its space', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/pages/BillPage.module.css'), 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      ''
+    );
+    const rule = /\.offerPending\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+    expect(rule).toMatch(/visibility:\s*hidden/);
+    expect(rule).not.toMatch(/display:\s*none/);
   });
 });
 
@@ -94,8 +118,9 @@ describe('Language switcher', () => {
     expect(window.location.search).toBe('?lang=pa');
     expect(await screen.findByRole('heading', { level: 1, name: pa.billDetails.heading })).toBeInTheDocument();
     await waitFor(() => expect(document.documentElement.lang).toBe('pa'));
-    // The deliberate gap stays: the Pay button text has no Punjabi translation.
-    expect(screen.getByRole('button', { name: en.payBillButton })).toBeInTheDocument();
+    // The Pay button text is translated into Punjabi.
+    expect(pa.payBillButton).not.toBe(en.payBillButton);
+    expect(screen.getByRole('button', { name: pa.payBillButton })).toBeInTheDocument();
 
     const nav = screen.getByRole('navigation', { name: pa.header.languageNav });
     expect(within(nav).getByRole('link', { name: 'ਪੰਜਾਬੀ' })).toHaveAttribute('aria-current', 'true');
@@ -147,13 +172,13 @@ describe('Language switcher', () => {
 
     expect(window.location.pathname).toBe('/confirmation');
     expect(window.location.search).toBe('?lang=hi');
-    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,589.00');
+    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,490.00');
 
     fireEvent.click(screen.getByRole('link', { name: 'English' }));
     await advance(0);
     expect(window.location.search).toBe('?lang=en');
     expect(screen.getByRole('heading', { level: 1, name: en.confirmation.heading })).toBeInTheDocument();
-    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,589.00');
+    expect(screen.getByTestId('total-charged')).toHaveTextContent('₹2,490.00');
     expect(document.querySelector('[data-haunt="payment-success"]')).not.toBeNull();
   });
 });

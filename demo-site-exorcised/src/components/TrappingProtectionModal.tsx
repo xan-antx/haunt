@@ -25,11 +25,11 @@ const STOP_SELECTOR = 'input, a[href], button:not([disabled])';
 /**
  * The dialog is keyboard operable: Tab and Shift+Tab visit the checkbox, Learn more, Continue and
  * Close in order and wrap at the ends, Escape closes it, and focus returns to the opener on close.
- * Still deliberate: backdrop clicks do not close the dialog, and the add-on checkbox is checked on
- * every open.
+ * The paid add-on checkbox is unticked on every open. Still deliberate: backdrop clicks do not
+ * close the dialog.
  */
 export function TrappingProtectionModal(props: TrappingProtectionModalProps) {
-  // Mounting the content only while open resets the checkbox to checked on every open.
+  // Mounting the content only while open resets the checkbox to unticked on every open.
   return props.isOpen ? <ModalContent {...props} /> : null;
 }
 
@@ -38,7 +38,7 @@ function ModalContent({ onContinue, onClose, amount, returnFocusRef }: TrappingP
   const dialogRef = useRef<HTMLDivElement>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
   const explanationId = useId();
-  const [addOn, setAddOn] = useState(true);
+  const [addOn, setAddOn] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [processing, setProcessing] = useState(false);
 

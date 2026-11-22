@@ -133,17 +133,19 @@ describe('Language properties', () => {
             await screen.findByRole('heading', { level: 1, name: file.billDetails.heading })
           ).toBeInTheDocument();
 
-          // ...but the Pay button text is missing from pa/hi, so it falls back to English.
-          expect(screen.getByRole('button', { name: en.payBillButton })).toBeInTheDocument();
+          // ...including the Pay button text, which is translated in pa and hi.
+          expect(file.payBillButton).not.toBe(en.payBillButton);
+          expect(screen.getByRole('button', { name: file.payBillButton })).toBeInTheDocument();
           expect(screen.queryByText(file.billDetails.accountNumber)).toBeInTheDocument();
 
-          // Card validation errors also fall back to English.
+          // Card validation errors are translated too.
           openPaymentForm();
           fillPaymentForm({ cardNumber: '1', expiry: '01/20', cvv: '1', cardholderName: 'A' });
           submitPaymentForm();
-          expect(screen.getByText(en.validation.cardNumber)).toBeInTheDocument();
-          expect(screen.getByText(en.validation.expiry)).toBeInTheDocument();
-          expect(screen.getByText(en.validation.cvv)).toBeInTheDocument();
+          for (const key of ['cardNumber', 'expiry', 'cvv'] as const) {
+            expect(file.validation[key]).not.toBe(en.validation[key]);
+            expect(screen.getByText(file.validation[key])).toBeInTheDocument();
+          }
 
           // The modal content is in the selected language.
           fillPaymentForm({

@@ -10,7 +10,7 @@ const ALL_ERRORS = {
   cvv: 'Please enter a valid CVV',
 };
 
-describe('SilentCardErrors (Problem 3: errors visible but not announced)', () => {
+describe('SilentCardErrors (Problem 3 fixed: errors announced and linked)', () => {
   it('renders nothing visible when there are no errors', () => {
     const { container } = render(<SilentCardErrors errors={{}} />);
     expect(container.textContent).toBe('');
@@ -31,20 +31,26 @@ describe('SilentCardErrors (Problem 3: errors visible but not announced)', () =>
     expect(new Set(nodes).size).toBe(3);
   });
 
-  it('has no role="alert" or any live region', () => {
-    const { container } = render(<SilentCardErrors errors={ALL_ERRORS} />);
-    expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.queryByRole('status')).toBeNull();
-    expect(container.querySelector('[role]')).toBeNull();
-    expect(container.querySelector('[aria-live]')).toBeNull();
-    expect(container.querySelector('[aria-atomic]')).toBeNull();
+  it('announces each error: every message sits in its own role="alert" element', () => {
+    render(<SilentCardErrors errors={ALL_ERRORS} />);
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts.map(alert => alert.textContent)).toEqual([
+      ALL_ERRORS.cardNumber,
+      ALL_ERRORS.expiry,
+      ALL_ERRORS.cvv,
+    ]);
   });
 
-  it('has no aria-describedby, aria-invalid or ids that could be linked', () => {
+  it('gives each error an id that the matching input can reference', () => {
     const { container } = render(<SilentCardErrors errors={ALL_ERRORS} />);
-    expect(container.querySelector('[aria-describedby]')).toBeNull();
-    expect(container.querySelector('[aria-invalid]')).toBeNull();
-    expect(container.querySelector('[id]')).toBeNull();
+    expect(container.querySelector('#card-number-error')).toHaveTextContent(ALL_ERRORS.cardNumber);
+    expect(container.querySelector('#card-expiry-error')).toHaveTextContent(ALL_ERRORS.expiry);
+    expect(container.querySelector('#card-cvv-error')).toHaveTextContent(ALL_ERRORS.cvv);
+  });
+
+  it('renders no alert when there are no errors', () => {
+    render(<SilentCardErrors errors={{}} />);
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 
   describe('in the payment form', () => {
@@ -56,25 +62,52 @@ describe('SilentCardErrors (Problem 3: errors visible but not announced)', () =>
       return input;
     }
 
-    it('leaves invalid card inputs without aria-invalid or aria-describedby, and announces nothing', () => {
+    const FIELDS = [
+      { id: 'card-number', errorId: 'card-number-error', bad: '12', good: '4111111111111111', message: ALL_ERRORS.cardNumber },
+      { id: 'card-expiry', errorId: 'card-expiry-error', bad: '01/20', good: '12/99', message: ALL_ERRORS.expiry },
+      { id: 'card-cvv', errorId: 'card-cvv-error', bad: '1', good: '123', message: ALL_ERRORS.cvv },
+    ];
+
+    it('announces invalid card fields and links each input to its error with aria-describedby', () => {
       renderAppAt('/');
       openPaymentForm();
-      const inputs = [
-        blurWith('card-number', '12'),
-        blurWith('card-expiry', '01/20'),
-        blurWith('card-cvv', '1'),
-      ];
+      const inputs = FIELDS.map(field => blurWith(field.id, field.bad));
 
-      expect(screen.getByText(ALL_ERRORS.cardNumber)).toBeVisible();
-      expect(screen.getByText(ALL_ERRORS.expiry)).toBeVisible();
-      expect(screen.getByText(ALL_ERRORS.cvv)).toBeVisible();
+      FIELDS.forEach((field, i) => {
+        const input = inputs[i];
+        const error = screen.getByText(field.message);
+        expect(error).toBeVisible();
+        expect(error).toHaveAttribute('role', 'alert');
+        expect(error).toHaveAttribute('id', field.errorId);
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+        expect(input).toHaveAttribute('aria-describedby', field.errorId);
+        expect(input).toHaveAccessibleDescription(field.message);
+      });
+      expect(screen.getAllByRole('alert')).toHaveLength(3);
+    });
 
-      for (const input of inputs) {
+    it('removes the alert, aria-invalid and aria-describedby once a field is valid', () => {
+      renderAppAt('/');
+      openPaymentForm();
+      for (const field of FIELDS) {
+        const input = blurWith(field.id, field.bad);
+        expect(input).toHaveAttribute('aria-describedby', field.errorId);
+        blurWith(field.id, field.good);
+        expect(input).not.toHaveAttribute('aria-invalid');
+        expect(input).not.toHaveAttribute('aria-describedby');
+        expect(screen.queryByText(field.message)).toBeNull();
+      }
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
+
+    it('leaves valid, untouched card inputs without aria-invalid or aria-describedby', () => {
+      renderAppAt('/');
+      openPaymentForm();
+      for (const field of FIELDS) {
+        const input = document.getElementById(field.id) as HTMLInputElement;
         expect(input).not.toHaveAttribute('aria-invalid');
         expect(input).not.toHaveAttribute('aria-describedby');
       }
-      expect(screen.queryByRole('alert')).toBeNull();
-      expect(document.querySelector('[aria-live]')).toBeNull();
     });
   });
 });

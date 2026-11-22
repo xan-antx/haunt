@@ -58,7 +58,14 @@
   box-shadow: 0 0 0 2px var(--color-night);
 }
 
-/* The offer text under the banner art. It only exists once the banner has loaded. */
+/*
+ * The offer text under the banner art. Before the banner loads it is laid out but not visible, so
+ * its space is reserved and it stays out of the accessibility tree.
+ */
+.offerPending {
+  visibility: hidden;
+}
+
 .offer {
   display: flex;
   flex-wrap: wrap;

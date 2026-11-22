@@ -83,7 +83,7 @@ describe('Exploration: payment accessibility bug condition', () => {
     expect(document.activeElement).toBe(closeControl());
   });
 
-  it('Enter and Space on focused Continue call onContinue(true)', async () => {
+  it('Enter and Space on focused Continue call onContinue(false) with the add-on unticked', async () => {
     for (const key of ['{Enter}', ' ']) {
       const user = userEvent.setup();
       const onContinue = vi.fn();
@@ -93,7 +93,7 @@ describe('Exploration: payment accessibility bug condition', () => {
       await user.tab();
       expect(document.activeElement).toBe(continueControl());
       await user.keyboard(key);
-      expect(onContinue).toHaveBeenCalledWith(true);
+      expect(onContinue).toHaveBeenCalledWith(false);
       unmount();
     }
   });
