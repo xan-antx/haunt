@@ -1,0 +1,250 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-22T1148Z-listener-pay-bill",
+  "ghost": "listener",
+  "mind": "scripted",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo (exorcised)",
+    "url": "http://localhost:3002",
+    "commit": "2b3420c"
+  },
+  "startedAt": "2026-11-22T11:48:38Z",
+  "result": "succeeded",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3002",
+      "spoken": "Lantern Bills - Pay your electricity bill, document",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 463
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Next heading",
+      "spoken": "Your electricity bill, heading level 1",
+      "thought": "I've just arrived on 'Lantern Bills - Pay your electricity bill'. Before I look for anything, I'll jump to the next heading to hear where I am.",
+      "screenshot": "shots/002.png",
+      "waitMs": 308,
+      "focusBox": {
+        "x": 176,
+        "y": 108,
+        "w": 928,
+        "h": 36
+      }
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Next button (Tab ×5)",
+      "spoken": "Pay this bill, button",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying. I'm not on anything I can use yet, so I'll jump to the next button.",
+      "screenshot": "shots/003.png",
+      "waitMs": 304,
+      "focusBox": {
+        "x": 176,
+        "y": 497,
+        "w": 146.046875,
+        "h": 48
+      }
+    },
+    {
+      "n": 4,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Card number, edit text, required",
+      "thought": "I heard 'Pay this bill, button'. That's what I want, so I'll press Enter.",
+      "screenshot": "shots/004.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 201,
+        "y": 374.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Type \"4111111111111111\"",
+      "spoken": "4111111111111111",
+      "thought": "I'll enter the card number. I heard 'Card number, edit text, required'. That's the field I want, so I'll type \"4111111111111111\".",
+      "screenshot": "shots/005.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 201,
+        "y": 374.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 6,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Expiry date, edit text, required",
+      "thought": "Now the expiry date. I'm on 'Card number, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/006.png",
+      "waitMs": 319,
+      "focusBox": {
+        "x": 201,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Type \"11/28\"",
+      "spoken": "11/28",
+      "thought": "I heard 'Expiry date, edit text, required'. That's the field I want, so I'll type \"11/28\".",
+      "screenshot": "shots/007.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 201,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "CVV, edit text, required",
+      "thought": "Now the three-digit security code. I'm on 'Expiry date, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/008.png",
+      "waitMs": 314,
+      "focusBox": {
+        "x": 648,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Type \"123\"",
+      "spoken": "123",
+      "thought": "I heard 'CVV, edit text, required'. That's the field I want, so I'll type \"123\".",
+      "screenshot": "shots/009.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 648,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Cardholder name, edit text, required",
+      "thought": "And the name on the card. I'm on 'CVV, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/010.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 201,
+        "y": 563.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Type \"Asha Kaur\"",
+      "spoken": "Asha Kaur",
+      "thought": "I heard 'Cardholder name, edit text, required'. That's the field I want, so I'll type \"Asha Kaur\".",
+      "screenshot": "shots/011.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 201,
+        "y": 563.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Next button (Tab ×1)",
+      "spoken": "Pay now, button",
+      "thought": "Everything is filled in. I need the button that sends the payment. I'm on 'Cardholder name, edit text, required', which isn't what I'm after, so I'll jump to the next button.",
+      "screenshot": "shots/012.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 201,
+        "y": 641.828125,
+        "w": 56,
+        "h": 56
+      }
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Protect your payment, dialog. Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "I heard 'Pay now, button'. That's what I want, so I'll press Enter.",
+      "screenshot": "shots/013.png",
+      "waitMs": 320,
+      "focusBox": {
+        "x": 439,
+        "y": 328.484375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I need to confirm the payment. I'm inside the 'Protect your payment' dialog on 'Payment protection for ₹99…, checkbox, not checked', which isn't what I'm after. I'll press Tab and listen to where I land.",
+      "screenshot": "shots/014.png",
+      "waitMs": 307,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 15,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Continue, button",
+      "thought": "I heard 'Learn more, button, collapsed'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/015.png",
+      "waitMs": 308,
+      "focusBox": {
+        "x": 422,
+        "y": 484.296875,
+        "w": 123.5,
+        "h": 52
+      }
+    },
+    {
+      "n": 16,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Payment received - Lantern Bills, document",
+      "thought": "I heard 'Continue, button'. That's what I want, so I'll press Enter.",
+      "screenshot": "shots/016.png",
+      "waitMs": 1137
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,190 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-22T1153Z-phantom-pay-bill",
+  "ghost": "phantom",
+  "mind": "scripted",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo (exorcised)",
+    "url": "http://localhost:3002",
+    "commit": "2b3420c"
+  },
+  "startedAt": "2026-11-22T11:53:17Z",
+  "result": "succeeded",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3002",
+      "spoken": "",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 4050
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Wait",
+      "spoken": "",
+      "thought": "I want to pay this bill, so I'm looking for the button that starts paying. The screen is still blank, so I'll wait for something to appear.",
+      "screenshot": "shots/002.png",
+      "waitMs": 3659
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Click \"Pay this bill\"",
+      "spoken": "",
+      "thought": "I can see 'Pay this bill'. I'll tap it.",
+      "screenshot": "shots/003.png",
+      "waitMs": 1250,
+      "focusBox": {
+        "x": 32,
+        "y": 1169.96,
+        "w": 303.78,
+        "h": 96
+      }
+    },
+    {
+      "n": 4,
+      "page": "/",
+      "action": "Click \"1234 5678 9012 3456\"",
+      "spoken": "",
+      "thought": "I'll enter the card number. I can see a box labelled 'Card number'. I'll tap the box so I can type in it.",
+      "screenshot": "shots/004.png",
+      "waitMs": 1251,
+      "focusBox": {
+        "x": 66,
+        "y": 592.16,
+        "w": 588,
+        "h": 96
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Type \"4111111111111111\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'Card number' box. I'll type \"4111111111111111\".",
+      "screenshot": "shots/005.png",
+      "waitMs": 1277
+    },
+    {
+      "n": 6,
+      "page": "/",
+      "action": "Click \"MM/YY\"",
+      "spoken": "",
+      "thought": "Now the expiry date. I can see a box labelled 'Expiry date'. I'll tap the box so I can type in it.",
+      "screenshot": "shots/006.png",
+      "waitMs": 1250,
+      "focusBox": {
+        "x": 66,
+        "y": 777.16,
+        "w": 588,
+        "h": 96
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Type \"11/28\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'Expiry date' box. I'll type \"11/28\".",
+      "screenshot": "shots/007.png",
+      "waitMs": 1212
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Click \"123\"",
+      "spoken": "",
+      "thought": "Now the three-digit security code. I can see a box labelled 'CVV'. I'll tap the box so I can type in it.",
+      "screenshot": "shots/008.png",
+      "waitMs": 1236,
+      "focusBox": {
+        "x": 66,
+        "y": 962.16,
+        "w": 588,
+        "h": 95.99999999999989
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Type \"123\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'CVV' box. I'll type \"123\".",
+      "screenshot": "shots/009.png",
+      "waitMs": 1222
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Click \"Name on card\"",
+      "spoken": "",
+      "thought": "And the name on the card. I can see a box labelled 'Cardholder name'. I'll tap the box so I can type in it.",
+      "screenshot": "shots/010.png",
+      "waitMs": 1267,
+      "focusBox": {
+        "x": 66,
+        "y": 1147.16,
+        "w": 588,
+        "h": 96
+      }
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Type \"Asha Kaur\"",
+      "spoken": "",
+      "thought": "I've put my cursor in the 'Cardholder name' box. I'll type \"Asha Kaur\".",
+      "screenshot": "shots/011.png",
+      "waitMs": 1259
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Scroll down",
+      "spoken": "",
+      "thought": "Everything is filled in. I need the button that sends the payment. I can't see what I'm looking for on the screen, so I'll scroll down.",
+      "screenshot": "shots/012.png",
+      "waitMs": 1252
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Click a button with no text",
+      "spoken": "",
+      "thought": "I can't see a button with words that fit. There is a button with no words on it, so I'll tap it and hope it's the one I need.",
+      "screenshot": "shots/013.png",
+      "waitMs": 1242,
+      "focusBox": {
+        "x": 66,
+        "y": 275.16,
+        "w": 112,
+        "h": 112
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Click \"Continue\"",
+      "spoken": "",
+      "thought": "I need to confirm the payment. I can see 'Continue'. I'll tap it.",
+      "screenshot": "shots/014.png",
+      "waitMs": 2126,
+      "focusBox": {
+        "x": 96,
+        "y": 887.68,
+        "w": 257,
+        "h": 96
+      }
+    }
+  ],
+  "findings": []
+}
