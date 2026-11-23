@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { existsSync, readdirSync, realpathSync } from 'node:fs';
+import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs as nodeParseArgs } from 'node:util';
@@ -30,11 +31,16 @@ import {
   buildKiroArgs,
   creditsLine,
   defaultKiroLauncher,
+  formatKiroLaunch,
+  kiroLogHeader,
+  kiroLogPath,
+  MAX_RELAUNCHES,
   parseCredits,
   parseTimeoutMs,
   resolveKiroCli,
+  sumCredits,
 } from '../mind/ai/kiro.ts';
-import type { KiroLauncher } from '../mind/ai/kiro.ts';
+import type { CreditsReport, KiroLauncher, KiroProcess, KiroSpec } from '../mind/ai/kiro.ts';
 import { loadMission, MissionLoadError } from '../missions/loadMission.ts';
 import type { Intention, Mission } from '../missions/loadMission.ts';
 import { applyTemplates } from '../missions/templates.ts';
@@ -121,6 +127,8 @@ export interface CliDeps {
   kiroExists?: (file: string) => boolean;
   /** How long Kiro gets to exit on its own after the run has ended, so its credits line is printed. Default 5000. */
   kiroGraceMs?: number;
+  /** Folder for kiro-cli's output, one `<runId>.log` per AI run. Default `engine/test-output/kiro-logs`. */
+  kiroLogDir?: string;
 }
 
 export type MindKind = 'scripted' | 'ai';
@@ -417,6 +425,7 @@ export async function main(argv: string[], deps: CliDeps = {}): Promise<number> 
       env,
       timeoutMs: parseTimeoutMs(env.HAUNT_AI_TIMEOUT_MS),
       graceMs: deps.kiroGraceMs ?? 5000,
+      logDir: deps.kiroLogDir ?? path.join(ENGINE_ROOT, 'test-output', 'kiro-logs'),
     };
   }
 
@@ -474,6 +483,7 @@ interface AiRunContext {
   env: NodeJS.ProcessEnv;
   timeoutMs: number;
   graceMs: number;
+  logDir: string;
 }
 
 /** Runs the ghost and handles Ctrl+C: the browser is closed, nothing is written, the exit code is 130. */
@@ -517,35 +527,35 @@ interface RunState {
 
 /**
  * The AI run: the driver owns the Body, the Bridge lets haunt-mcp reach it, and Kiro is the child that
- * calls the tools. The run ends when the driver's pipeline ends it, when Kiro exits, or on timeout.
- * Afterwards the child is killed and the Bridge closed, and the caller goes on into finalize.
+ * calls the tools. The run ends when the driver's pipeline ends it (success, stop rule, step limit),
+ * when the agent calls finish, on timeout, or when Kiro exits with an error.
+ *
+ * In `--no-interactive` mode kiro-cli answers one turn and exits with code 0 as soon as the agent
+ * replies with text instead of a tool call. That is not the agent giving up, so Kiro is started again
+ * with a short "continue the mission" prompt and what the agent did so far, up to MAX_RELAUNCHES
+ * times. The time limit covers all launches together. Every launch's output goes to the run's Kiro log.
  */
 async function runAiMind(
   ctx: RunContext,
   state: RunState,
   driver: AiRunDriver,
   kiro: AiRunContext,
+  runId: string,
 ): Promise<RunLoopOutcome> {
   await driver.start();
   if (driver.outcome) return driver.outcome; // the page could not be opened; nothing to hand to Kiro
 
   const bridge = await startBridge(driver);
-  const child = kiro.launcher({
-    command: kiro.command,
-    args: buildKiroArgs(ctx.mission.goal),
-    env: {
-      ...Object.fromEntries(Object.entries(kiro.env).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
-      HAUNT_BRIDGE_URL: bridge.url,
-      HAUNT_BRIDGE_TOKEN: bridge.token,
-    },
-    cwd: ctx.repoRoot,
-  });
-  let exitedWith: { code: number | null; output: string } | undefined;
-  void child.exited.then((exit) => {
-    exitedWith = exit;
-  });
+  const env: Record<string, string> = {
+    ...Object.fromEntries(Object.entries(kiro.env).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+    HAUNT_BRIDGE_URL: bridge.url,
+    HAUNT_BRIDGE_TOKEN: bridge.token,
+  };
+  const log = await openKiroLog(kiro.logDir, runId, ctx.say);
+
+  let current: KiroProcess | undefined;
   const stop = async (): Promise<void> => {
-    child.kill();
+    current?.kill();
     await bridge.close();
   };
   state.stopAi = stop;
@@ -554,25 +564,56 @@ async function runAiMind(
   const timeout = new Promise<'timeout'>((resolve) => {
     timer = setTimeout(() => resolve('timeout'), kiro.timeoutMs);
   });
-  try {
-    const first = await Promise.race([
-      driver.ended.then(() => 'ended' as const),
-      child.exited.then((exit) => exit),
-      timeout,
-    ]);
-    if (first === 'timeout') await driver.endExternally({ kind: 'timeout', ms: kiro.timeoutMs });
-    else if (first !== 'ended') await driver.endExternally({ kind: 'exit', code: first.code });
+  const credits: CreditsReport[] = [];
 
-    // The run is over. Give Kiro a moment to finish by itself, so it can print its credits line.
-    if (!exitedWith && !state.interrupted) {
-      let grace: NodeJS.Timeout | undefined;
-      await Promise.race([
-        child.exited,
-        new Promise<void>((resolve) => {
-          grace = setTimeout(resolve, kiro.graceMs);
-        }),
-      ]);
-      clearTimeout(grace);
+  try {
+    for (let launch = 1; ; launch += 1) {
+      const spec: KiroSpec = {
+        command: kiro.command,
+        args: buildKiroArgs(launch === 1 ? ctx.mission.goal : driver.continuePrompt(ctx.mission.goal)),
+        env,
+        cwd: ctx.repoRoot,
+      };
+      const startedAt = new Date();
+      const child = kiro.launcher(spec);
+      current = child;
+      let exitedWith: { code: number | null; output: string } | undefined;
+      void child.exited.then((exit) => {
+        exitedWith = exit;
+      });
+
+      const first = await Promise.race([driver.ended.then(() => 'ended' as const), child.exited, timeout]);
+
+      // The run is over. Give Kiro a moment to finish by itself, so it can print its credits line.
+      if (first === 'ended' && !exitedWith && !state.interrupted) await raceWithDelay(child.exited, kiro.graceMs);
+      const killed = !exitedWith;
+      child.kill();
+      const exit = exitedWith ?? (await raceWithDelay(child.exited, 500)) ?? { code: null, output: '' };
+      credits.push(parseCredits(exit.output));
+
+      const endedBy =
+        first === 'timeout'
+          ? `the time limit of ${kiro.timeoutMs} ms was reached`
+          : first === 'ended'
+            ? `the run ended${killed ? ', so the engine stopped Kiro' : ''}`
+            : state.interrupted
+              ? 'interrupted with Ctrl+C'
+              : 'Kiro exited by itself';
+      await log.append({ launch, spec, startedAt, endedAt: new Date(), code: exit.code, ended: endedBy, output: exit.output });
+
+      if (first === 'timeout') {
+        await driver.endExternally({ kind: 'timeout', ms: kiro.timeoutMs });
+        break;
+      }
+      if (first === 'ended' || state.interrupted) break;
+      // Kiro exited first. A tool call it sent just before exiting may still be running; wait for it.
+      if (await driver.settled()) break;
+      if (first.code === 0 && launch <= MAX_RELAUNCHES) {
+        ctx.say(`Kiro ended its session before the run was over. Starting it again to continue the mission (relaunch ${launch} of ${MAX_RELAUNCHES}).`);
+        continue;
+      }
+      await driver.endExternally({ kind: 'exit', code: first.code, launches: launch });
+      break;
     }
   } finally {
     clearTimeout(timer);
@@ -580,11 +621,66 @@ async function runAiMind(
     state.stopAi = undefined;
   }
 
+  const outcome: RunLoopOutcome = driver.outcome ?? { result: 'error', errorMessage: 'The AI run ended without an outcome.' };
+  await log.finish(outcome);
   if (!state.interrupted) {
-    const output = exitedWith ? exitedWith.output : (await Promise.race([child.exited, new Promise<null>((r) => setTimeout(() => r(null), 500))]))?.output ?? '';
-    ctx.say(creditsLine(parseCredits(output)));
+    ctx.say(creditsLine(sumCredits(credits)));
+    if (log.path) ctx.say(`Kiro log: ${log.path}`);
   }
-  return driver.outcome ?? { result: 'error', errorMessage: 'The AI run ended without an outcome.' };
+  return outcome;
+}
+
+/** Resolves with the promise's value, or with null after `ms` milliseconds. */
+async function raceWithDelay<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([promise, new Promise<null>((resolve) => (timer = setTimeout(() => resolve(null), ms)))]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+interface KiroLog {
+  /** The log file, or null when it could not be created. */
+  path: string | null;
+  append(record: Parameters<typeof formatKiroLaunch>[0]): Promise<void>;
+  finish(outcome: RunLoopOutcome): Promise<void>;
+}
+
+/**
+ * The run's Kiro log, written one launch at a time so a crash keeps what came before. A log that
+ * cannot be written is reported once on the status stream and never stops the run.
+ */
+async function openKiroLog(logDir: string, runId: string, say: (line: string) => void): Promise<KiroLog> {
+  const file = kiroLogPath(logDir, runId);
+  let broken = false;
+  const write = async (work: () => Promise<void>): Promise<void> => {
+    if (broken) return;
+    try {
+      await work();
+    } catch (error) {
+      broken = true;
+      say(`The Kiro log could not be written to ${file}: ${messageOf(error)}`);
+    }
+  };
+  await write(async () => {
+    await mkdir(logDir, { recursive: true });
+    await writeFile(file, kiroLogHeader(runId, new Date()), 'utf8');
+  });
+  return {
+    get path() {
+      return broken ? null : file;
+    },
+    append: (record) => write(() => appendFile(file, formatKiroLaunch(record), 'utf8')),
+    finish: (outcome) =>
+      write(() =>
+        appendFile(
+          file,
+          `\nRun outcome: ${outcome.result}${outcome.reason ? ` (${outcome.reason})` : ''}${outcome.errorMessage ? `: ${outcome.errorMessage}` : ''}\n`,
+          'utf8',
+        ),
+      ),
+  };
 }
 
 async function doRun(ctx: RunContext, state: RunState): Promise<number> {
@@ -708,7 +804,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
       checkSuccess,
       onOpenFailure,
     });
-    outcome = await runAiMind(ctx, state, driver, ctx.kiro);
+    outcome = await runAiMind(ctx, state, driver, ctx.kiro, runId);
   } else {
     outcome = await runLoop({
       body,

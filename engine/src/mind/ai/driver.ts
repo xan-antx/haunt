@@ -34,7 +34,18 @@ export interface AiRunDriverOptions extends StepPipelineOptions {
   onOpenFailure?: RunLoopOptions<Heard, ListenerAction>['onOpenFailure'];
 }
 
-export type EndCause = { kind: 'exit'; code: number | null } | { kind: 'timeout'; ms: number };
+/**
+ * Why Kiro is no longer driving the run. `launches` is how many times Kiro was started for this run,
+ * counting the first launch; it defaults to 1.
+ */
+export type EndCause = { kind: 'exit'; code: number | null; launches?: number } | { kind: 'timeout'; ms: number };
+
+/** The sentence added to the last thought when Kiro kept ending its session and the engine gave up. */
+export function kiroStoppedSentence(launches: number): string {
+  if (launches <= 1) return 'Kiro ended its session before the run was over, so the engine stopped the run here.';
+  const relaunches = launches - 1;
+  return `Kiro ended its session ${launches} times before the run was over (the first launch and ${relaunches} ${relaunches === 1 ? 'relaunch' : 'relaunches'}), so the engine stopped the run here.`;
+}
 
 export class AiRunDriver {
   private readonly options: AiRunDriverOptions;
@@ -42,6 +53,8 @@ export class AiRunDriver {
   private latest: { heard: Heard; probe: Probe } | null = null;
   private announcementQueue: string[] = [];
   private pendingThought: string | null = null;
+  /** Added after the closing sentence when the run gives up because Kiro stopped. */
+  private giveUpNote: string | null = null;
   private ended_: RunLoopOutcome | null = null;
   private chain: Promise<unknown> = Promise.resolve();
   private resolveEnded: (outcome: RunLoopOutcome) => void = () => undefined;
@@ -94,6 +107,16 @@ export class AiRunDriver {
     });
   }
 
+  /** The outcome after every tool call already queued has been answered, else null. */
+  settled(): Promise<RunLoopOutcome | null> {
+    return this.serial(async () => this.ended_);
+  }
+
+  /** The prompt for a relaunched Kiro session, built from what the agent did and heard so far. */
+  continuePrompt(goal: string): string {
+    return this.memory.continuePrompt(goal);
+  }
+
   /** Kiro exited or timed out. Ends the run through the give-up or error path. */
   endExternally(cause: EndCause): Promise<RunLoopOutcome> {
     return this.serial(async () => {
@@ -101,7 +124,10 @@ export class AiRunDriver {
       if (cause.kind === 'timeout') {
         return this.end({ result: 'error', errorMessage: `Kiro did not finish within the time limit of ${cause.ms} ms.` });
       }
-      if (cause.code === 0) return this.end({ result: 'gave_up', reason: 'no_match' });
+      if (cause.code === 0) {
+        this.giveUpNote = kiroStoppedSentence(cause.launches ?? 1);
+        return this.end({ result: 'gave_up', reason: 'no_match' });
+      }
       const named = cause.code === null ? 'no exit code' : `exit code ${cause.code}`;
       return this.end({ result: 'error', errorMessage: `Kiro stopped before the run ended (${named}).` });
     });
@@ -167,7 +193,7 @@ export class AiRunDriver {
 
     const result = await body.act(action);
     recorder.add(result, thought, probe, { intentionId: AI_INTENTION_ID, recovery: false });
-    this.memory.recordAction();
+    this.memory.recordAction({ action: result.actionText, spoken: result.spoken });
     this.latest = null;
 
     const ended = await afterStep(this.options);
@@ -189,7 +215,9 @@ export class AiRunDriver {
     if (this.ended_) return this.ended_;
     let closed: RunLoopOutcome;
     try {
-      closed = await closeRun(this.options, outcome, (reason) => this.memory.giveUpThought(reason));
+      closed = await closeRun(this.options, outcome, (reason) =>
+        [this.memory.giveUpThought(reason), this.giveUpNote ?? ''].join(' ').trim(),
+      );
     } catch (error) {
       closed = { result: 'error', errorMessage: messageOf(error) };
     }

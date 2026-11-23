@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { buildKiroArgs, creditsLine, defaultKiroLauncher, INSTALL_HELP, parseCredits, parseTimeoutMs, resolveKiroCli } from '../src/mind/ai/kiro.ts';
+import path from 'node:path';
+import {
+  buildKiroArgs,
+  creditsLine,
+  defaultKiroLauncher,
+  formatKiroLaunch,
+  INSTALL_HELP,
+  kiroLogPath,
+  MAX_RELAUNCHES,
+  parseCredits,
+  parseTimeoutMs,
+  resolveKiroCli,
+  sumCredits,
+} from '../src/mind/ai/kiro.ts';
 
 /**
  * Unit tests for the Kiro launcher helpers. No test starts the real Kiro CLI.
@@ -36,6 +49,46 @@ describe('parseCredits', () => {
 
   it('formats a known amount', () => {
     expect(creditsLine({ known: true, credits: 0.25 })).toBe('Kiro credits used: 0.25');
+  });
+});
+
+describe('sumCredits', () => {
+  it('adds up the credits of every launch', () => {
+    expect(sumCredits([{ known: true, credits: 0.1 }, { known: true, credits: 0.2 }])).toEqual({ known: true, credits: 0.3 });
+  });
+
+  it('keeps a single report as it is', () => {
+    expect(sumCredits([{ known: false, reason: 'Kiro printed no credits line' }])).toEqual({ known: false, reason: 'Kiro printed no credits line' });
+  });
+
+  it('is unknown when a launch printed no credits, and names that launch and the known part', () => {
+    const report = sumCredits([{ known: true, credits: 0.5 }, { known: false, reason: 'x' }, { known: true, credits: 0.25 }]);
+    expect(report).toEqual({ known: false, reason: 'Kiro printed no credits line for launch 2 of 3; the other launches used 0.75' });
+  });
+});
+
+describe('Kiro log', () => {
+  it('puts the run id in the file name', () => {
+    expect(kiroLogPath(path.join('engine', 'test-output', 'kiro-logs'), '2026-11-22T1127Z-listener-pay-bill')).toBe(
+      path.join('engine', 'test-output', 'kiro-logs', '2026-11-22T1127Z-listener-pay-bill.log'),
+    );
+  });
+
+  it('records the arguments, how the launch ended and the whole output, but not the environment', () => {
+    const text = formatKiroLaunch({
+      launch: 2,
+      spec: { command: 'kiro-cli', args: ['chat', 'Continue the mission.'], env: { HAUNT_BRIDGE_TOKEN: 'secret-token' }, cwd: '/repo' },
+      startedAt: new Date('2026-11-22T11:27:36.000Z'),
+      endedAt: new Date('2026-11-22T11:27:40.500Z'),
+      code: 0,
+      ended: 'Kiro exited by itself',
+      output: 'line one\nline two\n\n',
+    });
+    expect(text).toContain(`=== Launch 2 of up to ${MAX_RELAUNCHES + 1} ===`);
+    expect(text).toContain('Arguments: ["chat","Continue the mission."]');
+    expect(text).toContain('after 4.5 s, exit code 0 (Kiro exited by itself)');
+    expect(text).toContain('--- output ---\nline one\nline two\n--- end of output ---');
+    expect(text).not.toContain('secret-token');
   });
 });
 

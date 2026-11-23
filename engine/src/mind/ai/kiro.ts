@@ -99,6 +99,68 @@ export function parseCredits(output: string): CreditsReport {
   return Number.isFinite(credits) ? { known: true, credits } : { known: false, reason: 'the credits value could not be read' };
 }
 
+/** Adds up the credits of every launch in one run. One unknown launch makes the total unknown, with the reason. */
+export function sumCredits(reports: readonly CreditsReport[]): CreditsReport {
+  if (reports.length === 0) return { known: false, reason: 'Kiro was not started' };
+  if (reports.length === 1) return reports[0]!;
+  let total = 0;
+  const unknown: number[] = [];
+  reports.forEach((report, i) => {
+    if (report.known) total += report.credits;
+    else unknown.push(i + 1);
+  });
+  // Rounded so 0.1 + 0.2 prints as 0.3.
+  total = Math.round(total * 1e6) / 1e6;
+  if (unknown.length === 0) return { known: true, credits: total };
+  const which = unknown.length === 1 ? `launch ${unknown[0]}` : `launches ${unknown.join(', ')}`;
+  return { known: false, reason: `Kiro printed no credits line for ${which} of ${reports.length}; the other launches used ${total}` };
+}
+
+/** How many times Kiro is started again when it ends its session before the run is over. */
+export const MAX_RELAUNCHES = 5;
+
+/** Where the engine keeps kiro-cli's output for each AI run: `engine/test-output/kiro-logs/<runId>.log`. */
+export function kiroLogPath(logDir: string, runId: string): string {
+  return path.join(logDir, `${runId}.log`);
+}
+
+export interface KiroLaunchRecord {
+  /** 1 for the first launch. */
+  launch: number;
+  spec: KiroSpec;
+  startedAt: Date;
+  endedAt: Date;
+  /** null when Kiro was killed or could not start. */
+  code: number | null;
+  /** Why this launch ended, from the engine's side. */
+  ended: string;
+  output: string;
+}
+
+/** The first lines of a run's Kiro log. */
+export function kiroLogHeader(runId: string, startedAt: Date): string {
+  return `Kiro log for run ${runId}, started ${startedAt.toISOString()}\n`;
+}
+
+/** One launch in a run's Kiro log: what was started, how it ended, and everything it printed. */
+export function formatKiroLaunch(record: KiroLaunchRecord): string {
+  const seconds = ((record.endedAt.getTime() - record.startedAt.getTime()) / 1000).toFixed(1);
+  const lines = [
+    '',
+    `=== Launch ${record.launch} of up to ${MAX_RELAUNCHES + 1} ===`,
+    `Started: ${record.startedAt.toISOString()}`,
+    `Command: ${record.spec.command}`,
+    `Arguments: ${JSON.stringify(record.spec.args)}`,
+    `Working folder: ${record.spec.cwd}`,
+    `Ended: ${record.endedAt.toISOString()} after ${seconds} s, ${record.code === null ? 'no exit code' : `exit code ${record.code}`} (${record.ended})`,
+    '--- output ---',
+    record.output.replace(/\s+$/, ''),
+    '--- end of output ---',
+    '',
+  ];
+  return lines.join('\n');
+}
+
 /** The credits line the CLI prints on its status stream. */
 export function creditsLine(report: CreditsReport): string {
   return report.known ? `Kiro credits used: ${report.credits}` : `Kiro credits used: unknown (${report.reason})`;

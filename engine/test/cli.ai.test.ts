@@ -181,6 +181,7 @@ async function runCli(options: RunOptions = {}) {
   const fake = options.ghost ?? makeGhost();
   const kiro = options.kiro ?? makeKiro(() => undefined);
   const out = freshOut();
+  const logDir = `${out}-kiro-logs`;
   let stdout = '';
   let stderr = '';
   const argv = [
@@ -216,9 +217,19 @@ async function runCli(options: RunOptions = {}) {
     kiroLauncher: kiro.launcher,
     kiroExists: (file) => options.kiroFound !== false && file === KIRO,
     kiroGraceMs: 20,
+    kiroLogDir: logDir,
   };
   const code = await main(argv, deps);
-  return { code, stdout, stderr, world, fake, kiro, out };
+  return { code, stdout, stderr, world, fake, kiro, out, logDir };
+}
+
+/** The run.json the CLI printed on stdout. */
+function readRun(result: { stdout: string }) {
+  return JSON.parse(readFileSync(result.stdout.trim(), 'utf8')) as {
+    runId: string;
+    result: string;
+    steps: { n: number; action: string; thought: string }[];
+  };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -296,18 +307,136 @@ describe('haunt run --mind ai', () => {
     expect(result.code).toBe(EXIT.ok);
   });
 
-  it('Kiro exiting with code 0 before the run ended gives gave_up and exit 0', async () => {
+  it('Kiro exiting with code 0 every time is relaunched 5 times, then the run gives up with the reason in the last thought', async () => {
     const kiro = makeKiro((_spec, exit) => exit(0, 'I am done.'));
     const result = await runCli({ kiro });
     expect(result.code).toBe(EXIT.ok);
     expect(result.stderr).toContain('Result: gave_up');
+    expect(kiro.specs).toHaveLength(6);
+    expect(result.stderr).toContain('relaunch 5 of 5');
+    expect(result.stderr).not.toContain('relaunch 6');
+    const run = readRun(result);
+    expect(run.result).toBe('gave_up');
+    expect(run.steps.at(-1)?.thought).toContain('Kiro ended its session 6 times before the run was over (the first launch and 5 relaunches)');
   });
 
-  it('Kiro exiting with a non-zero code gives an error that names the code, and exit 3', async () => {
+  it('relaunches Kiro with a "continue the mission" prompt that carries the goal and what the agent did and heard', async () => {
+    let launches = 0;
+    const kiro = makeKiro(async (spec, exit) => {
+      launches += 1;
+      if (launches === 1) {
+        await callTool(spec, 'think', { text: 'I press Tab to find the pay button.' });
+        await callTool(spec, 'press_key', { key: 'Tab' });
+        exit(0, 'I will now press Enter.\nCredits: 0.25');
+        return;
+      }
+      await callTool(spec, 'press_key', { key: 'Enter' });
+      await callTool(spec, 'finish');
+      exit(0, 'Credits: 0.5');
+    });
+    const ghost = makeGhost();
+    const result = await runCli({ kiro, ghost });
+    expect(result.code).toBe(EXIT.ok);
+    expect(kiro.specs).toHaveLength(2);
+
+    const [first, second] = kiro.specs as [KiroSpec, KiroSpec];
+    expect(first.args.at(-1)).toBe("Pay this month's electricity bill");
+    // Same agent, same flags, same Bridge: only the prompt differs.
+    expect(second.args.slice(0, -1)).toEqual(first.args.slice(0, -1));
+    expect(second.env.HAUNT_BRIDGE_URL).toBe(first.env.HAUNT_BRIDGE_URL);
+    expect(second.env.HAUNT_BRIDGE_TOKEN).toBe(first.env.HAUNT_BRIDGE_TOKEN);
+    const prompt = second.args.at(-1)!;
+    expect(prompt).toMatch(/^Continue the mission\. Your goal: Pay this month's electricity bill/);
+    expect(prompt).toContain('1. Press Tab. You heard: "spoken: Press Tab"');
+    expect(prompt).toContain('read_page');
+
+    // The browser and the run carried on: both actions reached the Body and are in one run.
+    expect(ghost.seen.opened).toHaveLength(1);
+    expect(ghost.seen.acts).toEqual([
+      { type: 'key', key: 'Tab' },
+      { type: 'key', key: 'Enter' },
+    ]);
+    const run = readRun(result);
+    expect(run.steps.map((s) => s.n)).toEqual([1, 2, 3]);
+    expect(run.steps[1]?.thought).toBe('I press Tab to find the pay button.');
+    // The agent called finish itself, so the last thought does not blame Kiro.
+    expect(run.steps.at(-1)?.thought).not.toContain('Kiro');
+    expect(result.stderr).toContain('relaunch 1 of 5');
+    // Credits are added up over both launches.
+    expect(result.stderr).toContain('Kiro credits used: 0.75');
+  });
+
+  it('does not relaunch Kiro once the run has ended, even if Kiro then exits with code 0', async () => {
+    const kiro = makeKiro(async (spec, exit) => {
+      await callTool(spec, 'finish');
+      exit(0);
+    });
+    const result = await runCli({ kiro });
+    expect(kiro.specs).toHaveLength(1);
+    expect(result.stderr).not.toContain('relaunch');
+  });
+
+  it('Kiro exiting with a non-zero code gives an error that names the code, exit 3, and no relaunch', async () => {
     const kiro = makeKiro((_spec, exit) => exit(7, 'boom'));
     const result = await runCli({ kiro });
     expect(result.code).toBe(EXIT.resultError);
     expect(result.stderr).toContain('exit code 7');
+    expect(kiro.specs).toHaveLength(1);
+  });
+
+  it('a non-zero exit after a relaunch ends the run with an error and stops relaunching', async () => {
+    let launches = 0;
+    const kiro = makeKiro((_spec, exit) => {
+      launches += 1;
+      exit(launches === 1 ? 0 : 2, 'out');
+    });
+    const result = await runCli({ kiro });
+    expect(kiro.specs).toHaveLength(2);
+    expect(result.code).toBe(EXIT.resultError);
+    expect(result.stderr).toContain('exit code 2');
+  });
+
+  it("saves every launch's kiro-cli output to <logDir>/<runId>.log", async () => {
+    let launches = 0;
+    const kiro = makeKiro(async (spec, exit) => {
+      launches += 1;
+      if (launches === 1) {
+        exit(0, 'first answer, no tool call\nCredits: 0.1');
+        return;
+      }
+      await callTool(spec, 'finish');
+      exit(0, 'second answer\nCredits: 0.2');
+    });
+    const result = await runCli({ kiro });
+    const run = readRun(result);
+    const logFile = path.join(result.logDir, `${run.runId}.log`);
+    expect(existsSync(logFile)).toBe(true);
+    const log = readFileSync(logFile, 'utf8');
+    expect(log).toContain(`Kiro log for run ${run.runId}`);
+    expect(log).toContain('=== Launch 1 of up to 6 ===');
+    expect(log).toContain('=== Launch 2 of up to 6 ===');
+    expect(log.indexOf('first answer, no tool call')).toBeLessThan(log.indexOf('second answer'));
+    expect(log).toContain('exit code 0 (Kiro exited by itself)');
+    expect(log).toContain('Continue the mission.');
+    expect(log).toContain('Run outcome: gave_up (no_match)');
+    // The Bridge token stays out of the log.
+    expect(log).not.toContain(kiro.specs[0]!.env.HAUNT_BRIDGE_TOKEN);
+    expect(result.stderr).toContain(`Kiro log: ${logFile}`);
+    expect(result.stderr).toContain('Kiro credits used: 0.3');
+  });
+
+  it('the time limit covers all launches together', async () => {
+    let launches = 0;
+    const kiro = makeKiro((_spec, exit) => {
+      launches += 1;
+      if (launches === 1) exit(0, 'stopped early');
+      // The second launch never answers.
+    });
+    const result = await runCli({ kiro, env: { HAUNT_UNDER_TEST: '1', KIRO_CLI_PATH: KIRO, HAUNT_AI_TIMEOUT_MS: '80' } });
+    expect(kiro.specs).toHaveLength(2);
+    expect(result.code).toBe(EXIT.resultError);
+    expect(result.stderr).toContain('80 ms');
+    expect(kiro.killed()).toBeGreaterThanOrEqual(1);
   });
 
   it('a timeout kills Kiro, closes the Bridge, gives an error that names the limit, and exit 3', async () => {
