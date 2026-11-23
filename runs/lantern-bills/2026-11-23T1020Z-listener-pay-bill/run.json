@@ -1,0 +1,421 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-23T1020Z-listener-pay-bill",
+  "ghost": "listener",
+  "mind": "ai",
+  "mission": {
+    "id": "pay-bill",
+    "goal": "Pay this month's electricity bill",
+    "requirement": "WHEN the card number is any valid card number other than 4000000000000002, THE Application SHALL succeed payment processing after 800 milliseconds and display the Confirmation_Element",
+    "successCheck": "The confirmation (data-haunt=\"payment-success\") is visible"
+  },
+  "site": {
+    "name": "Lantern Bills demo",
+    "url": "http://localhost:3000",
+    "commit": "c4545a3"
+  },
+  "startedAt": "2026-11-23T10:20:24Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/",
+      "action": "Open http://localhost:3000",
+      "spoken": "Lantern Bills - Pay your electricity bill, document",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 609
+    },
+    {
+      "n": 2,
+      "page": "/",
+      "action": "Next button (Tab ×5)",
+      "spoken": "Pay this bill, button",
+      "thought": "I jump to the next button and listen.",
+      "screenshot": "shots/002.png",
+      "waitMs": 321,
+      "focusBox": {
+        "x": 176,
+        "y": 497,
+        "w": 146.046875,
+        "h": 48
+      }
+    },
+    {
+      "n": 3,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Card number, edit text, required",
+      "thought": "I found the Pay this bill button, so I'll press Enter to start paying.",
+      "screenshot": "shots/003.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 201,
+        "y": 374.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 4,
+      "page": "/",
+      "action": "Type \"4111111111111111\"",
+      "spoken": "4111111111111111",
+      "thought": "I'm in the card number field, so I'll type a test card number.",
+      "screenshot": "shots/004.png",
+      "waitMs": 312,
+      "focusBox": {
+        "x": 201,
+        "y": 374.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 5,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Expiry date, edit text, required",
+      "thought": "I'll press Tab to move to the expiry date field.",
+      "screenshot": "shots/005.png",
+      "waitMs": 308,
+      "focusBox": {
+        "x": 201,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 6,
+      "page": "/",
+      "action": "Type \"12/28\"",
+      "spoken": "12/28",
+      "thought": "I'm typing an expiry date into this field.",
+      "screenshot": "shots/006.png",
+      "waitMs": 314,
+      "focusBox": {
+        "x": 201,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "CVV, edit text, required",
+      "thought": "I'll press Tab to go to the CVV field.",
+      "screenshot": "shots/007.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 648,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Type \"123\"",
+      "spoken": "123",
+      "thought": "I'm typing the CVV.",
+      "screenshot": "shots/008.png",
+      "waitMs": 312,
+      "focusBox": {
+        "x": 648,
+        "y": 469.328125,
+        "w": 431,
+        "h": 50
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Cardholder name, edit text, required",
+      "thought": "I'll press Tab to reach the cardholder name.",
+      "screenshot": "shots/009.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 201,
+        "y": 563.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Type \"Asha Kaur\"",
+      "spoken": "Asha Kaur",
+      "thought": "I'm typing the cardholder name shown on the account.",
+      "screenshot": "shots/010.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 201,
+        "y": 563.828125,
+        "w": 878,
+        "h": 50
+      }
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "button",
+      "thought": "I'll press Tab to find the button that submits the payment.",
+      "screenshot": "shots/011.png",
+      "waitMs": 320,
+      "focusBox": {
+        "x": 201,
+        "y": 641.828125,
+        "w": 56,
+        "h": 56
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Protect your payment, dialog. Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, checked",
+      "thought": "This button has no name, but it's right after the form fields, so I'll press Enter to try submitting.",
+      "screenshot": "shots/012.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 439,
+        "y": 328.484375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Space",
+      "spoken": "not checked",
+      "thought": "I didn't ask for the extra ₹99 protection, so I'll press Space to untick it.",
+      "screenshot": "shots/013.png",
+      "waitMs": 319,
+      "focusBox": {
+        "x": 439,
+        "y": 328.484375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Next button (Tab ×1)",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I'll press Tab to move toward the Continue button.",
+      "screenshot": "shots/014.png",
+      "waitMs": 304,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 15,
+      "page": "/",
+      "action": "Next button (Tab ×2)",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I jump to the next button and listen.",
+      "screenshot": "shots/015.png",
+      "waitMs": 305,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 16,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "I'll press Tab to reach Continue.",
+      "screenshot": "shots/016.png",
+      "waitMs": 306,
+      "focusBox": {
+        "x": 439,
+        "y": 328.484375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 17,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I'll press Tab again to look for Continue.",
+      "screenshot": "shots/017.png",
+      "waitMs": 311,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 18,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "I'll press Tab once more to move past Learn more to Continue.",
+      "screenshot": "shots/018.png",
+      "waitMs": 309,
+      "focusBox": {
+        "x": 439,
+        "y": 328.484375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 19,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "Tab only cycles between two items, so I'll try Shift+Tab to see what comes before the checkbox.",
+      "screenshot": "shots/019.png",
+      "waitMs": 308,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 20,
+      "page": "/",
+      "action": "ArrowDown",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I'll press the Down arrow to see if it moves me to the Continue button.",
+      "screenshot": "shots/020.png",
+      "waitMs": 314,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 21,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×2)",
+      "spoken": "Learn more, button, collapsed",
+      "thought": "I'll jump to the previous button, hoping to land on Continue or Close.",
+      "screenshot": "shots/021.png",
+      "waitMs": 311,
+      "focusBox": {
+        "x": 422,
+        "y": 402.796875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 22,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "expanded",
+      "thought": "I'll press Enter on Learn more in case it opens something that lets me get to Continue.",
+      "screenshot": "shots/022.png",
+      "waitMs": 309,
+      "focusBox": {
+        "x": 422,
+        "y": 349.046875,
+        "w": 79.515625,
+        "h": 24
+      }
+    },
+    {
+      "n": 23,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "The Learn more panel is open now, so I'll press Tab to see if I can finally reach Continue.",
+      "screenshot": "shots/023.png",
+      "waitMs": 302,
+      "focusBox": {
+        "x": 439,
+        "y": 274.734375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 24,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "Tab keeps looping between the checkbox and Learn more, so I'll try Enter on the checkbox in case it continues the payment.",
+      "screenshot": "shots/024.png",
+      "waitMs": 311,
+      "focusBox": {
+        "x": 439,
+        "y": 274.734375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 25,
+      "page": "/",
+      "action": "ArrowRight",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "I'll try the Right arrow from the checkbox to see if it moves me anywhere new.",
+      "screenshot": "shots/025.png",
+      "waitMs": 306,
+      "focusBox": {
+        "x": 439,
+        "y": 274.734375,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 26,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Payment protection for ₹99 Get a refund if your payment fails due to a technical issue., checkbox, not checked",
+      "thought": "I can't reach Continue, so I'll press Escape to close this box and try another way. I tried 25 things with the keyboard and could not finish what I came to do.",
+      "screenshot": "shots/026.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 439,
+        "y": 274.734375,
+        "w": 20,
+        "h": 20
+      }
+    }
+  ],
+  "findings": [
+    {
+      "type": "focus_trap",
+      "step": 26,
+      "title": "Keyboard focus is trapped in a dialog",
+      "evidence": "Keyboard focus stayed inside the dialog \"Protect your payment\". Tab (7 presses) reached 2 controls, in order: \"Learn more\" (button), \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox). A Tab press landed on \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox), which it had already reached (Step 15). Shift+Tab (3 presses) reached 2 controls, in order: \"Learn more\" (button), \"Payment protection for ₹99Get a refund if your payment fails due to a technical…\" (checkbox). A Shift+Tab press landed on \"Learn more\" (button), which it had already reached (Step 19). 2 visible, enabled controls were never reached: \"Close dialog\" (button, tabindex=\"-1\") and \"Continue\" (button, tabindex=\"-1\"). Escape was pressed at Step 26 and the dialog stayed open, with focus still inside it.",
+      "screenshot": "shots/026.png"
+    },
+    {
+      "type": "unlabeled_button",
+      "step": 11,
+      "title": "Button has no accessible name",
+      "evidence": "On page /, the <button type=\"submit\"> at form > div._actions_ixv69_66 > button[type=submit] (button 2 of 2 on the page), inside a form with no name, within the \"Payment information\" section, contains only an <svg aria-hidden=\"true\" class=\"_icon_1g09q_25\">. It has no text, no aria-label, no aria-labelledby and no title, so a screen reader says only \"button\". The Listener first focused it at Step 11.",
+      "screenshot": "shots/011.png"
+    }
+  ]
+}
