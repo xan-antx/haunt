@@ -1,0 +1,18 @@
+{
+  "name": "haunt-media",
+  "private": true,
+  "type": "module",
+  "description": "Records the Devpost videos and screenshots into media/ at the repo root.",
+  "scripts": {
+    "capture": "tsx capture.ts",
+    "videos": "tsx capture.ts --videos",
+    "shots": "tsx capture.ts --shots",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "playwright": "^1.65.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

@@ -15,14 +15,16 @@ npx playwright install chromium
 
 ## Run a ghost
 
+Run the `haunt` npm script in `engine/`. Everything after `--` goes to the CLI. Don't use `npx haunt`: an unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs that one.
+
 ```powershell
-npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url> [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed] [--config <file>] [--missions <dir>]
+npm run haunt -- run --ghost <listener|phantom|bebe> --mission <id> --url <url> [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed] [--config <file>] [--missions <dir>]
 ```
 
 Example:
 
 ```powershell
-npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000
+npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000
 ```
 
 | Option | Meaning |
@@ -30,7 +32,7 @@ npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000
 | `--ghost <name>` | Which ghost to send: `listener`, `phantom` or `bebe` (required). |
 | `--mission <id>` | The mission to attempt, for example `pay-bill` (required). |
 | `--url <url>` | The page to open (required). Only `localhost`, `127.0.0.1` and `allowedDomains` are accepted. |
-| `--out <dir>` | Where run folders go, resolved against the current folder. Default: `runs/` at the repository root. |
+| `--out <dir>` | Where run folders go, resolved against the current folder (`engine/`, because npm runs the script there). Default: `runs/` at the repository root. |
 | `--site <key>` | Site key to use instead of the mission's own. Must be in `haunt.config.json`. |
 | `--site-name <text>` | Name written to `site.name` in the run file. Default: the site's name in `haunt.config.json`. The run folder does not change. To record a fixed copy so the dashboard pairs it with the original, add ` (exorcised)`, for example `--site-name "Lantern Bills demo (exorcised)"`. |
 | `--seed <int>` | Seed for the visual ghosts' timing jitter. Default: random, and printed. |
@@ -39,7 +41,7 @@ npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000
 | `--missions <dir>` | Read missions from this folder instead of `engine/missions`. |
 | `-h`, `--help` | Show the usage text. |
 
-The last line printed on standard output is the absolute path of the saved `run.json`.
+The last line printed on standard output is the absolute path of the saved `run.json`. (npm prints a short header first; add `--silent` before `--` to hide it, as in `npm run --silent haunt -- run ...`.)
 
 ## Exit codes
 

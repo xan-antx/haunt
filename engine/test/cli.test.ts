@@ -459,7 +459,8 @@ describe('CLI argument errors exit 2 without launching a browser', () => {
     expect(result.stderr).toContain('--ghost is missing');
     expect(result.stderr).toContain('--mission is missing');
     expect(result.stderr).toContain('--url is missing');
-    expect(result.stderr).toContain('npx haunt --help');
+    expect(result.stderr).toContain('npm run haunt -- --help');
+    expect(result.stderr).not.toContain('npx haunt');
     expectNoBrowser(result);
   });
 
@@ -537,6 +538,14 @@ describe('--help', () => {
     expect(result.world.calls.launch).toBe(0);
     expect(result.world.calls.isInstalled).toBe(0);
     expect(result.lookups).toEqual([]);
+  });
+
+  it('shows the npm script, not npx, because an unrelated npm package is called "haunt"', () => {
+    expect(USAGE).toContain('npm run haunt -- run --ghost');
+    expect(USAGE).not.toMatch(/^\s*npx haunt/m);
+    const pkg = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'));
+    expect(pkg.scripts.haunt).toBe('node bin/haunt.mjs');
+    expect(pkg.bin.haunt).toBe('bin/haunt.mjs');
   });
 
   it('documents the exit codes', () => {

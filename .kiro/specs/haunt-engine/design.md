@@ -737,14 +737,16 @@ The production build is used because Slow 3G against Vite's dev server would loa
 ## CLI
 
 ```
-npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url>
-              [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
-              [--config <file>] [--missions <dir>]
-npx haunt --help | npx haunt run --help
+npm run haunt -- run --ghost <listener|phantom|bebe> --mission <id> --url <url>
+                     [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
+                     [--config <file>] [--missions <dir>]
+npm run haunt -- --help | npm run haunt -- run --help
 ```
 
+- Every documented and generated command runs the CLI through the `haunt` npm script in `engine/` (`"haunt": "node bin/haunt.mjs"`), never `npx haunt`: an unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs it. The `bin` entry stays. The usage text and the "Run ... --help" hint show the npm script.
+
 - `--site-name <text>` replaces only `run.site.name`. `main` passes `args.siteName ?? site.name` to `finalizeRun`; the Site_Key, the Run_Folder path and the `SiteConfig` given to the Body and the Detectors still come from the Site_Key's config entry. A blank value is refused during argument parsing.
-- `bin/haunt.mjs`: `import { register } from 'tsx/esm/api'; register(); const { main } = await import('../src/cli/main.ts'); process.exitCode = await main(process.argv.slice(2));`. npm runs a package's own `bin` from inside that package, so `npx haunt` works in `engine/` after `npm install`.
+- `bin/haunt.mjs`: `import { register } from 'tsx/esm/api'; register(); const { main } = await import('../src/cli/main.ts'); process.exitCode = await main(process.argv.slice(2));`. The `haunt` npm script runs this file with `node`, so `npm run haunt -- ...` works in `engine/` after `npm install`.
 - Exit codes: 0 succeeded or gave_up; 1 run invalid, Chromium missing, or the browser could not start; 2 bad arguments, config, mission, site, address, or a test run aimed at `runs/`; 3 result `error` (file written); 130 interrupted.
 - Standard output: progress lines (`step 3: Next button (Tab ×2) → "Pay this bill, button"`), then the absolute `run.json` path as the last line. Warnings, the generated seed and blocked URLs go to standard error.
 - Test guard: `vitest.config.ts` and `vitest.e2e.config.ts` set `env: { HAUNT_UNDER_TEST: '1' }`. With that variable set, an Out_Root inside `<repo>/runs` is refused.
@@ -753,6 +755,7 @@ npx haunt --help | npx haunt run --help
 
 ```json
 {
+  "haunt": "node bin/haunt.mjs",
   "build": "tsc --noEmit",
   "test": "vitest run",
   "test:properties": "vitest run -t \"Feature: haunt-engine, Property\"",

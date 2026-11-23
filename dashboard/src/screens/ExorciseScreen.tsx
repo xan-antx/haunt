@@ -44,7 +44,8 @@ export function defaultAfter(before: Run, runs: Run[]): Run | null {
 /**
  * A default pair. When a fixed copy has runs, the newest of them is "after" and the newest run
  * of the original site by the same ghost and mission is "before". Otherwise the newest run that
- * has a same-ghost, same-mission partner is "after", and its newest partner is "before".
+ * has a same-ghost, same-mission partner on an original site is "after", and its newest such
+ * partner is "before". The before run is never a fixed copy's run.
  * Null when no run has such a partner.
  */
 export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
@@ -55,10 +56,19 @@ export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
     if (before) return { before, after };
   }
   for (const after of sorted) {
-    const before = afterCandidates(after, sorted)[0];
+    const before = afterCandidates(after, sorted).find((r) => !isFixedCopyRun(r));
     if (before) return { before, after };
   }
   return null;
+}
+
+/**
+ * The Before picker's runs: only runs on an original site, never a fixed copy's "after the fix"
+ * runs. A fixed copy run that the URL names as the before run stays in the list, so the picker
+ * can show what is open.
+ */
+export function beforeOptions(runs: Run[], current?: Run): Run[] {
+  return runs.filter((r) => !isFixedCopyRun(r) || r.key === current?.key);
 }
 
 function StatusIcon({ status }: { status: ExorciseStatus }) {
@@ -155,9 +165,7 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
                       <br />
                       {finding.title}
                     </td>
-                    <td>
-                      <code>{row.page}</code>
-                    </td>
+                    <td>{pageName((row.before ? before : after).site.name, row.page)}</td>
                     <td>
                       <StatusCell row={row} />
                       {row.status === 'not_reached' && (
@@ -213,7 +221,7 @@ export function ExorciseScreen() {
       before = pair.before;
       after = pair.after;
     } else {
-      before = runs[0];
+      before = beforeOptions(runs)[0];
     }
   }
 
@@ -267,7 +275,7 @@ export function ExorciseScreen() {
               choose(b, keepAfter ? after : null);
             }}
           >
-            {runs.map((r) => (
+            {beforeOptions(runs, before).map((r) => (
               <option key={r.key} value={r.key}>
                 {runLabel(r)}
               </option>

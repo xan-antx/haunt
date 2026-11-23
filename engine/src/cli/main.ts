@@ -46,10 +46,12 @@ import type { Intention, Mission } from '../missions/loadMission.ts';
 import { applyTemplates } from '../missions/templates.ts';
 
 export const USAGE = `Usage:
-  npx haunt run --ghost <listener|phantom|bebe> --mission <id> --url <url>
-                [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
-                [--config <file>] [--missions <dir>] [--mind <scripted|ai>]
-  npx haunt --help | npx haunt run --help
+  npm run haunt -- run --ghost <listener|phantom|bebe> --mission <id> --url <url>
+                       [--out <dir>] [--site <key>] [--site-name <text>] [--seed <int>] [--headed]
+                       [--config <file>] [--missions <dir>] [--mind <scripted|ai>]
+  npm run haunt -- --help | npm run haunt -- run --help
+
+Run these in engine/. Not "npx haunt": an unrelated npm package has that name.
 
 Ghosts:
   listener   keyboard only, through a screen reader's view
@@ -351,7 +353,7 @@ export async function main(argv: string[], deps: CliDeps = {}): Promise<number> 
     say('The command line is not right:');
     for (const problem of parsed.problems) say(`  - ${problem}`);
     say('');
-    say('Run "npx haunt --help" to see the usage.');
+    say('Run "npm run haunt -- --help" in engine/ to see the usage.');
     return EXIT.usage;
   }
   const { args } = parsed;

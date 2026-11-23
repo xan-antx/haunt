@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { defaultAfter, defaultPair } from '../screens/ExorciseScreen';
+import { beforeOptions, defaultAfter, defaultPair } from '../screens/ExorciseScreen';
 import { afterCandidates } from '../model/exorcise';
 import {
   fixedCopyName,
@@ -125,6 +125,22 @@ describe('Exorcise offers the fixed copy as the after run', () => {
     expect(pair?.before.key).toBe('2026-11-12-listener-pay-bill');
   });
 
+  it('beforeOptions leaves out fixed copy runs unless the URL opened one as the before run', () => {
+    const runs = [fixedRun(), laterOriginal(), listenerRun(), bebeRun()];
+    expect(beforeOptions(runs).map((r) => r.key)).toEqual(['2026-11-08-listener-pay-bill', L, '2026-11-03-bebe-pay-bill']);
+    expect(beforeOptions(runs, fixedRun()).map((r) => r.key)).toContain(FIXED);
+  });
+
+  it('defaultPair never picks a fixed copy run as the before run', () => {
+    const secondFixed = () => {
+      const json = derived.listenerOnFixedCopy();
+      json.runId = '2026-11-10-listener-pay-bill';
+      json.startedAt = '2026-11-10T10:00:00Z';
+      return mustRun(json, meta('2026-11-10-listener-pay-bill'));
+    };
+    expect(defaultPair([fixedRun(), secondFixed()])).toBeNull();
+  });
+
   it('defaultPair ignores the fixed copy for a ghost it has no run for', () => {
     expect(defaultPair([listenerRun(), bebeRun()])).toBeNull();
     expect(defaultPair([bebeRun(), fixedRun()])).toBeNull();
@@ -189,9 +205,14 @@ describe('screens', () => {
     expect(after).toHaveValue(FIXED);
     const option = within(after).getByRole('option', { name: /after the fix/ });
     expect(option).toHaveValue(FIXED);
-    // The Before list is not marked.
+    // The Before list offers only original-site runs, never the fixed copy's run.
     const before = screen.getByLabelText('Before run');
     expect(within(before).queryByText(/after the fix/)).not.toBeInTheDocument();
+    const beforeValues = within(before).getAllByRole('option').map((o) => o.getAttribute('value'));
+    expect(beforeValues).not.toContain(FIXED);
+    expect(beforeValues).toContain(L);
+    // The Page column names the fixed copy's "/" as the original does.
+    expect(within(screen.getByRole('table')).getAllByText('the bill page').length).toBeGreaterThan(0);
     // The fix removed the unlabeled button.
     const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
     expect(rows.map((r) => r.textContent)).toEqual([

@@ -16,7 +16,7 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 ## Glossary
 
 - **Engine**: The code in `engine/`.
-- **CLI**: The `haunt` command provided by the Engine, run as `npx haunt …` in `engine/`.
+- **CLI**: The `haunt` command provided by the Engine, run as `npm run haunt -- …` in `engine/`. (Revised: not `npx haunt`, because an unrelated package called `haunt` is on the npm registry and npx downloads and runs it outside `engine/`.)
 - **Ghost**: One of `listener` (The Listener), `phantom` (The Phantom) or `bebe` (Bebe).
 - **Body**: The part of a Ghost that perceives the page and performs actions in the browser.
 - **Mind**: The part of a Ghost that decides the next action from a Perception. In this spec every Mind is scripted (deterministic code, no AI).
@@ -62,8 +62,8 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 
 1. THE Engine SHALL be located in `engine/`, written in TypeScript in strict mode, and run on Node.js LTS version 24 or later.
 2. THE Engine SHALL drive the browser with the `playwright` package using Chromium only.
-3. THE Engine SHALL provide the npm scripts `build` (type check), `test` (unit and Property_Tests), `test:properties`, `test:e2e`, `demo` and `demo:all`, and each script SHALL run in Windows PowerShell without Unix-only syntax such as `rm -rf`, `VAR=value command` or single-quoted arguments.
-4. WHEN a developer runs `npm install` and then `npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000` in `engine/`, THE CLI SHALL start the Run without a separate compile step.
+3. (Revised) THE Engine SHALL provide the npm scripts `haunt` (runs the CLI, `node bin/haunt.mjs`; the `bin` entry stays), `build` (type check), `test` (unit and Property_Tests), `test:properties`, `test:e2e`, `demo` and `demo:all`, and each script SHALL run in Windows PowerShell without Unix-only syntax such as `rm -rf`, `VAR=value command` or single-quoted arguments.
+4. (Revised) WHEN a developer runs `npm install` and then `npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000` in `engine/`, THE CLI SHALL start the Run without a separate compile step.
 5. IF Chromium for Playwright is not installed, THEN THE CLI SHALL print the command `npx playwright install chromium` and exit with code 1 without writing any file.
 6. THE Engine SHALL ignore `engine/node_modules/` and `engine/test-output/` in git.
 7. THE work in this spec SHALL NOT create, modify or delete any file in `dashboard/`, `demo-site/` or `runs/`. Outside `engine/` and this spec folder, it SHALL only add `contract/run.schema.json`.
@@ -82,7 +82,7 @@ Findings come only from deterministic detectors, never from a ghost's mind. Test
 6. WHEN a Run_File has been saved, THE CLI SHALL print the absolute path of `run.json` as the last line of standard output and exit with code 0 when the result is `succeeded` or `gave_up`, and with code 3 when the result is `error`.
 7. IF an argument is missing, unknown or invalid, including an unknown Ghost, an unknown Mission or an unknown Site_Key, THEN THE CLI SHALL print what is wrong and the allowed values, exit with code 2, and not open a browser.
 8. THE CLI SHALL accept the options `--site-name <text>` (Requirement 2.11), `--seed <integer>` (seed for the visual Ghosts' timing jitter, random and printed to standard error when absent), `--headed` (show the browser window), `--config <file>` and `--missions <dir>` (used by tests to point at fixture files).
-9. WHEN `npx haunt --help` or `npx haunt run --help` is run, THE CLI SHALL print the usage, the options and the allowed Ghost values, and exit with code 0.
+9. (Revised) WHEN `npm run haunt -- --help` or `npm run haunt -- run --help` is run, THE CLI SHALL print the usage, the options and the allowed Ghost values, and exit with code 0. The usage text and the hint printed after an invalid command line SHALL show the `npm run haunt --` form, never `npx haunt`.
 10. IF the Engine runs under the test runner and the Out_Root resolves to a folder inside the repository's `runs/` folder, THEN THE CLI SHALL refuse to run and exit with code 2.
 11. WHERE `--site-name <text>` is given, THE CLI SHALL write `<text>` as `site.name` in the Run_File, for example to record the fixed copy of a site as "Lantern Bills demo (exorcised)". Without it, THE CLI SHALL write the `name` of the Site_Key's entry in the Haunt_Config. `--site-name` SHALL NOT change the Site_Key, the Run_Folder's location or any other field, and THE CLI SHALL treat an empty or blank value as an invalid argument (exit code 2, no browser).
 

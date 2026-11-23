@@ -22,7 +22,7 @@ Rules for every task:
   - `tsconfig.json` (strict, `module`/`moduleResolution` for bundler-style imports, `noEmit`, includes `src`, `test`, `e2e`, `scripts`), `vitest.config.ts` (excludes `e2e/**`, `env: { HAUNT_UNDER_TEST: '1' }`) and `vitest.e2e.config.ts` (as in the design)
   - `engine/.gitignore` with `node_modules/` and `test-output/`
   - `bin/haunt.mjs` that registers `tsx` and calls `main()` from `src/cli/main.ts`; a temporary `main` that prints the usage
-  - Run `npm install` and `npx playwright install chromium`, then confirm in PowerShell that `npx haunt --help` prints the usage and exits 0
+  - Run `npm install` and `npx playwright install chromium`, then confirm in PowerShell that `npm run haunt -- --help` prints the usage and exits 0
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.6, 2.9_
 
 - [x] 2. Contract types, Run_Schema and invariants
@@ -133,7 +133,7 @@ Rules for every task:
 
 - [x] 12. Register The Listener and run it once by hand
   - Wire `listener` into the ghost registry with its profile, body, mind, detectors and stop rule
-  - Start the harness from task 13.1 or run `npm run dev` in `demo-site/` yourself, then run `npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000 --out test-output/manual` in `engine/`. Compare the steps with the design's expected walk and fix differences in the engine
+  - Start the harness from task 13.1 or run `npm run dev` in `demo-site/` yourself, then run `npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000 --out test-output/manual` in `engine/`. Compare the steps with the design's expected walk and fix differences in the engine
   - _Requirements: 2.1, 8, 9, 10, 11_
 
 - [x] 13. Lantern_Bills_Harness and The Listener's end-to-end test

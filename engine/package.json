@@ -12,6 +12,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "haunt": "node bin/haunt.mjs",
     "build": "tsc --noEmit",
     "test": "vitest run",
     "test:properties": "vitest run -t \"Feature: haunt-engine, Property\"",

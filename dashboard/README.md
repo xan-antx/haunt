@@ -26,7 +26,7 @@ The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev`
 
 Needs `npm install` in `dashboard/`, `demo-site/` and `engine/`, and `npx playwright install chromium` in `engine/`.
 
-With `npm run dev`, the button on Home starts Lantern Bills on port 3000 if nothing is there (built into `dashboard/.live/`), runs The Listener on the `pay-bill` mission with `haunt run` (scripted mind), writes the run into `runs/`, adds it to the dashboard, and stops the site again if it started it. Progress shows on Home. If Lantern Bills is already running on port 3000, it is used and left running; anything else on that port stops the job.
+With `npm run dev`, the button on Home starts Lantern Bills on port 3000 if nothing is there (built into `dashboard/.live/`), runs The Listener on the `pay-bill` mission through the engine's CLI (scripted mind; the same as `npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000` in `engine/`), writes the run into `runs/`, adds it to the dashboard, and stops the site again if it started it. Progress shows on Home. If Lantern Bills is already running on port 3000, it is used and left running; anything else on that port stops the job.
 
 Only requests from your own computer are accepted (loopback address, local host name, this page's origin, and an `x-haunt-summon` header). The ghost, mission and address are fixed in `scripts/liveGhost.ts`. `npm run build` and the published site have no such endpoint, so there the button explains that live ghosts run on your own computer and shows `cd dashboard` and `npm run dev`.
 

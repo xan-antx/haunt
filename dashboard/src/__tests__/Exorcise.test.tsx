@@ -35,7 +35,8 @@ describe('Exorcise', () => {
     const rows = statuses();
     expect(rows).toHaveLength(2);
     expect(rows[0]![0]).toContain('Button with no name');
-    expect(rows[0]![1]).toBe('/bill');
+    // The Page column names the page in plain words, like the stuck answers, not by its path.
+    expect(rows[0]![1]).toBe('the bill page');
     expect(rows[0]![2]).toContain('Exorcised');
     expect(rows[1]![0]).toContain('Keyboard trap');
     expect(rows[1]![2]).toContain('Still haunting');
@@ -82,7 +83,7 @@ describe('Exorcise', () => {
       expect.stringContaining('New haunting'),
     ]);
     expect(rows[2]![0]).toContain('Error nobody announced');
-    expect(rows[2]![1]).toBe('/bill');
+    expect(rows[2]![1]).toBe('the bill page');
     expect(screen.queryByText(/Different ghosts/)).not.toBeInTheDocument();
   });
 

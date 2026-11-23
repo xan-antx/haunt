@@ -38,10 +38,10 @@ Run a ghost against Lantern Bills. Start the demo site first (`cd demo-site`, `n
 cd engine
 npm install
 npx playwright install chromium
-npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000
+npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000
 ```
 
-`--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. The engine refuses any address other than `localhost`, `127.0.0.1` and domains in its config. See [engine/README.md](engine/README.md) for every option, exit code and test command.
+Run it with `npm run haunt --` inside `engine/`, not with `npx haunt`: an unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs that one. `--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. The engine refuses any address other than `localhost`, `127.0.0.1` and domains in its config. See [engine/README.md](engine/README.md) for every option, exit code and test command.
 
 ## Run it locally
 
@@ -87,7 +87,7 @@ The dashboard (`dashboard/`) is a static React and Vite site. It only reads run 
 | **Exorcise** | Compares a run before a fix with a run after it, by the same ghost on the same mission. The repo has one real run per ghost, so there is no real before and after pair yet. |
 | **Spec Coverage** | Each mission is one requirement. Shows whether each ghost's latest run completed it. |
 
-The reproduce command in the dashboard (`npx haunt run ...`) is the real engine command. The **Summon a live ghost** button on Home works only when you run the dashboard yourself with `npm run dev` (in `dashboard/`): it starts Lantern Bills on port 3000 if needed, runs The Listener through `haunt run`, adds the new run to the dashboard and stops the site again. It only accepts requests from your own computer. On the published site the button explains this and shows the two commands.
+The reproduce command in the dashboard (`git checkout <commit> && cd engine && npm run haunt -- run ...`) is the real engine command. The **Summon a live ghost** button on Home works only when you run the dashboard yourself with `npm run dev` (in `dashboard/`): it starts Lantern Bills on port 3000 if needed, runs The Listener through the engine's CLI (the same as `npm run haunt -- run` in `engine/`), adds the new run to the dashboard and stops the site again. It only accepts requests from your own computer. On the published site the button explains this and shows the two commands.
 
 ## Tests
 

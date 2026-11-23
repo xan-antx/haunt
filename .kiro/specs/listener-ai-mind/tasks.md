@@ -167,9 +167,9 @@ Rules for every task:
 - [x] 11. Self-check (manual, run by the agent executing the tasks)
   - [ ] 11.1 Run the Listener with the AI mind on Lantern Bills and compare
     - Ask the user to start Lantern Bills and give its URL. Do not start a dev server and do not run e2e tests
-    - From `engine/`, run `npx haunt run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `C:\Users\Lenovo\AppData\Local\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
+    - From `engine/`, run `npm run haunt -- run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `C:\Users\Lenovo\AppData\Local\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
     - Validate the written `run.json` against `contract/run.schema.json` with the engine's existing validation (for example a short `npx tsx` script that calls `validate` from `src/contract`). Report the result
-    - Compare the Findings with the Baseline_Findings (an unlabeled button and a focus trap) and with a scripted run: run `npx haunt run --ghost listener --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/scripted/` and compare the finding types and the steps they point to
+    - Compare the Findings with the Baseline_Findings (an unlabeled button and a focus trap) and with a scripted run: run `npm run haunt -- run --ghost listener --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/scripted/` and compare the finding types and the steps they point to
     - Report: run path, result, number of steps, the Findings of each run, schema result, and the Credits_Report line (or "unknown" with the reason)
     - If the Findings differ from the baseline, record the difference in the report and in `engine/test-output/ai-runs/self-check.md`. Do not edit any detector, mission or test, and do not weaken a check
     - Confirm with `git status --porcelain -- dashboard demo-site demo-site-exorcised runs` that nothing changed there

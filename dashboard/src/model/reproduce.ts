@@ -15,6 +15,7 @@ export function reproduceCommand(run: Run): string {
   const q = shellQuote;
   return (
     `git checkout ${q(run.site.commit)} && ` +
-    `npx haunt run --ghost ${q(run.ghost)} --mission ${q(run.mission.id)} --url ${q(run.site.url)}`
+    // The engine's npm script, run in engine/. Never `npx haunt`: an unrelated npm package has that name.
+    `cd engine && npm run haunt -- run --ghost ${q(run.ghost)} --mission ${q(run.mission.id)} --url ${q(run.site.url)}`
   );
 }

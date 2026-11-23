@@ -145,7 +145,8 @@ describe('Feature: haunt-dashboard, Property 8: reproduceCommand keeps values in
         const words = shellWords(reproduceCommand(run));
         expect(words).toEqual([
           'git', 'checkout', commit, '&', '&',
-          'npx', 'haunt', 'run', '--ghost', run.ghost, '--mission', missionId, '--url', url,
+          'cd', 'engine', '&', '&',
+          'npm', 'run', 'haunt', '--', 'run', '--ghost', run.ghost, '--mission', missionId, '--url', url,
         ]);
       }),
       { numRuns: 500 },

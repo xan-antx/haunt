@@ -43,7 +43,7 @@ describe('Ghost Cam panels', () => {
     expect(screen.getByText("Pay this month's electricity bill")).toBeInTheDocument();
     expect(screen.getByText(/WHEN the user submits a valid payment/)).toBeInTheDocument();
     expect(screen.getByText('def5678')).toBeInTheDocument();
-    expect(screen.getByText(/git checkout def5678 && npx haunt run --ghost listener/)).toBeInTheDocument();
+    expect(screen.getByText(/git checkout def5678 && cd engine && npm run haunt -- run --ghost listener/)).toBeInTheDocument();
     expect(document.title).toBe('Step 9 of 9 · The Listener · Ghost Cam · Haunt');
   });
 

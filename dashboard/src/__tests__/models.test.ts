@@ -240,7 +240,7 @@ describe('coverage with the samples', () => {
 describe('reproduce and waveform', () => {
   it('builds the reproduce command for the Listener sample', () => {
     expect(reproduceCommand(listenerRun())).toBe(
-      'git checkout def5678 && npx haunt run --ghost listener --mission pay-bill --url http://localhost:3000',
+      'git checkout def5678 && cd engine && npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000',
     );
     expect(shellQuote("it's here")).toBe(`'it'\\''s here'`);
   });
