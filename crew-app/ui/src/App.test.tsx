@@ -14,7 +14,7 @@ const record: PatrolRecord = {
   seed: 20261103,
   interrupted: false,
   ghosts: [
-    makeEntry('listener', { result: 'gave_up', exitCode: 0, runId: 'run one/x', findings: [{ type: 'focus_trap', step: 4, title: 'Trapped' }], error: null }),
+    makeEntry('listener', { result: 'gave_up', exitCode: 0, runId: 'run one/x', findings: [{ type: 'focus_trap', step: 4, title: 'Trapped' }, { type: 'missing_label', step: 7, title: 'Unlabelled search' }], error: null }),
     makeEntry('phantom', { result: 'no_run', exitCode: 1, runId: null, findings: [], error: 'No page' }),
     makeEntry('bebe', { result: 'error', exitCode: 3, runId: 'run-bebe', findings: [], error: null }),
   ],
@@ -71,24 +71,31 @@ describe('Patrol page', () => {
     expect(countsText({ a: 2, b: 1 })).toBe('a 2, b 1');
   });
 
-  it('names the ghost in each link, uses the base URL from the backend, and is keyboard reachable', async () => {
+  it('lists type, step and title in a "Show findings" section for a ghost that has findings', async () => {
     respondWith({ '/apps/haunt-patrol/api/latest': latestBody, '/apps/haunt-patrol/api/summary': summaryBody });
-    render(<App />);
-    const link = await screen.findByRole('link', { name: "Open The Listener's run in dashboard" });
-    expect(link.getAttribute('href')).toBe('http://localhost:3999/#/run/run%20one%2Fx');
-    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
-    expect(link.getAttribute('target')).toBe('_blank');
-    expect(link.textContent).toBe("Open The Listener's run in dashboard");
-    expect(screen.getByRole('link', { name: "Open Bebe's run in dashboard" })).toBeTruthy();
-    expect(screen.queryByRole('link', { name: /Phantom/ })).toBeNull();
-    for (const l of screen.getAllByRole('link')) expect(l.tabIndex).toBeGreaterThanOrEqual(0);
+    const { container } = render(<App />);
+    await screen.findByText('Latest patrol: 2026-11-03 (IST)');
+    const summaries = screen.getAllByText('Show findings');
+    expect(summaries).toHaveLength(1);
+    const details = container.querySelector('details');
+    expect(details).not.toBeNull();
+    expect(details?.querySelector('summary')?.getAttribute('aria-label')).toBe('Show findings for The Listener');
+    const items = Array.from(details?.querySelectorAll('li') ?? []).map((li) => li.textContent);
+    expect(items).toEqual(['focus_trap, step 4, Trapped', 'missing_label, step 7, Unlabelled search']);
   });
 
-  it('shows the collect-runs note', async () => {
+  it('has no "Open in dashboard" links and one link to the live dashboard', async () => {
     respondWith({ '/apps/haunt-patrol/api/latest': latestBody, '/apps/haunt-patrol/api/summary': summaryBody });
     render(<App />);
-    await screen.findByText(/needs its run list refreshed/);
-    expect(screen.getByText('npm run collect-runs')).toBeTruthy();
+    await screen.findByText('Latest patrol: 2026-11-03 (IST)');
+    expect(screen.queryByRole('link', { name: /Open .* in dashboard/ })).toBeNull();
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]?.getAttribute('href')).toBe('https://xan-antx.github.io/haunt/');
+    expect(links[0]?.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(links[0]?.getAttribute('target')).toBe('_blank');
+    expect(links[0]?.tabIndex).toBeGreaterThanOrEqual(0);
+    expect(screen.queryByText('npm run collect-runs')).toBeNull();
   });
 
   it('shows the no-patrol state when the backend answers 404', async () => {

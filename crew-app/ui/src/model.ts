@@ -2,6 +2,9 @@ import { validateRecord, type GhostEntry, type PatrolRecord } from '../../src/re
 
 export const API_BASE = '/apps/haunt-patrol/api';
 
+/** The hosted Haunt dashboard. It shows the recorded demo runs, not patrol runs. */
+export const LIVE_DASHBOARD_URL = 'https://xan-antx.github.io/haunt/';
+
 export function badgeLabel(result: GhostEntry['result']): string {
   switch (result) {
     case 'succeeded':

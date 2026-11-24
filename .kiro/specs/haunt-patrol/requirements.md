@@ -204,12 +204,12 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 2. THE Patrol_Page SHALL display the patrol date in IST, the Patrol_Summary, and one row per Ghost.
 3. THE Patrol_Page SHALL display for each Ghost row a text badge with the Run_Result (`Succeeded`, `Gave up`, `Error` or `No run`), so that status is not conveyed by color alone.
 4. THE Patrol_Page SHALL display for each Ghost row the finding counts by type.
-5. WHERE a Ghost has a runId, THE Patrol_Page SHALL display an "Open in dashboard" link to `<Dashboard_Base_URL>/#/run/<runId>`, using the `dashboardBaseUrl` value returned by the Patrol_Backend `/api/latest` endpoint.
-6. THE Patrol_Page SHALL display a message instructing the user to run `npm run collect-runs` in `dashboard/` so that a run missing from the Dashboard appears there.
+5. WHERE a Ghost has at least one finding, THE Patrol_Page SHALL display an expandable "Show findings" section in that Ghost's row, listing each finding's type, step and title. Patrol runs live in Haunt Patrol's own data folder, which the Dashboard cannot read, so the page SHALL NOT link to a patrol run in the Dashboard.
+6. THE Patrol_Page SHALL display one link to the live Dashboard, `https://xan-antx.github.io/haunt/`, labelled as the place for the recorded demo runs.
 7. THE Patrol_App SHALL NOT run `npm run collect-runs`.
 8. IF the Latest_Record does not exist, THEN THE Patrol_Page SHALL display a message that no patrol has run yet.
 9. IF the Latest_Record cannot be parsed, THEN THE Patrol_Page SHALL display an error message naming the file.
-10. THE Patrol_Page SHALL be operable by keyboard and expose each link with descriptive accessible text that includes the Ghost name.
+10. THE Patrol_Page SHALL be operable by keyboard, and each "Show findings" control SHALL have an accessible name that includes the Ghost name.
 11. THE Patrol_Page SHALL read patrol data only from the Patrol_Backend `/api/latest` and `/api/summary` endpoints (called as `/apps/haunt-patrol/api/latest` and `/apps/haunt-patrol/api/summary`) or the Static_Fallback, and read no files or environment values directly.
 
 ### Requirement 10: Data access for the page

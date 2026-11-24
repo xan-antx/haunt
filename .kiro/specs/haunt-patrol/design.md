@@ -647,9 +647,9 @@ Layout:
 
 - `PageHeader` title "Haunt Patrol", subtitle "Latest patrol: 2026-11-03 (IST)".
 - A summary card with the Patrol_Summary text.
-- One row per ghost, inside a `<ul>`: ghost name as text, a text badge (`Succeeded`, `Gave up`, `Error`, `No run`) with a leading symbol (✓, ⚠, ✕, –) so colour is never the only signal, the finding counts by type (for example "keyboard-trap 2, missing-label 1", or "No findings"), and for a row with a runId a link.
-- Link text: `Open Bebe's run in dashboard` (the visible text and the `aria-label` both name the ghost; the link is an ordinary `<a>`, so it is keyboard operable). It points to `dashboardRunUrl(base, runId)`, and opens in a new tab with `rel="noopener noreferrer"`.
-- A note: "A run that does not appear in the dashboard needs its run list refreshed. Run `npm run collect-runs` in `dashboard/`." The app never runs that command.
+- One row per ghost, inside a `<ul>`: ghost name as text, a text badge (`Succeeded`, `Gave up`, `Error`, `No run`) with a leading symbol (✓, ⚠, ✕, –) so colour is never the only signal, the finding counts by type (for example "keyboard-trap 2, missing-label 1", or "No findings"), and for a row with at least one finding an expandable section.
+- Findings section: a native `<details>` whose `<summary>` reads `Show findings` and carries `aria-label="Show findings for Bebe"` (the label starts with the visible text and names the ghost). Inside is a `<ul>` with one `<li>` per finding, formatted `<type>, step <step>, <title>`. The page no longer links to patrol runs, because patrol runs live in Haunt Patrol's own data folder and the Haunt dashboard cannot see them.
+- One note with a single link, `live Haunt dashboard`, to `LIVE_DASHBOARD_URL` (`https://xan-antx.github.io/haunt/`, a constant in `ui/src/model.ts`), for the recorded demo runs. It opens in a new tab with `rel="noopener noreferrer"`. The app never runs `collect-runs`. `dashboardBaseUrl` stays in the `/api/latest` body but the page does not use it.
 - The error and empty states use `EmptyState` with plain text, for example "No patrol has run yet. The first patrol runs at midnight IST."
 
 `badgeLabel(result)` and `countsText(counts)` are small pure functions in `ui/src/model.ts` so the page logic is testable without rendering. The page follows the Kiro Crew theme because it is rendered in the Crew dashboard, not in the Haunt dashboard, so the Haunt dashboard design rules (colour tokens, fonts, ghost drawings) do not apply to it.
@@ -787,7 +787,7 @@ vitest, TypeScript strict, in `crew-app/test/`. Property tests use `fast-check`,
 - Site controller with a fake spawner: build arguments, preview arguments with `--strictPort`, `shell: false`, ready polling, title mismatch gives not started, port conflict refuses to start, `taskkill /T /F` on `win32`, `SIGKILL` elsewhere.
 - No import of `liveGhost` anywhere under `crew-app/src` (a text scan test).
 - `runPatrol`: summary printed and saved, `summary.md` and `latest.json` written, the same-date overwrite, `npm`/`collect-runs` never called.
-- Patrol_Page with Testing Library: four badge texts, link text names the ghost, no-patrol state, invalid-record error naming the file, the collect-runs note, backend failure falls back to static data.
+- Patrol_Page with Testing Library: four badge texts, "Show findings" lists type, step and title and names the ghost, no "Open in dashboard" links, one link to the live dashboard, no-patrol state, invalid-record error naming the file, backend failure falls back to static data.
 - Static fallback: `exportStatic` writes the two files under `ui/dist/data/`; they survive a simulated rebuild; `ui/vite.config.ts` has `emptyOutDir: false`; running the patrol again rewrites them.
 - Schema test with a handful of valid and invalid records.
 - Exit codes: `EXIT` is `{0,1,2,3,4}`; an escaped exception in `patrol.ts` (fake `runPatrol` that throws) and a failing `writeRecord` both give 4 with the site stopped.

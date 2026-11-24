@@ -310,13 +310,13 @@ Constraints that apply to every task:
     - _Requirements: 9.1, 9.3, 9.4, 9.8, 9.9, 9.11, 10.3, 10.4_
 
   - [x] 7.2 Implement `ui/src/App.tsx`
-    - Default-export page using `useAppApi` and `@kirocrew/app-sdk/ui`: header with IST date, summary card, one `<ul>` row per ghost with text badge and leading symbol, finding counts, "Open <Ghost>'s run in dashboard" link built from the `dashboardBaseUrl` the backend returned (visible text and `aria-label` name the ghost, `rel="noopener noreferrer"`, new tab), the `npm run collect-runs` note, empty and error states
+    - Default-export page using `useAppApi` and `@kirocrew/app-sdk/ui`: header with IST date, summary card, one `<ul>` row per ghost with text badge and leading symbol, finding counts, an expandable "Show findings" section per ghost with findings (type, step, title; `aria-label` names the ghost), one link to the live dashboard `https://xan-antx.github.io/haunt/` (`rel="noopener noreferrer"`, new tab) for the recorded demo runs, empty and error states
     - The page reads data only through the two routes (or their static equivalents) and reads no file or environment value directly; it never runs `collect-runs`
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.10, 9.11_
 
   - [x]* 7.3 Write Testing Library tests for the page
     - Place the tests in `ui/src/App.test.tsx` (with `// @vitest-environment jsdom` and explicit `vitest` imports), so they are type-checked by `ui/tsconfig.json`
-    - Four badge texts, link text names the ghost and its address uses the `dashboardBaseUrl` from the `/latest` body, the page fetches both `/latest` and `/summary`, no-patrol state, invalid-record error naming `latest.json`, the collect-runs note, backend failure (including 401) falls back to static data, links reachable by keyboard
+    - Four badge texts, "Show findings" lists type, step and title and names the ghost, no "Open in dashboard" links, one live-dashboard link, the page fetches both `/latest` and `/summary`, no-patrol state, invalid-record error naming `latest.json`, backend failure (including 401) falls back to static data
     - _Requirements: 9.2, 9.3, 9.5, 9.6, 9.8, 9.9, 9.10, 9.11_
 
   - [x] 7.4 Write the `emptyOutDir` config test (required)

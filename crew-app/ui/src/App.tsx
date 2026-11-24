@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAppApi } from '@kirocrew/app-sdk';
 import { Card, CardTitle, EmptyState, MarkdownRenderer, PageHeader } from '@kirocrew/app-sdk/ui';
-import { dashboardRunUrl } from '../../src/dashboardLink.ts';
 import { GHOST_NAMES } from '../../src/ghosts.ts';
-import { badgeLabel, badgeSymbol, countsText, loadPatrol, type Getter, type PatrolView } from './model.ts';
+import { LIVE_DASHBOARD_URL, badgeLabel, badgeSymbol, countsText, loadPatrol, type Getter, type PatrolView } from './model.ts';
 
 /** Reads a static file that sits next to the built bundle (ui/dist/data/). It needs no signing. */
 const getStatic: Getter = async (path) => {
@@ -57,7 +56,7 @@ export default function App() {
     );
   }
 
-  const { record, summary, dashboardBaseUrl } = view;
+  const { record, summary } = view;
   return (
     <div>
       <PageHeader title="Haunt Patrol" subtitle={`Latest patrol: ${record.date} (IST)`} />
@@ -75,26 +74,28 @@ export default function App() {
                 <span aria-hidden="true">{badgeSymbol(entry.result)}</span> <span>{badgeLabel(entry.result)}</span>
               </span>
               . <span>{countsText(entry.findingCounts)}</span>
-              {entry.runId !== null ? (
-                <>
-                  {' '}
-                  <a
-                    href={dashboardRunUrl(dashboardBaseUrl, entry.runId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Open ${GHOST_NAMES[entry.ghost]}'s run in dashboard`}
-                  >
-                    {`Open ${GHOST_NAMES[entry.ghost]}'s run in dashboard`}
-                  </a>
-                </>
+              {entry.findings.length > 0 ? (
+                <details>
+                  <summary aria-label={`Show findings for ${GHOST_NAMES[entry.ghost]}`}>Show findings</summary>
+                  <ul>
+                    {entry.findings.map((finding, index) => (
+                      <li key={index}>
+                        <span>{finding.type}</span>, <span>step {finding.step}</span>, <span>{finding.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
               ) : null}
             </li>
           ))}
         </ul>
       </Card>
       <p>
-        A run that does not appear in the dashboard needs its run list refreshed. Run <code>npm run collect-runs</code> in{' '}
-        <code>dashboard/</code>.
+        The recorded demo runs are in the{' '}
+        <a href={LIVE_DASHBOARD_URL} target="_blank" rel="noopener noreferrer">
+          live Haunt dashboard
+        </a>
+        . Patrol runs are kept in Haunt Patrol's own data folder, so the dashboard does not list them.
       </p>
     </div>
   );
