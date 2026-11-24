@@ -169,6 +169,80 @@ export const HIGHLIGHT_PAD = 9;
 /** Free space kept between the highlight and the top and bottom edges of the viewport. */
 export const EDGE_SPACE = 24;
 
+/** How many times one stop plans and scrolls again when the page stops with its target out of view. */
+export const MAX_REPLANS = 3;
+
+/**
+ * True when the target's highlight is in view: below any fixed header and above the bottom edge,
+ * or, for a highlight taller than that room, with its top in the upper half. `target` is in
+ * viewport coordinates. This is a looser check than the plan: it catches a page that stopped in
+ * the wrong place (a late scroll the tour did not make), not a pixel of rounding.
+ */
+export function targetInView(target: Box, viewport: Size, topInset: number): boolean {
+  const top = target.top - HIGHLIGHT_PAD;
+  const bottom = target.top + target.height + HIGHLIGHT_PAD;
+  const roomTop = Math.max(0, topInset);
+  if (top < roomTop - 1) return false;
+  const tall = bottom - top > viewport.height - roomTop;
+  return tall ? top < viewport.height / 2 : bottom <= viewport.height + 1;
+}
+
+export interface SettleInput {
+  /** The target's box in viewport coordinates once the page has stopped, or null without a target. */
+  target: Box | null;
+  viewport: Size;
+  topInset: number;
+  /**
+   * The target's viewport top that the last plan placed the callout for, or null if unknown. When
+   * the page stopped somewhere else, the callout stands where the target used to be.
+   */
+  expectedTop?: number | null;
+  /** Where the page is now. */
+  scrollY?: number;
+  /**
+   * The scroll offset the tour last scrolled to, or null if it has not scrolled. A smooth scroll
+   * can stall short of it on a busy machine; the stop then looks as if the reader had taken over.
+   */
+  plannedScrollY?: number | null;
+  /** True once the page has been at `plannedScrollY`; a scroll away after that is the reader's. */
+  reachedPlan?: boolean;
+  /** How many times this stop has already planned again. */
+  replans: number;
+  /** False once the stop is old enough that a scroll is taken to be the reader's own. */
+  canReplan: boolean;
+}
+
+/** 'idle': done. 'replan': plan and scroll again. 'place': put the callout by the target where it is now. */
+export type SettleAction = 'idle' | 'replan' | 'place';
+
+/**
+ * What a stop does once its page has stopped scrolling. It is 'idle' when there is no target, or
+ * when the page is where the tour scrolled it and the target is in view where the last plan
+ * expected it. Otherwise it plans and scrolls again ('replan'), at most MAX_REPLANS times: always
+ * when the tour's own scroll stalled before it got there, and otherwise only while `canReplan`
+ * (later, a scroll is the reader's own). After that it only moves the callout to where the target
+ * now is ('place') if the page moved under it.
+ */
+export function settleDecision({
+  target,
+  viewport,
+  topInset,
+  expectedTop = null,
+  scrollY = 0,
+  plannedScrollY = null,
+  reachedPlan = false,
+  replans,
+  canReplan,
+}: SettleInput): SettleAction {
+  if (!target) return 'idle';
+  const where = expectedTop === null || Math.abs(target.top - expectedTop) <= 1;
+  const arrived = plannedScrollY === null || Math.abs(scrollY - plannedScrollY) <= 1;
+  if (where && arrived && targetInView(target, viewport, topInset)) return 'idle';
+  const stalled = !arrived && !reachedPlan;
+  if ((stalled || canReplan) && replans < MAX_REPLANS) return 'replan';
+  return where ? 'idle' : 'place';
+}
+
 export interface Size {
   width: number;
   height: number;

@@ -128,6 +128,10 @@ async function walkTour(page: Page) {
     const next = dialog.getByRole('button', { name: last ? 'Finish' : 'Next' });
     await expect(next, `stop ${i + 1}: focus on ${last ? 'Finish' : 'Next'}`).toBeFocused();
     await expect(page.locator('[data-tour-highlight]'), `stop ${i + 1}: highlight`).toHaveCount(1);
+    // While the tour's own scroll is on its way, the callout already stands where it goes at the
+    // end and the highlight follows the page. A busy browser can skip frames during that scroll, so
+    // two equal readings alone do not prove it has ended; the tour says so (see tour-scroll.spec.ts).
+    await expect(dialog, `stop ${i + 1}: finished scrolling`).toHaveAttribute('data-tour-scroll', 'idle');
 
     const m = await settledStop(page);
     expect(m.dialog, `stop ${i + 1}: dialog box`).not.toBeNull();

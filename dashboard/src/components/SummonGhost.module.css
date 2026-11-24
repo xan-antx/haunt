@@ -17,7 +17,7 @@
 
 .commands {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   background: var(--surface);
   color: var(--text);
   border-radius: var(--radius);

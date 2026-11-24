@@ -111,15 +111,31 @@ test.describe('reproduce command', () => {
     });
   }
 
-  test('2560 px at 100%: the command fits, so the box is not in the Tab order', async ({ page }) => {
+  // The full command (`git checkout <commit> && cd engine && npm run haunt -- run ...`) is wider
+  // than the content column allows at any viewport, because the column stops at --content-width.
+  // So at 2560 px the box scrolls, and is focusable like at 320 px.
+  test('2560 px at 100%: the command is wider than the capped column, so the box is in the Tab order', async ({ page }) => {
     const box = await open(page, 2560, 1);
-    const s = await scrollState(box);
-    expect(s.max, 'the command fits its box').toBeLessThanOrEqual(1);
+    expect((await scrollState(box)).max, 'the command overflows its box').toBeGreaterThan(1);
+    await expect(box).toHaveAttribute('tabindex', '0');
+  });
+
+  // To reach the "fits" case, these tests lift the column cap, so at 2560 px the box is wider than
+  // the command. The rule they check is unchanged: focusable exactly while the box can scroll.
+  async function uncapColumn(page: Page) {
+    await page.evaluate(() => document.documentElement.style.setProperty('--content-width', 'none'));
+  }
+
+  test('2560 px at 100% with room to spare: the command fits, so the box is not in the Tab order', async ({ page }) => {
+    const box = await open(page, 2560, 1);
+    await uncapColumn(page);
+    await expect.poll(async () => (await scrollState(box)).max, 'the command fits its box').toBeLessThanOrEqual(1);
     await expect(box).not.toHaveAttribute('tabindex');
   });
 
   test('the box joins and leaves the Tab order when the viewport changes', async ({ page }) => {
     const box = await open(page, 2560, 1);
+    await uncapColumn(page);
     await expect(box).not.toHaveAttribute('tabindex');
 
     await page.setViewportSize({ width: 320, height: HEIGHT });

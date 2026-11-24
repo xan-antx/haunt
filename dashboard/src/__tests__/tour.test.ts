@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildTour, placeCallout, sentenceCount } from '../model/tour';
+import { MAX_REPLANS, buildTour, placeCallout, sentenceCount, settleDecision, targetInView } from '../model/tour';
 import { bebeRun, sampleRuns } from './fixtures/samples';
 
 const L = '2026-11-03-listener-pay-bill';
@@ -68,6 +68,73 @@ describe('sentenceCount', () => {
     expect(sentenceCount("It's the page. The outline marks focus.")).toBe(2);
     expect(sentenceCount('Is it? Yes! Done.')).toBe(3);
     expect(sentenceCount('No full stop')).toBe(0);
+  });
+});
+
+describe('settleDecision: the page has stopped, is the target in view? (Req 22.5)', () => {
+  // The e2e failure at 1536 × 730, stop 6 on Graveyard: the page stopped at scrollY 797 with the
+  // highlight's top at −553, so the Graveyard views fieldset (about 104 px tall) was above the screen.
+  const viewport = { width: 1536, height: 730 };
+  const offScreen = { top: -553 + 9, left: 138, width: 334, height: 104 };
+  const inView = { top: 120, left: 138, width: 334, height: 104 };
+  const base = { viewport, topInset: 0, replans: 0, canReplan: true };
+
+  it('plans and scrolls again when the page stopped with the target above the screen', () => {
+    expect(targetInView(offScreen, viewport, 0)).toBe(false);
+    expect(settleDecision({ ...base, target: offScreen })).toBe('replan');
+  });
+
+  it('plans again when the target is below the screen or under a fixed header', () => {
+    expect(settleDecision({ ...base, target: { ...inView, top: 700 } })).toBe('replan');
+    expect(settleDecision({ ...base, target: { ...inView, top: 40 }, topInset: 82 })).toBe('replan');
+  });
+
+  it('is idle when the target is in view', () => {
+    expect(targetInView(inView, viewport, 0)).toBe(true);
+    expect(settleDecision({ ...base, target: inView })).toBe('idle');
+  });
+
+  it('is idle for a tall target whose top is in the upper half', () => {
+    const tall = { top: 100, left: 0, width: 800, height: 1500 };
+    expect(settleDecision({ ...base, target: tall })).toBe('idle');
+    expect(settleDecision({ ...base, target: { ...tall, top: 500 } })).toBe('replan');
+  });
+
+  // Like the e2e failure at 1366 × 650, stop 5: the timeline was on screen (top about 483) but not
+  // where the plan had put the callout for it, so the callout covered it. In view is not enough.
+  it('plans again when the page stopped somewhere the plan did not expect, even with the target in view', () => {
+    const timeline = { top: 483, left: 53, width: 1260, height: 148 };
+    const small = { width: 1366, height: 650 };
+    expect(targetInView(timeline, small, 0)).toBe(true);
+    expect(settleDecision({ ...base, viewport: small, target: timeline, expectedTop: 297 })).toBe('replan');
+    expect(settleDecision({ ...base, viewport: small, target: timeline, expectedTop: 483.5 })).toBe('idle');
+  });
+
+  it(`stops planning again after ${MAX_REPLANS} tries, without a target, or once the scroll is the reader's`, () => {
+    expect(settleDecision({ ...base, target: offScreen, replans: MAX_REPLANS - 1 })).toBe('replan');
+    expect(settleDecision({ ...base, target: offScreen, replans: MAX_REPLANS })).toBe('idle');
+    expect(settleDecision({ ...base, target: null })).toBe('idle');
+    expect(settleDecision({ ...base, target: offScreen, canReplan: false })).toBe('idle');
+  });
+
+  // The e2e failure at 1366 × 650, stop 4: the tour scrolled from 328 towards 423, the smooth scroll
+  // stalled at 402, and when the 1.5 s settle timer ran out the stop took the page as the reader's
+  // and put the callout on the edge, over the notice.
+  it('plans again when its own scroll stalled short of the plan, even late in the stop', () => {
+    const notice = { top: 557, left: 53, width: 1260, height: 81 };
+    const small = { width: 1366, height: 650 };
+    const stalled = { ...base, viewport: small, target: notice, expectedTop: 557, scrollY: 402, plannedScrollY: 423 };
+    expect(settleDecision({ ...stalled, canReplan: false })).toBe('replan');
+    expect(settleDecision({ ...stalled, canReplan: false, replans: MAX_REPLANS })).toBe('idle');
+    // Once the page had got there, a scroll away is the reader's: late in the stop it stays put.
+    expect(settleDecision({ ...stalled, canReplan: false, reachedPlan: true })).toBe('idle');
+    expect(settleDecision({ ...stalled, scrollY: 423, expectedTop: 536, target: { ...notice, top: 536 } })).toBe('idle');
+  });
+
+  it('then moves only the callout if the page is not where the plan expected', () => {
+    expect(settleDecision({ ...base, target: inView, expectedTop: 400, replans: MAX_REPLANS })).toBe('place');
+    expect(settleDecision({ ...base, target: inView, expectedTop: 400, canReplan: false })).toBe('place');
+    expect(settleDecision({ ...base, target: offScreen, expectedTop: offScreen.top, canReplan: false })).toBe('idle');
   });
 });
 

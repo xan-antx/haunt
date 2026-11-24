@@ -81,5 +81,8 @@ export default defineConfig(({ command, isPreview, mode }) => ({
     include: ['**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules/**', 'dist/**', '.e2e/**', 'e2e/**', 'test-results/**'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
+    // At most 3 test files at once, like engine/vitest.config.ts and the Playwright config. With a
+    // worker per CPU core, jsdom renders of whole screens starve each other past the 5 s timeout.
+    maxWorkers: 3,
   },
 }));

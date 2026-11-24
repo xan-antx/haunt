@@ -26,6 +26,7 @@ import {
   NARROW_VIEWPORT,
   buildTour,
   planTour,
+  settleDecision,
   type Box,
   type CalloutSide,
   type Size,
@@ -42,6 +43,8 @@ const RING_PAD = HIGHLIGHT_PAD - 3;
 const SETTLE_MS = 1500;
 /** How long after a stop begins the tour keeps checking that its target has not moved. */
 const WATCH_MS = 3000;
+/** How long the page must go without a scroll before the stop checks its target is in view. */
+const QUIET_MS = 150;
 
 export const TOUR_UNAVAILABLE = 'No ghost has walked here yet, so there is nothing to tour.';
 
@@ -334,6 +337,13 @@ function TourCallout({
     if (!resolved) return;
     let destination: number | null = null;
     let settleTimer = 0;
+    let checkTimer = 0;
+    let replans = 0;
+    let expectedTop: number | null = null;
+    // The scroll offset the tour last chose to scroll to. A stalled smooth scroll stops short of it.
+    let plannedScrollY: number | null = null;
+    let reachedPlan = false;
+    const stopStart = Date.now();
     let plannedTop = 0;
 
     const follow = () => {
@@ -355,6 +365,7 @@ function TourCallout({
       }
       const sizes = el ? calloutSizes(el, viewport.width) : [{ width: 0, height: 0 }];
       const current = window.scrollY;
+      if (plannedScrollY !== null && Math.abs(current - plannedScrollY) <= 1) reachedPlan = true;
       const result = planTour({
         target: target ? docBox(target) : null,
         sizes,
@@ -374,6 +385,9 @@ function TourCallout({
         width: result.size === sizes[0] ? null : result.size.width,
       });
       if (allowScroll) {
+        if (plannedScrollY === null || Math.abs(result.scrollY - plannedScrollY) > 1) reachedPlan = false;
+        plannedScrollY = result.scrollY;
+        if (Math.abs(window.scrollY - plannedScrollY) <= 1) reachedPlan = true;
         if (Math.abs(result.scrollY - current) <= 1) {
           destination = null;
           window.clearTimeout(settleTimer);
@@ -387,10 +401,47 @@ function TourCallout({
           window.scrollTo({ top: result.scrollY, left: window.scrollX, behavior: reduced ? 'instant' : 'smooth' });
         }
       }
-      if (target) plannedTop = docBox(target).top;
+      if (target) {
+        plannedTop = docBox(target).top;
+        // Where the callout expects the target in the viewport once the page is at the plan's scroll.
+        expectedTop = plannedTop - result.scrollY;
+      }
       follow();
       // Lets anything watching the tour (the e2e checks) know when the page has stopped moving.
-      if (el) el.dataset.tourScroll = destination === null ? 'idle' : 'moving';
+      // It is 'idle' only once the settle check below has found the target in view.
+      if (el) el.dataset.tourScroll = 'moving';
+      if (destination === null) settleCheck();
+      else window.clearTimeout(checkTimer);
+    };
+
+    // Once no scroll has moved the page for QUIET_MS, check that the page is where the tour scrolled
+    // it and the target is in view where the plan put the callout for it. On a busy machine a smooth
+    // scroll can stall short of its end, or a late scroll (focus, scroll restoration) can land after
+    // the plan without the scroll events that would move the callout. Then plan and scroll again, up
+    // to MAX_REPLANS times in the stop's first WATCH_MS. After that a scroll is taken to be the
+    // reader's own: the page stays put and only the callout moves.
+    const settleCheck = () => {
+      window.clearTimeout(checkTimer);
+      checkTimer = window.setTimeout(() => {
+        if (destination !== null) return;
+        const action = settleDecision({
+          target: target ? toBox(target.getBoundingClientRect()) : null,
+          viewport: viewportSize(),
+          topInset: fixedTopInset(),
+          expectedTop,
+          scrollY: window.scrollY,
+          plannedScrollY,
+          reachedPlan,
+          replans,
+          canReplan: Date.now() - stopStart <= WATCH_MS,
+        });
+        if (action === 'replan') {
+          replans += 1;
+          return plan(true);
+        }
+        if (action === 'place') return plan(false);
+        if (dialog.current) dialog.current.dataset.tourScroll = 'idle';
+      }, QUIET_MS);
     };
 
     plan(true);
@@ -435,6 +486,7 @@ function TourCallout({
       window.clearInterval(watcher);
       cancel();
       window.clearTimeout(settleTimer);
+      window.clearTimeout(checkTimer);
       window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onLayout);
       observer?.disconnect();

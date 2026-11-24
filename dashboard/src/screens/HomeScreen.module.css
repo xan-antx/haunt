@@ -1,6 +1,8 @@
+/* The results heading must start on the first screen at 1536 × 864 (Req 21.1). Since the Hero also
+   holds the "Summon a live ghost" block, its vertical padding is --space-5, not --space-6. */
 .hero {
   margin-bottom: var(--space-6);
-  padding: var(--space-6) var(--space-5);
+  padding: var(--space-5);
   border-radius: var(--radius-lg);
   background: radial-gradient(ellipse at 20% 0%, var(--surface), var(--bg) 70%);
   border: 2px solid var(--surface);
