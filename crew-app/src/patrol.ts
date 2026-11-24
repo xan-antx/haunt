@@ -23,9 +23,15 @@ export async function main(deps: MainDeps): Promise<number> {
   }
 }
 
-/** The real wiring. The repository root comes from HAUNT_REPO_ROOT, then from this file's location. */
+/**
+ * The real wiring. The app root (the folder with app.json) is one folder up from this file. Patrol data
+ * is written there, where the backend reads it. The repository root (engine/, demo-site/, runs/) comes
+ * from HAUNT_REPO_ROOT, then from the folder above the app root, which is right when the app runs from
+ * the repository. An installed copy (~/.kiro/crew/apps/haunt-patrol/) needs HAUNT_REPO_ROOT.
+ */
 export function realMainDeps(env: Record<string, string | undefined>): MainDeps {
-  const repoRoot = env.HAUNT_REPO_ROOT ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const repoRoot = env.HAUNT_REPO_ROOT || path.resolve(appRoot, '..');
   return {
     run: () =>
       runPatrol({
@@ -34,7 +40,7 @@ export function realMainDeps(env: Record<string, string | undefined>): MainDeps 
         probe: createRealProbe(repoRoot),
         site: createSiteController(repoRoot),
         commands: createCommandRunner(),
-        store: createPatrolStore(repoRoot),
+        store: createPatrolStore(appRoot),
         dashboardBaseUrl: dashboardBaseUrl(env),
         readFile: (p) => readFile(p, 'utf8'),
         stdout: (text) => process.stdout.write(text),

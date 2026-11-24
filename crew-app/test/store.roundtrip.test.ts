@@ -10,7 +10,7 @@ import { tempRoot } from './tmp.ts';
 describe('Feature: haunt-patrol, Property 5 (integration half): Patrol record round trip', () => {
   it('writes byte-identical dated and latest files, and a same-date write replaces the first', async () => {
     const root = await tempRoot();
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     const dir = path.join(root, 'crew-app', 'data', 'patrols');
     await fc.assert(
       fc.asyncProperty(arbRecord, arbRecord, async (first, secondBase) => {

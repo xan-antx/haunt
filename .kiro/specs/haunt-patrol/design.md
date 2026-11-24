@@ -2,17 +2,37 @@
 
 ## Overview
 
-Haunt Patrol is a Kiro Crew app in `crew-app/`. Once a night at midnight IST, a command-only cron job runs one TypeScript script, the Patrol_Runner. The runner checks prerequisites, builds and serves Lantern Bills on port 3000, runs the three ghosts one after another with `haunt run` (scripted mind only), stops the site, writes a Patrol_Record, builds a plain-code Patrol_Summary that compares tonight with the previous patrol, and prints the summary. A single React page, the Patrol_Page, shows the latest record with a link to open each run in the Haunt dashboard.
+Haunt Patrol is a Kiro Crew app in `crew-app/`. Once a night at midnight IST, a model-free script cron job calls a small Python shim (`cron/nightly_patrol.py:run`), which runs one TypeScript script, the Patrol_Runner, with Node.js. The runner checks prerequisites, builds and serves Lantern Bills on port 3000, runs the three ghosts one after another with `haunt run` (scripted mind only), stops the site, writes a Patrol_Record, builds a plain-code Patrol_Summary that compares tonight with the previous patrol, and prints the summary. A single React page, the Patrol_Page, shows the latest record with a link to open each run in the Haunt dashboard.
 
 Design decisions:
 
 - **Functional core, imperative shell.** Everything that decides something is a pure function: seed, command arguments, run-file extraction, exit-code mapping, diffing, summary text, previous-record selection, link building, request routing. Process spawning, file access and the clock sit behind small interfaces (`CommandRunner`, `SiteController`, `PatrolFs`, `Clock`) that tests replace with fakes. No test starts a browser or a server (Requirement 12.3).
 - **No AI.** The runner only ever executes `node engine/bin/haunt.mjs run ...`. It never references `haunt-mcp` and the Manifest never links the cron job to an agent.
 - **Own copy of the site lifecycle.** The Site_Controller is written for this app. It follows the approach of `dashboard/scripts/liveGhost.ts` (build with Vite, `vite preview --strictPort`, poll the page title, kill the process tree) but imports nothing from `dashboard/` (Requirement 3.10).
-- **Read-only data path.** The runner is the only writer of `crew-app/data/patrols/`. The backend and page only read.
+- **Read-only data path.** The runner is the only writer of `data/patrols/` in the App_Root (`crew-app/data/patrols/` in the repository, `~/.kiro/crew/apps/haunt-patrol/data/patrols/` in an installed copy). The backend and page only read. Both the runner and the backend find the folder from their own file location.
 - **Nothing outside `crew-app/` changes**, except the repository `runs/` folder, which the engine writes into as it always does, and `.gitignore` entries for `crew-app/`. `engine/`, `dashboard/`, `demo-site/` and `demo-site-exorcised/` are untouched.
 
-### Verified facts and unverified risks
+### Alignment with the Kiro Crew docs (2026-11-23)
+
+Checked against kiro.dev/docs/crew/apps (overview, manifest reference, build your first app, publishing) and, in the kirodotdev/KiroCrew repository, `docs/app-kit/manifest-reference.md`, `api-reference.md`, `getting-started.md`, `publishing-guide.md` and `docs/guides/windows-install.md`. Content was rephrased for compliance with licensing restrictions. Where the two sources differ, the repository docs are newer and more detailed and win. This section supersedes the earlier risk list where they disagree.
+
+| Item | Documented behaviour | Change in Haunt Patrol |
+|---|---|---|
+| Command crons | Refused on native Windows: the stored command is vetted as POSIX `sh`, and Windows has no matching shell. A manifest command cron is refused up front. | The Patrol_Job is a `script` cron, `cron/nightly_patrol.py:run`, a Python callable run without a model call. The shim uses only the standard library and starts `node src/patrol.ts` without a shell. |
+| Cron fields | `name`, `cron_expr`, `timezone`, `strict_schedule`, `script`, `timeout` (subprocess seconds), `timeout_secs` (whole run, at least `timeout` + 5) are documented. A non-empty `crons` needs `permissions.cron: true`. | Kept; `command` replaced by `script`. |
+| `setup` | `onInstall` runs only for registry installs, through `/bin/bash`, which native Windows refuses. Local-path installs never run it. `onUpdate` is never executed. | `setup` removed. |
+| Installed copy | Install copies the app folder to `~/.kiro/crew/apps/<name>/` and drops `node_modules`, `.git`, `__pycache__`, `.venv`. Runtime artifacts must be committed, including `ui/dist/index.mjs`. `data/` is preserved across updates. | `ui/dist/index.mjs` is committed; the root `.gitignore` re-includes `crew-app/ui/dist/` and keeps `crew-app/ui/dist/data/` ignored. Data moved from `<repoRoot>/crew-app/data/patrols/` to `<App_Root>/data/patrols/`. |
+| UI build | React, ReactDOM, lucide-react and `@kirocrew/app-sdk` are external; the dashboard provides them through its import map. `ui.entry` is relative to `ui/`. | Externals are `react`, `react-dom`, `react/jsx-runtime`, `lucide-react` and `/^@kirocrew\/app-sdk/`, so every SDK subpath stays external. |
+| `useAppApi` | Refuses any path not matching a `permissions.api` entry. | `permissions.api: ["/apps/haunt-patrol/api"]`. |
+| `ui.pages[].icon` | Drawn for built-in apps only; an installed app shows the generic icon. | Kept (harmless). A store icon needs a 512×512 opaque PNG in `iconPath`, which is not part of this change. |
+| `platform.os` | Defaults to `["macos", "linux"]`, which tells Windows users the app does not run there. | `["macos", "linux", "windows"]`. |
+| Backend | `node` is a documented `backend.type`. The gateway runs `npm install --production` where a `package.json` has no `node_modules`. The backend gets `PORT`, `KIROCREW_APP_NAME`, `KIROCREW_HOME` and `KIROCREW_PROXY_SECRET`, and no app-specific variables. `/health` must answer an unsigned loopback GET with 2xx. The proxy forwards `/apps/<name>/api/<path>` as `/api/<path>`. | Routes are `/api/latest` and `/api/summary`; `/health` unchanged. The server finds `data/patrols/` from its own location (no `HAUNT_REPO_ROOT`). |
+| Proxy signing | Header `X-KiroCrew-Proxy: <timestamp>:<hmac-sha256>` (kiro.dev still says `X-Crew-Proxy`). HMAC-SHA-256 keyed with `KIROCREW_PROXY_SECRET` over `timestamp:method:/api/path[?query]:sha256(body)`, lowercase hex, raw request-target, Unix seconds within ±60 s, constant-time compare. An optional replay-proof v2 header pair also exists. | `crewProxyConfig.ts` and `crewProxy.ts` follow v1 exactly. v2 is not used. |
+| Trust | Enable refuses a third-party app until the owner trusts it; the App Store asks at enable. | Documented in `INSTALL-WINDOWS.md`. |
+
+The installed copy has no `engine/` or `demo-site/` beside it, so the repository root comes from `HAUNT_REPO_ROOT` (set as a Windows user variable before Crew starts), else from the folder above the App_Root. Still unverified: whether a script cron sees variables the gateway inherited, what a returned value or a raised exception does to the run's status, and whether `useAppApi` reaches the app's own proxy path.
+
+### Verified facts and unverified risks (original)
 
 Verified by reading `engine/src/cli/main.ts` and `dashboard/scripts/liveGhost.ts`:
 
@@ -42,7 +62,7 @@ From the Kiro Crew docs ([Apps overview](https://kiro.dev/docs/crew/apps/), [Bui
 | Backend | A `backend` block (`entryPoint`, `port`, `healthCheck`, `routes`, `type`) is reverse-proxied at `/apps/<name>/api/*`. The docs at kiro.dev/docs/crew/apps document that the gateway signs each proxied request with the header `X-Crew-Proxy: <timestamp>:<hmac-sha256>`. |
 | Cron | A `crons[]` entry with `name`, `cron_expr`, `message`, `agent`. |
 
-**Unverified items, recorded as risks:**
+**Unverified items, recorded as risks.** Risks 1, 2, 4, 7 and 8 are resolved by the alignment section above, and risk 3 is handled there with `HAUNT_REPO_ROOT` and the App_Root data folder. They are kept here as the original record.
 
 1. **Command-only cron fields.** The docs I could reach show only `name`, `cron_expr`, `message` and `agent` for a cron entry. The manifest reference page was not reachable, so `command`, `timezone`, `strict_schedule`, `timeout` and `timeout_secs` (Requirements 2.1 to 2.4) are taken from the requirements, not from the docs. Mitigation: a manifest test pins these values, and the first implementation task re-checks them against the Manifest reference or a `kirocrew app` install.
 2. **Command working directory and environment.** It is unknown what working directory the gateway gives a cron `command`. Mitigation: the command uses a path that does not depend on the working directory (see Manifest), and the runner finds the repository root from the `HAUNT_REPO_ROOT` environment variable first, then from its own file location.
@@ -59,7 +79,8 @@ From the Kiro Crew docs ([Apps overview](https://kiro.dev/docs/crew/apps/), [Bui
 
 ```mermaid
 flowchart TD
-    Cron["Crew cron: 0 0 * * * Asia/Kolkata"] --> Main["patrol.ts main()"]
+    Cron["Crew script cron: 0 0 * * * Asia/Kolkata"] --> Shim["cron/nightly_patrol.py run()"]
+    Shim -->|"node src/patrol.ts"| Main["patrol.ts main()"]
     Main --> Pre["checkPrerequisites()"]
     Main -->|escaped exception| Fail4["print error, exit 4"]
     Pre -->|missing| Fail1["print fix commands, exit 1"]
@@ -70,13 +91,13 @@ flowchart TD
     Cmd --> Runs["runs/lantern-bills/runId/run.json"]
     Ghosts --> Stop["finally: SiteController.stop()"]
     Stop --> Rec["buildRecord() then PatrolStore.write()"]
-    Rec --> Data["crew-app/data/patrols/date.json, latest.json"]
+    Rec --> Data["App_Root data/patrols/date.json, latest.json"]
     Rec --> Sum["buildSummary(current, previous)"]
     Sum --> Out["stdout + summary.md"]
     Rec --> Static["ui/dist/data/latest.json, summary.json (fallback, no HMAC)"]
-    Gateway["Crew gateway: signs X-Crew-Proxy"] --> Backend["Patrol_Backend: verify HMAC, GET/HEAD only"]
+    Gateway["Crew gateway: signs X-KiroCrew-Proxy"] --> Backend["Patrol_Backend: verify HMAC, GET/HEAD only"]
     Data --> Backend
-    Backend -->|"/latest, /summary"| Page["Patrol_Page /apps/haunt-patrol"]
+    Backend -->|"/api/latest, /api/summary"| Page["Patrol_Page /apps/haunt-patrol"]
     Static -->|"backend failure"| Page
     Page --> Dash["Dashboard base URL/#/run/runId"]
 ```
@@ -117,7 +138,9 @@ crew-app/
   test/                   vitest tests
 ```
 
-`.gitignore` additions: `crew-app/data/*`, `!crew-app/data/.gitkeep`, `crew-app/.patrol/`, `crew-app/ui/dist/`, `crew-app/node_modules/`. This edit is to the root `.gitignore`, outside the protected folders.
+`.gitignore` additions: `crew-app/data/*`, `!crew-app/data/.gitkeep`, `crew-app/.patrol/`, `crew-app/node_modules/`, `!crew-app/ui/dist/` (re-includes the committed UI_Bundle, which the generic `dist/` rule would exclude) and `crew-app/ui/dist/data/` (the static fallback is runtime output). This edit is to the root `.gitignore`, outside the protected folders. A test runs `git check-ignore` to confirm `crew-app/ui/dist/index.mjs` is not ignored.
+
+The layout above also gains `cron/nightly_patrol.py` (the Cron_Shim), `ui/dist/index.mjs` (committed) and `INSTALL-WINDOWS.md` (installing in the Kiro Crew desktop app on Windows 11).
 
 ## Components and Interfaces
 
@@ -143,18 +166,20 @@ crew-app/
     "routes": "/api/apps/haunt-patrol",
     "type": "node"
   },
-  "permissions": { "network": false, "cron": true, "storage": false },
-  "setup": {
-    "onInstall": "npm install && npm run build",
-    "onUpdate": "npm install && npm run build"
+  "permissions": {
+    "api": ["/apps/haunt-patrol/api"],
+    "network": false,
+    "cron": true,
+    "storage": false
   },
+  "platform": { "os": ["macos", "linux", "windows"] },
   "crons": [
     {
       "name": "nightly-patrol",
       "cron_expr": "0 0 * * *",
       "timezone": "Asia/Kolkata",
       "strict_schedule": true,
-      "command": "node crew-app/src/patrol.ts",
+      "script": "cron/nightly_patrol.py:run",
       "timeout": 900,
       "timeout_secs": 905
     }
@@ -162,14 +187,16 @@ crew-app/
 }
 ```
 
+There is no `setup` block (see the alignment section): the committed UI_Bundle means an install needs no build.
+
 Notes:
 
-- `backend.routes` is not a typo. The Crew manifest reference (kiro.dev/docs/crew/apps/manifest/) describes it as the base route path for the backend and shows the form `/api/apps/<name>` (its example is `/api/apps/oncall-watchtower`), so `/api/apps/haunt-patrol` follows the documented form. The gateway path `/apps/haunt-patrol/api/*` is where the proxy exposes the backend; it is a different thing and is not the value of `routes`. Unverified: how the gateway maps `routes` onto the proxy path and what path prefix the backend receives. The handler therefore matches only the tail (`/health`, `/latest`, `/summary`) and the page calls `/apps/haunt-patrol/api/latest` and `/apps/haunt-patrol/api/summary`.
-- The cron entry has `command` and no `message` or `agent` (Requirement 2.3). `timeout` is 900 and `timeout_secs` is 905, which is at least 905 (Requirement 2.4). The Patrol_Runner's own internal deadline totals less than 900 seconds (build 120 + ready 60 + 3 × run 180 = 720 s, plus prerequisites).
-- The `setup.onInstall` command and the `backend` block follow the documented shapes. `type: "node"` is unverified (risk 4). If the kit rejects it, the `backend` block is removed and only the static fallback remains, with no change to the page.
+- `backend.routes` is not a typo. The Crew manifest reference (kiro.dev/docs/crew/apps/manifest/) describes it as the base route path for the backend and shows the form `/api/apps/<name>` (its example is `/api/apps/oncall-watchtower`), so `/api/apps/haunt-patrol` follows the documented form. The gateway path `/apps/haunt-patrol/api/*` is where the proxy exposes the backend; it is a different thing and is not the value of `routes`. The gateway forwards `/apps/haunt-patrol/api/<path>` to the backend as `/api/<path>` (the signed target is `/api/path[?query]`, and the reference Node verifier signs `req.url`). The handler therefore serves `/api/latest` and `/api/summary`, the health probe calls `/health` directly, and the page calls `/apps/haunt-patrol/api/latest` and `/apps/haunt-patrol/api/summary`.
+- The cron entry has `script` and no `command`, `message` or `agent` (Requirement 2.3). `timeout` is 900 and `timeout_secs` is 905, which is at least 905 (Requirement 2.4). The Patrol_Runner's own internal deadline totals less than 900 seconds (build 120 + ready 60 + 3 × run 180 = 720 s, plus prerequisites).
+- The `backend` block follows the documented shape; `type: "node"` is a documented runtime. The static fallback stays, so the page still works when the backend is down.
 - The agent and skill are not referenced by the cron entry (Requirement 11.2).
-- The command is `node crew-app/src/patrol.ts`. Node 24 runs `.ts` files with built-in type stripping, so no flag is needed. The source therefore uses only erasable TypeScript syntax (no enums, no parameter properties), as the engine does when it imports `.ts` files directly. The command assumes the repository root as working directory, which is unverified (risk 2). If the gateway uses another directory, the command becomes `node "$HAUNT_REPO_ROOT/crew-app/src/patrol.ts"` or an absolute path written at install time.
-- The runner itself never relies on the working directory. It computes `repoRoot` from `HAUNT_REPO_ROOT` or from `import.meta.url` (`crew-app/src/` to repo root).
+- The Cron_Shim resolves the App_Root from its own file, finds the repository root (`HAUNT_REPO_ROOT`, else the folder above the App_Root when it holds `engine/bin/haunt.mjs`), finds `node` on `PATH`, and runs `node <App_Root>/src/patrol.ts` with `cwd` set to the repository root, `HAUNT_REPO_ROOT` set in the child environment, no shell, no console window and an 890 s limit. It prints the runner's standard output, raises `RuntimeError` with the tail of standard error on a non-zero exit, and otherwise returns the standard output. Node 24 runs `.ts` files with built-in type stripping, so no flag is needed. The source therefore uses only erasable TypeScript syntax (no enums, no parameter properties), as the engine does when it imports `.ts` files directly.
+- The runner itself never relies on the working directory. It computes `appRoot` from `import.meta.url` (`src/` to the App_Root) and writes data there, and computes `repoRoot` from `HAUNT_REPO_ROOT` or the folder above the App_Root.
 
 ### Node 24 type stripping (Requirements 1.8, 1.9, 1.10, 1.11)
 
@@ -220,7 +247,7 @@ The scripts (`patrol.ts`, `scripts/check-protected.ts`, `backend/server.ts`) run
 ```
 
 - `crew-app/package.json` has `"type": "module"`, so `.ts` files and `vite.config.ts` load as ES modules under Node 24.
-- `typecheck` is `tsc -p tsconfig.json && tsc -p ui/tsconfig.json` and emits nothing. A tsconfig test checks both files for these settings and that the root config excludes `ui`. The only build step is `build`, which bundles the UI with Vite into `ui/dist`. The Manifest `backend.entryPoint` points at the `.ts` file. Whether the gateway starts a `.ts` entry with Node 24 is unverified (risk 4); the static fallback covers it.
+- `typecheck` is `tsc -p tsconfig.json && tsc -p ui/tsconfig.json` and emits nothing. A tsconfig test checks both files for these settings and that the root config excludes `ui`. The only build step is `build`, which bundles the UI with Vite into `ui/dist`. The Manifest `backend.entryPoint` points at the `.ts` file. The gateway runs a `node` backend on the first `node` it finds; with Node 24 the `.ts` entry runs through type stripping. The static fallback covers a backend that does not start.
 - A test scans `crew-app/src` and `crew-app/scripts` and fails on any relative import specifier that does not end in `.ts`.
 
 ### Dates and seed (`istDate.ts`)
@@ -492,14 +519,14 @@ export interface PatrolStore {
 }
 ```
 
-- Files live in `<repoRoot>/crew-app/data/patrols/`: `YYYY-MM-DD.json`, `latest.json`, `summary.md`. Dated names match `^\d{4}-\d{2}-\d{2}\.json$`, so `latest.json` is never mistaken for a dated record.
+- Files live in `<App_Root>/data/patrols/` (`createPatrolStore(appRoot)`), and the static fallback in `<App_Root>/ui/dist/data/`: `YYYY-MM-DD.json`, `latest.json`, `summary.md`. Dated names match `^\d{4}-\d{2}-\d{2}\.json$`, so `latest.json` is never mistaken for a dated record.
 - `loadPrevious` lists the dated files, calls `selectPrevious`, and reads that file. A missing previous gives `none`. A parse or validation failure gives `unreadable`.
 - Writes go to a temporary file in the same folder followed by a rename, so a reader never sees a half-written file. Writing the same date again replaces the earlier file (Requirement 5.6).
 - `exportStatic` writes `crew-app/ui/dist/data/latest.json` and `crew-app/ui/dist/data/summary.json`, the fallback for Requirement 10.3. Each file holds exactly the body the matching backend route returns: `latest.json` is `{ "record": PatrolRecord, "dashboardBaseUrl": string }` and `summary.json` is `{ "summary": "<text>" }`. A shared pure function builds both bodies (`latestBody`, `summaryBody`) and both the handler and `exportStatic` call it, so the two cannot drift apart. If `ui/dist` does not exist yet, it is created. The page reads the same shapes from either source. The static files are served as plain static assets and carry no HMAC.
 
 **Fallback survival (decision, Requirement 10.4).** The fallback stays in `ui/dist/data/`, and two things keep it alive:
 
-1. `ui/vite.config.ts` sets `build.emptyOutDir: false`. An update rebuild (`setup.onUpdate` runs `npm run build`) overwrites `index.mjs` and leaves `ui/dist/data/` alone.
+1. `ui/vite.config.ts` sets `build.emptyOutDir: false`. A developer rebuild (`npm run build`) overwrites `index.mjs` and leaves `ui/dist/data/` alone. (Crew itself never rebuilds: there is no `setup` block, and `setup.onUpdate` is never executed.)
 2. The runner calls `exportStatic` at the end of every patrol, so the files are rewritten from the newest record each night, and a first patrol recreates them even if `ui/dist` was deleted.
 
 Rationale: the page loads the static files relative to the built bundle, so `ui/dist/data/` is the location the installed app already serves, and it needs no extra manifest entry or second copy. The alternative, writing the fallback outside `dist` (for example `crew-app/data/static/`), would only work if Crew serves that folder, which is unverified, and `onInstall` copies only build outputs. With the chosen design, the one remaining gap is the time between a fresh install (or deleted `dist`) and the first patrol, when the page shows "No patrol has run yet", which is correct because no patrol exists. After an update rebuild the previous night's data is still shown. A test builds the fallback with `exportStatic`, simulates a rebuild (writes a new `index.mjs` into the same folder without clearing it), and checks both data files remain, and a config test checks `emptyOutDir` is `false`.
@@ -514,10 +541,11 @@ export interface BackendResponse { status: number; headers: Record<string, strin
 
 export interface BackendRequest {
   method: string;
-  path: string;                       // path and query as received, relative to the proxy prefix
+  path: string;                       // raw request-target as received, e.g. /api/latest
   body: string;                       // raw request body ('' for GET and HEAD)
-  crewProxyHeader: string | undefined; // value of X-Crew-Proxy
+  crewProxyHeader: string | undefined; // value of X-KiroCrew-Proxy
 }
+export const ROUTES = { health: '/health', latest: '/api/latest', summary: '/api/summary' };
 export interface BackendOptions {
   dashboardBaseUrl: string;           // from HAUNT_DASHBOARD_URL, read by server.ts
   secret: string | undefined;         // from the env var named in crewProxyConfig.ts
@@ -533,39 +561,37 @@ export function summaryBody(summary: string): { summary: string };
 
 `handleRequest` runs three steps in this order. (1) Method check: any method other than `GET` and `HEAD` gets 405 with `Allow: GET, HEAD`, for every path including `/health`, before anything else. (2) `/health` check: for `GET` and `HEAD`, a path that is exactly `/health` skips HMAC verification (Requirement 10.10) and returns 200 with the body exactly `{"ok":true}` (no space, no data, no version, no paths, no file read), ignoring the header. (3) HMAC: every other `GET` and `HEAD` request must carry a valid Crew_Proxy_Header, which is verified before any file is read (Requirement 10.8); a missing or invalid header gets 401 (Requirement 10.9). The static fallback files are not behind `handleRequest`, so they have no HMAC.
 
-Routes (relative to the proxy prefix `/apps/haunt-patrol/api`). These are the only routes, and the page and the static fallback use exactly the two data routes:
+Routes, as the backend receives them. The gateway forwards `/apps/haunt-patrol/api/<path>` as `/api/<path>`, and polls `/health` directly on loopback. These are the only routes, and the page and the static fallback use exactly the two data routes:
 
 | Order | Condition | Result |
 |---|---|---|
 | 1 | Method is not `GET` or `HEAD` (any path, including `/health`) | 405 with `Allow: GET, HEAD`, no verification, no file read |
 | 2 | Method is `GET` or `HEAD` and path is exactly `/health` | 200 `{"ok":true}` exactly, no HMAC verification, no file read |
 | 3 | Any other path and header missing or invalid | 401 `{"error":"unauthorized"}`, no file read |
-| 4 | `/latest` | 200 `latestBody(record, options.dashboardBaseUrl)` as JSON, or 404 `{"error":"no_patrol"}` when `latest.json` is missing, or 500 `{"error":"unreadable","file":"latest.json"}` when it does not parse as a valid record |
-| 4 | `/summary` | 200 `summaryBody(text of summary.md)` as JSON, or 404 `{"error":"no_patrol"}` |
+| 4 | `/api/latest` | 200 `latestBody(record, options.dashboardBaseUrl)` as JSON, or 404 `{"error":"no_patrol"}` when `latest.json` is missing, or 500 `{"error":"unreadable","file":"latest.json"}` when it does not parse as a valid record |
+| 4 | `/api/summary` | 200 `summaryBody(text of summary.md)` as JSON, or 404 `{"error":"no_patrol"}` |
 | 4 | any other path | 404 (only after a valid header) |
 
-The handler maps request paths to a fixed set of two file names through the `read` function. It never builds a file path from request text, so no request can read anything outside `crew-app/data/patrols/` (Requirement 10.5). HEAD returns the same status and headers and an empty body.
+The handler maps request paths to a fixed set of two file names through the `read` function. It never builds a file path from request text, so no request can read anything outside `<App_Root>/data/patrols/` (Requirement 10.5). HEAD returns the same status and headers and an empty body.
 
-`server.ts` is the thin shell. It creates a `node:http` server on the port given by the gateway environment (an unverified detail, risk 4), reads the request body, reads the signing secret from the environment variable named in `crewProxyConfig.ts`, reads `HAUNT_DASHBOARD_URL` through `dashboardBaseUrl(process.env)`, reads the clock, implements `files.read` with `fs.readFile` on the two fixed paths under the data directory, and calls `handleRequest`.
+`server.ts` is the thin shell. It creates a `node:http` server on `127.0.0.1:$PORT` (the gateway sets `PORT`), finds `data/patrols/` two folders above its own file (the gateway passes no app-specific variables), reads the request body, reads the signing secret from the environment variable named in `crewProxyConfig.ts` (`KIROCREW_PROXY_SECRET`), reads `HAUNT_DASHBOARD_URL` through `dashboardBaseUrl(process.env)`, reads the clock, implements `files.read` with `fs.readFile` on the two fixed paths under the data directory, and calls `handleRequest`.
 
 #### Crew proxy verification (`backend/crewProxyConfig.ts`, `backend/crewProxy.ts`)
 
-Documented (kiro.dev/docs/crew/apps): the gateway proxies `/apps/{name}/api/*` and signs requests with `X-Crew-Proxy: <timestamp>:<hmac-sha256>`.
-
-Unverified, held in `crewProxyConfig.ts` and nowhere else (risk 8):
+Documented in `docs/app-kit/api-reference.md` (kirodotdev/KiroCrew), "Reverse Proxy Authentication" and "Backend Environment Variables", and held in `crewProxyConfig.ts` and nowhere else (risk 8 resolved):
 
 ```ts
 export const CREW_PROXY = {
-  headerName: 'x-crew-proxy',            // documented
-  secretEnvVar: 'HAUNT_CREW_PROXY_SECRET', // UNVERIFIED: source of the signing secret
-  toleranceSeconds: 300,                 // UNVERIFIED: timestamp tolerance, either side of now
-  timestampUnit: 'seconds',              // UNVERIFIED: Unix seconds
-  // UNVERIFIED: exactly what is signed. Change this one function if the gateway signs something else.
-  signedString(timestamp: string, method: string, pathWithQuery: string, body: string): string {
-    return `${timestamp}.${method.toUpperCase()}.${pathWithQuery}.${body}`;
+  headerName: 'x-kirocrew-proxy',        // X-KiroCrew-Proxy (kiro.dev still says X-Crew-Proxy)
+  secretEnvVar: 'KIROCREW_PROXY_SECRET', // set by the gateway for the backend process
+  toleranceSeconds: 60,                  // either side of now
+  timestampUnit: 'seconds',              // Unix seconds
+  signedString(timestamp: string, method: string, target: string, body: string): string {
+    return `${timestamp}:${method}:${target}:${sha256Hex(body)}`; // target is the raw request-target
   },
 } as const;
-// UNVERIFIED and not relied on: the status code the gateway itself returns when its own signing fails.
+// Not relied on: the status code the gateway itself returns when its own signing fails.
+// Not used: the optional replay-proof v2 headers X-KiroCrew-Proxy-V2 and X-KiroCrew-Proxy-Nonce.
 ```
 
 ```ts
@@ -586,7 +612,7 @@ export function signCrewProxy(secret: string, timestamp: string, method: string,
 `verifyCrewProxy` is deterministic. It is fail-closed:
 
 1. A missing or empty header gives `missing_header`. A missing or empty secret gives `missing_secret` (the backend never serves data without a secret).
-2. The header must match `^(\d+):([0-9a-f]{64})$` (hex compared case-insensitively), else `malformed`.
+2. The header must match `^([0-9]{1,12}):([0-9a-f]{64})$` (lowercase hex, as the reference verifier expects), else `malformed`.
 3. `|nowMs/1000 - timestamp| > toleranceSeconds` gives `stale`.
 4. The expected signature is `HMAC-SHA-256(secret, CREW_PROXY.signedString(...))` in hex. It is compared with `crypto.timingSafeEqual` on equal-length buffers. A mismatch gives `bad_signature`.
 
@@ -604,7 +630,7 @@ export function dashboardRunUrl(base: string, runId: string): string;
 // `${base without trailing slashes}/#/run/${encodeURIComponent(runId)}`
 ```
 
-The page runs in the browser, where `process.env` does not exist. `server.ts` reads `HAUNT_DASHBOARD_URL` and passes the value to `handleRequest` as `options.dashboardBaseUrl`, and `/latest` returns `{ record, dashboardBaseUrl }`. In the static fallback, the runner writes the same `{ record, dashboardBaseUrl }` body into `ui/dist/data/latest.json`, with the value read from the environment at patrol time. The `latest.json` in `data/patrols/` holds the plain record only, so it stays an exact copy of the dated record (Requirement 5.4).
+The page runs in the browser, where `process.env` does not exist. `server.ts` reads `HAUNT_DASHBOARD_URL` and passes the value to `handleRequest` as `options.dashboardBaseUrl`, and `/api/latest` returns `{ record, dashboardBaseUrl }`. In the static fallback, the runner writes the same `{ record, dashboardBaseUrl }` body into `ui/dist/data/latest.json`, with the value read from the environment at patrol time. The `latest.json` in `data/patrols/` holds the plain record only, so it stays an exact copy of the dated record (Requirement 5.4).
 
 The default port 3001 relies on `dashboard/vite.config.ts` setting `server.port` and `preview.port` to 3001. That file belongs to the dashboard owner. This spec does not change it, and the Protection_Check would fail if the patrol work did (risk 10).
 
@@ -613,7 +639,7 @@ The default port 3001 relies on `dashboard/vite.config.ts` setting `server.port`
 A React component with a default export, built with `@kirocrew/app-sdk` (`useAppApi`) and `@kirocrew/app-sdk/ui` (`PageHeader`, `Card`, `CardTitle`, `Badge`, `EmptyState`, `MarkdownRenderer`). Data loading:
 
 1. Fetch both `/apps/haunt-patrol/api/latest` (body `{ record, dashboardBaseUrl }`) and `/apps/haunt-patrol/api/summary` (body `{ summary }`) through `api.get`. These are the only two data sources and the page reads no file or environment value directly (Requirement 9.11).
-2. On a 404 from `/latest`, show the "no patrol has run yet" state.
+2. On a 404 from `/api/latest`, show the "no patrol has run yet" state.
 3. On any other failure of either call (backend not running, not supported, or 401 because the gateway did not sign), fetch both static files `data/latest.json` and `data/summary.json` from the app's `ui/dist`. They have the same bodies as the two routes. A 404 on the static `latest.json` also means "no patrol yet". The static files have no HMAC.
 4. A `record` that fails `validateRecord` shows an error naming the file (`latest.json`).
 
@@ -712,7 +738,7 @@ The README includes these statements, and a test scans it for them:
 
 Validation rules: `version` is 1; `date` matches `YYYY-MM-DD`; `seed` is a safe integer; `ghosts` has exactly the three ghost ids, each once; `result` is one of `succeeded`, `gave_up`, `error`, `no_run`; `result === 'no_run'` implies `runId === null` and no findings; `findingCounts` and `findingTitles` agree with `findings`. The runId examples above are illustrative; the real value comes from `run.json`.
 
-Backend and static fallback bodies (identical): `/latest` and `ui/dist/data/latest.json` are `{ "record": PatrolRecord, "dashboardBaseUrl": string }`. `/summary` and `ui/dist/data/summary.json` are `{ "summary": string }`.
+Backend and static fallback bodies (identical): `/api/latest` and `ui/dist/data/latest.json` are `{ "record": PatrolRecord, "dashboardBaseUrl": string }`. `/api/summary` and `ui/dist/data/summary.json` are `{ "summary": string }`.
 
 ## Error Handling
 
@@ -730,7 +756,9 @@ Backend and static fallback bodies (identical): `/latest` and `ui/dist/data/late
 | Writing the record fails | Error printed, exit 4; the site was already stopped in `finally` |
 | Any exception escapes the patrol | Error printed by `patrol.ts`, exit 4; the site was already stopped in `finally` |
 | Ghost exits 0 or 3 but prints no absolute path ending in `run.json` | Entry `no_run` with error `No run.json path was printed.`, continue |
-| `X-Crew-Proxy` missing, malformed, stale or wrong, or the secret is not set | Backend returns 401 and reads no file |
+| `X-KiroCrew-Proxy` missing, malformed, stale or wrong, or the secret is not set | Backend returns 401 and reads no file |
+| Script cron cannot find the repository or `node` | The Cron_Shim raises `RuntimeError` naming `HAUNT_REPO_ROOT` or Node.js 24; no patrol runs |
+| Patrol_Runner exits non-zero under the Cron_Shim | The Cron_Shim raises `RuntimeError` with the exit code and the tail of standard error |
 | Page: backend returns 401 or is unreachable | Falls back to the static JSON, which has no HMAC |
 | `git diff --name-only` fails in the Protection_Check | Error printed, exit 1 |
 | `git diff --name-only` lists a protected path | Each path printed, exit 1 |
@@ -765,9 +793,10 @@ vitest, TypeScript strict, in `crew-app/test/`. Property tests use `fast-check`,
 - Exit codes: `EXIT` is `{0,1,2,3,4}`; an escaped exception in `patrol.ts` (fake `runPatrol` that throws) and a failing `writeRecord` both give 4 with the site stopped.
 - Run-file path: stdout with no absolute `run.json` line after exit 0 or 3 gives a `no_run` entry with the "No run.json path was printed." text.
 - Summary: a ghost with no saved run tonight and findings last night gives a "Not checked tonight" line and no `fixed` entry for that ghost.
-- Backend health: `GET /health` and `HEAD /health` with no header return 200 and a body that is exactly `{"ok":true}` (HEAD: empty body, same headers) and read no file; with an invalid header they still return the same; `POST /health` (with and without a valid header) returns 405 with `Allow: GET, HEAD`; `/latest`, `/summary`, `/health/x`, `/healthz` and an unknown path without a header return 401.
-- Backend with fake files: `/latest` returns `{ record, dashboardBaseUrl }` using the option passed in; `/summary` returns `{ summary }`; a request without a valid header gets 401 and reads no file; `exportStatic` bodies equal the backend bodies.
-- Crew proxy verifier examples: a header made by `signCrewProxy` verifies; a missing header, a missing secret, a header with a wrong secret, a stale timestamp and a malformed value are each rejected.
+- Backend health: `GET /health` and `HEAD /health` with no header return 200 and a body that is exactly `{"ok":true}` (HEAD: empty body, same headers) and read no file; with an invalid header they still return the same; `POST /health` (with and without a valid header) returns 405 with `Allow: GET, HEAD`; `/api/latest`, `/api/summary`, `/health/x`, `/healthz` and an unknown path without a header return 401.
+- Backend with fake files: `/api/latest` returns `{ record, dashboardBaseUrl }` using the option passed in; `/api/summary` returns `{ summary }`; a request without a valid header gets 401 and reads no file; `exportStatic` bodies equal the backend bodies.
+- Crew proxy verifier examples: a header made by `signCrewProxy` verifies; a missing header, a missing secret, a header with a wrong secret, a stale timestamp (more than 60 s), an uppercase digest, a timestamp over 12 digits and a malformed value are each rejected; a fixed example HMAC computed independently with `node:crypto` over the documented string matches.
+- Manifest, Cron_Shim and bundle (`manifest.test.ts`, `cronScript.test.ts`, `uiConfig.test.ts`): the documented manifest values, the script cron pointing at an existing `.py` callable, the shim's stdlib-only, shell-free text, the host externals, a committed `ui/dist/index.mjs` that imports only host packages, and `git check-ignore` reporting the bundle as not ignored.
 - Dashboard port: a test only reads `HAUNT_DASHBOARD_URL` handling in `dashboardBaseUrl` (default `http://localhost:3001`). It does not read `dashboard/`.
 - Protection check with a fake git: no output gives 0; a path under each of the four folders gives non-zero and is printed; a git failure gives non-zero and prints the error; `engine-notes/x.md` and `crew-app/engine/x.ts` are not flagged.
 - Type stripping: a scan test fails on a relative import without `.ts`; a tsconfig test checks `allowImportingTsExtensions`, `noEmit` and `strict` are `true`.

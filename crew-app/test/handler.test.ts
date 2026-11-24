@@ -35,7 +35,7 @@ describe('Feature: haunt-patrol, Property 15: Backend serves only GET and HEAD, 
     await fc.assert(
       fc.asyncProperty(
         fc.string({ minLength: 1 }).filter((m) => m !== 'GET' && m !== 'HEAD'),
-        fc.oneof(fc.constantFrom('/health', '/latest', '/summary'), fc.string()),
+        fc.oneof(fc.constantFrom('/health', '/api/latest', '/api/summary'), fc.string()),
         async (method, pathName) => {
           const f = files({});
           const res = await handleRequest(signed(method, pathName), f, options('x'));
@@ -50,8 +50,8 @@ describe('Feature: haunt-patrol, Property 15: Backend serves only GET and HEAD, 
 
   it('reads only the two fixed names, and returns 404 for any other path', async () => {
     await fc.assert(
-      fc.asyncProperty(fc.constantFrom('GET', 'HEAD'), fc.oneof(fc.string(), fc.constantFrom('../latest.json', '/..%2f..%2fsecret', '/latest/', '//latest', 'C:\\x', '/LATEST')), async (method, pathName) => {
-        fc.pre(pathName !== '/latest' && pathName !== '/summary' && pathName !== '/health');
+      fc.asyncProperty(fc.constantFrom('GET', 'HEAD'), fc.oneof(fc.string(), fc.constantFrom('../latest.json', '/..%2f..%2fsecret', '/api/latest/', '//api/latest', '/latest', '/summary', '/api/latest?x=1', 'C:\\x', '/API/LATEST')), async (method, pathName) => {
+        fc.pre(pathName !== '/api/latest' && pathName !== '/api/summary' && pathName !== '/health');
         const f = files({ 'latest.json': 'x', 'summary.md': 'y' });
         const res = await handleRequest(signed(method, pathName), f, options('x'));
         expect(res.status).toBe(404);
@@ -61,14 +61,14 @@ describe('Feature: haunt-patrol, Property 15: Backend serves only GET and HEAD, 
     );
   });
 
-  it('/latest returns { record, dashboardBaseUrl } with the option value, and /summary returns { summary }', async () => {
+  it('/api/latest returns { record, dashboardBaseUrl } with the option value, and /api/summary returns { summary }', async () => {
     await fc.assert(
       fc.asyncProperty(arbRecord, fc.webUrl(), fc.string(), async (r, base, summary) => {
         const f = files({ 'latest.json': serializeRecord(r), 'summary.md': summary });
-        const latest = await handleRequest(signed('GET', '/latest'), f, options(base));
+        const latest = await handleRequest(signed('GET', '/api/latest'), f, options(base));
         expect(latest.status).toBe(200);
         expect(JSON.parse(latest.body)).toEqual(latestBody(r, base));
-        const sum = await handleRequest(signed('GET', '/summary'), f, options(base));
+        const sum = await handleRequest(signed('GET', '/api/summary'), f, options(base));
         expect(JSON.parse(sum.body)).toEqual(summaryBody(summary));
         expect(f.reads).toEqual(['latest.json', 'summary.md']);
       }),
@@ -78,31 +78,31 @@ describe('Feature: haunt-patrol, Property 15: Backend serves only GET and HEAD, 
 
   it('HEAD returns the status and headers with an empty body', async () => {
     const f = files({ 'latest.json': serializeRecord(record('2026-11-03')) });
-    const get = await handleRequest(signed('GET', '/latest'), f, options('x'));
-    const head = await handleRequest(signed('HEAD', '/latest'), f, options('x'));
+    const get = await handleRequest(signed('GET', '/api/latest'), f, options('x'));
+    const head = await handleRequest(signed('HEAD', '/api/latest'), f, options('x'));
     expect(head.status).toBe(get.status);
     expect(head.headers).toEqual(get.headers);
     expect(head.body).toBe('');
   });
 
   it('answers 404 no_patrol when a file is missing, and 500 naming latest.json when it is not a valid record', async () => {
-    const empty = await handleRequest(signed('GET', '/latest'), files({}), options('x'));
+    const empty = await handleRequest(signed('GET', '/api/latest'), files({}), options('x'));
     expect(empty.status).toBe(404);
     expect(JSON.parse(empty.body)).toEqual({ error: 'no_patrol' });
-    expect((await handleRequest(signed('GET', '/summary'), files({}), options('x'))).status).toBe(404);
-    const bad = await handleRequest(signed('GET', '/latest'), files({ 'latest.json': '{"nope":1}' }), options('x'));
+    expect((await handleRequest(signed('GET', '/api/summary'), files({}), options('x'))).status).toBe(404);
+    const bad = await handleRequest(signed('GET', '/api/latest'), files({ 'latest.json': '{"nope":1}' }), options('x'));
     expect(bad.status).toBe(500);
     expect(JSON.parse(bad.body)).toEqual({ error: 'unreadable', file: 'latest.json' });
   });
 
-  it('the /latest body equals the static body written by exportStatic', async () => {
+  it('the /api/latest body equals the static body written by exportStatic', async () => {
     const root = await tempRoot();
     const r = record('2026-11-03');
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     await store.writeRecord(r);
     await store.exportStatic(r, 'sum', 'http://localhost:3001');
     const stored = await readFile(path.join(root, 'crew-app', 'data', 'patrols', 'latest.json'), 'utf8');
-    const res = await handleRequest(signed('GET', '/latest'), files({ 'latest.json': stored }), options('http://localhost:3001'));
+    const res = await handleRequest(signed('GET', '/api/latest'), files({ 'latest.json': stored }), options('http://localhost:3001'));
     const staticBody = await readFile(path.join(root, 'crew-app', 'ui', 'dist', 'data', 'latest.json'), 'utf8');
     expect(JSON.parse(res.body)).toEqual(JSON.parse(staticBody));
   });

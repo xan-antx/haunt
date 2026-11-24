@@ -46,5 +46,9 @@ Thumbs.db
 crew-app/data/*
 !crew-app/data/.gitkeep
 crew-app/.patrol/
-crew-app/ui/dist/
 crew-app/node_modules/
+# ui/dist/index.mjs is a committed build artifact: a Crew install copies the app and builds nothing.
+# Re-include the folder that the generic dist/ rule above excludes. The patrol's static fallback
+# files in ui/dist/data/ are runtime output and stay ignored.
+!crew-app/ui/dist/
+crew-app/ui/dist/data/

@@ -12,7 +12,10 @@ Out of scope: auto-fix, notifications, AI analysis, the exorcise flow, other sit
 
 - **Patrol_App**: The Crew App in `crew-app/` named `haunt-patrol`.
 - **Manifest**: The file `crew-app/app.json` that declares the Patrol_App.
-- **Patrol_Job**: The scheduled command-only job that performs one nightly patrol.
+- **Patrol_Job**: The scheduled model-free script cron job that performs one nightly patrol.
+- **Cron_Shim**: The Python file `crew-app/cron/nightly_patrol.py` whose `run` callable the Patrol_Job calls. It only starts the Patrol_Runner with Node.js.
+- **App_Root**: The folder that holds the Manifest: `crew-app/` in the repository, or the installed copy `~/.kiro/crew/apps/haunt-patrol/`.
+- **UI_Bundle**: The committed build artifact `crew-app/ui/dist/index.mjs`.
 - **Patrol_Runner**: The TypeScript script the Patrol_Job executes.
 - **Site_Controller**: The Patrol_Runner component that builds, starts, checks and stops Lantern Bills.
 - **Lantern_Bills**: The demo site built from `demo-site/`, served at `http://localhost:3000`.
@@ -23,15 +26,15 @@ Out of scope: auto-fix, notifications, AI analysis, the exorcise flow, other sit
 - **Run_Result**: The `result` field of a Run_File: `succeeded`, `gave_up` or `error`.
 - **Saved_Run**: A Ghost entry in a Patrol_Record whose Run_Result is `succeeded`, `gave_up` or `error` (any value other than `no_run`).
 - **Finding**: An entry in the `findings[]` array of a Run_File, having `type`, `step` and `title`.
-- **Patrol_Record**: The JSON file `crew-app/data/patrols/<IST-date>.json` describing one patrol.
-- **Latest_Record**: The file `crew-app/data/patrols/latest.json`, a copy of the newest Patrol_Record.
-- **Patrol_Summary**: The text produced by the Summary_Builder, saved as `crew-app/data/patrols/summary.md`.
+- **Patrol_Record**: The JSON file `data/patrols/<IST-date>.json` under the App_Root (`crew-app/data/patrols/` in the repository) describing one patrol.
+- **Latest_Record**: The file `data/patrols/latest.json` under the App_Root, a copy of the newest Patrol_Record.
+- **Patrol_Summary**: The text produced by the Summary_Builder, saved as `data/patrols/summary.md` under the App_Root.
 - **Summary_Builder**: The plain-code module that compares a Patrol_Record with the previous Patrol_Record.
 - **Finding_Key**: The tuple of Ghost, Finding `type` and Finding `title`.
 - **Patrol_Page**: The UI page at `/apps/haunt-patrol`, built with `@kirocrew/app-sdk`.
-- **Patrol_Backend**: The small read-only Node backend that serves Patrol_Record data to the Patrol_Page under the gateway path `/apps/haunt-patrol/api/*`.
-- **Static_Fallback**: The static JSON files holding the `/latest` and `/summary` response bodies, written by the Patrol_Runner.
-- **Crew_Proxy_Header**: The request header `X-Crew-Proxy`, with value `<timestamp>:<hmac-sha256>`, that the Kiro Crew gateway adds to each proxied request.
+- **Patrol_Backend**: The small read-only Node backend that serves Patrol_Record data to the Patrol_Page under the gateway path `/apps/haunt-patrol/api/*`. The gateway forwards `/apps/haunt-patrol/api/<path>` to the backend as `/api/<path>`, so the backend routes are `/api/latest` and `/api/summary`; `/health` is polled directly.
+- **Static_Fallback**: The static JSON files holding the `/api/latest` and `/api/summary` response bodies, written by the Patrol_Runner.
+- **Crew_Proxy_Header**: The request header `X-KiroCrew-Proxy`, with value `<timestamp>:<hmac-sha256>`, that the Kiro Crew gateway adds to each proxied request.
 - **Dashboard**: The Haunt dashboard in `dashboard/`.
 - **Dashboard_Base_URL**: The value of the `HAUNT_DASHBOARD_URL` environment variable, or `http://localhost:3001` when unset. The Dashboard serves on port 3001 through `server.port` and `preview.port` in `dashboard/vite.config.ts`.
 - **Patrol_Guide**: The explanation-only agent `patrol-guide` in `crew-app/agents/`.
@@ -46,12 +49,15 @@ Out of scope: auto-fix, notifications, AI analysis, the exorcise flow, other sit
 
 The Crew documentation at kiro.dev/docs/crew/apps documents that the Kiro Crew gateway proxies `/apps/{name}/api/*` to the app backend and signs each proxied request with the Crew_Proxy_Header.
 
-The following details are unverified and the design phase SHALL confirm them before implementation relies on them:
+Confirmed on 2026-11-23 against `docs/app-kit/api-reference.md` in the kirodotdev/KiroCrew repository (kiro.dev still names the header `X-Crew-Proxy`; the repository reference and its Node.js verifier use `X-KiroCrew-Proxy`):
 
-- The source of the signing secret.
-- Exactly which bytes are signed.
-- The timestamp tolerance.
-- The status code the gateway itself returns on signature failure.
+- The signing secret reaches the backend process in the environment variable `KIROCREW_PROXY_SECRET`.
+- The signed message is `timestamp:method:/api/path[?query]:sha256(body)`, keyed with the app secret, where the target is the raw request-target and `sha256(body)` is the lowercase hex digest of the raw body.
+- The timestamp is Unix seconds and must be within 60 seconds of now.
+
+Still unverified: the status code the gateway itself returns on signature failure. Nothing relies on it.
+
+Also confirmed against the Crew docs: command crons are refused on native Windows (`docs/guides/windows-install.md`), `setup` scripts run through `/bin/bash` and only for registry installs, `setup.onUpdate` is never executed, an install copies the app folder without building it, and the `platform.os` default leaves Windows out.
 
 The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Proxy_Header is a project choice, not a documented value.
 
@@ -74,6 +80,11 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 9. THE `crew-app/tsconfig.json` SHALL set `allowImportingTsExtensions` to `true`, `noEmit` to `true` and `strict` to `true`, and SHALL configure the Node scripts.
 10. THE Patrol_App SHALL provide a separate UI tsconfig for `crew-app/ui/` that sets `jsx`, includes the DOM library, uses bundler module resolution and sets `strict` to `true`.
 11. THE `crew-app/package.json` SHALL set `"type"` to `"module"`.
+12. THE Manifest SHALL declare `platform.os` as `["macos", "linux", "windows"]`.
+13. THE Manifest SHALL declare no `setup` scripts, because an install copies the App_Root without building it.
+14. THE Patrol_App SHALL commit the UI_Bundle, and the repository `.gitignore` SHALL NOT exclude it.
+15. THE UI_Bundle SHALL keep `react`, `react-dom`, `react/jsx-runtime`, `lucide-react` and `@kirocrew/app-sdk` (including its subpaths) as external imports, provided by the Crew dashboard at run time.
+16. THE Manifest SHALL declare `permissions.api` as `["/apps/haunt-patrol/api"]`, so that the Patrol_Page may call the Patrol_Backend through `useAppApi`.
 
 ### Requirement 2: Nightly schedule
 
@@ -83,11 +94,12 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 
 1. THE Manifest SHALL declare the Patrol_Job with `cron_expr` `0 0 * * *` and timezone `Asia/Kolkata`.
 2. THE Manifest SHALL declare the Patrol_Job with `strict_schedule` set to `true`.
-3. THE Manifest SHALL declare the Patrol_Job as command-only, with a `command` field and without `message` or `agent` fields.
+3. THE Manifest SHALL declare the Patrol_Job as a model-free script cron, with `script` set to `cron/nightly_patrol.py:run` and without `command`, `message` or `agent` fields.
 4. THE Manifest SHALL declare the Patrol_Job with a timeout of 900 seconds and `timeout_secs` of at least 905.
 5. WHEN the Patrol_Job fires, THE Patrol_Runner SHALL perform one patrol and print the Patrol_Summary to standard output.
 6. IF the Kiro Crew gateway is not running or the machine is asleep at midnight IST, THEN THE Patrol_App SHALL skip that night without catch-up runs.
 7. THE Patrol_README SHALL state that the night is skipped with no catch-up when the gateway is off or the machine is off or asleep at midnight IST.
+8. THE Cron_Shim SHALL use only the Python standard library, run `node src/patrol.ts` from the App_Root without a shell, take the repository root from `HAUNT_REPO_ROOT` or the folder above the App_Root, stop the runner before the cron timeout, and raise an error when the Patrol_Runner exits with a non-zero code.
 
 ### Requirement 3: Site lifecycle
 
@@ -131,7 +143,7 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 
 #### Acceptance Criteria
 
-1. WHEN a patrol finishes running the Ghosts, THE Patrol_Runner SHALL write a Patrol_Record to `crew-app/data/patrols/<IST-date>.json`, where `<IST-date>` is formatted `YYYY-MM-DD`.
+1. WHEN a patrol finishes running the Ghosts, THE Patrol_Runner SHALL write a Patrol_Record to `data/patrols/<IST-date>.json` under the App_Root (`crew-app/data/patrols/` in the repository), where `<IST-date>` is formatted `YYYY-MM-DD`.
 2. THE Patrol_Record SHALL contain the IST date, the Seed, and one entry per Ghost.
 3. THE Patrol_Record entry for each Ghost SHALL contain the Run_Result or `no_run`, the exit code, the runId, finding counts by `type`, the finding titles, and the error text.
 4. WHEN a Patrol_Record is written, THE Patrol_Runner SHALL write the same content to the Latest_Record.
@@ -153,7 +165,7 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 5. WHEN no previous Patrol_Record exists, THE Summary_Builder SHALL state that there is no previous patrol.
 6. THE Summary_Builder SHALL select the previous Patrol_Record as the newest record with an IST date earlier than the current IST date.
 7. WHEN the Summary_Builder compares a Patrol_Record with itself, THE Summary_Builder SHALL report zero new Findings, zero fixed Findings and zero Run_Result changes.
-8. WHEN the Patrol_Summary is built, THE Patrol_Runner SHALL print the Patrol_Summary to standard output and save the Patrol_Summary to `crew-app/data/patrols/summary.md`.
+8. WHEN the Patrol_Summary is built, THE Patrol_Runner SHALL print the Patrol_Summary to standard output and save the Patrol_Summary to `data/patrols/summary.md` under the App_Root.
 9. IF the previous Patrol_Record cannot be parsed, THEN THE Summary_Builder SHALL state that the previous patrol was unreadable and omit the comparison.
 10. WHEN a Ghost has no Saved_Run in the current Patrol_Record, THE Summary_Builder SHALL report that Ghost's previous Findings as not checked tonight.
 
@@ -192,13 +204,13 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 2. THE Patrol_Page SHALL display the patrol date in IST, the Patrol_Summary, and one row per Ghost.
 3. THE Patrol_Page SHALL display for each Ghost row a text badge with the Run_Result (`Succeeded`, `Gave up`, `Error` or `No run`), so that status is not conveyed by color alone.
 4. THE Patrol_Page SHALL display for each Ghost row the finding counts by type.
-5. WHERE a Ghost has a runId, THE Patrol_Page SHALL display an "Open in dashboard" link to `<Dashboard_Base_URL>/#/run/<runId>`, using the `dashboardBaseUrl` value returned by the Patrol_Backend `/latest` endpoint.
+5. WHERE a Ghost has a runId, THE Patrol_Page SHALL display an "Open in dashboard" link to `<Dashboard_Base_URL>/#/run/<runId>`, using the `dashboardBaseUrl` value returned by the Patrol_Backend `/api/latest` endpoint.
 6. THE Patrol_Page SHALL display a message instructing the user to run `npm run collect-runs` in `dashboard/` so that a run missing from the Dashboard appears there.
 7. THE Patrol_App SHALL NOT run `npm run collect-runs`.
 8. IF the Latest_Record does not exist, THEN THE Patrol_Page SHALL display a message that no patrol has run yet.
 9. IF the Latest_Record cannot be parsed, THEN THE Patrol_Page SHALL display an error message naming the file.
 10. THE Patrol_Page SHALL be operable by keyboard and expose each link with descriptive accessible text that includes the Ghost name.
-11. THE Patrol_Page SHALL read patrol data only from the Patrol_Backend `/latest` and `/summary` endpoints and read no files or environment values directly.
+11. THE Patrol_Page SHALL read patrol data only from the Patrol_Backend `/api/latest` and `/api/summary` endpoints (called as `/apps/haunt-patrol/api/latest` and `/apps/haunt-patrol/api/summary`) or the Static_Fallback, and read no files or environment values directly.
 
 ### Requirement 10: Data access for the page
 
@@ -208,15 +220,15 @@ The 401 status code the Patrol_Backend returns for a missing or invalid Crew_Pro
 
 1. THE Patrol_Backend SHALL be a Node backend that serves the Latest_Record and Patrol_Summary read-only.
 2. WHEN a request with a method other than GET or HEAD is received on any route, including `/health`, THE Patrol_Backend SHALL respond with status 405 and serve no data.
-3. WHEN a patrol writes the Latest_Record and the Patrol_Summary, THE Patrol_Runner SHALL also write the `/latest` and `/summary` response bodies as static JSON files for the Patrol_Page to read as a fallback, whether or not the Crew App Kit supports a Node backend.
-4. WHEN the UI is rebuilt with `npm run build` (including by `setup.onUpdate`), THE Patrol_App SHALL keep the static JSON files from criterion 3 intact, so that the Patrol_Page still reads the latest patrol after a rebuild.
-5. THE Patrol_Backend SHALL read only files under `crew-app/data/patrols/`.
-6. WHEN a GET request for `/latest` is received, THE Patrol_Backend SHALL return the Latest_Record together with a `dashboardBaseUrl` field holding the Dashboard_Base_URL.
-7. WHEN a GET request for `/summary` is received, THE Patrol_Backend SHALL return the Patrol_Summary text.
+3. WHEN a patrol writes the Latest_Record and the Patrol_Summary, THE Patrol_Runner SHALL also write the `/api/latest` and `/api/summary` response bodies as static JSON files in `ui/dist/data/` under the App_Root for the Patrol_Page to read as a fallback, whether or not the Patrol_Backend is reachable.
+4. WHEN the UI is rebuilt with `npm run build`, THE Patrol_App SHALL keep the static JSON files from criterion 3 intact, so that the Patrol_Page still reads the latest patrol after a rebuild.
+5. THE Patrol_Backend SHALL read only files under `data/patrols/` in the App_Root, found from its own file location.
+6. WHEN a GET request for `/api/latest` is received, THE Patrol_Backend SHALL return the Latest_Record together with a `dashboardBaseUrl` field holding the Dashboard_Base_URL.
+7. WHEN a GET request for `/api/summary` is received, THE Patrol_Backend SHALL return the Patrol_Summary text.
 8. WHEN a request for any route other than `/health` is received, THE Patrol_Backend SHALL verify the Crew_Proxy_Header immediately after the method check in criterion 2 and before any other processing.
 9. IF the Crew_Proxy_Header is missing or invalid on a route other than `/health`, THEN THE Patrol_Backend SHALL respond with status 401 and serve no data.
 10. WHEN a GET or HEAD request for `/health` is received, THE Patrol_Backend SHALL skip Crew_Proxy_Header verification and respond with the body `{"ok":true}` and no other field, so that the response contains no patrol data, no file paths and no version.
-11. THE Patrol_Backend SHALL treat the signing secret source, the signed bytes and the timestamp tolerance as configuration confirmed during design, per the unverified facts above.
+11. THE Patrol_Backend SHALL keep the signing secret source (`KIROCREW_PROXY_SECRET`), the signed message and the 60 second timestamp tolerance, as documented above, in one configuration file.
 
 ### Requirement 11: Agent and skill
 

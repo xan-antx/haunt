@@ -347,6 +347,26 @@ Constraints that apply to every task:
 - [x] 9. Final checkpoint - Run the tests and fix failures
   - Run the tests and fix failures.
 
+- [x] 10. Align with the Kiro Crew App Kit docs (2026-11-23)
+  - [x] 10.1 Manifest and cron
+    - Replace the `command` cron with the script cron `cron/nightly_patrol.py:run` (command crons are refused on native Windows); keep `cron_expr`, `timezone`, `strict_schedule`, `timeout` 900 and `timeout_secs` 905
+    - Write the stdlib-only Cron_Shim: find the repository root (`HAUNT_REPO_ROOT`, else the folder above the App_Root), find `node`, run `node src/patrol.ts` with no shell and an 890 s limit, raise on a non-zero exit
+    - Remove `setup` (bash-only, registry installs only, `onUpdate` never runs); add `platform.os` with `windows` and `permissions.api: ["/apps/haunt-patrol/api"]`
+    - _Requirements: 1.12, 1.13, 1.16, 2.3, 2.4, 2.8_
+  - [x] 10.2 Backend and proxy signing
+    - `X-KiroCrew-Proxy`, `KIROCREW_PROXY_SECRET`, signed string `timestamp:method:target:sha256hex(body)`, ±60 s, strict header shape
+    - Routes `/api/latest` and `/api/summary` (what the gateway forwards); `/health` unchanged
+    - Backend and runner read and write `data/patrols/` under the App_Root, found from their own file location; the runner's repository root comes from `HAUNT_REPO_ROOT` or the folder above the App_Root
+    - _Requirements: 5.1, 6.8, 10.3, 10.5, 10.6, 10.7, 10.8, 10.11_
+  - [x] 10.3 UI bundle
+    - Keep React, ReactDOM, `react/jsx-runtime`, lucide-react and every `@kirocrew/app-sdk` subpath external; rebuild and commit `ui/dist/index.mjs`
+    - In the root `.gitignore`, re-include `crew-app/ui/dist/` and keep `crew-app/ui/dist/data/` ignored
+    - _Requirements: 1.14, 1.15_
+  - [x] 10.4 Tests and docs
+    - Update `manifest.test.ts`, `crewProxy.test.ts`, `handler.test.ts`, `health.test.ts`, `uiConfig.test.ts` and the store tests to the documented values; add `cronScript.test.ts`; every original property keeps its strength
+    - Update `README.md` and the skill's data paths; write `INSTALL-WINDOWS.md` for the Kiro Crew desktop app on Windows 11
+    - _Requirements: 1.12 to 1.16, 2.3, 2.8, 10.8 to 10.11, 12.4_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for a faster MVP. These tests are required (no `*`) because Requirement 12 demands them or because they guard a risk: task 1.3 (manifest risk pinning), 2.5 (Property 12 pure half, exit-code mapping), 2.8 (record schema), 2.13 (Property 8, summary diff), 2.14 (Property 9, self-comparison), 5.10 (fake-based runner tests, including the exit 4 crash cases and the Property 12 integration half), 5.12 (absolute `--outDir` under `crew-app/.patrol`), 5.18 (static fallback survival) and 7.4 (`emptyOutDir` is `false`).
@@ -393,7 +413,9 @@ Constraints that apply to every task:
     { "id": 6, "tasks": ["5.4", "5.5", "5.12", "5.15", "6.2", "7.2", "7.4"] },
     { "id": 7, "tasks": ["5.6", "5.7", "5.8", "5.9", "5.13", "5.14", "5.16", "5.17", "5.18", "6.3", "6.4", "6.5", "6.6", "7.3", "8.1"] },
     { "id": 8, "tasks": ["5.10", "5.11", "8.2", "8.3"] },
-    { "id": 9, "tasks": ["9"] }
+    { "id": 9, "tasks": ["9"] },
+    { "id": 10, "tasks": ["10.1", "10.2", "10.3"] },
+    { "id": 11, "tasks": ["10.4"] }
   ]
 }
 ```

@@ -6,8 +6,8 @@ export interface VerifyInput {
   secret: string | undefined;
   nowMs: number;
   method: string;
-  path: string; // as signed
-  body: string; // as signed
+  path: string; // the raw request-target the backend received, for example /api/latest?x=1
+  body: string; // the raw request body
 }
 export type VerifyResult =
   | { ok: true }
@@ -26,10 +26,11 @@ export function signCrewProxy(secret: string, timestamp: string, method: string,
 export function verifyCrewProxy(input: VerifyInput): VerifyResult {
   if (input.header === undefined || input.header === '') return { ok: false, reason: 'missing_header' };
   if (input.secret === undefined || input.secret === '') return { ok: false, reason: 'missing_secret' };
-  const match = /^(\d+):([0-9a-f]{64})$/i.exec(input.header);
+  // Same shape checks as the reference verifier: 1 to 12 digits, a colon, a lowercase hex digest.
+  const match = /^([0-9]{1,12}):([0-9a-f]{64})$/.exec(input.header);
   if (!match) return { ok: false, reason: 'malformed' };
   const timestamp = match[1] as string;
-  const signature = (match[2] as string).toLowerCase();
+  const signature = match[2] as string;
   if (Math.abs(input.nowMs / 1000 - Number(timestamp)) > CREW_PROXY.toleranceSeconds) return { ok: false, reason: 'stale' };
   const expected = Buffer.from(hmacHex(input.secret, timestamp, input.method, input.path, input.body), 'hex');
   const given = Buffer.from(signature, 'hex');

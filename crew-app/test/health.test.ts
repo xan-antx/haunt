@@ -50,7 +50,7 @@ describe('Feature: haunt-patrol, Property 19: Health is exempt and exact, everyt
   });
 
   it('gives 401 for every path other than exactly /health when the header is missing or invalid', async () => {
-    const paths = fc.oneof(fc.constantFrom('/health/x', '/healthz', '/health/', '/health?x', '/latest', '/summary', '/nothing'), fc.string());
+    const paths = fc.oneof(fc.constantFrom('/health/x', '/healthz', '/health/', '/health?x', '/api/health', '/api/latest', '/api/summary', '/latest', '/nothing'), fc.string());
     await fc.assert(
       fc.asyncProperty(fc.constantFrom('GET', 'HEAD'), paths, fc.oneof(fc.constant(undefined), fc.string()), async (method, pathName, header) => {
         fc.pre(pathName !== '/health');

@@ -6,8 +6,11 @@ import { dashboardBaseUrl } from '../dashboardLink.ts';
 import { CREW_PROXY } from './crewProxyConfig.ts';
 import { handleRequest, type BackendFiles } from './handler.ts';
 
-const repoRoot = process.env.HAUNT_REPO_ROOT ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const dataDir = path.join(repoRoot, 'crew-app', 'data', 'patrols');
+// The app root is two folders up from src/backend/. In the repository that is crew-app/; in an
+// installed copy it is ~/.kiro/crew/apps/haunt-patrol/. The gateway passes no app-specific
+// environment variables to a backend, so the data folder is found from this file's location only.
+const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const dataDir = path.join(appRoot, 'data', 'patrols');
 
 // Only these two names can ever be read.
 const FIXED_FILES = { 'latest.json': path.join(dataDir, 'latest.json'), 'summary.md': path.join(dataDir, 'summary.md') } as const;

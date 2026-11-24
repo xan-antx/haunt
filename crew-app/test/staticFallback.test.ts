@@ -18,7 +18,7 @@ describe('static fallback survival', () => {
     const root = await tempRoot();
     const dist = path.join(root, 'crew-app', 'ui', 'dist');
     const r = record('2026-11-03');
-    await createPatrolStore(root).exportStatic(r, 'summary text', BASE);
+    await createPatrolStore(path.join(root, 'crew-app')).exportStatic(r, 'summary text', BASE);
     const before = [await readFile(path.join(dist, 'data', 'latest.json'), 'utf8'), await readFile(path.join(dist, 'data', 'summary.json'), 'utf8')];
 
     // A rebuild with emptyOutDir false only writes the bundle.
@@ -31,7 +31,7 @@ describe('static fallback survival', () => {
   it('rewrites both data files from the newest record on every patrol', async () => {
     const root = await tempRoot();
     const dist = path.join(root, 'crew-app', 'ui', 'dist', 'data');
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
 
     const first = harness({ store, files: () => runJsonText('succeeded'), now: new Date('2026-11-03T05:00:00Z') });
     await runPatrol(first.deps);
@@ -49,7 +49,7 @@ describe('static fallback survival', () => {
   it('recreates both files when ui/dist was deleted before the patrol', async () => {
     const root = await tempRoot();
     const dist = path.join(root, 'crew-app', 'ui', 'dist');
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     await mkdir(dist, { recursive: true });
     await rm(dist, { recursive: true, force: true });
 
@@ -61,7 +61,7 @@ describe('static fallback survival', () => {
 
   it('writes the same bodies the backend returns', async () => {
     const root = await tempRoot();
-    const h = harness({ store: createPatrolStore(root) });
+    const h = harness({ store: createPatrolStore(path.join(root, 'crew-app')) });
     await runPatrol(h.deps);
     const dist = path.join(root, 'crew-app', 'ui', 'dist', 'data');
     const plain = (await readJson(path.join(root, 'crew-app', 'data', 'patrols', 'latest.json'))) as Parameters<typeof latestBody>[0];

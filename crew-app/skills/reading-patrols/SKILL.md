@@ -11,9 +11,12 @@ Use this skill to explain what the nightly Haunt Patrol found.
 
 ## Where the data lives
 
-- `crew-app/data/patrols/<YYYY-MM-DD>.json` is one night's Patrol_Record (date in IST).
-- `crew-app/data/patrols/latest.json` is a copy of the newest record.
-- `crew-app/data/patrols/summary.md` is the plain-text summary of the newest patrol.
+The files sit in `data/patrols/` inside the app folder: `crew-app/data/patrols/` in the repository,
+or `~/.kiro/crew/apps/haunt-patrol/data/patrols/` in an installed copy.
+
+- `data/patrols/<YYYY-MM-DD>.json` is one night's Patrol_Record (date in IST).
+- `data/patrols/latest.json` is a copy of the newest record.
+- `data/patrols/summary.md` is the plain-text summary of the newest patrol.
 
 ## The record
 

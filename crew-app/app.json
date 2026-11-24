@@ -17,18 +17,20 @@
     "routes": "/api/apps/haunt-patrol",
     "type": "node"
   },
-  "permissions": { "network": false, "cron": true, "storage": false },
-  "setup": {
-    "onInstall": "npm install && npm run build",
-    "onUpdate": "npm install && npm run build"
+  "permissions": {
+    "api": ["/apps/haunt-patrol/api"],
+    "network": false,
+    "cron": true,
+    "storage": false
   },
+  "platform": { "os": ["macos", "linux", "windows"] },
   "crons": [
     {
       "name": "nightly-patrol",
       "cron_expr": "0 0 * * *",
       "timezone": "Asia/Kolkata",
       "strict_schedule": true,
-      "command": "node crew-app/src/patrol.ts",
+      "script": "cron/nightly_patrol.py:run",
       "timeout": 900,
       "timeout_secs": 905
     }

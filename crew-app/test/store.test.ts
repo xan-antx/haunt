@@ -22,7 +22,7 @@ async function sourceFiles(dir: string): Promise<string[]> {
 describe('PatrolStore', () => {
   it('loadPrevious gives none when the folder or an earlier record is missing', async () => {
     const root = await tempRoot();
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     expect(await store.loadPrevious('2026-11-03')).toEqual({ kind: 'none' });
     await store.writeRecord(record('2026-11-03'));
     expect(await store.loadPrevious('2026-11-03')).toEqual({ kind: 'none' });
@@ -30,7 +30,7 @@ describe('PatrolStore', () => {
 
   it('loadPrevious ignores latest.json and picks the newest earlier dated file', async () => {
     const root = await tempRoot();
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     await store.writeRecord(record('2026-11-01'));
     await store.writeRecord(record('2026-11-02'));
     await store.writeRecord(record('2026-11-05')); // also writes latest.json with the 5th
@@ -41,7 +41,7 @@ describe('PatrolStore', () => {
 
   it('writes the same text to the dated file and latest.json, replaces the same date, and leaves no temp files', async () => {
     const root = await tempRoot();
-    const store = createPatrolStore(root);
+    const store = createPatrolStore(path.join(root, 'crew-app'));
     const dir = path.join(root, 'crew-app', 'data', 'patrols');
     await store.writeRecord(record('2026-11-03'));
     const second = record('2026-11-03', { bebe: { result: 'error' } });
@@ -55,14 +55,14 @@ describe('PatrolStore', () => {
 
   it('writes summary.md', async () => {
     const root = await tempRoot();
-    await createPatrolStore(root).writeSummary('hello\n');
+    await createPatrolStore(path.join(root, 'crew-app')).writeSummary('hello\n');
     expect(await readFile(path.join(root, 'crew-app', 'data', 'patrols', 'summary.md'), 'utf8')).toBe('hello\n');
   });
 
   it('exportStatic writes bodies equal to latestBody and summaryBody', async () => {
     const root = await tempRoot();
     const r = record('2026-11-03');
-    await createPatrolStore(root).exportStatic(r, 'the summary', 'http://localhost:3001');
+    await createPatrolStore(path.join(root, 'crew-app')).exportStatic(r, 'the summary', 'http://localhost:3001');
     const dir = path.join(root, 'crew-app', 'ui', 'dist', 'data');
     expect(JSON.parse(await readFile(path.join(dir, 'latest.json'), 'utf8'))).toEqual(latestBody(r, 'http://localhost:3001'));
     expect(JSON.parse(await readFile(path.join(dir, 'summary.json'), 'utf8'))).toEqual(summaryBody('the summary'));

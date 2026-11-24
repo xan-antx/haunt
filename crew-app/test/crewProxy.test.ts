@@ -1,3 +1,4 @@
+import { createHash, createHmac } from 'node:crypto';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { signCrewProxy, verifyCrewProxy } from '../src/backend/crewProxy.ts';
@@ -20,13 +21,13 @@ function spyFiles(): BackendFiles & { reads: string[] } {
 }
 
 const arbSecret = fc.string({ minLength: 1 });
-const arbPath = fc.oneof(fc.constantFrom('/latest', '/summary', '/x'), fc.string());
+const arbPath = fc.oneof(fc.constantFrom('/api/latest', '/api/summary', '/api/latest?x=1', '/x'), fc.string());
 const arbBody = fc.string();
 
 describe('Feature: haunt-patrol, Property 16: Crew proxy verifier', () => {
   it('accepts a header signed over the same inputs within the tolerance', () => {
     fc.assert(
-      fc.property(arbSecret, fc.constantFrom('GET', 'HEAD', 'get'), arbPath, arbBody, fc.integer({ min: -300, max: 300 }), (secret, method, path, body, skew) => {
+      fc.property(arbSecret, fc.constantFrom('GET', 'HEAD', 'get'), arbPath, arbBody, fc.integer({ min: -60, max: 60 }), (secret, method, path, body, skew) => {
         const stamp = String(NOW / 1000 + skew);
         const header = signCrewProxy(secret, stamp, method, path, body);
         expect(verifyCrewProxy({ header, secret, nowMs: NOW, method, path, body })).toEqual({ ok: true });
@@ -37,7 +38,7 @@ describe('Feature: haunt-patrol, Property 16: Crew proxy verifier', () => {
 
   it('rejects a changed secret, method, path, body or signature, a stale timestamp, and bad headers', () => {
     fc.assert(
-      fc.property(arbSecret, arbPath, arbBody, fc.integer({ min: 301, max: 100_000 }), (secret, path, body, skew) => {
+      fc.property(arbSecret, arbPath, arbBody, fc.integer({ min: 61, max: 100_000 }), (secret, path, body, skew) => {
         const header = signCrewProxy(secret, ts, 'GET', path, body);
         const base = { header, secret, nowMs: NOW, method: 'GET', path, body };
         expect(verifyCrewProxy(base).ok).toBe(true);
@@ -77,17 +78,32 @@ describe('Feature: haunt-patrol, Property 16: Crew proxy verifier', () => {
     );
   });
 
-  it('documents the header name and secret variable in the one config file', () => {
-    expect(CREW_PROXY.headerName).toBe('x-crew-proxy');
-    expect(CREW_PROXY.secretEnvVar).toBe('HAUNT_CREW_PROXY_SECRET');
-    expect(CREW_PROXY.toleranceSeconds).toBe(300);
-    expect(CREW_PROXY.signedString('1', 'get', '/p?q=1', 'b')).toBe('1.GET./p?q=1.b');
+  // Documented in docs/app-kit/api-reference.md (kirodotdev/KiroCrew), "Reverse Proxy Authentication".
+  it('uses the documented header name, secret variable, tolerance and signed string', () => {
+    expect(CREW_PROXY.headerName).toBe('x-kirocrew-proxy');
+    expect(CREW_PROXY.secretEnvVar).toBe('KIROCREW_PROXY_SECRET');
+    expect(CREW_PROXY.toleranceSeconds).toBe(60);
+    // An empty body hashes to the documented e3b0c442... digest.
+    expect(CREW_PROXY.signedString('1', 'GET', '/api/latest', '')).toBe(
+      '1:GET:/api/latest:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    );
+    expect(CREW_PROXY.signedString('1', 'GET', '/api/p?q=1', 'b')).toBe(`1:GET:/api/p?q=1:${createHash('sha256').update('b').digest('hex')}`);
   });
 
-  // UNVERIFIED example (design risk 8). Re-check against the Crew docs or a real gateway request.
-  it('verifies one fixed example', () => {
-    const header = signCrewProxy('s3cret', '1800000000', 'GET', '/latest', '');
-    expect(header).toMatch(/^1800000000:[0-9a-f]{64}$/);
-    expect(verifyCrewProxy({ header, secret: 's3cret', nowMs: 1_800_000_100_000, method: 'GET', path: '/latest', body: '' })).toEqual({ ok: true });
+  it('verifies one fixed example computed independently of the module', () => {
+    const message = '1800000000:GET:/api/latest:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+    const header = `1800000000:${createHmac('sha256', 's3cret').update(message).digest('hex')}`;
+    expect(signCrewProxy('s3cret', '1800000000', 'GET', '/api/latest', '')).toBe(header);
+    expect(verifyCrewProxy({ header, secret: 's3cret', nowMs: 1_800_000_060_000, method: 'GET', path: '/api/latest', body: '' })).toEqual({ ok: true });
+    expect(verifyCrewProxy({ header, secret: 's3cret', nowMs: 1_800_000_061_000, method: 'GET', path: '/api/latest', body: '' })).toEqual({ ok: false, reason: 'stale' });
+  });
+
+  it('rejects an uppercase digest and a timestamp longer than 12 digits as malformed', () => {
+    const header = signCrewProxy('s', '1800000000', 'GET', '/api/latest', '');
+    const [t, sig] = header.split(':') as [string, string];
+    const upper = `${t}:${sig.replace(/[a-f]/g, (c) => c.toUpperCase())}`;
+    expect(upper).not.toBe(header);
+    expect(verifyCrewProxy({ header: upper, secret: 's', nowMs: NOW, method: 'GET', path: '/api/latest', body: '' })).toEqual({ ok: false, reason: 'malformed' });
+    expect(verifyCrewProxy({ header: `1${'0'.repeat(12)}:${sig}`, secret: 's', nowMs: NOW, method: 'GET', path: '/api/latest', body: '' })).toEqual({ ok: false, reason: 'malformed' });
   });
 });

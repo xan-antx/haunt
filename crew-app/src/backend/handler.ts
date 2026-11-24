@@ -12,10 +12,13 @@ export interface BackendResponse {
 }
 export interface BackendRequest {
   method: string;
-  path: string; // path and query as received, relative to the proxy prefix
+  path: string; // raw request-target as received; the gateway forwards /apps/haunt-patrol/api/x as /api/x
   body: string; // raw request body ('' for GET and HEAD)
-  crewProxyHeader: string | undefined; // value of X-Crew-Proxy
+  crewProxyHeader: string | undefined; // value of X-KiroCrew-Proxy
 }
+
+/** The backend paths the gateway forwards for /apps/haunt-patrol/api/latest and /apps/haunt-patrol/api/summary. */
+export const ROUTES = { health: '/health', latest: '/api/latest', summary: '/api/summary' } as const;
 export interface BackendOptions {
   dashboardBaseUrl: string;
   secret: string | undefined;
@@ -46,8 +49,9 @@ export async function handleRequest(req: BackendRequest, files: BackendFiles, op
   }
   const head = req.method === 'HEAD';
 
-  // 2. The unsigned health probe: exactly /health, nothing read.
-  if (req.path === '/health') return json(200, '{"ok":true}', head);
+  // 2. The unsigned health probe: exactly /health, nothing read. The gateway polls it directly on
+  //    loopback without a proxy header, so it must answer 2xx unsigned.
+  if (req.path === ROUTES.health) return json(200, '{"ok":true}', head);
 
   // 3. Verify the Crew proxy header before any file is read.
   const verdict = verifyCrewProxy({
@@ -64,14 +68,14 @@ export async function handleRequest(req: BackendRequest, files: BackendFiles, op
   }
 
   // 4. The two data routes, each mapped to one fixed file name.
-  if (req.path === '/latest') {
+  if (req.path === ROUTES.latest) {
     const text = await files.read('latest.json');
     if (text === null) return json(404, '{"error":"no_patrol"}', head);
     const parsed = parseRecord(text);
     if (!parsed.ok) return json(500, '{"error":"unreadable","file":"latest.json"}', head);
     return json(200, JSON.stringify(latestBody(parsed.record, options.dashboardBaseUrl)), head);
   }
-  if (req.path === '/summary') {
+  if (req.path === ROUTES.summary) {
     const text = await files.read('summary.md');
     if (text === null) return json(404, '{"error":"no_patrol"}', head);
     return json(200, JSON.stringify(summaryBody(text)), head);

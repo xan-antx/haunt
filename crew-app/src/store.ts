@@ -20,9 +20,13 @@ async function atomicWrite(file: string, text: string): Promise<void> {
   await rename(temp, file);
 }
 
-export function createPatrolStore(repoRoot: string): PatrolStore {
-  const dataDir = path.join(repoRoot, 'crew-app', 'data', 'patrols');
-  const staticDir = path.join(repoRoot, 'crew-app', 'ui', 'dist', 'data');
+/**
+ * appRoot is the folder that holds app.json: crew-app/ in the repository, or the installed copy
+ * (~/.kiro/crew/apps/haunt-patrol/). The backend reads the same appRoot-relative data folder.
+ */
+export function createPatrolStore(appRoot: string): PatrolStore {
+  const dataDir = path.join(appRoot, 'data', 'patrols');
+  const staticDir = path.join(appRoot, 'ui', 'dist', 'data');
   return {
     async loadPrevious(currentDate) {
       let names: string[];

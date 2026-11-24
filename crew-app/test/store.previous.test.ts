@@ -19,7 +19,7 @@ describe('Feature: haunt-patrol, Property 11 (integration half): Unreadable prev
         async (text) => {
           await writeFile(path.join(dir, '2026-11-02.json'), text, 'utf8');
           await writeFile(path.join(dir, '2026-10-01.json'), '{"older":true}', 'utf8');
-          const store = createPatrolStore(root);
+          const store = createPatrolStore(path.join(root, 'crew-app'));
           expect(await store.loadPrevious('2026-11-03')).toEqual({ kind: 'unreadable', date: '2026-11-02' });
 
           const h = harness({ store: undefined });
