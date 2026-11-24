@@ -237,6 +237,52 @@ describe('unannounced_error Detector', () => {
     });
   });
 
+  describe('screen-reader-only text', () => {
+    // The exact text from the Memos run: it sits in <span class="mu-visually-hidden">.
+    const MEMOS_HIDDEN = 'Content, attachment, or file required';
+
+    it('records no Finding for the Memos mu-visually-hidden span', async () => {
+      const { findings } = await run([call('showHiddenSpan', MEMOS_HIDDEN, 'mu-visually-hidden'), nothing, nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('records no Finding when the hidden span is inside an element whose class says error', async () => {
+      const { findings } = await run([call('showHiddenSpan', MEMOS_HIDDEN, 'mu-visually-hidden', 'errorText'), nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it.each([
+      ['clip-path: inset(50%)', 'sr-clip-path'],
+      ['a 1px box with overflow hidden', 'sr-one-px'],
+      ['a position far off the left of the page', 'sr-off-left'],
+    ])('records no Finding for text hidden with %s', async (_name, cls) => {
+      const { findings } = await run([call('showHiddenSpan', SILENT, cls), nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('leaves the hidden span out of the text of the visible element around it', async () => {
+      const { findings } = await run([call('showVisibleWithHiddenSpan', 'Pay this bill', MEMOS_HIDDEN), nothing]);
+      expect(findings).toEqual([]);
+    });
+
+    it('still records a silent error that is visible, next to a hidden one', async () => {
+      const { findings } = await run([
+        call('showHiddenSpan', MEMOS_HIDDEN, 'mu-visually-hidden'),
+        call('showSilentError', SILENT),
+        nothing,
+      ]);
+      expect(findings).toHaveLength(1);
+      expect(findings[0]!.stepN).toBe(3);
+      expect(findings[0]!.evidence).toContain(`"${SILENT}"`);
+      expect(findings[0]!.evidence).not.toContain(MEMOS_HIDDEN);
+    });
+
+    it('records the same text as an error when it is visible', async () => {
+      const { findings } = await run([call('showSilentError', MEMOS_HIDDEN), nothing]);
+      expect(findings.map((f) => f.stepN)).toEqual([2]);
+    });
+  });
+
   it('does not move focus or change the page while it looks', async () => {
     const { page, session } = await openFixture();
     try {

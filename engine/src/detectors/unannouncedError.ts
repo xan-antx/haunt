@@ -89,6 +89,61 @@ const LIST_VISIBLE_TEXT_SCRIPT = String.raw`(arg) => {
     const rect = el.getBoundingClientRect();
     return rect.width > 0 && rect.height > 0;
   };
+  // Screen-reader-only text: laid out, but never seen on screen. The element or an ancestor is clipped to
+  // a 1px box (overflow hidden or clip), clipped away with clip or clip-path, or placed off the page.
+  const num = (s) => { const v = parseFloat(s); return isNaN(v) ? 0 : v; };
+  const hiddenByClip = (cs) => {
+    if (cs.position === 'absolute' || cs.position === 'fixed') {
+      const m = /^rect\(([^)]*)\)$/.exec(cs.clip || '');
+      if (m) {
+        const p = m[1].split(/[\s,]+/).filter(Boolean).map(num);
+        if (p.length === 4 && (p[1] - p[3] <= 1 || p[2] - p[0] <= 1)) return true;
+      }
+    }
+    const path = (cs.clipPath || '').replace(/\s+/g, ' ').trim();
+    if (!path || path === 'none') return false;
+    if (/^inset\(\s*(?:50|100)%/.test(path)) return true;
+    if (/^circle\(\s*0(?:px|%)?\s*(?:at|\))/.test(path)) return true;
+    const shape = /^(?:inset|polygon)\((.*)\)$/.exec(path);
+    return !!shape && /^[\s,]*(?:0(?:px|%)?[\s,]*)+$/.test(shape[1]);
+  };
+  const isOneSelf = (n) => {
+    const cs = getComputedStyle(n);
+    const rect = n.getBoundingClientRect();
+    const clips = cs.overflow !== 'visible' || cs.overflowX !== 'visible' || cs.overflowY !== 'visible';
+    if (clips && rect.width <= 1 && rect.height <= 1) return true;
+    if (hiddenByClip(cs)) return true;
+    const dx = cs.position === 'fixed' ? 0 : window.scrollX;
+    const dy = cs.position === 'fixed' ? 0 : window.scrollY;
+    if (rect.right + dx <= 0 || rect.bottom + dy <= 0) return true;
+    return false;
+  };
+  const isScreenReaderOnly = (el) => {
+    for (let n = el; n && n.nodeType === 1 && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+      if (isOneSelf(n)) return true;
+    }
+    return false;
+  };
+  // The text of an element, leaving out screen-reader-only parts and parts that are not rendered.
+  const seenText = (el) => {
+    let hiddenInside = false;
+    for (const d of el.querySelectorAll('*')) { if (isOneSelf(d)) { hiddenInside = true; break; } }
+    if (!hiddenInside) return (el.innerText || '').replace(/\s+/g, ' ').trim();
+    const parts = [];
+    const walk = (node) => {
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3) parts.push(child.data);
+        else if (child.nodeType === 1) {
+          if (child.localName === 'script' || child.localName === 'style' || child.localName === 'noscript' || child.localName === 'template') continue;
+          if (typeof child.checkVisibility === 'function' && !child.checkVisibility({ checkVisibilityCSS: true })) continue;
+          if (isOneSelf(child)) continue;
+          walk(child);
+        }
+      }
+    };
+    walk(el);
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  };
   // Targets of disclosures that are open: aria-controls of a trigger whose aria-expanded is true.
   // getElementById, because React ids such as ":r1:" are not valid in a CSS selector.
   const opened = new Set();
@@ -115,8 +170,9 @@ const LIST_VISIBLE_TEXT_SCRIPT = String.raw`(arg) => {
     const byClass = classId.test(className) || classId.test(id);
     if (!own && !byClass) continue;
     if (!isVisible(el)) continue;
+    if (isScreenReaderOnly(el)) continue;
     if (el.querySelector('input, select, textarea, button')) continue;
-    const text = (el.innerText || '').replace(/\s+/g, ' ').trim();
+    const text = seenText(el);
     if (!text || text.length > 300) continue;
     out.push({ path: pathOf(el), tag: el.localName, className, id, text, byClass, revealed: isRevealed(el) });
   }

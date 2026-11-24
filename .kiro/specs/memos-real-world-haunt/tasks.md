@@ -179,8 +179,22 @@ Ground rules for every task:
     - In `mind.ts`, when `unnamedTyped` is set and focus is still on `unnamedTyped.ref` after a jump or Tab press, press Shift+Tab, then Escape, then Escape. If focus moves after any of these, resume the normal search. After the second Escape, clear `unnamedTyped` and drop the search state.
     - Add `elementTrap` to `ListenerMemory` (the control and the keys tried). In `thoughts.ts`, make `trappedThought` say that the Listener is stuck in a text box with no name and that Tab and Shift+Tab do not move it when the scope is `page`. Leave the dialog sentences unchanged.
     - The routine only makes the key presses that the `focus_trap` detector reads. The Mind does not decide whether a trap is reported: the detector records the finding at the second Escape whether or not focus moved, and the stop rule then ends the run with `trapped`.
-    - The routine runs only for a field the Mind itself typed into through `unnamedField`, so the existing test "gives up with no_match when the button jump finds no button at all" and every Lantern decision stay unchanged.
     - _Requirements: 3.2, 3.4, 3.9, 4.2_
+
+  - [x] 6.4 Run the stuck routine for any element, named or not (fix after the first scripted Memos run)
+    - Problem: at step 26 "Next button (Tab ×50)" left focus on the named Memos editor 50 times, but the routine ran only for a field typed into through `unnamedField`, so no `focus_trap` was recorded and the run gave up.
+    - In `ax.ts` add `tabStayed?: true` to `Heard`. In `body.ts`, set a `tabStayed` flag in `actKey('Tab')` and `actTabJump` when focus was on an element before and every Tab press left it there, clear it in `act`, and set `heard.tabStayed` in `perceive()`.
+    - In `mind.ts`, replace `unnamedTyped` with `stuckRef` and a `probed` set. The routine starts when the last action was a Tab press or a field or button jump, `heard.tabStayed` is true, focus is on the same ref as at the previous decision, there is no dialog and the ref was not probed before. Heading and landmark jumps do not count.
+    - In `thoughts.ts`, say "It has no name" only for an unnamed element, and make `trappedThought` say `the text box "<name>"` for a named one.
+    - Lantern decisions stay unchanged: the existing Mind tests pass without edits, because a jump that wraps round to the same control moves focus, so `tabStayed` is not set. One existing Mind test was rewritten: "does not run the routine for a field it did not type into as a last resort" in `listenerMind.unnamedField.test.ts` described the old gate. Its scene (a jump that leaves focus on a named field) is the new behavior, and it is now covered by "presses Shift+Tab, Escape, Escape when a jump leaves focus on a named text box" and "does not run when the jump moved focus and wrapped round to the same control".
+    - Add tests: `listenerMind.unnamedField.test.ts` (named element, once for each element, wrapped jump, not after typing), `listenerBody.test.ts` (`tabStayed` set, cleared, not set when Tab moved focus), `focusTrap.element.test.ts` (a named text box after a 50-press Tab jump, then Shift+Tab, Escape, Escape in separate Steps).
+    - _Requirements: 3.1, 3.2, 3.4, 3.9, 4.1, 4.2_
+
+- [x] 6a. unannounced_error: ignore screen-reader-only text (fix after the first scripted Memos run)
+  - The run flagged "Content, attachment, or file required", which sits in `<span class="mu-visually-hidden">` and is never visible on screen.
+  - In `engine/src/detectors/unannouncedError.ts`, make the page script skip an element that is screen-reader-only (see design, "Unannounced error: screen-reader-only text"), and leave such descendants out of the text of the element around them.
+  - Add the case to `engine/test/unannouncedError.test.ts` with fixture helpers in `engine/test/fixtures/unannounced-error.html`: the Memos `mu-visually-hidden` span, one inside an element whose class says `error`, `clip-path`, a 1px box, an off-page position, a visible element with a hidden span inside, and the same text visible (still a finding). The existing Lantern-style silent error tests are unchanged.
+  - _Requirements: haunt-engine 10.5, 10.6_
 
   - [x]* 6.3 Write tests for the Mind changes
     - Create `engine/test/listenerMind.unnamedField.test.ts` with a fake `Heard` walk of `write-note`. Cover typing into the unnamed field as a last resort, then Shift+Tab, Escape, Escape when focus does not move, the normal search when focus does move, and a Mind without `unnamedField` deciding exactly as before.

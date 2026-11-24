@@ -482,6 +482,30 @@ describe('The Listener Body', () => {
   });
 
   // -----------------------------------------------------------------------------------------------------
+  describe('tabStayed', () => {
+    it('is set when a button jump presses Tab and focus never leaves a text box', async () => {
+      const s = await start('/element-trap.html?aph=1');
+      const [jump] = await run(s.body, next('button'));
+      expect(jump!.trace.keys.length).toBeGreaterThan(1);
+      expect(jump!.trace.keys.every((k) => k.key === 'Tab')).toBe(true);
+      expect((await s.body.perceive()).perception.tabStayed).toBe(true);
+    });
+
+    it('is cleared by the next action', async () => {
+      const s = await start('/element-trap.html?aph=1');
+      await run(s.body, next('button'), key('Escape'));
+      expect((await s.body.perceive()).perception.tabStayed).toBeUndefined();
+    });
+
+    it('is not set when Tab moved focus', async () => {
+      const s = await start('/listener-form.html');
+      await run(s.body, next('field'));
+      await s.body.act(next('field'));
+      expect((await s.body.perceive()).perception.tabStayed).toBeUndefined();
+    });
+  });
+
+  // -----------------------------------------------------------------------------------------------------
   describe('focusBox (Requirement 6.6)', () => {
     it('is the border box of the focused element in CSS px', async () => {
       const s = await start('/listener-form.html');

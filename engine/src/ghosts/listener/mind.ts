@@ -219,11 +219,15 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
   /** Intentions whose own thought has already been said. */
   private readonly announced = new Set<string>();
   private search: Search | null = null;
-  /** The field with no name that the Mind typed into as a last resort, until it is left or given up on. */
-  private unnamedTyped: { ref: string } | null = null;
+  /** The element the stuck routine is running on, or null when it is not running. */
+  private stuckRef: string | null = null;
+  /** Elements the stuck routine has already run on. It runs once for each element. */
+  private readonly probed = new Set<string>();
   /** The stuck routine: 0 not running, 1 Shift+Tab pressed, 2 first Escape pressed, 3 second Escape pressed. */
   private trapStage: 0 | 1 | 2 | 3 = 0;
-  /** The last action was a jump or a Tab press, so focus should have moved. */
+  /** The ref of the focused node at the previous decision, or null. */
+  private lastFocusRef: string | null = null;
+  /** The last action was a Tab press or a Tab-based jump (field or button), so focus should have moved. */
   private lastMove = false;
 
   constructor(mission: Mission, opts: MindOptions) {
@@ -234,6 +238,8 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
 
   decide(heard: Heard): Decision<ListenerAction> {
     const focus = focusedNode(heard);
+    const focusBefore = this.lastFocusRef;
+    this.lastFocusRef = focus?.ref ?? null;
     this.observe(heard, focus);
     this.advance(heard);
 
@@ -249,7 +255,7 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
       );
     }
 
-    const stuck = this.stuckStep(focus);
+    const stuck = this.stuckStep(heard, focus, focusBefore);
     if (stuck !== null) return stuck;
 
     const intention = this.current();
@@ -340,34 +346,40 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
 
   private act(intentionId: string, action: ListenerAction, thought: string): Decision<ListenerAction> {
     this.memory.actions++;
-    this.lastMove = action.type === 'jump' || (action.type === 'key' && action.key === 'Tab');
+    this.lastMove =
+      (action.type === 'jump' && (action.to === 'field' || action.to === 'button')) ||
+      (action.type === 'key' && action.key === 'Tab');
     return { kind: 'act', action, thought, intentionId };
   }
 
   /**
-   * The stuck routine. It only runs for a field the Mind typed into as a last resort. If focus is still on
-   * that field after a jump or a Tab press, the Mind presses Shift+Tab, then Escape, then Escape. If focus
-   * moves after any of them, the normal search goes on. The Mind does not decide whether a trap is reported:
-   * the `focus_trap` Detector reads these key presses.
+   * The stuck routine. It runs for any element, named or not, outside a dialog. If a jump (field or button,
+   * which press Tab) or a Tab press leaves focus on the element that already had focus before it, the Mind
+   * presses Shift+Tab, then Escape, then Escape. The Body reports in `heard.tabStayed` that no Tab press
+   * moved focus, so a jump that wraps round to the same control (a form with one button) is not probed. If focus moves after any of them, the normal search goes on.
+   * It runs once for each element. The Mind does not decide whether a trap is reported: the `focus_trap`
+   * Detector reads these key presses.
    */
-  private stuckStep(focus: HeardNode | undefined): Decision<ListenerAction> | null {
-    const typed = this.unnamedTyped;
-    if (typed === null) return null;
-    const onIt = focus !== undefined && focus.ref === typed.ref;
+  private stuckStep(heard: Heard, focus: HeardNode | undefined, focusBefore: string | null): Decision<ListenerAction> | null {
     const id = this.current()?.id ?? 'orientation';
 
     if (this.trapStage === 0) {
-      if (!(this.lastMove && onIt)) return null;
+      // The Body says Tab never moved focus. A jump that wraps round to the same control is not a trap.
+      const stayed = this.lastMove && heard.tabStayed === true && focus !== undefined && focus.ref === focusBefore;
+      if (!stayed || heard.dialog !== null || this.probed.has(focus.ref)) return null;
+      this.probed.add(focus.ref);
+      this.stuckRef = focus.ref;
       this.memory.elementTrap = { control: remember(focus), keys: ['Shift+Tab'] };
       this.trapStage = 1;
       return this.act(id, { type: 'key', key: 'Shift+Tab' }, elementTrapThought({ step: 'Shift+Tab', node: focus }));
     }
 
+    const onIt = focus !== undefined && focus.ref === this.stuckRef;
     if (this.trapStage === 3 || !onIt) {
       // After the second Escape, or as soon as focus moves: back to the normal search.
       if (this.trapStage < 3) this.memory.elementTrap = null;
       this.trapStage = 0;
-      this.unnamedTyped = null;
+      this.stuckRef = null;
       this.search = null;
       return null;
     }
@@ -543,10 +555,8 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
       const first = search.tried === 0;
       search.tried++;
       if (search.lastResortKind === 'field') {
-        // Type the value (or press Enter) and remember the field, in case the Mind cannot leave it.
+        // Type the value (or press Enter) and remember the field.
         this.actedRef = focus.ref;
-        this.unnamedTyped = { ref: focus.ref };
-        this.trapStage = 0;
         const typed = intention.do === 'type' ? intention.value : null;
         const action: ListenerAction = typed === null ? { type: 'key', key: 'Enter' } : { type: 'type', text: typed };
         return this.act(intention.id, action, lastResortFieldUseThought({ lead, node: focus, first, typed }));

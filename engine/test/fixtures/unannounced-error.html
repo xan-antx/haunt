@@ -7,6 +7,14 @@
       body { font-family: sans-serif; }
       .errorText { color: #b00020; font-size: 0.875rem; }
       .note { color: #333; }
+      /* Memos: screen-reader-only text (1px box, clipped). */
+      .mu-visually-hidden {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+      }
+      .sr-clip-path { position: absolute; width: 100px; height: 20px; clip-path: inset(50%); }
+      .sr-off-left { position: absolute; left: -10000px; top: 0; }
+      .sr-one-px { position: absolute; width: 1px; height: 1px; overflow: hidden; }
     </style>
   </head>
   <body>
@@ -83,6 +91,24 @@
         const body = document.createElement('p');
         body.textContent = text;
         details.append(summary, body);
+      };
+
+      // Memos: error-worded text inside a screen-reader-only span (never visible on screen).
+      window.showHiddenSpan = (text, cls, wrapperClass) => {
+        const wrapper = add('div', '', { class: wrapperClass || 'field-note' });
+        const span = document.createElement('span');
+        span.className = cls || 'mu-visually-hidden';
+        span.textContent = text;
+        wrapper.appendChild(span);
+      };
+
+      // Visible text with a screen-reader-only span inside the same element.
+      window.showVisibleWithHiddenSpan = (visible, hidden) => {
+        const p = add('p', visible + ' ', { class: 'note' });
+        const span = document.createElement('span');
+        span.className = 'mu-visually-hidden';
+        span.textContent = hidden;
+        p.appendChild(span);
       };
 
       window.clearSlot = () => {

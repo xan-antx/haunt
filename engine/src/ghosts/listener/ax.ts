@@ -54,6 +54,11 @@ export interface Heard {
   readingPosition: string | null;
   /** Live_Announcements since the previous Perception. */
   announcements: string[];
+  /**
+   * Set by the Body when the previous action was a Tab press or a Tab-based jump (field or button), and
+   * focus was on one element before it and on that same element after every press: Tab never moved it.
+   */
+  tabStayed?: true;
 }
 
 /** The state a caller holds between reads and hands in each time. */

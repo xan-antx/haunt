@@ -135,6 +135,28 @@ describe('focus_trap element part in Chromium', () => {
     expect(listenerStopRule(stateOf(runner, recorder))).toBe('trapped');
   });
 
+  it('records a named text box after a Tab-based jump of 50 presses, then Shift+Tab and Escape in separate Steps', async () => {
+    // The Memos run, step 26: "Next button (Tab ×50)" left focus on the editor ("Any thoughts...").
+    const { recorder, runner, step } = await startRun('/element-trap.html?aph=1');
+    await step('Next button (Tab ×50)', Array.from({ length: 50 }, () => 'Tab'));
+    expect(runner.findings).toHaveLength(0);
+    await step('Shift+Tab', ['Shift+Tab']);
+    await step('Escape', ['Escape']);
+    await step('Escape', ['Escape']);
+    expect(await page.evaluate('document.activeElement.id')).toBe('after');
+
+    expect(runner.findings).toHaveLength(1);
+    const finding = runner.findings[0]!;
+    expect(finding.type).toBe('focus_trap');
+    expect(finding.stepN).toBe(5);
+    expect(finding.evidence).toContain('Keyboard focus could not leave the text box "Any thoughts..." (role textbox).');
+    expect(finding.evidence).toContain('Tab (50 presses)');
+    expect(finding.evidence).toContain('Shift+Tab (1 press)');
+    expect(finding.evidence).toContain('Escape pressed twice did free focus');
+    expect(finding.evidence).toContain('This exit is undocumented');
+    expect(listenerStopRule(stateOf(runner, recorder))).toBe('trapped');
+  });
+
   it('records a text box that Escape pressed twice does not free', async () => {
     const { recorder, runner, step } = await startRun('/element-trap.html?escape=never');
     await step('Tab', ['Tab']);

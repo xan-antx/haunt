@@ -281,9 +281,10 @@ export function lastResortFieldUseThought(a: { lead: string; node: HeardNode; fi
 export function elementTrapThought(a: { step: 'Shift+Tab' | 'Escape' | 'Escape again'; node: HeardNode | undefined }): string {
   const here = heardAs(a.node);
   const where = here === null ? 'the same text box' : `${here}, the same text box`;
+  const unnamed = a.node === undefined || a.node.name.trim() === '';
   switch (a.step) {
     case 'Shift+Tab':
-      return `I pressed a key to move on, but I'm still on ${where}. It has no name. I'll press Shift+Tab to go the other way.`;
+      return `I pressed a key to move on, but I'm still on ${where}.${unnamed ? ' It has no name.' : ''} I'll press Shift+Tab to go the other way.`;
     case 'Escape':
       return `Shift+Tab didn't move me either. I'm still on ${where}. I'll press Escape to see if that lets me out.`;
     case 'Escape again':
@@ -303,8 +304,9 @@ export function trappedThought(memory: ListenerMemory): string {
   if (memory.scope === 'page' && memory.elementTrap) {
     const keys = memory.elementTrap.keys;
     const tried = keys.length > 0 ? ` I tried ${joinList(keys)}.` : '';
+    const name = memory.elementTrap.control.name.trim();
     return (
-      "I'm stuck in a text box with no name. Tab and Shift+Tab do not move me out of it." +
+      `I'm stuck in ${name === '' ? 'a text box with no name' : `the text box "${name}"`}. Tab and Shift+Tab do not move me out of it.` +
       `${tried} I can't get out with the keyboard, so I'm giving up.`
     );
   }

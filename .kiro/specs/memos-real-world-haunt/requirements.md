@@ -97,6 +97,7 @@ Out of scope: any change to `demo-site/` or `demo-site-exorcised/`, any change t
 7. WHERE the trapped element is inside a visible dialog, THE Focus_Trap_Detector SHALL apply the Dialog_Trap rules and SHALL NOT record a second Finding for the same trap.
 8. IF a Tab press or a Shift+Tab press moves focus from the element to a different element, THEN THE Focus_Trap_Detector SHALL NOT record an Element_Trap Finding for that element. A key other than Tab and Shift+Tab, including Escape, that moves focus away SHALL NOT count as Tab or Shift+Tab moving focus and SHALL NOT cancel or remove an Element_Trap Finding.
 9. WHEN the Focus_Trap_Detector records a Finding of type `focus_trap` for an Element_Trap or a Dialog_Trap, THE Listener's stop rule SHALL end the run with the reason `trapped`, as it does for a Dialog_Trap, whether or not Escape pressed twice later freed focus from the trapped element.
+10. WHEN a Tab press or a Tab-based jump leaves focus on the element that already had it, outside a dialog, THE Scripted_Mind SHALL confirm by pressing Shift+Tab, then Escape, then Escape, whether or not the element has an Accessible_Name, so that the Focus_Trap_Detector can record the Element_Trap. A jump that moves focus on the way and wraps round to the same control SHALL NOT start this routine.
 
 ### Requirement 4: Lantern Bills findings stay the same
 

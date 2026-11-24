@@ -337,6 +337,8 @@ class ListenerBody implements Body<Heard, ListenerAction> {
   private readingPosition: string | null = null;
   /** Announcements since the previous Perception. */
   private pending: string[] = [];
+  /** The last action was a Tab press or Tab-based jump that never moved focus off one element. */
+  private tabStayed = false;
 
   constructor(
     private readonly page: KeyboardOnlyPage,
@@ -375,12 +377,14 @@ class ListenerBody implements Body<Heard, ListenerAction> {
     const announcements = this.pending;
     this.pending = [];
     const { heard } = await this.hear(announcements);
+    if (this.tabStayed) heard.tabStayed = true;
     const clock = await tolerant(() => this.page.readClock(), null);
     return { perception: heard, probe: { at: clock?.now ?? 0 } };
   }
 
   async act(action: ListenerAction): Promise<ActionResult> {
     await this.ready;
+    this.tabStayed = false;
     switch (action.type) {
       case 'key':
         return this.actKey(action.key);
@@ -398,7 +402,9 @@ class ListenerBody implements Body<Heard, ListenerAction> {
   private async actKey(key: ListenerKey): Promise<ActionResult> {
     const before = await this.hear([]);
     const pathBefore = pathOf(this.page.url());
+    const focusBefore = key === 'Tab' ? await tolerant(() => this.page.readFocusKeys(), null) : null;
     const entry = await this.press(key);
+    if (key === 'Tab') this.tabStayed = focusBefore?.focusKey != null && entry.focusKey === focusBefore.focusKey;
     const waited = await settle(this.page);
     const announcements = await this.drain();
     const after = await this.hear(announcements);
@@ -493,12 +499,19 @@ class ListenerBody implements Body<Heard, ListenerAction> {
     const key: ListenerKey = dir === 'next' ? 'Tab' : 'Shift+Tab';
     const limit = Math.min(JUMP_PRESS_CAP, before.focusable + 2);
 
+    const focusBefore = await tolerant(() => this.page.readFocusKeys(), null);
     const keys: TraceKey[] = [];
     while (keys.length < limit) {
       keys.push(await this.press(key));
       const node = focusedNode((await this.hear([])).heard);
       if (node && roles.has(node.role)) break;
     }
+    // Tab never moved focus off the element that had it: every press left focus there.
+    this.tabStayed =
+      key === 'Tab' &&
+      focusBefore?.focusKey != null &&
+      keys.length > 0 &&
+      keys.every((k) => k.focusKey === focusBefore.focusKey);
 
     const waited = await settle(this.page);
     const announcements = await this.drain();

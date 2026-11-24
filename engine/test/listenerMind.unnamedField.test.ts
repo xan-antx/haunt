@@ -37,7 +37,10 @@ const SAVE = 'ax-32';
 const TEXT = 'ax-33';
 
 /** The signed-in Memos page: a named search box, the editor with no name, and Save. */
-function page(focus: string | null, options: { typed?: boolean; readingPosition?: string | null } = {}): Heard {
+function page(
+  focus: string | null,
+  options: { typed?: boolean; readingPosition?: string | null; wrapped?: boolean } = {},
+): Heard {
   const nodes: NodeSpec[] = [
     { ref: 'ax-1', role: 'RootWebArea', name: 'Memos', depth: 0 },
     { ref: 'ax-2', role: 'heading', name: 'Memos', level: 1 },
@@ -46,7 +49,10 @@ function page(focus: string | null, options: { typed?: boolean; readingPosition?
     ...(options.typed ? [{ ref: TEXT, role: 'StaticText', name: NOTE, depth: 2 }] : []),
     { ref: SAVE, role: 'button', name: 'Save' },
   ];
-  return heard(nodes, { path: '/', title: 'Memos', focus, readingPosition: options.readingPosition ?? null });
+  const scene = heard(nodes, { path: '/', title: 'Memos', focus, readingPosition: options.readingPosition ?? null });
+  // The Body reports that Tab never moved focus, unless the jump moved it and wrapped round (`wrapped`).
+  if (focus !== null && !options.wrapped) scene.tabStayed = true;
+  return scene;
 }
 
 function actionOf(decision: Decision<ListenerAction>): ListenerAction {
@@ -146,16 +152,65 @@ describe('Listener Mind: stuck in a field it typed into', () => {
     expect(actionOf(resumed)).toEqual({ type: 'key', key: 'Enter' });
   });
 
-  it('does not run the routine for a field it did not type into as a last resort', () => {
+  it('does not run the routine when the jump moved focus', () => {
     const mind = new ListenerMind(mission({ lastResort: true }), THROWING);
     mind.decide(page(null));
     mind.decide(page(null, { readingPosition: 'ax-2' }));
-    // Focus stays on the search box after a jump. The Mind has not typed into it, so it just goes on jumping.
-    const first = mind.decide(page(SEARCH));
-    const second = mind.decide(page(SEARCH));
-    expect(actionOf(first).type).toBe('jump');
-    // The jump found nothing new: the search ends as before, and no Shift+Tab or Escape is pressed.
-    expect(second.kind).toBe('give_up');
+    // Each jump moves focus, so the routine never starts.
+    expect(actionOf(mind.decide(page(SEARCH))).type).toBe('jump');
+    expect(actionOf(mind.decide(page(EDITOR)))).toEqual({ type: 'jump', to: 'field', dir: 'next' });
     expect(mind.memory.elementTrap ?? null).toBeNull();
+  });
+});
+
+describe('Listener Mind: stuck in any element after a jump or a Tab press', () => {
+  // Before this change the routine ran only for a field typed into as a last resort. A text box with a
+  // name, such as the Memos editor ("Any thoughts..."), was never probed, so no trap was recorded.
+  it('presses Shift+Tab, Escape, Escape when a jump leaves focus on a named text box', () => {
+    const mind = new ListenerMind(mission({ lastResort: true }), THROWING);
+    mind.decide(page(null));
+    mind.decide(page(null, { readingPosition: 'ax-2' }));
+    mind.decide(page(SEARCH)); // a jump moved focus here
+    // The next jump leaves focus on the search box, which has a name and was never typed into.
+    const stayed = mind.decide(page(SEARCH));
+    expect(actionOf(stayed)).toEqual({ type: 'key', key: 'Shift+Tab' });
+    expect(stayed.thought).toContain('still on');
+    expect(stayed.thought).not.toContain('It has no name');
+    expect(actionOf(mind.decide(page(SEARCH)))).toEqual({ type: 'key', key: 'Escape' });
+    expect(actionOf(mind.decide(page(SEARCH)))).toEqual({ type: 'key', key: 'Escape' });
+    expect(mind.memory.elementTrap?.keys).toEqual(['Shift+Tab', 'Escape', 'Escape']);
+    expect(mind.memory.elementTrap?.control.name).toBe('Search memos');
+    expect(mind.giveUpThought('trapped')).toContain('I\'m stuck in the text box "Search memos"');
+  });
+
+  it('runs once for each element, so the search goes on afterwards', () => {
+    const mind = new ListenerMind(mission({ lastResort: true }), THROWING);
+    mind.decide(page(null));
+    mind.decide(page(null, { readingPosition: 'ax-2' }));
+    mind.decide(page(SEARCH));
+    for (let i = 0; i < 3; i++) mind.decide(page(SEARCH)); // Shift+Tab, Escape, Escape
+    // The search starts again (a Mind with nothing else to find gives up). The routine does not run again.
+    for (let i = 0; i < 3; i++) {
+      const decision = mind.decide(page(SEARCH));
+      expect(decision.kind === 'act' && decision.action.type === 'key').toBe(false);
+    }
+  });
+
+  it('does not run when the jump moved focus and wrapped round to the same control', () => {
+    const mind = new ListenerMind(mission({ lastResort: true }), THROWING);
+    mind.decide(page(null));
+    mind.decide(page(null, { readingPosition: 'ax-2' }));
+    mind.decide(page(SEARCH));
+    // Focus is on the search box again, but Tab moved it on the way (the Body sets no `tabStayed`).
+    const wrapped = mind.decide(page(SEARCH, { wrapped: true }));
+    expect(wrapped.kind).toBe('give_up');
+    expect(mind.memory.elementTrap ?? null).toBeNull();
+  });
+
+  it('does not run when the previous action was not a jump or a Tab press', () => {
+    const mind = new ListenerMind(mission({ lastResort: true }), THROWING);
+    walkToTyped(mind); // the last action was typing
+    const next = mind.decide(page(EDITOR, { typed: true }));
+    expect(actionOf(next)).toEqual({ type: 'jump', to: 'button', dir: 'next' });
   });
 });
