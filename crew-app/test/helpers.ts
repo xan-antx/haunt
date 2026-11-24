@@ -57,9 +57,10 @@ export function record(date: string, entries: Partial<Record<GhostId, { result: 
 }
 
 export const FAKE_ROOT = path.resolve('/fake-haunt');
+export const FAKE_RUNS_DIR = path.resolve('/fake-crew-app/data/runs');
 
 export function runJsonPath(ghost: string): string {
-  return path.join(FAKE_ROOT, 'runs', 'lantern-bills', `run-${ghost}`, 'run.json');
+  return path.join(FAKE_RUNS_DIR, 'lantern-bills', `run-${ghost}`, 'run.json');
 }
 
 export function runJsonText(result: string, findings: FindingRef[] = []): string {
@@ -178,6 +179,7 @@ export function harness(options: {
   const err: string[] = [];
   const deps: PatrolDeps = {
     repoRoot: FAKE_ROOT,
+    runsDir: FAKE_RUNS_DIR,
     clock: () => options.now ?? new Date('2026-11-03T05:00:00Z'),
     probe: options.probe ?? goodProbe(),
     site,

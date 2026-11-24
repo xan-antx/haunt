@@ -3,15 +3,16 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // The script cron shim is Python because Kiro Crew runs script crons as Python callables and refuses
-// command crons on native Windows. No Python runs in these tests; they read the file as text.
+// command crons on native Windows. These tests read the file as text; cronScript.run.test.ts runs it.
 const root = path.resolve(import.meta.dirname, '..');
 const text = readFileSync(path.join(root, 'cron', 'nightly_patrol.py'), 'utf8');
 const manifest = JSON.parse(readFileSync(path.join(root, 'app.json'), 'utf8')) as { crons: { timeout: number }[] };
 
 describe('cron/nightly_patrol.py', () => {
-  it('imports only the Python standard library modules it needs', () => {
+  it('imports only the Python standard library modules it needs, plus Crew\'s Report', () => {
     const imports = [...text.matchAll(/^(?:import|from)\s+([\w.]+)/gm)].map((m) => m[1]);
-    expect(imports.sort()).toEqual(['os', 'pathlib', 'shutil', 'subprocess']);
+    expect(imports.sort()).toEqual(['datetime', 'os', 'pathlib', 'shutil', 'subprocess']);
+    expect(text).toMatch(/^try:\n {4}from kiro_crew\.cron_script import Report\nexcept ImportError:/m);
   });
 
   it('starts only the TypeScript runner, with no shell, no model and no haunt-mcp', () => {
@@ -25,7 +26,7 @@ describe('cron/nightly_patrol.py', () => {
 
   it('takes the repository root from HAUNT_REPO_ROOT and passes it on to the runner', () => {
     expect(text).toContain('env.get("HAUNT_REPO_ROOT")');
-    expect(text).toContain('env["HAUNT_REPO_ROOT"] = str(repo_root)');
+    expect(text).toContain('child_env["HAUNT_REPO_ROOT"] = str(repo_root)');
   });
 
   it('stops the runner before the cron timeout, so the exit code is reported', () => {
@@ -35,6 +36,16 @@ describe('cron/nightly_patrol.py', () => {
   });
 
   it('reports a non-zero patrol exit code as a failed run', () => {
-    expect(text).toMatch(/if completed\.returncode != 0:\s+raise RuntimeError/);
+    expect(text).toMatch(/if completed\.returncode != 0:[\s\S]{0,300}?fail\(/);
+    expect(text).toMatch(/^def fail\(message\):[\s\S]*?raise RuntimeError\(message\)/m);
+  });
+
+  // Crew ignores a returned value; Report(text) is what records the run's result.
+  it('hands the summary to Crew by raising Report', () => {
+    expect(text).toMatch(/^def run\(ctx=None\):[\s\S]*?raise Report\(patrol\(os\.environ\)\)/m);
+  });
+
+  it('logs to data/logs/patrol.log inside the app folder', () => {
+    expect(text).toContain('LOG_FILE = APP_ROOT / "data" / "logs" / "patrol.log"');
   });
 });

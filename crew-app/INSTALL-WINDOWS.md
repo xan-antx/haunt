@@ -130,17 +130,20 @@ Before the first patrol the page says **No patrol has run yet.**
 3. Choose **Run now**. The patrol builds Lantern Bills, sends The Listener, The Phantom and Bebe
    through the pay-bill mission one after another, and stops the site. This takes a few minutes and
    at most 15.
-4. Open the job's **Logs** tab. The run shows **OK** when at least one ghost saved a run, and
-   **Error** otherwise, with the reason in the run's trace.
+4. Open the job's **Logs** tab. The run shows **OK** with the patrol summary as its result when at
+   least one ghost saved a run, and **Error** otherwise, with the reason as the run's error. Crew
+   also sends the summary as a notification.
 5. Go back to the Haunt Patrol page and reload it. It shows tonight's date in IST, the summary, and
    one row per ghost with a link to open that ghost's run in the Haunt dashboard.
 
-The ghost runs are saved in the repository's `runs\` folder. The patrol record and summary are saved
-in the installed copy, in `%USERPROFILE%\.kiro\crew\apps\haunt-patrol\data\patrols\`. To read the
-latest summary without the page:
+Everything a patrol writes stays in the installed copy, under
+`%USERPROFILE%\.kiro\crew\apps\haunt-patrol\data\`: the ghost runs in `runs\`, the patrol record and
+summary in `patrols\`, and a log of every step in `logs\patrol.log`. The repository's `runs\` folder,
+which the dashboard shows, is never changed. To read the latest summary or the log without the page:
 
 ```powershell
 notepad "$env:USERPROFILE\.kiro\crew\apps\haunt-patrol\data\patrols\summary.md"
+notepad "$env:USERPROFILE\.kiro\crew\apps\haunt-patrol\data\logs\patrol.log"
 ```
 
 Running `npm run patrol` in `crew-app\` also runs a patrol, but it writes to the repository's
@@ -150,13 +153,15 @@ Running `npm run patrol` in `crew-app\` also runs a patrol, but it writes to the
 
 | What you see | What to do |
 |---|---|
-| The run fails with "Haunt Patrol cannot find the Haunt repository" | The patrol did not see `HAUNT_REPO_ROOT`. Check it with `[Environment]::GetEnvironmentVariable('HAUNT_REPO_ROOT', 'User')`. It must name the folder that holds `engine\` and `demo-site\`. Quit Kiro Crew from the notification area and open it again. |
-| The run fails with "Haunt Patrol needs Node.js 24 or later on PATH" | Install Node.js 24 LTS, then quit and reopen Kiro Crew so it sees the new `PATH`. |
+| Anything fails | Open `data\logs\patrol.log` in the installed copy (step 6). It lists the repository root, the node path, the command, the exit code and the patrol's output for every run. |
+| The run fails with "HAUNT_REPO_ROOT is not set" | The patrol did not see `HAUNT_REPO_ROOT`. Check it with `[Environment]::GetEnvironmentVariable('HAUNT_REPO_ROOT', 'User')`. Quit Kiro Crew from the notification area and open it again. |
+| The run fails with "HAUNT_REPO_ROOT is set to ..., but that folder does not exist" or "cannot find the engine" | `HAUNT_REPO_ROOT` must name the folder that holds `engine\` and `demo-site\`. Fix it with the command in step 1, then quit and reopen Kiro Crew. |
+| The run fails with "Haunt Patrol cannot find node on PATH" | Install Node.js 24 LTS, then quit and reopen Kiro Crew so it sees the new `PATH`. |
 | The run fails with exit code 1 | A prerequisite is missing. The trace lists each missing item with the command that fixes it, for example `npx playwright install chromium` in `engine\`. |
 | The run fails with exit code 2 | The site did not start. Most often port 3000 is in use; see step 6. |
 | The run fails with exit code 3 | The site started but no ghost saved a run. The trace has each ghost's error. |
 | The run fails with exit code 4 | The patrol crashed. The trace has the error text. |
 | The run or the backend is refused with a message about unsandboxed execution | Windows has no Crew sandbox, and this machine's Crew settings refuse unsandboxed app code (`sandbox_allow_unsandboxed_exec` is `false`). Haunt Patrol needs that allowed. |
-| You changed files in `crew-app\` and Crew still shows the old version | Choose **Update** on the Haunt Patrol tile in **Apps → Library**. The update keeps the patrol records in `data\`. |
+| You changed files in `crew-app\` and Crew still shows the old version | Choose **Update** on the Haunt Patrol tile in **Apps → Library**. The update keeps the patrol records, runs and logs in `data\`. |
 
 `crew-app\README.md` explains the exit codes and the patrol in more detail.

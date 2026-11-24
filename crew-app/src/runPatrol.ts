@@ -13,6 +13,8 @@ const GHOST_TIMEOUT_MS = 180_000;
 
 export interface PatrolDeps {
   repoRoot: string;
+  /** Where the ghost runs go (`haunt run --out`). The app's own data folder, never the repository's runs/. */
+  runsDir: string;
   clock: () => Date;
   probe: Probe;
   site: SiteController;
@@ -64,6 +66,12 @@ async function entryFor(ghost: GhostId, result: CommandResult, readFile: PatrolD
 
 /** One patrol. Returns the exit code. Exceptions after the site started propagate once the site is stopped. */
 export async function runPatrol(deps: PatrolDeps): Promise<number> {
+  const repoRuns = path.resolve(deps.repoRoot, 'runs');
+  const fromRepoRuns = path.relative(repoRuns, path.resolve(deps.runsDir));
+  if (fromRepoRuns === '' || (!fromRepoRuns.startsWith('..') && !path.isAbsolute(fromRepoRuns))) {
+    throw new Error(`The patrol must not write ghost runs into the repository's runs/ folder (${deps.runsDir}).`);
+  }
+
   const date = istDate(deps.clock());
   const seed = seedForDate(date);
 
@@ -81,7 +89,7 @@ export async function runPatrol(deps: PatrolDeps): Promise<number> {
   }
 
   const cliPath = path.join(deps.repoRoot, 'engine', 'bin', 'haunt.mjs');
-  const runsDir = path.join(deps.repoRoot, 'runs');
+  const runsDir = deps.runsDir;
   const engineDir = path.join(deps.repoRoot, 'engine');
   const entries: GhostEntry[] = [];
   let interrupted = false;
