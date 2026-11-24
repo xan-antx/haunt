@@ -17,8 +17,8 @@ Ground rules for every task:
 
 ## Tasks
 
-- [ ] 1. Add the `unlabeled_field` finding type to the engine side of the contract
-  - [ ] 1.1 Update the contract files and the engine type
+- [x] 1. Add the `unlabeled_field` finding type to the engine side of the contract
+  - [x] 1.1 Update the contract files and the engine type
     - In `contract/run.schema.json`, append `"unlabeled_field"` to the `findings[].type` enumeration and keep every existing value.
     - In `contract/run-format.md`, add a bullet after `unlabeled_button`: `unlabeled_field` - A form field or textbox with no accessible name.
     - In `engine/src/contract/types.ts`, add `| 'unlabeled_field'` to `FindingType`.
@@ -26,26 +26,26 @@ Ground rules for every task:
     - Check that every file under `contract/` and `runs/samples/` still passes the schema.
     - _Requirements: 5.1, 5.2, 5.3, 5.7, 7.3_
 
-  - [ ]* 1.2 Write property test for the run schema finding types
+  - [x]* 1.2 Write property test for the run schema finding types
     - Create `engine/test/contract.properties.test.ts`. Build a valid run from `contract/example-run.json`, set one finding's `type` to a generated string, and check it with `validateSchema`.
     - Also check an `unlabeled_field` run is accepted, an unknown type is rejected, and the eight earlier types are still accepted.
     - **Property 11: The run schema accepts a finding type if and only if it is one of the nine** (the dashboard half, `FINDING_TYPES` equals the schema list, is in task 7.3)
     - **Validates: Requirements 5.2, 5.5, 5.6, 5.7, 9.6**
 
-- [ ] 2. Memos site, mission schema, templates, behavior spec and mission
-  - [ ] 2.1 Add `baseUrl` to the site config and the Memos site entry
+- [x] 2. Memos site, mission schema, templates, behavior spec and mission
+  - [x] 2.1 Add `baseUrl` to the site config and the Memos site entry
     - In `engine/schemas/config.schema.json`, add `site.properties.baseUrl` as `{ "type": "string", "minLength": 1 }`. It stays optional.
     - Add `baseUrl?: string` to `SiteConfig`.
     - In `loadConfig`, after schema validation, reject a site whose `baseUrl` fails `isAllowedAddress(baseUrl, config)` with a `ConfigError('schema', ...)` that names the site and the address.
     - In `engine/haunt.config.json`, add `"memos": { "name": "Memos", "allowedTerms": ["Memos"], "baseUrl": "http://localhost:5230" }`. Do not change the existing sites.
     - _Requirements: 1.1, 1.7, 11.1_
 
-  - [ ]* 2.2 Write property test for the base URL guard
+  - [x]* 2.2 Write property test for the base URL guard
     - Create `engine/test/loadConfig.properties.test.ts`. Write temporary config files with a generated `baseUrl` and compare `loadConfig` acceptance with `isAllowedAddress`.
     - **Property 3: The address guard decides whether a site base URL loads**
     - **Validates: Requirements 1.7, 11.1**
 
-  - [ ] 2.3 Add the `unnamedField` last resort value and the `{{runStamp}}` template
+  - [x] 2.3 Add the `unnamedField` last resort value and the `{{runStamp}}` template
     - In `engine/schemas/mission.schema.json`, change `intention.properties.lastResort` to the enum `["unnamedButton", "unnamedField"]`. In `loadMission.ts`, change the type to `lastResort?: 'unnamedButton' | 'unnamedField'`.
     - In `engine/src/missions/templates.ts`, export `runStamp(start: Date)` (UTC, `YYYYMMDD-HHmmss`) and make `applyTemplates` replace `{{runStamp}}`.
     - Make `expandMission` expand `goal`, `successCheck.text`, `successCheck.visible` and intention values, and leave `requirement` alone. A mission with no placeholder expands to an equal mission.
@@ -53,18 +53,18 @@ Ground rules for every task:
     - Do not edit `engine/missions/pay-bill.json`. It must stay valid and expand to itself.
     - _Requirements: 1.2, 1.4, 4.1_
 
-  - [ ]* 2.4 Write property tests for the mission schema and template expansion
+  - [x]* 2.4 Write property tests for the mission schema and template expansion
     - Create `engine/test/missions.properties.test.ts`.
     - **Property 1: Mission schema accepts exactly the two last-resort values**
     - **Property 2: Template expansion is the identity without placeholders and total with them**
     - **Validates: Requirements 1.2, 1.4, 4.1**
 
-  - [ ] 2.5 Write `memos-behavior.md`
+  - [x] 2.5 Write `memos-behavior.md`
     - Create `.kiro/specs/memos-real-world-haunt/memos-behavior.md` with three EARS requirements, each of at most three sentences and each with an identifier: `MEMOS-1` (a signed-in user types a note and activates Save, so a new memo with that text is added at the top of the memo list), `MEMOS-2` (focus in the note editor, Tab or Shift+Tab moves focus to the next or previous control), `MEMOS-3` (the note editor has an accessible name that a screen reader announces).
     - Describe The Listener as a person who uses a screen reader's view and the keyboard, with respectful words.
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 11.4_
 
-  - [ ] 2.6 Write the `write-note` mission
+  - [x] 2.6 Write the `write-note` mission
     - Create `engine/missions/write-note.json` with `id` `write-note`, `site` `memos`, and a `goal` that names the Throwaway_Account (`ghost-test`, `HauntTest123!`) and the note text `Haunt was here {{runStamp}}`.
     - Set `requirement` to `MEMOS-1: <the exact MEMOS-1 text from memos-behavior.md>`.
     - Set `successCheck.text` and `successCheck.visible` so the check matches one saved memo card with exactly the stamped note text, and not the editor.
@@ -74,27 +74,27 @@ Ground rules for every task:
     - Confirm the mission loads through the mission schema validation.
     - _Requirements: 1.2, 1.3, 1.4, 1.8, 2.5, 2.6, 11.2_
 
-  - [ ]* 2.7 Write the Memos mission and spec tests
+  - [x]* 2.7 Write the Memos mission and spec tests
     - Create `engine/test/memosMission.test.ts`. Check that `write-note` loads, that its `requirement` is `<id>: <text>` with an id and text taken from `memos-behavior.md`, and that the spec has `MEMOS-n` identifiers of at most three sentences each, including a Tab and Shift+Tab requirement for the editor.
     - Check that the credentials appear only in the mission file, that `haunt.config.json` has `memos` with `baseUrl` `http://localhost:5230`, and that `listenerGhost.detectors()` includes `focus_trap` and `unlabeled_field`.
     - Check that the run's mission block carries the cited requirement text through `finalizeRun`.
     - _Requirements: 1.1, 1.2, 1.8, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 6.9_
 
-- [ ] 3. Pure selection of unnamed fields from Chromium's accessibility tree
-  - [ ] 3.1 Create the pure `selectUnnamedFields` step in `engine/src/detectors/unlabeledField.ts`
+- [x] 3. Pure selection of unnamed fields from Chromium's accessibility tree
+  - [x] 3.1 Create the pure `selectUnnamedFields` step in `engine/src/detectors/unlabeledField.ts`
     - Create the file with the exports `FIELD_AX_ROLES` (`textbox`, `searchbox`, `combobox`, `listbox`, `spinbutton`, `checkbox`, `radio`, `switch`, `slider`) and `selectUnnamedFields(nodes: RawAxNode[])`.
     - `selectUnnamedFields` reads the raw nodes of `Accessibility.getFullAXTree` with `buildHeard` from `engine/src/ghosts/listener/ax.ts`, which leaves out the nodes Chromium ignores (`aria-hidden`, `hidden`, `display: none`, `inert`). It returns the nodes whose role is in `FIELD_AX_ROLES` and whose name is empty after `trim()`, in tree order.
     - The step decides on the Computed_Name only. It reads no `placeholder` or `aria-placeholder` data and has no exemption for any attribute. There is no name computation in the page and no shared name source.
     - Do not edit `unlabeledButton.ts` or `ax.ts`.
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ]* 3.2 Write property test for the selection step
+  - [x]* 3.2 Write property test for the selection step
     - Create `engine/test/unlabeledField.properties.test.ts` (task 5.2 adds Properties 9 and 10 to the same file). Generate raw accessibility nodes with any roles, ignored flags and names (including whitespace-only names), together with arbitrary `placeholder` and `aria-placeholder` data that the page reports for them, and compare `selectUnnamedFields` with a TypeScript oracle.
     - **Property 8: Only the Computed_Name decides which nodes are unlabeled**
     - **Validates: Requirements 6.1, 6.2, 6.3, 6.4**
 
-- [ ] 4. Generalised `focus_trap` detector
-  - [ ] 4.1 Create the pure element trap analysis
+- [x] 4. Generalised `focus_trap` detector
+  - [x] 4.1 Create the pure element trap analysis
     - Create `engine/src/detectors/elementTrap.ts` with `TrapEvent`, `TrapCandidate`, `TrapResolution`, `findElementTraps(events)`, `TrapElementInfo` and `describeElementTrap(candidate, info, announcements)` as in the design.
     - A stay press leaves focus on the same element with no dialog key. A streak is unbroken by any other focus. A streak qualifies with at least one Tab and one Shift+Tab stay press.
     - Only a Tab or Shift+Tab press made while focus was on the element that lands on a different element clears the element, for the whole history. An Escape press, or two in a row, that moves focus off the element never clears it or removes the candidate, and neither does any other key.
@@ -103,14 +103,14 @@ Ground rules for every task:
     - The evidence, in this order: the role and the name (or the statement that there is no name, or that the name could not be read); the keys that left focus on the element with counts; the keys that moved focus by resolution. For `freed_by_double_escape` it says that Escape pressed twice did free focus, then either `This exit is undocumented: no text on the page and no announcement says that Escape works.` or, when `escapeDocumented` is true, that the page does mention that Escape works but Tab and Shift+Tab still cannot leave the text box. Then `Nothing was announced while focus was stuck.` when no announcement was heard in the window, else the first announcement. It uses none of the words dialog, modal or pop-up.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 7.4_
 
-  - [ ]* 4.2 Write property tests for the element trap analysis
+  - [x]* 4.2 Write property tests for the element trap analysis
     - Create `engine/test/elementTrap.properties.test.ts` with arbitrary event histories (including Escape presses, in a row or not, that free focus or do not) and element descriptions. No browser.
     - **Property 4: One qualified trap per stuck element**
     - **Property 5: Only a Tab or Shift+Tab that moves focus away clears the element**
     - **Property 6: Element trap evidence states what was tried and what happened**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.8, 7.4**
 
-  - [ ] 4.3 Compose the dialog part and the element part in `focusTrap.ts`
+  - [x] 4.3 Compose the dialog part and the element part in `focusTrap.ts`
     - In `engine/src/detectors/focusTrap.ts`, rename the existing factory to `createDialogTrapDetector` and leave its body and the rest of the file unchanged. Keep `listenerStopRule` exported from this file.
     - Add a new `createFocusTrapDetector` that runs the dialog part and an element part. `observe` returns the dialog problems followed by the element problems. `finish` returns the element part's open traps.
     - The element part reads focus with the existing `READ_FOCUS_SCRIPT` and builds `TrapEvent[]` from `ctx.steps`. While focus is on a non-native element with a textbox-like role, it reads `Accessibility.getFullAXTree`, builds a `Heard` with `buildHeard`, takes `focusedNode(heard)`, and remembers that node's role and Computed_Name by element key. This is the name the evidence shows. It is read while the element has focus, because after a double Escape focus has already left it. The element part computes no name of its own.
@@ -121,17 +121,17 @@ Ground rules for every task:
     - Run the existing `engine/test/focusTrap.test.ts` and `engine/test/listenerDetectors.test.ts` unchanged and confirm they pass.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.1, 4.2_
 
-  - [ ]* 4.4 Write property test for a double Escape exit
+  - [x]* 4.4 Write property test for a double Escape exit
     - Add to `engine/test/elementTrap.properties.test.ts` (created in task 4.2). Use a fake `DetectorContext` and generated histories in which an element qualifies as a trap and Escape pressed twice in a row then moves focus away. Check that the element part returns one `focus_trap` problem for that element at the Step of the second Escape, with evidence that says Escape pressed twice freed focus, and that `listenerStopRule`, applied to the finding counts after that Step, returns the reason `trapped`.
     - **Property 16: A double Escape exit still gives the finding and the stop**
     - **Validates: Requirements 3.1, 3.4, 3.9**
 
-  - [ ]* 4.5 Write property test for dialog parity
+  - [x]* 4.5 Write property test for dialog parity
     - Create `engine/test/focusTrap.dialogParity.properties.test.ts`. Use a fake `DetectorContext` whose `inspect` answers the focus read and the dialog read from a generated history. Run `createFocusTrapDetector()` and `createDialogTrapDetector()` side by side on dialog-shaped histories, including histories where focus stays on an element inside the dialog.
     - **Property 7: Dialog histories give the same findings as before**
     - **Validates: Requirements 3.7, 4.1, 9.5**
 
-  - [ ]* 4.6 Write browser fixture tests for the element trap
+  - [x]* 4.6 Write browser fixture tests for the element trap
     - Create `engine/test/fixtures/element-trap.html` with a `div role="textbox"` that stops Tab and Shift+Tab and needs Escape twice, plus a variant where Tab moves away, a variant with a visible "Press Esc to leave" text, and a variant inside a dialog. Create `engine/test/focusTrap.element.test.ts` with the existing `startFixtureServer`.
     - Cover a trapped textbox, and a textbox where Tab moves focus away (no finding).
     - Cover Escape pressed twice freeing focus from the trapped textbox: the `focus_trap` finding is still recorded, its evidence says Escape pressed twice freed focus and that the exit is undocumented, and `listenerStopRule` returns `trapped`.
@@ -139,8 +139,8 @@ Ground rules for every task:
     - Cover the nothing-announced evidence, an open trap reported from `finish()`, and a trap inside a dialog giving only the dialog finding.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.7, 3.8, 3.9, 9.1_
 
-- [ ] 5. `unlabeled_field` detector
-  - [ ] 5.1 Create the detector and register it for The Listener
+- [x] 5. `unlabeled_field` detector
+  - [x] 5.1 Create the detector and register it for The Listener
     - In `engine/src/detectors/unlabeledField.ts` (created in task 3.1), add `createUnlabeledFieldDetector()` with `type: 'unlabeled_field'`. It decides on the Computed_Name from `Accessibility.getFullAXTree` and nothing else, using `selectUnnamedFields` from task 3.1. It follows the method of `unlabeledButton.ts`.
     - For each selected node, find the page element with the read-only CDP methods `DOM.describeNode` and `DOM.getBoxModel`: one read-only `ctx.inspect` call picks the element with the same tag, attributes and border box, and identical twins are told apart by document order. If an unnamed node cannot be matched to a page element, record the finding from what `DOM.describeNode` said (tag, type, role) and leave out the placeholder sentence.
     - The page script returns, for each matched element, `key` (from `__haunt.keys.key`, `null` when there is no key script, then the id falls back to the selector and ordinal), `tag`, `role` (Chromium's role), `type`, `selector`, container text, `placeholder`, `ariaPlaceholder` and `ignored` (a reason or `null`). It marks an element ignored when it is not a Form_Field (`input`, `select`, `textarea`) or a Textbox_Element (a non-native element with role `textbox`, `searchbox` or `combobox`), is not visible, is `inert`, has an `aria-hidden` ancestor, or is an input of type `hidden`, `submit`, `button`, `reset` or `image`. It reads `placeholder` and `aria-placeholder` only for the evidence and never uses them to decide. There is no placeholder exemption: an empty Computed_Name is a finding even with an `aria-placeholder` (the Memos editor), and a native `input` whose only name source is a `placeholder` gets no finding only because Chromium reports a non-empty name for it.
@@ -149,59 +149,59 @@ Ground rules for every task:
     - In `engine/src/ghosts/listener/index.ts`, append `createUnlabeledFieldDetector()` at the end of the detector list. Do not change the Phantom or Bebe lists.
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.10_
 
-  - [ ]* 5.2 Write property tests for the detector
+  - [x]* 5.2 Write property tests for the detector
     - Add to `engine/test/unlabeledField.properties.test.ts` (created in task 3.2). Use a fake `cdp` that answers `Accessibility.getFullAXTree`, `DOM.describeNode` and `DOM.getBoxModel`, and a fake `inspect`.
     - **Property 9: One finding per unlabeled element**
     - **Property 10: Unlabeled field evidence identifies the element and the missing name**
     - **Validates: Requirements 6.1, 6.2, 6.4, 6.5, 6.6, 6.7, 9.4**
 
-  - [ ]* 5.3 Write browser fixture tests for the detector
+  - [x]* 5.3 Write browser fixture tests for the detector
     - Create `engine/test/fixtures/unlabeled-field.html` and `engine/test/unlabeledField.test.ts`. Cover a labelled field, a native `input` with only a `placeholder` (no finding, because Chromium gives it a non-empty name), a native field with no name, a `div role="textbox"` with no name, a `div role="textbox"` with only an `aria-placeholder` (a finding, with evidence that the computed name is empty and that the placeholder is not providing a name; this is the Memos editor shape), a hidden input and an `aria-hidden` field.
     - Cross-check against Chromium's accessibility tree: read `Accessibility.getFullAXTree` independently in the test and assert that the set of flagged elements equals the unignored Form_Field and Textbox_Element nodes with an empty AX name. Include every native input type in the fixture and assert that `FIELD_AX_ROLES` covers the role Chromium gives each one. If a type has an empty name and a role outside the list, correct `FIELD_AX_ROLES` in `unlabeledField.ts` and do not loosen the detector.
     - Check that the detector changes neither the page nor the focus.
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.8, 6.10, 9.2_
 
-  - [ ] 5.4 Check the Lantern Bills pages for added findings
+  - [x] 5.4 Check the Lantern Bills pages for added findings
     - Create `engine/test/unlabeledField.lantern.test.ts`. Play the same Lantern Bills flow that `engine/test/listenerDetectors.test.ts` plays, with `createUnlabeledFieldDetector()` deciding on Chromium's computed names, and compare the findings with an `EXPECTED` list that is empty (Requirement 4.3).
     - If a finding appears, do not edit the detector or any existing test. Create `.kiro/specs/memos-real-world-haunt/lantern-regression.md` that records the page, the element and the evidence of each added finding, and set `EXPECTED` in the new test to that recorded list.
     - Run the existing Lantern Listener tests (`engine/test/focusTrap.test.ts`, `engine/test/listenerDetectors.test.ts`) unchanged and confirm the `focus_trap` findings are unchanged.
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 6. Listener Mind: unnamed field last resort and stuck routine
-  - [ ] 6.1 Add the `unnamedField` last resort
+- [x] 6. Listener Mind: unnamed field last resort and stuck routine
+  - [x] 6.1 Add the `unnamedField` last resort
     - In `engine/src/ghosts/listener/mind.ts` and `thoughts.ts`, add `lastResortKind: 'button' | 'field'` to `Search`. When a Full_Pass of field jumps finds no match and the intention has `lastResort: "unnamedField"`, take the controls with a field role and an empty name, in the order reached, that were not used before.
     - Jump to the next candidate until it has focus, then type the intention's `value` (for `type`) or press Enter (for `activate`), mark the control used, and remember it as `unnamedTyped`.
     - Add first-person thoughts in the existing style, for example that the field has no name and the Listener will try it.
     - Leave the `unnamedButton` path and every decision for missions without `lastResort: "unnamedField"` unchanged.
     - _Requirements: 1.3, 3.2, 4.2_
 
-  - [ ] 6.2 Add the stuck-in-a-typed-field routine
+  - [x] 6.2 Add the stuck-in-a-typed-field routine
     - In `mind.ts`, when `unnamedTyped` is set and focus is still on `unnamedTyped.ref` after a jump or Tab press, press Shift+Tab, then Escape, then Escape. If focus moves after any of these, resume the normal search. After the second Escape, clear `unnamedTyped` and drop the search state.
     - Add `elementTrap` to `ListenerMemory` (the control and the keys tried). In `thoughts.ts`, make `trappedThought` say that the Listener is stuck in a text box with no name and that Tab and Shift+Tab do not move it when the scope is `page`. Leave the dialog sentences unchanged.
     - The routine only makes the key presses that the `focus_trap` detector reads. The Mind does not decide whether a trap is reported: the detector records the finding at the second Escape whether or not focus moved, and the stop rule then ends the run with `trapped`.
     - The routine runs only for a field the Mind itself typed into through `unnamedField`, so the existing test "gives up with no_match when the button jump finds no button at all" and every Lantern decision stay unchanged.
     - _Requirements: 3.2, 3.4, 3.9, 4.2_
 
-  - [ ]* 6.3 Write tests for the Mind changes
+  - [x]* 6.3 Write tests for the Mind changes
     - Create `engine/test/listenerMind.unnamedField.test.ts` with a fake `Heard` walk of `write-note`. Cover typing into the unnamed field as a last resort, then Shift+Tab, Escape, Escape when focus does not move, the normal search when focus does move, and a Mind without `unnamedField` deciding exactly as before.
     - _Requirements: 1.3, 3.2, 3.4, 4.2_
 
-- [ ] 7. Dashboard: labels, element-trap words and the real-world screen
-  - [ ] 7.1 Add the `unlabeled_field` type and its plain words
+- [x] 7. Dashboard: labels, element-trap words and the real-world screen
+  - [x] 7.1 Add the `unlabeled_field` type and its plain words
     - In `dashboard/src/data/types.ts`, append `'unlabeled_field'` to `FINDING_TYPES`.
     - In `dashboard/src/model/findingLabels.ts`, add the `unlabeled_field` entry with `label`, `helped`, `blocker`, `thing`, `stuck` and `summary` in the plain style of `unlabeled_button` (a screen reader says only the kind of field, like "edit text", and not what it is for).
     - In `dashboard/src/__tests__/models.test.ts`, add the one line `unlabeled_field: 'Field with no name',` to the expected object in the test `has the plain-words labels from the requirements` (describe `ghosts and labels`). Change nothing else in that file. Requirement 9.9 names this as the one permitted edit to an existing test.
     - Confirm that `dashboard/` builds with `npx tsc -b` and that the existing dashboard unit tests pass.
     - _Requirements: 5.4, 7.1, 7.2, 7.6_
 
-  - [ ] 7.2 Describe an element trap as the element
+  - [x] 7.2 Describe an element trap as the element
     - In `dashboard/src/model/findingWords.ts`, add an `ELEMENT_TRAP` pattern for the first sentence of an element-trap evidence (`Keyboard focus could not leave the text box "<name>"` or `a text box with no name`). `trapPlace(run, finding)` checks it before the dialog patterns, and a named element gives `the '<name>' text box`.
     - In `dashboard/src/model/sites.ts`, add an optional `unnamedTextbox?: string` to `SiteAbout` and the `Memos` entry (a description that names Memos as an open-source site that Haunt did not build and runs locally, page names for `/` and `/auth`, and `unnamedTextbox: 'the note editor'`, with no `tryLink`).
     - In `dashboard/src/model/results.ts`, make `blocker()` return `got trapped in <place>` for an element trap. Do not change `blockingFindings`, which already treats every `focus_trap` as blocking.
     - Dialog findings keep the same words as before.
     - _Requirements: 7.4, 7.5, 7.7, 8.2, 11.4_
 
-  - [ ] 7.3 Write tests for the labels and element-trap words
+  - [x] 7.3 Write tests for the labels and element-trap words
     - Create `dashboard/src/__tests__/findingWords.element.test.ts`. Check that every value in `FINDING_TYPES` has a complete label entry, that `unlabeled_field` has a non-empty label, helped text and summary, that an element trap is named as the element and is blocking in a `gave_up` run, and that the dialog wording is unchanged.
     - In the same file, read `contract/run.schema.json` with `node:fs` and check that `FINDING_TYPES` equals the `findings[].type` enumeration, so the dashboard list and the schema cannot drift apart.
     - **Property 11 (dashboard half): `FINDING_TYPES` equals the schema's list**
@@ -209,14 +209,14 @@ Ground rules for every task:
     - **Property 13: An element trap is named as the element, and is blocking**
     - **Validates: Requirements 5.4, 7.1, 7.2, 7.4, 7.5, 7.6, 7.7, 9.7**
 
-  - [ ] 7.4 Add the real-world flag and keep Lantern results separate
+  - [x] 7.4 Add the real-world flag and keep Lantern results separate
     - Create `dashboard/src/model/realWorld.ts` with `isRealWorldRun`, `realWorldRuns` and `latestPerMind(runs)`, keyed by `siteKey(run.site.name)` in one set containing `memos`. Import only `routes.ts` and the data types, so there is no import cycle.
     - In `fixedCopy.originalSiteRuns`, also drop real-world runs and update its comment. In `origin.ghostsWithRealRuns`, ignore real-world runs.
     - Check that `buildTour`, `screenDestinations` and the Séance redirect use `originalSiteRuns` and need no other change.
     - Check that `dashboard/scripts/collect-runs.ts` collects `runs/memos/` with the same reading rules as the other run folders, and change it only if it does not.
     - _Requirements: 8.6, 8.7, 8.8, 8.10_
 
-  - [ ] 7.5 Add the real-world screen and its route
+  - [x] 7.5 Add the real-world screen and its route
     - In `dashboard/src/routes.ts`, add `PATTERNS.realWorld = '/real-world'`, `realWorldPath()`, the route `{ screen: 'real_world' }` and its `parseRoute` case. In `screens.ts`, make `screenOfRoute` return `null` for it so the navigation order and the guided path do not change. Register the route in `App.tsx`.
     - Create `dashboard/src/screens/RealWorldScreen.tsx` and `RealWorldScreen.module.css`. Show a heading "A real-world haunt", a panel that names Memos as an open-source site that Haunt did not build, and up to two result cards (scripted mind and AI mind) built from `latestPerMind`.
     - Each card shows The Listener (`GhostCharacter`), the mind tag, `ResultBadge`, `resultHeadline`, the step count, one line per finding (plain type, title, step) and a "Watch it happen" button to `stepPath(run.key, watchStep(run))`, which opens the same step-by-step Ghost Cam view as Lantern runs.
@@ -225,17 +225,17 @@ Ground rules for every task:
     - Do not edit anything under `dashboard/e2e/`.
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.9, 8.10, 8.11, 11.4_
 
-  - [ ] 7.6 Write property tests for the real-world separation
+  - [x] 7.6 Write property tests for the real-world separation
     - Create `dashboard/src/__tests__/realWorld.properties.test.ts` with the Run arbitraries in `arbitraries.ts` and a site name override.
     - **Property 14: Home, the tour and the Ghost Cam link ignore real-world runs**
     - **Property 15: The real-world screen shows the newest run for each mind**
     - **Validates: Requirements 8.3, 8.4, 8.6, 8.7, 8.8, 9.8**
 
-  - [ ] 7.7 Write unit tests for the real-world screen
+  - [x] 7.7 Write unit tests for the real-world screen
     - Create `dashboard/src/__tests__/RealWorldScreen.test.tsx`. Check that a Memos run shows the outcome, step count, findings and mind tag, that the no-run message shows when there is no Memos run, that Home with Lantern runs only has no real-world link, and that a Memos run opens in the Ghost Cam.
     - _Requirements: 8.3, 8.4, 8.5, 8.6, 8.9, 9.8_
 
-- [ ] 8. Checkpoint - Ensure all tests pass
+- [x] 8. Checkpoint - Ensure all tests pass
   - Run `npm run build` and `npm test` in `engine/`, and `npx tsc -b` and `npm test` in `dashboard/`. Ensure all tests pass, ask the user if questions arise.
   - Confirm with `git diff --stat` that no file under `demo-site/`, `demo-site-exorcised/` or `dashboard/e2e/` changed, and that the only change to an existing test file is the one added line in `dashboard/src/__tests__/models.test.ts`.
   - Confirm that `engine/` tests did not write into the repository `runs/` folder.

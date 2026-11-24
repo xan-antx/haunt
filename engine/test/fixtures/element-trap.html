@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Element trap fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Notes</h1>
+    <button type="button" id="before">Before</button>
+    <div id="holder"></div>
+    <button type="button" id="after">After</button>
+    <p id="hint" hidden>Press Esc to leave</p>
+  </main>
+  <!-- A div role="textbox" like the Memos editor. It has no name (?aph=1 adds an aria-placeholder, which Chromium uses as the name).
+       Tab and Shift+Tab stay in it. Escape pressed twice moves focus to "After".
+       ?tab=free   Tab and Shift+Tab move focus as usual (no trap)
+       ?escape=never   Escape never frees focus
+       ?hint=1     the page says "Press Esc to leave"
+       ?dialog=1   the text box is inside a dialog
+       ?label=1    the text box has the name "Note" -->
+  <script>
+    var q = location.search;
+    var holder = document.getElementById('holder');
+    if (q.indexOf('dialog=1') !== -1) {
+      holder.setAttribute('role', 'dialog');
+      holder.setAttribute('aria-label', 'Write a note');
+    }
+    var box = document.createElement('div');
+    box.id = 'box';
+    box.setAttribute('role', 'textbox');
+    box.setAttribute('contenteditable', 'true');
+    box.setAttribute('aria-multiline', 'true');
+    if (q.indexOf('aph=1') !== -1) box.setAttribute('aria-placeholder', 'Any thoughts...');
+    box.tabIndex = 0;
+    box.style.cssText = 'border:1px solid #444;min-height:40px;min-width:200px;padding:4px';
+    if (q.indexOf('label=1') !== -1) box.setAttribute('aria-label', 'Note');
+    holder.appendChild(box);
+    if (q.indexOf('dialog=1') !== -1) {
+      var skip = document.createElement('button');
+      skip.type = 'button';
+      skip.tabIndex = -1;
+      skip.textContent = 'Skip';
+      holder.appendChild(skip);
+    }
+    if (q.indexOf('hint=1') !== -1) document.getElementById('hint').hidden = false;
+
+    var trapsTab = q.indexOf('tab=free') === -1;
+    var freesOnEscape = q.indexOf('escape=never') === -1;
+    var escapes = 0;
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') escapes = 0;
+      if (document.activeElement !== box) return;
+      if (e.key === 'Tab' && trapsTab) {
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        escapes += 1;
+        if (escapes >= 2 && freesOnEscape) {
+          escapes = 0;
+          document.getElementById('after').focus();
+        }
+      }
+    }, true);
+    box.focus();
+  </script>
+</body>
+</html>

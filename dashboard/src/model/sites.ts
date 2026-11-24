@@ -11,6 +11,8 @@ export interface SiteAbout {
   tryLink?: { label: string; href: string };
   /** Plain page names for paths whose name can't be read from the path, such as "/". */
   pageNames?: Readonly<Record<string, string>>;
+  /** Plain words for the site's text box that Haunt found stuck, for example "the note editor". */
+  unnamedTextbox?: string;
 }
 
 const SITE_ABOUT: Readonly<Record<string, SiteAbout>> = {
@@ -20,6 +22,12 @@ const SITE_ABOUT: Readonly<Record<string, SiteAbout>> = {
     tryLink: { label: 'Try Lantern Bills yourself', href: 'https://xan-antx.github.io/haunt/lantern-bills/' },
     // demo-site/src/App.tsx serves the bill at "/".
     pageNames: { '/': 'the bill page' },
+  },
+  Memos: {
+    description:
+      'Memos is an open-source note-taking site that we did not build. Haunt runs its own copy on this computer and sends The Listener in to write a note.',
+    pageNames: { '/': 'the notes page', '/auth': 'the sign-in page' },
+    unnamedTextbox: 'the note editor',
   },
 };
 

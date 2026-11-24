@@ -253,10 +253,18 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   return { kind: 'run', args };
 }
 
-/** Clones the mission with every `{{futureExpiry}}` in an Intention value replaced. The Mind gets this copy. */
+/**
+ * Clones the mission with every template (`{{futureExpiry}}`, `{{runStamp}}`) replaced in the goal,
+ * the success check and the Intention values. The requirement is left alone. The Mind and the run file get this copy.
+ */
 export function expandMission(mission: Mission, startedAt: Date): Mission {
   return {
     ...mission,
+    goal: applyTemplates(mission.goal, startedAt),
+    successCheck: {
+      text: applyTemplates(mission.successCheck.text, startedAt),
+      visible: applyTemplates(mission.successCheck.visible, startedAt),
+    },
     intentions: mission.intentions.map(
       (intention): Intention =>
         intention.value === undefined
@@ -543,6 +551,7 @@ async function runAiMind(
   driver: AiRunDriver,
   kiro: AiRunContext,
   runId: string,
+  goal: string = ctx.mission.goal,
 ): Promise<RunLoopOutcome> {
   await driver.start();
   if (driver.outcome) return driver.outcome; // the page could not be opened; nothing to hand to Kiro
@@ -572,7 +581,7 @@ async function runAiMind(
     for (let launch = 1; ; launch += 1) {
       const spec: KiroSpec = {
         command: kiro.command,
-        args: buildKiroArgs(launch === 1 ? ctx.mission.goal : driver.continuePrompt(ctx.mission.goal)),
+        args: buildKiroArgs(launch === 1 ? goal : driver.continuePrompt(goal)),
         env,
         cwd: ctx.repoRoot,
       };
@@ -758,7 +767,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
 
   const checkSuccess = async (): Promise<boolean> => {
     try {
-      const target = page.locator(mission.successCheck.visible).first();
+      const target = page.locator(mindMission.successCheck.visible).first();
       if (ghost.id !== 'listener') {
         // The visual ghosts have just Settled, so the check does not wait. A 300 ms wait here would
         // delay their next Sight, and The Phantom's timing depends on taking it right after Settle.
@@ -806,7 +815,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
       checkSuccess,
       onOpenFailure,
     });
-    outcome = await runAiMind(ctx, state, driver, ctx.kiro, runId);
+    outcome = await runAiMind(ctx, state, driver, ctx.kiro, runId, mindMission.goal);
   } else {
     outcome = await runLoop({
       body,
@@ -832,7 +841,7 @@ async function doRun(ctx: RunContext, state: RunState): Promise<number> {
     runId,
     ghost: ghost.id,
     mind: args.mind === 'ai' ? 'ai' : 'scripted',
-    mission,
+    mission: mindMission,
     site: { name: args.siteName ?? site.name },
     url: args.url,
     commit,

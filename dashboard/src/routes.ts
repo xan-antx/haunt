@@ -23,6 +23,7 @@ export const PATTERNS = {
   exorcisePair: '/exorcise/:beforeKey/:afterKey',
   coverage: '/coverage',
   restless: '/restless/:runKey',
+  realWorld: '/real-world',
 } as const;
 
 const enc = encodeURIComponent;
@@ -76,6 +77,7 @@ export const exorcisePath = (beforeKey?: string, afterKey?: string): string =>
   beforeKey && afterKey ? `/exorcise/${enc(beforeKey)}/${enc(afterKey)}` : '/exorcise';
 export const coveragePath = (): string => '/coverage';
 export const restlessPath = (runKey: string): string => `/restless/${enc(runKey)}`;
+export const realWorldPath = (): string => '/real-world';
 
 /** A full hash link, for example "#/run/abc/step/9". */
 export const href = (path: string): string => `#${path}`;
@@ -90,6 +92,7 @@ export type Route =
   | { screen: 'exorcise'; beforeKey?: string; afterKey?: string }
   | { screen: 'coverage' }
   | { screen: 'restless'; key: string }
+  | { screen: 'real_world' }
   | { screen: 'not_found' };
 
 function decode(segment: string): string | null {
@@ -146,6 +149,9 @@ export function parseRoute(input: string): Route {
       break;
     case 'restless':
       if (s.length === 2) return { screen: 'restless', key: s[1]! };
+      break;
+    case 'real-world':
+      if (s.length === 1) return { screen: 'real_world' };
       break;
   }
   return { screen: 'not_found' };

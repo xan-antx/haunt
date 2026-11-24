@@ -4,6 +4,7 @@
 
 import type { GhostId, Run } from '../data/types';
 import { byStartedAtDesc } from './format';
+import { isRealWorldRun } from './realWorld';
 
 /** The visible label on every sample run the Dashboard shows. */
 export const SAMPLE_LABEL = 'Sample run';
@@ -14,7 +15,8 @@ export function isSample(run: Run): boolean {
 
 /** Ghosts that have at least one real run. */
 function ghostsWithRealRuns(runs: readonly Run[]): Set<GhostId> {
-  return new Set(runs.filter((r) => !isSample(r)).map((r) => r.ghost));
+  // A real-world run (Memos) does not replace a Lantern Bills sample.
+  return new Set(runs.filter((r) => !isSample(r) && !isRealWorldRun(r)).map((r) => r.ghost));
 }
 
 export interface RunVisibility {

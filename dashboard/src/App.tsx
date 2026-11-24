@@ -10,6 +10,7 @@ import { GraveyardScreen } from './screens/GraveyardScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { NotFoundScreen } from './screens/NotFoundScreen';
 import { MapRedirect, SeanceRedirect } from './screens/redirects';
+import { RealWorldScreen } from './screens/RealWorldScreen';
 import { RestlessScreen } from './screens/RestlessScreen';
 import { RouteErrorScreen } from './screens/RouteErrorScreen';
 
@@ -33,6 +34,7 @@ export const appRoutes: RouteObject[] = [
           { path: PATTERNS.seance, element: <SeanceRedirect /> },
           { path: PATTERNS.seanceAnswer, element: <SeanceRedirect /> },
           { path: PATTERNS.restless, element: <RestlessScreen /> },
+          { path: PATTERNS.realWorld, element: <RealWorldScreen /> },
           { path: '*', element: <NotFoundScreen /> },
         ],
       },

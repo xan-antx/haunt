@@ -34,6 +34,7 @@ describe('ghosts and labels', () => {
       cut_off_text: 'Text cut off',
       untranslated: 'Text not translated',
       dark_pattern: 'Tricky choice',
+      unlabeled_field: 'Field with no name',
     });
   });
 });

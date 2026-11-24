@@ -2,6 +2,7 @@ import type { Ghost } from '../../core/types.ts';
 import { createFocusTrapDetector } from '../../detectors/focusTrap.ts';
 import { createUnannouncedErrorDetector } from '../../detectors/unannouncedError.ts';
 import { createUnlabeledButtonDetector } from '../../detectors/unlabeledButton.ts';
+import { createUnlabeledFieldDetector } from '../../detectors/unlabeledField.ts';
 import type { Heard } from './ax.ts';
 import { createListenerBody } from './body.ts';
 import type { ListenerAction } from './body.ts';
@@ -21,6 +22,11 @@ export const listenerGhost: Ghost<Heard, ListenerAction> = {
   profile: listenerProfile,
   createBody: createListenerBody,
   createMind: createListenerMind,
-  detectors: () => [createUnlabeledButtonDetector(), createFocusTrapDetector(), createUnannouncedErrorDetector()],
+  detectors: () => [
+    createUnlabeledButtonDetector(),
+    createFocusTrapDetector(),
+    createUnannouncedErrorDetector(),
+    createUnlabeledFieldDetector(),
+  ],
   stopRule: listenerStopRule,
 };

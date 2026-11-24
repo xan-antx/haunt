@@ -2,6 +2,7 @@
 // The engine writes that name when run with `--site-name`. No contract field is involved.
 
 import type { Run } from '../data/types';
+import { isRealWorldRun } from './realWorld';
 
 export const EXORCISED_SUFFIX = ' (exorcised)';
 
@@ -28,9 +29,12 @@ export function isFixedCopyRun(run: Run): boolean {
   return originalSiteName(run.site.name) !== null;
 }
 
-/** The runs on original sites only: Home results and the tour use these. Keeps the order. */
+/**
+ * The runs on the sites Haunt built, original sites only: Home results and the tour use these. Fixed
+ * copies and real-world runs (for example Memos) are left out. Keeps the order.
+ */
 export function originalSiteRuns(runs: Run[]): Run[] {
-  return runs.filter((run) => !isFixedCopyRun(run));
+  return runs.filter((run) => !isFixedCopyRun(run) && !isRealWorldRun(run));
 }
 
 /** True when `after` was made on the fixed copy of the site that `before` was made on. */

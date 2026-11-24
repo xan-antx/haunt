@@ -2,12 +2,15 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import { isAllowedAddress } from './address.ts';
 
 export interface SiteConfig {
   /** Name written to `site.name` in run files. */
   name: string;
   /** Words that belong to the site's own brand and must not be reported as untranslated. */
   allowedTerms: string[];
+  /** Where the site runs. Optional; must be an Allowed_Address. */
+  baseUrl?: string;
 }
 
 export interface HauntConfig {
@@ -125,5 +128,14 @@ export function loadConfig(file: string = defaultConfigPath): HauntConfig {
     );
   }
 
+  for (const [key, site] of Object.entries(config.sites)) {
+    if (site.baseUrl !== undefined && !isAllowedAddress(site.baseUrl, config)) {
+      throw new ConfigError(
+        'schema',
+        path,
+        `Config file does not follow schemas/config.schema.json: ${path}\n  sites.${key}.baseUrl: "${site.baseUrl}" is not an allowed address for site "${key}"`,
+      );
+    }
+  }
   return config;
 }

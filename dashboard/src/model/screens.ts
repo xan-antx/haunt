@@ -93,6 +93,7 @@ export function screenOfRoute(route: Route): ScreenId | null {
     case 'seance':
       return 'ghostcam';
     case 'restless':
+    case 'real_world':
     case 'not_found':
       return null;
   }

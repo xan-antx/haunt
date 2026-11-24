@@ -29,6 +29,22 @@ function named(noun: string, name: string | undefined): string | null {
   return trimmed === '' ? null : `the ${quote(trimmed)} ${plainNoun(noun)}`;
 }
 
+/** The first sentence of an element trap's evidence: `Keyboard focus could not leave the text box "Note" (role textbox).` */
+const ELEMENT_TRAP = new RegExp(
+  String.raw`^\s*Keyboard focus could not leave (?:the text box\s+${QUOTED}|a text box with no name|a text box\b)`,
+  'i',
+);
+
+/** `the 'Note' text box`, `a text box with no name` or `a text box`, or null when the finding is not an element trap. */
+function elementTrapPlace(finding: Finding): string | null {
+  if (finding.type !== 'focus_trap') return null;
+  const m = ELEMENT_TRAP.exec(finding.evidence);
+  if (!m) return null;
+  const name = (m[1] ?? m[2] ?? m[3] ?? m[4])?.trim() ?? '';
+  if (name !== '') return `the ${quote(name)} text box`;
+  return /no name/i.test(m[0]) ? 'a text box with no name' : 'a text box';
+}
+
 function placeIn(text: string): string | null {
   let m = NOUN_THEN_NAME.exec(text);
   if (m) return named(m[1]!, m[2] ?? m[3] ?? m[4] ?? m[5]);
@@ -45,6 +61,8 @@ function placeIn(text: string): string | null {
  * to "a pop-up" when one of those mentions a dialog, modal or pop-up, and to null otherwise.
  */
 export function trapPlace(run: Run, finding: Finding): string | null {
+  const element = elementTrapPlace(finding);
+  if (element) return element;
   const step = run.steps.find((s) => s.n === finding.step);
   const texts = [finding.evidence, finding.title, step?.spoken ?? '', step?.thought ?? ''];
   for (const text of texts) {

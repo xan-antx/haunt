@@ -25,7 +25,8 @@ import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
 import { siteAbout } from '../model/sites';
 import { buildTour } from '../model/tour';
-import { graveyardPath, restlessPath, stepPath } from '../routes';
+import { realWorldRuns, withoutRealWorld } from '../model/realWorld';
+import { graveyardPath, realWorldPath, restlessPath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './HomeScreen.module.css';
 
@@ -268,7 +269,10 @@ export function HomeScreen() {
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
 
   const { runs, invalid } = state;
-  const haunts = groupHaunts(runs);
+  // Real-world runs (Memos) have their own screen, so the haunted sites and recent walks leave them out.
+  const homeRuns = withoutRealWorld(runs);
+  const hasRealWorld = realWorldRuns(runs).length > 0;
+  const haunts = groupHaunts(homeRuns);
   // Results and their cards use only the original sites' runs. A fixed copy is its own site below.
   const resultHaunts = groupHaunts(originalSiteRuns(runs));
   const tourAvailable = buildTour(runs) !== null;
@@ -336,8 +340,14 @@ export function HomeScreen() {
             </ul>
           </section>
         )}
-        {runs.length > 0 && <RecentWalks runs={runs} />}
+        {homeRuns.length > 0 && <RecentWalks runs={homeRuns} />}
       </div>
+
+      {hasRealWorld && (
+        <p className={styles.realWorldLink}>
+          <Link to={realWorldPath()}>See the real-world haunt on Memos</Link>
+        </p>
+      )}
 
       <RestlessFiles invalid={invalid} />
     </>

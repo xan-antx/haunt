@@ -1,0 +1,73 @@
+/* The real-world screen. Existing tokens only. Findings are shown with text and a marker, never by color alone. */
+.results {
+  margin-top: var(--space-6);
+}
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.card {
+  border: 2px solid var(--surface);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: var(--space-4);
+}
+.cardInner {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.ghost {
+  flex: none;
+}
+.cardText {
+  min-width: 0;
+}
+.cardName {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-style: normal;
+}
+.mind {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+.headline {
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text);
+}
+.badges {
+  margin: var(--space-3) 0 0;
+}
+.steps {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+}
+.findings {
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+}
+.finding {
+  margin: var(--space-2) 0;
+  overflow-wrap: anywhere;
+}
+.marker {
+  color: var(--amber);
+}

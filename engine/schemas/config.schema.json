@@ -31,7 +31,8 @@
         "allowedTerms": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
-        }
+        },
+        "baseUrl": { "type": "string", "minLength": 1 }
       }
     }
   }

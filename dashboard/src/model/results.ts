@@ -3,6 +3,7 @@
 
 import type { Finding, Run } from '../data/types';
 import { FINDING_LABELS, POP_UP_BLOCKER } from './findingLabels';
+import { trapPlace } from './findingWords';
 import { plural } from './format';
 import { ghostName } from './ghosts';
 
@@ -30,6 +31,10 @@ const POP_UP_WORDS = /\b(dialog|modal|pop-?up)\b/i;
 
 function blocker(run: Run, finding: Finding): string {
   if (finding.type === 'focus_trap') {
+    if (/^\s*Keyboard focus could not leave (the|a) text box/i.test(finding.evidence)) {
+      const place = trapPlace(run, finding);
+      if (place) return `got trapped in ${place}`;
+    }
     const spoken = run.steps.find((s) => s.n === finding.step)?.spoken ?? '';
     if ([finding.title, finding.evidence, spoken].some((text) => POP_UP_WORDS.test(text))) return POP_UP_BLOCKER;
   }

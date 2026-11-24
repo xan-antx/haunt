@@ -45,7 +45,7 @@
         "do": { "enum": ["activate", "type"] },
         "value": { "type": "string", "minLength": 1 },
         "thought": { "type": "string", "minLength": 1 },
-        "lastResort": { "enum": ["unnamedButton"] },
+        "lastResort": { "enum": ["unnamedButton", "unnamedField"] },
         "target": { "$ref": "#/$defs/target" },
         "doneWhen": { "$ref": "#/$defs/doneWhen" }
       },

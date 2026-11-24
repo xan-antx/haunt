@@ -59,6 +59,10 @@
 .section {
   margin-top: var(--space-6);
 }
+/* One link to the real-world screen, below the haunted sites. Shown only when a Memos run exists. */
+.realWorldLink {
+  margin: var(--space-5) 0 0;
+}
 
 .sectionTitle {
   font-size: 1.75rem;

@@ -1,4 +1,13 @@
 import type { DetectedProblem, Detector, DetectorContext } from '../core/types.ts';
+import { buildHeard, type RawAxNode } from '../ghosts/listener/ax.ts';
+import { focusedNode } from '../ghosts/listener/speech.ts';
+import {
+  describeElementTrap,
+  findElementTraps,
+  type TrapCandidate,
+  type TrapElementInfo,
+  type TrapEvent,
+} from './elementTrap.ts';
 
 // The Listener's stop rule is defined next to the Listener (src/ghosts/listener/stopRule.ts, where
 // task 12 picks it up for the Ghost). It is re-exported here because it belongs to this feature too.
@@ -353,10 +362,10 @@ interface KeyRun {
 }
 
 /**
- * Creates the `focus_trap` Detector. Make a new one for each Run: it remembers where focus was after
- * each Step and which traps it has already reported.
+ * Creates the dialog part of the `focus_trap` Detector. Make a new one for each Run: it remembers where
+ * focus was after each Step and which traps it has already reported.
  */
-export function createFocusTrapDetector(): Detector {
+export function createDialogTrapDetector(): Detector {
   /** Where focus was after each Step, by Step number. */
   const snapshots = new Map<number, Snapshot>();
   /** Traps already reported, by Finding key. */
@@ -463,6 +472,203 @@ export function createFocusTrapDetector(): Detector {
         screenshot: 'step',
       };
       return [problem];
+    },
+  };
+}
+
+/*
+ * The element part of the `focus_trap` Detector: keyboard focus that cannot leave one text box.
+ *
+ * It builds the history from the Step traces and the focus reads, hands it to `findElementTraps`
+ * (pure, `elementTrap.ts`) and records one Finding for each text box that held focus through a Tab
+ * and a Shift+Tab press. Escape pressed twice never cancels the Finding; it only changes the evidence.
+ *
+ * The name in the evidence is the Computed_Name from `Accessibility.getFullAXTree`, read while the
+ * element has focus (after a double Escape focus has already left it). This part computes no name.
+ * Everything here only reads.
+ */
+
+/** Page-side: is the focused element a non-native element with a text-box-like role? Pure read. */
+const READ_TEXTBOX_SCRIPT = String.raw`(function (arg) {
+  var keys = window.__haunt && window.__haunt.keys ? window.__haunt.keys : null;
+  var el = keys ? keys.element(arg.key) : null;
+  if (!el || !el.isConnected) return false;
+  var tag = el.localName;
+  if (tag === 'input' || tag === 'select' || tag === 'textarea') return false;
+  var role = (el.getAttribute('role') || '').toLowerCase().split(/\s+/)[0];
+  return role === 'textbox' || role === 'searchbox' || role === 'combobox';
+})`;
+
+/** Page-side: the element (if it is still there) and whether the page says that Escape works. Pure read. */
+const READ_TRAP_ELEMENT_SCRIPT = String.raw`(function (arg) {
+  var keys = window.__haunt && window.__haunt.keys ? window.__haunt.keys : null;
+  var doc = String(Math.round(performance.timeOrigin * 1000));
+  var out = { present: false, textbox: false, role: '', escapeText: false };
+  var el = keys && doc === arg.doc ? keys.element(arg.key) : null;
+  if (el && !el.isConnected) el = null;
+
+  function visible(node) {
+    if (typeof node.checkVisibility === 'function') {
+      if (!node.checkVisibility({ checkVisibilityCSS: true })) return false;
+    } else {
+      var cs = getComputedStyle(node);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+    }
+    var rects = node.getClientRects();
+    for (var i = 0; i < rects.length; i += 1) if (rects[i].width > 0 && rects[i].height > 0) return true;
+    return false;
+  }
+
+  var text = '';
+  try { text = document.body ? document.body.innerText : ''; } catch (e) { text = ''; }
+  if (el) {
+    out.present = true;
+    var tag = el.localName;
+    var role = (el.getAttribute('role') || '').toLowerCase().split(/\s+/)[0];
+    out.role = role;
+    out.textbox = tag !== 'input' && tag !== 'select' && tag !== 'textarea' &&
+      (role === 'textbox' || role === 'searchbox' || role === 'combobox') && visible(el);
+    text += ' ' + (el.getAttribute('title') || '') + ' ' + (el.getAttribute('aria-description') || '');
+    var by = el.getAttribute('aria-describedby');
+    if (by) {
+      var ids = by.split(/\s+/).filter(Boolean);
+      for (var i = 0; i < ids.length; i += 1) {
+        var t = document.getElementById(ids[i]);
+        if (t) text += ' ' + t.textContent;
+      }
+    }
+  }
+  out.escapeText = /\b(esc|escape)\b/i.test(text);
+  return out;
+})`;
+
+interface TrapElementReport {
+  present: boolean;
+  textbox: boolean;
+  role: string;
+  escapeText: boolean;
+}
+
+/** What was read from the accessibility tree while a text box had focus. */
+interface RememberedTextbox {
+  role: string;
+  name: string;
+}
+
+function createElementTrapPart(): { observe(ctx: DetectorContext): Promise<DetectedProblem[]>; finish(ctx: DetectorContext): Promise<DetectedProblem[]> } {
+  const snapshots = new Map<number, Snapshot>();
+  /** Role and Computed_Name by `doc:elementKey`, read while the element had focus. */
+  const remembered = new Map<string, RememberedTextbox>();
+  const reported = new Set<string>();
+  const rejected = new Set<string>();
+
+  function events(ctx: DetectorContext): TrapEvent[] {
+    const out: TrapEvent[] = [];
+    const id = (doc: string, key: string | null): string | null => (key === null ? null : `${doc}:${key}`);
+    for (const recorded of ctx.steps) {
+      const step = recorded.step.n;
+      const doc = snapshots.get(step)?.doc ?? '';
+      for (const k of recorded.trace.keys) {
+        out.push({ step, kind: 'key', key: k.key, focusKey: id(doc, k.focusKey), dialogKey: id(doc, k.dialogKey) });
+      }
+      const focus = snapshots.get(step)?.focus ?? null;
+      if (focus) out.push({ step, kind: 'focus', key: '', focusKey: id(doc, focus.focusKey), dialogKey: id(doc, focus.dialogKey) });
+    }
+    return out;
+  }
+
+  /** Announcements heard from the first Step that left focus on the element to the resolution Step. */
+  function announcementsIn(ctx: DetectorContext, candidate: TrapCandidate): string[] {
+    const heard: string[] = [];
+    for (const recorded of ctx.steps) {
+      const n = recorded.step.n;
+      if (n < candidate.firstStayStep || n > candidate.resolutionStep) continue;
+      heard.push(...recorded.trace.announcements);
+    }
+    return heard;
+  }
+
+  async function record(ctx: DetectorContext, candidate: TrapCandidate, stepN: number): Promise<DetectedProblem | null> {
+    const findingKey = `focus-trap-element:${candidate.elementKey}`;
+    if (reported.has(findingKey) || rejected.has(findingKey)) return null;
+    const split = candidate.elementKey.indexOf(':');
+    const doc = candidate.elementKey.slice(0, split);
+    const key = candidate.elementKey.slice(split + 1);
+
+    const page = await ctx.inspect<TrapElementReport>(READ_TRAP_ELEMENT_SCRIPT, { doc, key });
+    const memory = remembered.get(candidate.elementKey);
+    // A textbox that is still there must be one now. One that is gone counts only if it was read as one while it had focus.
+    if (page.present ? !page.textbox : memory === undefined) {
+      rejected.add(findingKey);
+      return null;
+    }
+    const announcements = announcementsIn(ctx, candidate);
+    const info: TrapElementInfo = {
+      present: page.present,
+      textbox: true,
+      role: memory?.role ?? (page.role || 'textbox'),
+      name: memory?.name ?? null,
+      escapeDocumented: page.escapeText || announcements.some((a) => /\b(esc|escape)\b/i.test(a)),
+    };
+    const { title, evidence } = describeElementTrap(candidate, info, announcements);
+    reported.add(findingKey);
+    return { key: findingKey, stepN, title, evidence, screenshot: 'step' };
+  }
+
+  return {
+    async observe(ctx) {
+      const stepN = ctx.current.step.n;
+      const snapshot = await ctx.inspect<Snapshot>(READ_FOCUS_SCRIPT);
+      snapshots.set(stepN, snapshot);
+
+      // While a non-native text box has focus, read its role and Computed_Name from the accessibility tree.
+      const focus = snapshot.focus;
+      if (focus && focus.focusKey !== null && focus.dialogKey === null) {
+        const textbox = await ctx.inspect<boolean>(READ_TEXTBOX_SCRIPT, { key: focus.focusKey });
+        if (textbox) {
+          const { nodes } = await ctx.cdp.send<{ nodes: RawAxNode[] }>('Accessibility.getFullAXTree');
+          const heard = buildHeard(nodes, { title: '', path: '', readingPosition: null, announcements: [] });
+          const node = focusedNode(heard);
+          if (node) remembered.set(`${snapshot.doc}:${focus.focusKey}`, { role: node.role, name: node.name });
+        }
+      }
+
+      const problems: DetectedProblem[] = [];
+      for (const candidate of findElementTraps(events(ctx))) {
+        if (candidate.resolution === 'open') continue;
+        const problem = await record(ctx, candidate, candidate.resolutionStep);
+        if (problem) problems.push(problem);
+      }
+      return problems;
+    },
+
+    async finish(ctx) {
+      const problems: DetectedProblem[] = [];
+      for (const candidate of findElementTraps(events(ctx))) {
+        if (candidate.resolution !== 'open') continue;
+        const problem = await record(ctx, candidate, candidate.qualifiedStep);
+        if (problem) problems.push(problem);
+      }
+      return problems;
+    },
+  };
+}
+
+/**
+ * Creates the `focus_trap` Detector: the dialog part and the element part. Make a new one for each Run.
+ * The dialog part is unchanged. The element part reports a text box that holds focus through Tab and
+ * Shift+Tab, whether or not Escape pressed twice later frees it.
+ */
+export function createFocusTrapDetector(): Detector {
+  const dialog = createDialogTrapDetector();
+  const element = createElementTrapPart();
+  return {
+    type: 'focus_trap',
+    async observe(ctx) {
+      return [...(await dialog.observe(ctx)), ...(await element.observe(ctx))];
+    },
+    async finish(ctx) {
+      return element.finish(ctx);
     },
   };
 }

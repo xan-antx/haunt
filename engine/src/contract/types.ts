@@ -4,6 +4,7 @@ export type GhostId = 'listener' | 'phantom' | 'bebe';
 
 export type FindingType =
   | 'unlabeled_button'
+  | 'unlabeled_field'
   | 'focus_trap'
   | 'unannounced_error'
   | 'slow_wait'

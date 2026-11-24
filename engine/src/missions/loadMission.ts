@@ -27,7 +27,7 @@ export type DoneWhen = 'success' | { fieldValue: true } | { present: PresentCond
 interface IntentionBase {
   id: string;
   thought: string;
-  lastResort?: 'unnamedButton';
+  lastResort?: 'unnamedButton' | 'unnamedField';
   target: Target;
   doneWhen: DoneWhen;
 }

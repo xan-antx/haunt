@@ -1,0 +1,42 @@
+{
+  "id": "write-note",
+  "site": "memos",
+  "goal": "Sign in to Memos with the throwaway account (username ghost-test, password HauntTest123!), write the note \"Haunt was here {{runStamp}}\" and save it",
+  "requirement": "MEMOS-1: WHEN a signed-in user types a note in the note editor and activates Save, THE Memos application SHALL add a new memo with that text at the top of the memo list. The new memo SHALL appear without the user leaving the page.",
+  "successCheck": {
+    "text": "A saved memo card shows exactly the text \"Haunt was here {{runStamp}}\", and the note editor does not count",
+    "visible": ":text-is(\"Haunt was here {{runStamp}}\"):not([contenteditable] *):not([contenteditable]):not(textarea)"
+  },
+  "intentions": [
+    {
+      "id": "username", "do": "type", "value": "ghost-test",
+      "thought": "I need to sign in first, so I'm looking for the username field.",
+      "target": { "kind": "field", "en": ["user ?name"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "password", "do": "type", "value": "HauntTest123!",
+      "thought": "Now the password.",
+      "target": { "kind": "field", "en": ["password"] },
+      "doneWhen": { "fieldValue": true }
+    },
+    {
+      "id": "sign-in", "do": "activate",
+      "thought": "Everything is filled in, so I'm looking for the button that signs me in.",
+      "target": { "kind": "button", "en": ["^sign in$", "^log ?in$"] },
+      "doneWhen": { "present": { "kind": "button", "en": ["^save$"] } }
+    },
+    {
+      "id": "note", "do": "type", "value": "Haunt was here {{runStamp}}", "lastResort": "unnamedField",
+      "thought": "I'm signed in. I want to write a note, so I'm looking for the place to type it.",
+      "target": { "kind": "field", "en": ["^any thoughts", "^write a note"] },
+      "doneWhen": { "present": { "kind": "any", "en": ["^haunt was here"] } }
+    },
+    {
+      "id": "save", "do": "activate",
+      "thought": "The note is written. Now I need the button that saves it.",
+      "target": { "kind": "button", "en": ["^save$"] },
+      "doneWhen": "success"
+    }
+  ]
+}

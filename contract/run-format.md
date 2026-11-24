@@ -88,6 +88,7 @@ Accessibility issues discovered during the test. Each finding contains:
 **type** (string)  
 Category of the issue. Exactly one of:
 - `unlabeled_button` - A button with no accessible name
+- `unlabeled_field` - A form field or textbox with no accessible name
 - `focus_trap` - Keyboard focus cannot leave an area
 - `unannounced_error` - An error message is shown but not announced to a screen reader
 - `slow_wait` - The ghost had to wait too long for the page to respond

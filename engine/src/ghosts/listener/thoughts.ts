@@ -88,6 +88,8 @@ export interface ListenerMemory {
   dialogUnreached: RememberedControl[];
   /** Controls on the page (outside a dialog) the Mind hears in the tree but has never had focus. */
   pageUnreached: RememberedControl[];
+  /** The text box the Mind typed into and could not leave, and the keys it tried. Set only by the stuck routine. */
+  elementTrap?: { control: RememberedControl; keys: string[] } | null;
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -259,6 +261,36 @@ export function lastResortGoThought(a: { lead: string; remaining: number; tried:
     : `${a.lead}That didn't get me anywhere. I still have ${a.remaining} ${buttons} to try, so I'll move on to the next one.`;
 }
 
+/** The last resort for a field: take the next form field with no name. */
+export function lastResortFieldGoThought(a: { lead: string; remaining: number; tried: number }): string {
+  const fields = plural(a.remaining, 'form field with no name', 'form fields with no name');
+  return a.tried === 0
+    ? `${a.lead}I've been all the way round and I can't find a field with a name for this. I heard ${a.remaining} ${fields}, so I'll go back to the first one and try it.`
+    : `${a.lead}That didn't get me anywhere. I still have ${a.remaining} ${fields} to try, so I'll move on to the next one.`;
+}
+
+export function lastResortFieldUseThought(a: { lead: string; node: HeardNode; first: boolean; typed: string | null }): string {
+  const here = heardAs(a.node) ?? 'a form field';
+  const what = a.typed === null ? "I'll press Enter" : `I'll type "${a.typed}"`;
+  return a.first
+    ? `${a.lead}I heard ${here}. This field has no name, so I can't tell what it is for. Nothing else fits, so ${what} and hope it's the right place.`
+    : `${a.lead}I heard ${here}. This field has no name either. The last one didn't get me anywhere, so ${what} here too.`;
+}
+
+/** The Mind typed into a field with no name and now cannot leave it. `step` is the key it is about to press. */
+export function elementTrapThought(a: { step: 'Shift+Tab' | 'Escape' | 'Escape again'; node: HeardNode | undefined }): string {
+  const here = heardAs(a.node);
+  const where = here === null ? 'the same text box' : `${here}, the same text box`;
+  switch (a.step) {
+    case 'Shift+Tab':
+      return `I pressed a key to move on, but I'm still on ${where}. It has no name. I'll press Shift+Tab to go the other way.`;
+    case 'Escape':
+      return `Shift+Tab didn't move me either. I'm still on ${where}. I'll press Escape to see if that lets me out.`;
+    case 'Escape again':
+      return `Escape did nothing the first time. I'm still on ${where}. I'll press Escape once more.`;
+  }
+}
+
 // ---------------------------------------------------------------------------------------------------------
 // Give_Up_Thoughts, built only from the Mind's memory
 // ---------------------------------------------------------------------------------------------------------
@@ -268,6 +300,14 @@ export function lastResortGoThought(a: { lead: string; remaining: number; tried:
  * controls the keys moved between, and which controls it can hear but cannot reach.
  */
 export function trappedThought(memory: ListenerMemory): string {
+  if (memory.scope === 'page' && memory.elementTrap) {
+    const keys = memory.elementTrap.keys;
+    const tried = keys.length > 0 ? ` I tried ${joinList(keys)}.` : '';
+    return (
+      "I'm stuck in a text box with no name. Tab and Shift+Tab do not move me out of it." +
+      `${tried} I can't get out with the keyboard, so I'm giving up.`
+    );
+  }
   const parts = [`I'm stuck in ${inDialog(memory.dialogName)}.`];
 
   const reached = namedList([...memory.tabReached, ...memory.shiftReached]);

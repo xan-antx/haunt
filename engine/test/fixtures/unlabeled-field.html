@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Unlabeled field fixture</title>
+</head>
+<body>
+  <main>
+    <h1>Fields</h1>
+    <!-- Named: no finding. -->
+    <label for="named">Email address</label>
+    <input id="named" type="email">
+    <input id="aria-named" type="text" aria-label="Search notes">
+
+    <!-- A native input whose only name source is a placeholder: Chromium gives it a name, so no finding. -->
+    <input id="placeholder-only" type="text" placeholder="Your city">
+
+    <!-- Native fields with no name. -->
+    <input id="bare" type="text">
+    <textarea id="bare-area"></textarea>
+    <select id="bare-select"><option>One</option><option>Two</option></select>
+
+    <!-- Text boxes that are not native. -->
+    <div id="div-textbox" role="textbox" contenteditable="true" tabindex="0" style="border:1px solid #444;min-height:30px"></div>
+    <div id="div-aria-placeholder" role="textbox" contenteditable="true" tabindex="0" aria-multiline="true"
+         aria-placeholder="Any thoughts..." style="border:1px solid #444;min-height:30px"></div>
+
+    <!-- Not in play. -->
+    <input id="hidden-input" type="hidden" value="x">
+    <div aria-hidden="true"><input id="aria-hidden-field" type="text"></div>
+    <input id="display-none" type="text" style="display:none">
+    <input id="submit" type="submit" value="Send">
+
+    <!-- Every native input type, with no name. -->
+    <div id="types">
+      <input type="text"><input type="email"><input type="password"><input type="search"><input type="tel">
+      <input type="url"><input type="number"><input type="range"><input type="checkbox"><input type="radio">
+      <input type="date"><input type="time"><input type="datetime-local"><input type="month"><input type="week">
+      <input type="color"><input type="file">
+    </div>
+  </main>
+  <script>
+    Array.prototype.forEach.call(document.querySelectorAll('#types input'), function (el) {
+      el.id = 'type-' + el.type;
+    });
+  </script>
+</body>
+</html>

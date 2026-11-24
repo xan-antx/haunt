@@ -19,6 +19,7 @@ export const FINDING_TYPES = [
   'cut_off_text',
   'untranslated',
   'dark_pattern',
+  'unlabeled_field',
 ] as const;
 export type FindingType = (typeof FINDING_TYPES)[number];
 

@@ -4,6 +4,11 @@
     "lantern-bills": {
       "name": "Lantern Bills demo",
       "allowedTerms": ["Lantern Bills"]
+    },
+    "memos": {
+      "name": "Memos",
+      "allowedTerms": ["Memos"],
+      "baseUrl": "http://localhost:5230"
     }
   }
 }

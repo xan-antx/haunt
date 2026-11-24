@@ -82,6 +82,14 @@ export const FINDING_LABELS: Record<FindingType, FindingLabel> = {
     stuck: 'ran into a tricky choice',
     summary: 'A choice here is worded or set up to trick people.',
   },
+  unlabeled_field: {
+    label: 'Field with no name',
+    helped: "If the field had a name, like 'Write a note', I'd have known what to type in it, instead of hearing only 'edit text'.",
+    blocker: "couldn't tell what a field was for",
+    thing: 'a field with no name',
+    stuck: 'found a field with no name',
+    summary: 'This field has no name, so a screen reader says only the kind of field, like "edit text", and not what it is for.',
+  },
 };
 
 /** The focus_trap blocker when the finding talks about a dialog, modal or pop-up. */

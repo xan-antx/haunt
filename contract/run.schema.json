@@ -58,7 +58,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["type", "step", "title", "evidence", "screenshot"],
       "properties": {
-        "type": { "enum": ["unlabeled_button", "focus_trap", "unannounced_error", "slow_wait", "misclick", "cut_off_text", "untranslated", "dark_pattern"] },
+        "type": { "enum": ["unlabeled_button", "focus_trap", "unannounced_error", "slow_wait", "misclick", "cut_off_text", "untranslated", "dark_pattern", "unlabeled_field"] },
         "step": { "type": "integer", "minimum": 1 },
         "title": { "type": "string" },
         "evidence": { "type": "string" },

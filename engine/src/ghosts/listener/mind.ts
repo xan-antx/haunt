@@ -51,7 +51,10 @@ import {
   JUMP_BUTTON_ROLES,
   TARGET_ROLES,
   dialogSearchThought,
+  elementTrapThought,
   lastResortEnterThought,
+  lastResortFieldGoThought,
+  lastResortFieldUseThought,
   lastResortGoThought,
   matchActivateThought,
   matchTypeThought,
@@ -169,7 +172,9 @@ interface Search {
   all: RememberedControl[];
   /** Presses made in the current round. */
   presses: number;
-  /** Unnamed buttons to try in last-resort mode, in the order they were reached. */
+  /** What the last resort tries: buttons with no name, or form fields with no name. */
+  lastResortKind: 'button' | 'field';
+  /** Unnamed buttons or fields to try in last-resort mode, in the order they were reached. */
   candidates: RememberedControl[];
   /** Candidates that could not be reached by jumping. */
   skipped: Set<string>;
@@ -187,6 +192,7 @@ function newSearch(context: 'page' | 'dialog', dialogRef: string | null): Search
     reached: new Set(),
     all: [],
     presses: 0,
+    lastResortKind: 'button',
     candidates: [],
     skipped: new Set(),
     jumpsToCandidate: 0,
@@ -213,6 +219,12 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
   /** Intentions whose own thought has already been said. */
   private readonly announced = new Set<string>();
   private search: Search | null = null;
+  /** The field with no name that the Mind typed into as a last resort, until it is left or given up on. */
+  private unnamedTyped: { ref: string } | null = null;
+  /** The stuck routine: 0 not running, 1 Shift+Tab pressed, 2 first Escape pressed, 3 second Escape pressed. */
+  private trapStage: 0 | 1 | 2 | 3 = 0;
+  /** The last action was a jump or a Tab press, so focus should have moved. */
+  private lastMove = false;
 
   constructor(mission: Mission, opts: MindOptions) {
     this.intentions = mission.intentions;
@@ -236,6 +248,9 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
         orientationThought(heard, first),
       );
     }
+
+    const stuck = this.stuckStep(focus);
+    if (stuck !== null) return stuck;
 
     const intention = this.current();
     if (intention === undefined) return this.giveUp();
@@ -325,7 +340,42 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
 
   private act(intentionId: string, action: ListenerAction, thought: string): Decision<ListenerAction> {
     this.memory.actions++;
+    this.lastMove = action.type === 'jump' || (action.type === 'key' && action.key === 'Tab');
     return { kind: 'act', action, thought, intentionId };
+  }
+
+  /**
+   * The stuck routine. It only runs for a field the Mind typed into as a last resort. If focus is still on
+   * that field after a jump or a Tab press, the Mind presses Shift+Tab, then Escape, then Escape. If focus
+   * moves after any of them, the normal search goes on. The Mind does not decide whether a trap is reported:
+   * the `focus_trap` Detector reads these key presses.
+   */
+  private stuckStep(focus: HeardNode | undefined): Decision<ListenerAction> | null {
+    const typed = this.unnamedTyped;
+    if (typed === null) return null;
+    const onIt = focus !== undefined && focus.ref === typed.ref;
+    const id = this.current()?.id ?? 'orientation';
+
+    if (this.trapStage === 0) {
+      if (!(this.lastMove && onIt)) return null;
+      this.memory.elementTrap = { control: remember(focus), keys: ['Shift+Tab'] };
+      this.trapStage = 1;
+      return this.act(id, { type: 'key', key: 'Shift+Tab' }, elementTrapThought({ step: 'Shift+Tab', node: focus }));
+    }
+
+    if (this.trapStage === 3 || !onIt) {
+      // After the second Escape, or as soon as focus moves: back to the normal search.
+      if (this.trapStage < 3) this.memory.elementTrap = null;
+      this.trapStage = 0;
+      this.unnamedTyped = null;
+      this.search = null;
+      return null;
+    }
+
+    const step = this.trapStage === 1 ? 'Escape' : 'Escape again';
+    this.trapStage = this.trapStage === 1 ? 2 : 3;
+    this.memory.elementTrap?.keys.push('Escape');
+    return this.act(id, { type: 'key', key: 'Escape' }, elementTrapThought({ step, node: focus }));
   }
 
   private giveUp(): Decision<ListenerAction> {
@@ -396,6 +446,15 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
       search.candidates = this.unnamedButtons(search);
       if (search.candidates.length > 0) {
         search.phase = 'lastResort';
+        search.jumpsToCandidate = 0;
+        return this.lastResortStep(intention, focus, search);
+      }
+    }
+    if (intention.lastResort === 'unnamedField') {
+      search.candidates = this.unnamedFields(search);
+      if (search.candidates.length > 0) {
+        search.phase = 'lastResort';
+        search.lastResortKind = 'field';
         search.jumpsToCandidate = 0;
         return this.lastResortStep(intention, focus, search);
       }
@@ -483,6 +542,15 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
       search.jumpsToCandidate = 0;
       const first = search.tried === 0;
       search.tried++;
+      if (search.lastResortKind === 'field') {
+        // Type the value (or press Enter) and remember the field, in case the Mind cannot leave it.
+        this.actedRef = focus.ref;
+        this.unnamedTyped = { ref: focus.ref };
+        this.trapStage = 0;
+        const typed = intention.do === 'type' ? intention.value : null;
+        const action: ListenerAction = typed === null ? { type: 'key', key: 'Enter' } : { type: 'type', text: typed };
+        return this.act(intention.id, action, lastResortFieldUseThought({ lead, node: focus, first, typed }));
+      }
       return this.act(intention.id, { type: 'key', key: 'Enter' }, lastResortEnterThought({ lead, node: focus, first }));
     }
 
@@ -494,10 +562,24 @@ export class ListenerMind implements Mind<Heard, ListenerAction> {
     }
     search.jumpsToCandidate++;
     const remaining = search.candidates.filter((c) => !this.used.has(c.ref) && !search.skipped.has(c.ref)).length;
+    if (search.lastResortKind === 'field') {
+      return this.act(
+        intention.id,
+        { type: 'jump', to: 'field', dir: 'next' },
+        lastResortFieldGoThought({ lead, remaining, tried: search.tried }),
+      );
+    }
     return this.act(
       intention.id,
       { type: 'jump', to: 'button', dir: 'next' },
       lastResortGoThought({ lead, remaining, tried: search.tried }),
+    );
+  }
+
+  /** The form fields with an empty name reached in this search that have not been tried, in the order reached. */
+  private unnamedFields(search: Search): RememberedControl[] {
+    return search.all.filter(
+      (control) => JUMP_FIELD_ROLES.has(control.role) && control.name.trim() === '' && !this.used.has(control.ref),
     );
   }
 
