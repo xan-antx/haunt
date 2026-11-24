@@ -134,7 +134,9 @@ Before the first patrol the page says **No patrol has run yet.**
    least one ghost saved a run, and **Error** otherwise, with the reason as the run's error. Crew
    also sends the summary as a notification.
 5. Go back to the Haunt Patrol page and reload it. It shows tonight's date in IST, the summary, and
-   one row per ghost with a link to open that ghost's run in the Haunt dashboard.
+   one row per ghost with its result and finding counts. Choose **Show findings** on a row to list that
+   ghost's findings. One link at the bottom opens the live Haunt dashboard, which shows the recorded
+   demo runs, not the patrol's own runs.
 
 Everything a patrol writes stays in the installed copy, under
 `%USERPROFILE%\.kiro\crew\apps\haunt-patrol\data\`: the ghost runs in `runs\`, the patrol record and

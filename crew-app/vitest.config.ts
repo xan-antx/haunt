@@ -13,5 +13,8 @@ export default defineConfig({
   },
   test: {
     include: ['test/**/*.test.ts', 'ui/src/**/*.test.{ts,tsx}'],
+    // At most 3 test files at once, like engine/vitest.config.ts and dashboard/vite.config.ts. With a
+    // worker per CPU core, the file-writing property tests starve each other past the 5 s timeout.
+    maxWorkers: 3,
   },
 });

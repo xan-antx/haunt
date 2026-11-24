@@ -3,8 +3,8 @@
 Haunt Patrol is a Kiro Crew app. Every night at midnight IST it builds and serves Lantern Bills on
 port 3000, sends the three ghosts (The Listener, The Phantom and Bebe) through the pay-bill mission
 with the engine's scripted mind, stops the site, and writes a record and a plain-text summary that
-compares the night with the one before. A Crew page shows the latest patrol with a link to open each
-run in the Haunt dashboard. No AI model is called.
+compares the night with the one before. A Crew page shows the latest patrol: the summary, each
+ghost's result and its findings, and one link to the live Haunt dashboard. No AI model is called.
 
 Ghosts only visit our own local copy of Lantern Bills.
 
@@ -70,16 +70,24 @@ check with `npm run typecheck`. To install the app in the Kiro Crew desktop app 
 - `HAUNT_REPO_ROOT`: the repository root (the folder with `engine/` and `demo-site/`). Required when
   the app runs from an installed copy, which has no repository next to it. When the app runs from the
   repository, the folder above `crew-app/` is used.
-- `HAUNT_DASHBOARD_URL`: where the Haunt dashboard runs. Default `http://localhost:3001`.
+- `HAUNT_DASHBOARD_URL`: where a local Haunt dashboard runs. Default `http://localhost:3001`. The patrol
+  still writes it into `latest.json` as `dashboardBaseUrl`, but the page does not use it. The page's one
+  link always goes to the live dashboard, `https://xan-antx.github.io/haunt/`.
 - `KIROCREW_PROXY_SECRET`: set by the Crew gateway for the backend process. The backend uses it to
   verify the `X-KiroCrew-Proxy` header. Nobody sets it by hand.
 
+## What the page shows
+
+The page shows the date of the latest patrol (IST), the summary, and one row per ghost with its
+result, its finding counts and a **Show findings** control that lists each finding (type, step and
+title). Below that is one link, to the live Haunt dashboard.
+
 ## Runs in the dashboard
 
-The page links to `<dashboard>/#/run/<runId>`. The dashboard lists the repository's `runs/` folder,
-and patrol runs are kept in the app's `data/runs/` instead, so a patrol run only appears there if
-you copy its folder into `runs/` and run `npm run collect-runs` in `dashboard/`. The app never does
-either.
+The live dashboard shows the recorded demo runs from the repository's `runs/` folder, not patrol runs.
+Patrol runs are kept in the app's `data/runs/`, and the page has no link to them. To see one in a
+local dashboard, copy its folder into `runs/` and run `npm run collect-runs` in `dashboard/`. The app
+never does either.
 
 ## Protection check
 
@@ -107,5 +115,3 @@ dropped and the run is stored with an empty result; `Report(text)` stores `text`
 - Whether `useAppApi()` reaches the app's own `/apps/haunt-patrol/api/` proxy path once it is listed
   in `permissions.api`. If it does not, the page falls back to the static files.
 - The status code the gateway returns when its own signing step fails. Nothing relies on it.
-- The dashboard port (design risk 10) belongs to the dashboard team. Haunt Patrol does not edit
-  `dashboard/`. If the dashboard serves on another port, set `HAUNT_DASHBOARD_URL`.

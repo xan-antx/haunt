@@ -27,5 +27,6 @@ describe('Feature: haunt-patrol, Property 5 (integration half): Patrol record ro
       }),
       RUNS,
     );
-  });
+    // The property runs many real file writes and takes 4 to 5 s, so it fails the 5 s default under load.
+  }, 15_000);
 });

@@ -6,62 +6,24 @@ Haunt sends three synthetic "ghost" users into a website to finish a task, then 
 
 ## Live links
 
-- Dashboard: https://xan-antx.github.io/haunt/
-- Demo site, Lantern Bills: https://xan-antx.github.io/haunt/lantern-bills/
+| What | Link |
+|---|---|
+| Dashboard | https://xan-antx.github.io/haunt/ |
+| Lantern Bills (the haunted demo site) | https://xan-antx.github.io/haunt/lantern-bills/ |
+| Lantern Bills, fixed copy (the "exorcised" site) | https://xan-antx.github.io/haunt/lantern-bills-exorcised/ |
+| Haunt Patrol (Kiro Crew app), own repository | https://github.com/xan-antx/haunt-crew |
 
-## Real runs
+You need no account and no install to use the first three links.
 
-All three ghosts have a real run on Lantern Bills, recorded by the engine and shown in the dashboard. Each ghost has one real run in the repo, so these are single runs, not statistics.
+## Judge Quick Start
 
-| Ghost | Mission | Result | Run in the live dashboard |
-|---|---|---|---|
-| The Listener | Pay a bill | Gave up | [2026-11-10T1822Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-10T1822Z-listener-pay-bill) |
-| The Phantom | Pay a bill | Gave up | [2026-11-11T1744Z-phantom-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-phantom-pay-bill) |
-| Bebe | Pay a bill | Succeeded | [2026-11-11T1744Z-bebe-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-bebe-pay-bill) |
+1. Open the [dashboard](https://xan-antx.github.io/haunt/) and press **Take the 60-second tour** on Home. It stops at the results, the Ghost Cam, the Graveyard, Exorcise and Spec Coverage. Escape leaves it.
+2. Open the Ghost Cam on [The Listener's AI-mind run](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) and step to the end. The run has an **AI mind** label, and the agent wrote the thought on each step.
+3. Open **Exorcise**. It compares a run on the haunted site with a run by the same ghost on the fixed copy.
+4. Now try [Lantern Bills](https://xan-antx.github.io/haunt/lantern-bills/) yourself. Pay the bill with only the keyboard: use card number `4111111111111111`, a future expiry date, CVV `123` and any name. Press Escape in the "Protect your payment" dialog and try to Tab to Continue. Add `?lang=pa` or `?lang=hi` to the address to see the untranslated button and error messages, and narrow the window to 640 px or less to see the cut-off total.
+5. Open the [fixed copy](https://xan-antx.github.io/haunt/lantern-bills-exorcised/) and do the same things. The problems are gone.
 
-The run folders are in [`dashboard/public/runs/lantern-bills/`](dashboard/public/runs/lantern-bills). Two hand-made sample runs (`runs/samples/`) are also in the repo. The dashboard hides a ghost's sample once that ghost has a real run.
-
-## Judge Quick Start (60 seconds)
-
-1. Open the [live dashboard](https://xan-antx.github.io/haunt/).
-2. Press **Take the 60-second tour**. It walks through the main screens.
-3. Open the [live Lantern Bills demo site](https://xan-antx.github.io/haunt/lantern-bills/) and try to pay a bill yourself. Use only the keyboard, or add `?lang=pa` or `?lang=hi` to the address, and see what the ghosts ran into.
-4. Back in the dashboard, open a ghost's run in the Ghost Cam and compare it with what you just did.
-
-## The engine
-
-The engine (`engine/`) drives one ghost through one mission in a real Chromium browser with Playwright, and writes a `run.json` folder (steps, screenshots, findings) that the dashboard reads. The format is defined in [`contract/run-format.md`](contract/run-format.md), and the engine checks every run against it before saving. It needs Node.js 24 or newer.
-
-Run a ghost against Lantern Bills. Start the demo site first (`cd demo-site`, `npm install`, `npm run dev`, serves on port 3000), then in another terminal:
-
-```
-cd engine
-npm install
-npx playwright install chromium
-npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000
-```
-
-Run it with `npm run haunt --` inside `engine/`, not with `npx haunt`: an unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs that one. `--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. The engine refuses any address other than `localhost`, `127.0.0.1` and domains in its config. See [engine/README.md](engine/README.md) for every option, exit code and test command.
-
-## Run it locally
-
-You need a current Node.js LTS. There is no root `package.json`, so install and run each app in its own folder.
-
-```
-cd demo-site
-npm install
-npm run dev        # http://localhost:3000
-```
-
-```
-cd dashboard
-npm install
-npm run dev        # http://localhost:3001
-```
-
-Both ports are fixed. If one is taken, the server stops with an error. See [dashboard/README.md](dashboard/README.md) for how run files get into the dashboard.
-
-## What Haunt is
+## What each part is
 
 ### The three ghosts
 
@@ -71,60 +33,163 @@ Both ports are fixed. If one is taken, the server stops with an error. See [dash
 
 Each ghost stands for real people with real needs. A ghost that gets stuck points to a real barrier, so we never weaken a test to make a ghost pass.
 
-### The demo site
+The engine (`engine/`) drives a ghost through one mission in a real Chromium browser with Playwright. It writes a `run.json` folder (steps, screenshots, findings) in the format defined in [`contract/run-format.md`](contract/run-format.md), and checks it against the schema before saving. Deterministic detectors decide every finding. The one mission so far is `pay-bill`, tied to a requirement in the `lantern-bills` spec.
 
-Lantern Bills (`demo-site/`) is an electricity bill-payment site in English, Punjabi and Hindi. It has six deliberate accessibility and usability problems for the ghosts to find. They stay in on purpose, and tests guard them.
+### Lantern Bills
+
+`demo-site/` is a fictional electricity bill-payment site in English, Punjabi and Hindi. It has six deliberate problems for the ghosts to find. They stay in on purpose, and tests guard them.
+
+1. An icon-only pay button with no accessible name.
+2. A "Protect your payment" dialog that traps keyboard focus, ignores Escape and has a paid add-on ticked by default.
+3. Card errors that are visible but never announced.
+4. A banner that loads late and pushes the page down.
+5. A payment total that is cut off at narrow widths and large zoom.
+6. Missing Punjabi and Hindi text for the pay button and the card errors.
 
 ### The dashboard
 
-The dashboard (`dashboard/`) is a static React and Vite site. It only reads run files and never runs a ghost.
+`dashboard/` is a static React and Vite site. It only reads run files.
 
 | Screen | What it shows |
 |---|---|
-| **Home** | Each haunted site, the latest result for each ghost, recent walks, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
-| **Graveyard** | One tombstone per problem found, filterable by site and ghost. A map view shows one room per page the ghosts visited, with a cold spot where a ghost got stuck. Each tombstone links to the moment it happened. |
-| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what it said, and what it thought. The Listener's spoken lines can be read aloud. An ask panel answers four questions about the run from the run file: why it gave up, where it got stuck, what it heard, and what helped. |
-| **Exorcise** | Compares a run before a fix with a run after it, by the same ghost on the same mission. The repo has one real run per ghost, so there is no real before and after pair yet. |
+| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
+| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what it said, and what it thought. An ask panel answers four questions about the run from the run file. The Listener's spoken lines can be read aloud. |
+| **Graveyard** | One tombstone per problem found, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
+| **Exorcise** | Compares a before run with an after run by the same ghost on the same mission, and marks each finding as exorcised, still haunting, new, or not reached. |
 | **Spec Coverage** | Each mission is one requirement. Shows whether each ghost's latest run completed it. |
 
-The reproduce command in the dashboard (`git checkout <commit> && cd engine && npm run haunt -- run ...`) is the real engine command. The **Summon a live ghost** button on Home works only when you run the dashboard yourself with `npm run dev` (in `dashboard/`): it starts Lantern Bills on port 3000 if needed, runs The Listener through the engine's CLI (the same as `npm run haunt -- run` in `engine/`), adds the new run to the dashboard and stops the site again. It only accepts requests from your own computer. On the published site the button explains this and shows the two commands.
+A run made by the AI mind carries an **AI mind** label on Home, in the Ghost Cam and in Exorcise. Samples are labelled **Sample run**, and a ghost's samples are hidden once the ghost has a real run.
 
-## Tests
+### The Exorcise loop
 
-Counts come from running the suites on 2026-11-22. Commands run in the folder named in the first column.
+`demo-site-exorcised/` is a copy of Lantern Bills where the six problems are fixed. Every fix went through a Kiro bugfix spec, and the tests that asserted the planted behavior were updated to assert the fixed behavior, not deleted.
 
-| Folder | Command | Tests |
-|---|---|---|
-| `engine/` | `npm test` | 855 in 45 files |
-| `dashboard/` | `npm test` | 399 in 35 files |
-| `demo-site/` | `npm test` | 123 in 18 files |
-| `dashboard/` | `npm run test:e2e` (Playwright, run `npx playwright install chromium` once) | 150 in 8 files, counted with `npx playwright test --list`, not run for this README |
-| `engine/` | `npm run test:e2e` (all three ghosts against Lantern Bills, slow) | 22 listed by `npx vitest list --config vitest.e2e.config.ts`, not run for this README |
+- `exorcised-payment-a11y-fix` fixes the pay button's name and the dialog's keyboard trap (Tab order, Escape, focus return).
+- `exorcised-remaining-fixes` fixes the silent card errors, the late banner, the cut-off total, the pre-ticked add-on and the missing Punjabi and Hindi text.
+- `exorcise-different-ghost-fix` fixes the dashboard: Exorcise now compares only runs by the same ghost, because a ghost can only confirm the fix of a problem it can detect.
 
-The unit suites total 1,377 tests, and all of them passed. One run of the dashboard suite, started while the other two suites ran at the same time, had 2 failures. A rerun on its own passed all 399.
+All three ghosts ran again on the fixed copy (recorded with `--site-name "Lantern Bills demo (exorcised)"`). Each one succeeded with no findings. The dashboard marks those runs "after the fix" and pairs each with the same ghost's run on the haunted site.
 
-## How we built it with Kiro
+### The AI mind for The Listener
+
+By default The Listener follows a scripted walk. With `--mind ai`, a Kiro custom agent chooses each keyboard action instead.
+
+- The agent is [`.kiro/agents/listener.json`](.kiro/agents/listener.json). The engine starts it with `kiro-cli chat --agent listener --no-interactive`.
+- The agent's only tools come from **haunt-mcp**, an MCP server in [`engine/src/mcp/server.ts`](engine/src/mcp/server.ts). It has seven tools: `read_page`, `read_announcements`, `press_key`, `type_text`, `jump`, `think` and `finish`. Each call goes over loopback, with a token, to a bridge inside the engine that holds the browser.
+- The agent only chooses actions and writes the one-sentence thought for each step. It cannot create findings. The same detectors as the scripted walk decide them, and the run passes the same schema check.
+- Only The Listener has an AI mind. The Phantom and Bebe are scripted.
+
+The saved AI run ([2026-11-23T1020Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1), 26 steps) gave up at the dialog trap with the same two findings as the scripted run: an unlabeled button and a focus trap.
+
+### Live mode
+
+When you run the dashboard yourself with `npm run dev` in `dashboard/`, the **Summon a live ghost** button on Home starts Lantern Bills, runs The Listener (scripted mind) through the engine, adds the new run to the dashboard and stops the site. It accepts requests only from your own computer. On the published site the button explains this and shows the commands to run.
+
+### Haunt Patrol (Kiro Crew app)
+
+Haunt Patrol is a [Kiro Crew](https://kiro.dev/docs/crew/installation/) app. Every night at midnight IST a script cron builds Lantern Bills, sends the three ghosts (scripted minds, no model call) through the pay-bill mission, and stops the site. It writes a record and a plain-text summary that compares the night with the one before. The Crew page shows the summary and each ghost's result and findings, and has one link to the live dashboard. A second agent, `patrol-guide`, explains the results in plain language and can only read.
+
+The app is in [`crew-app/`](crew-app) here and in its own repository, https://github.com/xan-antx/haunt-crew. Patrol runs stay in the app's own data folder, so the dashboard does not list them. See [crew-app/README.md](crew-app/README.md) and, for Windows, [crew-app/INSTALL-WINDOWS.md](crew-app/INSTALL-WINDOWS.md).
+
+## Real runs
+
+These seven runs are in [`runs/lantern-bills/`](runs/lantern-bills) and are shown in the live dashboard. They are single runs, not statistics.
+
+| Run | Site | Mind | Result | Findings |
+|---|---|---|---|---|
+| [2026-11-10T1822Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-10T1822Z-listener-pay-bill/step/1) | Lantern Bills | scripted | Gave up | focus trap, unlabeled button |
+| [2026-11-11T1744Z-phantom-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-phantom-pay-bill/step/1) | Lantern Bills | scripted | Gave up | 2 misclicks |
+| [2026-11-11T1744Z-bebe-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-bebe-pay-bill/step/1) | Lantern Bills | scripted | Succeeded | untranslated text, cut-off text, 3 dark patterns |
+| [2026-11-23T1020Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) | Lantern Bills | **AI mind** | Gave up | focus trap, unlabeled button |
+| [2026-11-22T1148Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1148Z-listener-pay-bill/step/1) | Fixed copy | scripted | Succeeded | none |
+| [2026-11-22T1153Z-phantom-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1153Z-phantom-pay-bill/step/1) | Fixed copy | scripted | Succeeded | none |
+| [2026-11-22T1149Z-bebe-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1149Z-bebe-pay-bill/step/1) | Fixed copy | scripted | Succeeded | none |
+
+Two hand-made sample runs (`runs/samples/`) are also in the repo.
+
+## Run it locally
+
+You need Node.js 24 or newer. There is no root `package.json`, so install and run each app in its own folder.
+
+```
+cd demo-site
+npm install
+npm run dev        # Lantern Bills, http://localhost:3000
+```
+
+```
+cd dashboard
+npm install
+npm run dev        # dashboard, http://localhost:3001
+```
+
+```
+cd demo-site-exorcised
+npm install
+npm run dev        # fixed copy, http://localhost:3002
+```
+
+Ports are fixed. If one is taken, the server stops with an error.
+
+### Run a ghost
+
+With Lantern Bills running on port 3000, in another terminal:
+
+```
+cd engine
+npm install
+npx playwright install chromium
+npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000
+```
+
+Use `npm run haunt --` inside `engine/`, not `npx haunt`. An unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs that one. `--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. By default runs go into `runs/` at the repository root, and the dashboard picks them up the next time you start `npm run dev` or `npm run build` there.
+
+The engine refuses any address other than `localhost`, `127.0.0.1` and domains in its config. To run a ghost on the fixed copy and have the dashboard pair the run with the original, use the fixed copy's address and name:
+
+```
+npm run haunt -- run --ghost bebe --mission pay-bill --url http://localhost:3002 --site-name "Lantern Bills demo (exorcised)"
+```
+
+To use the AI mind, add `--mind ai` to a Listener run. This needs the Kiro CLI and a Kiro account (see below). See [engine/README.md](engine/README.md) for every option and exit code, and [dashboard/README.md](dashboard/README.md) for how run files get into the dashboard.
+
+## What needs a Kiro account
+
+Only two things do:
+
+- **The AI mind** (`--mind ai`). It runs the Kiro CLI, which must be installed ([kiro.dev/docs/cli](https://kiro.dev/docs/cli/)) and signed in. Each AI run uses Kiro credits, and the engine prints the credits a run used when Kiro reports them.
+- **The Haunt Patrol Crew app.** It runs inside the Kiro Crew desktop app, which needs a Kiro sign-in.
+
+Everything else works without an account: the live dashboard, both sites, scripted ghosts, live mode, and all tests.
+
+Our hackathon credits expire on December 31. After that, new AI runs need your own Kiro credits. The AI run already saved in `runs/` stays viewable in the dashboard.
+
+## How we used Kiro
 
 Every row points to a file in this repo.
 
 ### Specs (`.kiro/specs/`)
 
-| Spec | Purpose | Files |
-|---|---|---|
-| `lantern-bills` | The demo site and its six planted problems | [requirements](.kiro/specs/lantern-bills/requirements.md), [design](.kiro/specs/lantern-bills/design.md), [tasks](.kiro/specs/lantern-bills/tasks.md) |
-| `haunt-dashboard` | The dashboard and its screens | [requirements](.kiro/specs/haunt-dashboard/requirements.md), [design](.kiro/specs/haunt-dashboard/design.md), [tasks](.kiro/specs/haunt-dashboard/tasks.md) |
-| `haunt-engine` | The engine and the three ghosts | [requirements](.kiro/specs/haunt-engine/requirements.md), [design](.kiro/specs/haunt-engine/design.md), [tasks](.kiro/specs/haunt-engine/tasks.md) |
-| `exorcise-different-ghost-fix` | A bugfix spec: Exorcise must not compare runs by different ghosts | [bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md), [design](.kiro/specs/exorcise-different-ghost-fix/design.md), [tasks](.kiro/specs/exorcise-different-ghost-fix/tasks.md) |
+| Spec | Kind | What it covers | Files |
+|---|---|---|---|
+| `lantern-bills` | Feature | The demo site and its six planted problems | [requirements](.kiro/specs/lantern-bills/requirements.md), [design](.kiro/specs/lantern-bills/design.md), [tasks](.kiro/specs/lantern-bills/tasks.md) |
+| `haunt-dashboard` | Feature | The dashboard and its screens | [requirements](.kiro/specs/haunt-dashboard/requirements.md), [design](.kiro/specs/haunt-dashboard/design.md), [tasks](.kiro/specs/haunt-dashboard/tasks.md) |
+| `haunt-engine` | Feature | The engine and the three ghosts | [requirements](.kiro/specs/haunt-engine/requirements.md), [design](.kiro/specs/haunt-engine/design.md), [tasks](.kiro/specs/haunt-engine/tasks.md) |
+| `listener-ai-mind` | Feature | The AI mind: haunt-mcp, the bridge, the custom agent, `--mind ai` | [requirements](.kiro/specs/listener-ai-mind/requirements.md), [design](.kiro/specs/listener-ai-mind/design.md), [tasks](.kiro/specs/listener-ai-mind/tasks.md) |
+| `haunt-patrol` | Feature | The Haunt Patrol Crew app | [requirements](.kiro/specs/haunt-patrol/requirements.md), [design](.kiro/specs/haunt-patrol/design.md), [tasks](.kiro/specs/haunt-patrol/tasks.md) |
+| `exorcise-different-ghost-fix` | Bugfix | Exorcise must not compare runs by different ghosts | [bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md), [design](.kiro/specs/exorcise-different-ghost-fix/design.md), [tasks](.kiro/specs/exorcise-different-ghost-fix/tasks.md) |
+| `exorcised-payment-a11y-fix` | Bugfix | Fixed copy: pay button name, dialog keyboard trap | [bugfix](.kiro/specs/exorcised-payment-a11y-fix/bugfix.md), [design](.kiro/specs/exorcised-payment-a11y-fix/design.md), [tasks](.kiro/specs/exorcised-payment-a11y-fix/tasks.md) |
+| `exorcised-remaining-fixes` | Bugfix | Fixed copy: card errors, banner, total, pre-ticked add-on, translations | [bugfix](.kiro/specs/exorcised-remaining-fixes/bugfix.md), [design](.kiro/specs/exorcised-remaining-fixes/design.md), [tasks](.kiro/specs/exorcised-remaining-fixes/tasks.md) |
 
 ### Steering (`.kiro/steering/`)
 
-| File | What it does |
-|---|---|
-| [product.md](.kiro/steering/product.md) | The three ghosts, ethics rules (own sites only, respectful personas, never weaken a test) |
-| [structure.md](.kiro/steering/structure.md) | Who owns each folder and how data flows from `runs/` to the dashboard |
-| [tech.md](.kiro/steering/tech.md) | TypeScript, Node LTS, Playwright, React with Vite, and file-editing rules |
-| [demo-site.md](.kiro/steering/demo-site.md) | Loads when working in `demo-site/`. Keeps the six planted problems in place unless a bugfix spec names them |
-| [dashboard-design.md](.kiro/steering/dashboard-design.md) | The dashboard's colors with measured contrast ratios, fonts, ghost designs, what each spooky element means, motion limits |
+| File | Loads | What it does |
+|---|---|---|
+| [product.md](.kiro/steering/product.md) | Always | The three ghosts, ethics rules (own sites only, respectful personas, never weaken a test) |
+| [structure.md](.kiro/steering/structure.md) | Always | Who owns each folder and how data flows from `runs/` to the dashboard |
+| [tech.md](.kiro/steering/tech.md) | Always | TypeScript, Node LTS, Playwright, React with Vite, and file-editing rules |
+| [demo-site.md](.kiro/steering/demo-site.md) | In `demo-site/` | Keeps the six planted problems in place unless a bugfix spec names them |
+| [demo-site-exorcised.md](.kiro/steering/demo-site-exorcised.md) | In `demo-site-exorcised/` | Problems get fixed only when a bugfix spec names them, `demo-site/` stays unchanged, and tests are updated, never weakened |
+| [dashboard-design.md](.kiro/steering/dashboard-design.md) | In `dashboard/` | Colors with measured contrast ratios, fonts, ghost designs, what each spooky element means, motion limits |
 
 ### Hooks (`.kiro/hooks/`)
 
@@ -135,40 +200,85 @@ Every row points to a file in this repo.
 | [Planted problems guard](.kiro/hooks/planted-problems-guard.json) | When the agent finishes a turn | If anything in `demo-site/src/` differs from `HEAD`, runs the tests proving the six planted problems still exist, and sends a failure back to the agent ([script](.kiro/hooks/scripts/planted-problems-guard.mjs)) |
 | [Translation keeper](.kiro/hooks/translation-keeper.json) | Manual | After English strings change, adds missing keys to the Punjabi and Hindi files and lists them for review. It skips the keys that are deliberately untranslated |
 
+### Custom agent, MCP server, Kiro CLI and Kiro Crew
+
+| Piece | Where | How we used it |
+|---|---|---|
+| Custom agent | [`.kiro/agents/listener.json`](.kiro/agents/listener.json) | The Listener's AI mind. Its only tools are haunt-mcp's seven |
+| MCP server | [`engine/src/mcp/server.ts`](engine/src/mcp/server.ts), started by [`engine/bin/haunt-mcp.mjs`](engine/bin/haunt-mcp.mjs) | Gives the agent the Listener's abilities and nothing else. No tool reads or writes findings |
+| Kiro CLI | [`engine/src/mind/ai/kiro.ts`](engine/src/mind/ai/kiro.ts) | The engine starts `kiro-cli chat --agent listener --no-interactive`, relaunches it up to 5 times if it ends before the run does, keeps each run's Kiro log, and prints the credits used |
+| Kiro Crew | [`crew-app/`](crew-app), [haunt-crew](https://github.com/xan-antx/haunt-crew) | The Haunt Patrol app: a script cron, a read-only backend, a page built with the Crew app SDK, the `patrol-guide` agent and the `reading-patrols` skill |
+
 ### Property tests
 
-Property tests use [fast-check](https://fast-check.dev). A property test is a `describe` whose name starts with `Feature: <spec name>, Property`. Each command below runs only those tests.
+Property tests use [fast-check](https://fast-check.dev). A property test is a `describe` whose name starts with `Feature: <spec name>, Property`. Each command below runs only those tests, in the folder named.
 
-| Spec | Command | Tests | Test files |
-|---|---|---|---|
-| `haunt-engine` | `cd engine`, then `npm run test:properties` | 26 | [`engine/test/*.properties.test.ts`](engine/test) (address refusal, saved runs pass the schema, step numbering, finding links, delays, misclicks, run ids, visual perception) |
-| `haunt-dashboard` and `exorcise-different-ghost-fix` | `cd dashboard`, then `npm run test:properties` | 29 | [`dashboard/src/__tests__/*.properties.test.ts`](dashboard/src/__tests__), [routes](dashboard/src/__tests__/routes.test.ts), [name filter](dashboard/scripts/__tests__/propertyTestPattern.properties.test.ts) |
-| `lantern-bills` | `cd demo-site`, then `npm run test:properties` | 20 | [`demo-site/src/__tests__/properties/`](demo-site/src/__tests__/properties) (payment flow, validation, modal, language, layout, accessibility) |
+| Spec | Folder and command | Tests |
+|---|---|---|
+| `haunt-engine` | `engine/`: `npm run test:properties` | 26 |
+| `listener-ai-mind` | `engine/`: `npx vitest run -t "Feature: listener-ai-mind, Property"` | 28 |
+| `haunt-dashboard`, `exorcise-different-ghost-fix` | `dashboard/`: `npm run test:properties` | 29 |
+| `lantern-bills` | `demo-site/`: `npm run test:properties` | 20 |
+| `lantern-bills`, on the fixed copy | `demo-site-exorcised/`: `npm run test:properties` | 20 |
+| `exorcised-payment-a11y-fix` (bug condition and preservation) | `demo-site-exorcised/`: `npx vitest run src/__tests__/properties/payment-a11y` | 15 |
+| `haunt-patrol` | `crew-app/`: `npx vitest run -t "Feature: haunt-patrol, Property"` | 53, see the note under Tests |
 
-That is 75 property tests, all passing. The dashboard runner ([dashboard/scripts/test-properties.ts](dashboard/scripts/test-properties.ts)) fails if no test matches the pattern.
-
-The planted-problems tests that the hook runs are `cd demo-site`, then `npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts`.
+The dashboard runner ([dashboard/scripts/test-properties.ts](dashboard/scripts/test-properties.ts)) fails if no test matches the pattern. The planted-problems tests that the hook runs are `npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts` in `demo-site/`.
 
 ### Shared contract
 
-[contract/run-format.md](contract/run-format.md) defines the run file format that the engine writes and the dashboard reads. [contract/example-run.json](contract/example-run.json) is an example, and [contract/run.schema.json](contract/run.schema.json) is the schema. The dashboard and the engine each check every run against it.
+[contract/run-format.md](contract/run-format.md) defines the run file that the engine writes and the dashboard reads. [contract/example-run.json](contract/example-run.json) is an example, and [contract/run.schema.json](contract/run.schema.json) is the schema. Both sides check every run against it.
+
+## Tests
+
+Counted by running each suite on the current code. Commands run in the folder named in the first column.
+
+| Folder | Command | Tests |
+|---|---|---|
+| `engine/` | `npm test` | 999 in 64 files, all passed |
+| `dashboard/` | `npm test` | 472 in 39 files, all passed |
+| `demo-site/` | `npm test` | 123 in 18 files, all passed |
+| `demo-site-exorcised/` | `npm test` | 158 in 20 files, all passed |
+| `crew-app/` | `npm test` | 169 in 29 files, 168 pass reliably, see the note |
+| `dashboard/` | `npm run test:e2e` (Playwright; run `npx playwright install chromium` once) | 151 in 8 files, counted with `npx playwright test --list`, not run for this README |
+| `engine/` | `npm run test:e2e` (all three ghosts against Lantern Bills, slow) | 22, counted with `npx vitest list --config vitest.e2e.config.ts`, not run for this README |
+
+The unit suites total 1,921 tests. One crew-app test, `test/store.roundtrip.test.ts`, takes about 4 to 5 seconds on our Windows machine, and Vitest's default timeout is 5 seconds. It failed on 3 of 4 full or filtered runs and passed when run alone. We have not changed the timeout.
+
+## Results
+
+Each ghost reproduced its findings in **10 of 10** end-to-end runs on Lantern Bills. The end-to-end tests run the real command line 10 times per ghost and require at least 9 of 10.
+
+| Ghost | What a run has to find |
+|---|---|
+| The Listener | Result "gave up", with an unlabeled button and a focus trap |
+| The Phantom | A misclick (seeds 1 to 10) |
+| Bebe | Cut-off text, untranslated text and a dark pattern (seeds 1 to 10) |
+
+On the fixed copy, all three ghosts succeed with no findings. The AI mind's saved run found the same two findings as the scripted Listener.
 
 ## Honest limitations
 
-- **Ghosts do not replace people.** They find barriers a script can reach. They do not replace testing with disabled people, and a clean ghost run does not mean a site is accessible.
+- **Ghosts do not replace people.** They find barriers a script or an agent can reach. They do not replace testing with disabled people, and a clean ghost run does not mean a site is accessible.
 - **The read-aloud voice is an approximation.** It uses the browser's built-in speech voice. It is not real screen reader output, and the dashboard says so next to the button.
 - **The Listener cannot use a screen reader's browse mode.** It moves by keyboard and listens to what would be announced, so it is stricter than a real screen reader user on some traps. A real user might get around a barrier that stops The Listener.
-- **The minds are scripted for now.** Each ghost follows a fixed state machine over its mission, with no AI. It will not improvise the way a person does.
-- **The evidence is thin.** There is one real run per ghost on one site, and one mission.
+- **One site and one mission so far.** All runs are of the `pay-bill` mission on Lantern Bills and its fixed copy, which we built ourselves with six known problems. Results on other sites are unknown.
+- **The detectors are heuristics.** They read the page and apply rules, so they can be wrong in both directions. The AI mind showed this. In its first run, at step 22, The Listener opened the "Learn more" disclosure in the payment protection dialog, and the `unannounced_error` detector reported the explanation ("If your payment fails due to a system error, you'll receive a full refund...") as an error, because the text contains words such as "fails" and "error". It was a false positive. We fixed the detector in two ways: text revealed by a disclosure the user opened (an `aria-expanded="true"` target or an open `<details>`) is never error text, and a sentence that opens with a condition ("if", "when", "unless") is a description, not an error about the user's input. The regression tests use the exact text from that run ([`engine/test/unannouncedError.test.ts`](engine/test/unannouncedError.test.ts) and [`engine/test/errorWords.test.ts`](engine/test/errorWords.test.ts)), and one of them checks that a real silent error next to an open disclosure is still reported. Other false positives and misses may remain.
+- **AI runs vary.** The agent may take a different path each time. Only one AI run is saved, and the end-to-end tests cover only the scripted minds. The AI mind covers only The Listener.
+- **Haunt Patrol is small.** Its ghosts use scripted minds, it checks only Lantern Bills, and its runs are not shown in the dashboard. It runs only while the Crew gateway is up and the machine is awake at midnight IST, with no catch-up run.
 - **Ghosts only visit our own sites,** or local copies of open-source sites. We do not test third-party production sites.
 
 ## Related work
 
 - **UXAgent** ([paper](https://arxiv.org/abs/2504.09407), [code](https://github.com/neuhai/UXAgent)) generates thousands of LLM-driven personas that test a web design, so UX researchers can refine a study before running it with people.
 - **AgentA/B** ([paper](https://arxiv.org/html/2504.09723)) runs LLM agents on live websites to carry out A/B tests, then analyzes the logged behavior for the experiment owner.
-- **persona-lab:** - [persona-lab](https://github.com/gobika21/persona-lab): AI agents that test websites the way disabled people use them, with an eval suite that checks whether the agents can be trusted. Haunt differs in three ways: our ghosts' missions come from Kiro specs, findings are decided by deterministic detectors rather than the AI, and Exorcise compares before-and-after runs by the same ghost.
+- **persona-lab** ([code](https://github.com/gobika21/persona-lab)) has AI agents test websites the way disabled people use them, with an eval suite that checks whether the agents can be trusted.
 
-**How Haunt differs.** UXAgent and AgentA/B generate many general-purpose personas to study how people choose and behave. Haunt uses three fixed personas, each built around one access need: keyboard and screen reader, slow network and old phone, large text and another language. The output is a list of specific barriers, each tied to a step, a screenshot, and a mission, so a team can fix it and re-check with Exorcise. Haunt's focus is accessibility, and its dashboard is part of the product.
+Haunt differs in these ways. It uses three fixed personas, each built around one access need: keyboard and screen reader, slow network and old phone, large text and another language. Each mission is tied to a requirement in a Kiro spec. Detectors, not the AI, decide the findings. The output is a list of specific barriers, each tied to a step, a screenshot and a mission, and Exorcise compares before and after runs by the same ghost.
+
+## How it was built
+
+We used Claude Code for two things: the media capture helper script ([`tools/media/`](tools/media)) and copying the Crew app into its own repository. Everything else was built in Kiro with specs, hooks and steering.
 
 ## License
 
