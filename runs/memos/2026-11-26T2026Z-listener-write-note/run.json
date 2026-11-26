@@ -1,0 +1,426 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-26T2026Z-listener-write-note",
+  "ghost": "listener",
+  "mind": "ai",
+  "mission": {
+    "id": "write-note",
+    "goal": "Sign in to Memos with the throwaway account (username ghost-test, password HauntTest123!), write the note \"Haunt was here 20261126-202655\" and save it",
+    "requirement": "MEMOS-1: WHEN a signed-in user types a note in the note editor and activates Save, THE Memos application SHALL add a new memo with that text at the top of the memo list. The new memo SHALL appear without the user leaving the page.",
+    "successCheck": "A saved memo card shows exactly the text \"Haunt was here 20261126-202655\", and the note editor does not count"
+  },
+  "site": {
+    "name": "Memos",
+    "url": "http://localhost:5230",
+    "commit": "7f267b2"
+  },
+  "startedAt": "2026-11-26T20:26:55Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/auth",
+      "action": "Open http://localhost:5230",
+      "spoken": "Memos, document",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 444
+    },
+    {
+      "n": 2,
+      "page": "/auth",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Username, edit text, required",
+      "thought": "I jump to the next field and listen.",
+      "screenshot": "shots/002.png",
+      "waitMs": 311,
+      "focusBox": {
+        "x": 501,
+        "y": 357,
+        "w": 278,
+        "h": 30
+      }
+    },
+    {
+      "n": 3,
+      "page": "/auth",
+      "action": "Type \"ghost-test\"",
+      "spoken": "ghost-test",
+      "thought": "I'm typing my username into the Username field that has focus.",
+      "screenshot": "shots/003.png",
+      "waitMs": 310,
+      "focusBox": {
+        "x": 501,
+        "y": 357,
+        "w": 278,
+        "h": 30
+      }
+    },
+    {
+      "n": 4,
+      "page": "/auth",
+      "action": "Tab",
+      "spoken": "Password, edit text, required",
+      "thought": "I'm moving to the Password field with Tab.",
+      "screenshot": "shots/004.png",
+      "waitMs": 317,
+      "focusBox": {
+        "x": 501,
+        "y": 429,
+        "w": 254,
+        "h": 30
+      }
+    },
+    {
+      "n": 5,
+      "page": "/auth",
+      "action": "Type \"HauntTest123!\"",
+      "spoken": "HauntTest123!",
+      "thought": "I'm typing my password.",
+      "screenshot": "shots/005.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 501,
+        "y": 429,
+        "w": 254,
+        "h": 30
+      }
+    },
+    {
+      "n": 6,
+      "page": "/auth",
+      "action": "Enter",
+      "spoken": "Welcome to Memos, dialog. Next, button",
+      "thought": "I'm pressing Enter to submit the sign in form.",
+      "screenshot": "shots/006.png",
+      "waitMs": 5010,
+      "focusBox": {
+        "x": 776.75,
+        "y": 609,
+        "w": 54.25,
+        "h": 32
+      }
+    },
+    {
+      "n": 7,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×1)",
+      "spoken": "Share, button",
+      "thought": "I'm pressing Shift+Tab to the earlier Skip button so I can skip this welcome tour.",
+      "screenshot": "shots/007.png",
+      "waitMs": 5008,
+      "focusBox": {
+        "x": 648.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 8,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×1)",
+      "spoken": "Keep, button",
+      "thought": "I jump to the previous button and listen.",
+      "screenshot": "shots/008.png",
+      "waitMs": 5009,
+      "focusBox": {
+        "x": 636.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 9,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×1)",
+      "spoken": "Write, button",
+      "thought": "I'm moving back again toward Skip.",
+      "screenshot": "shots/009.png",
+      "waitMs": 5008,
+      "focusBox": {
+        "x": 624.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×1)",
+      "spoken": "Welcome to Memos, button",
+      "thought": "I jump to the previous button and listen.",
+      "screenshot": "shots/010.png",
+      "waitMs": 5006,
+      "focusBox": {
+        "x": 612.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×1)",
+      "spoken": "Skip, button",
+      "thought": "I'm moving back again toward Skip.",
+      "screenshot": "shots/011.png",
+      "waitMs": 5005,
+      "focusBox": {
+        "x": 449,
+        "y": 613,
+        "w": 41.140625,
+        "h": 24
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Enter",
+      "spoken": "Memos, document",
+      "thought": "I'm pressing Enter on Skip to close the welcome tour.",
+      "screenshot": "shots/012.png",
+      "waitMs": 5012
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Next form field (Tab ×43)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I jump to the next field and listen.",
+      "screenshot": "shots/013.png",
+      "waitMs": 5009,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Type \"Haunt was here 20261126-202655\"",
+      "spoken": "Haunt was here 20261126-202655",
+      "thought": "I'm typing my note into the memo box.",
+      "screenshot": "shots/014.png",
+      "waitMs": 5007,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 15,
+      "page": "/",
+      "action": "Next button (Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I jump to the next button and listen.",
+      "screenshot": "shots/015.png",
+      "waitMs": 5003,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 16,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm pressing Tab to move toward the Save button.",
+      "screenshot": "shots/016.png",
+      "waitMs": 5011,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 17,
+      "page": "/",
+      "action": "Next button (Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm jumping to the next button to reach Save.",
+      "screenshot": "shots/017.png",
+      "waitMs": 5013,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 18,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm pressing Tab again to see whether focus can leave the memo box.",
+      "screenshot": "shots/018.png",
+      "waitMs": 5004,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 19,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm pressing Shift+Tab to see if focus moves out of the memo box another way.",
+      "screenshot": "shots/019.png",
+      "waitMs": 5004,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 20,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm pressing Escape to try to step out of the memo box.",
+      "screenshot": "shots/020.png",
+      "waitMs": 5003,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 21,
+      "page": "/",
+      "action": "Next landmark",
+      "spoken": "Notifications, region",
+      "thought": "I'm jumping to the next landmark to try to get out of the memo box.",
+      "screenshot": "shots/021.png",
+      "waitMs": 5001
+    },
+    {
+      "n": 22,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm jumping to the previous button, hoping it is Save, just above the notifications.",
+      "screenshot": "shots/022.png",
+      "waitMs": 5014,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 23,
+      "page": "/",
+      "action": "Next landmark",
+      "spoken": "No next landmark",
+      "thought": "I'm jumping to the next landmark again to leave the memo box, and then I'll try Shift+Tab from there.",
+      "screenshot": "shots/023.png",
+      "waitMs": 5016
+    },
+    {
+      "n": 24,
+      "page": "/",
+      "action": "Previous heading",
+      "spoken": "Views, heading level 2",
+      "thought": "I'm jumping back to the Views heading in the sidebar so I can Tab forward from there to the Save button.",
+      "screenshot": "shots/024.png",
+      "waitMs": 5002,
+      "focusBox": {
+        "x": 12,
+        "y": 315,
+        "w": 36.84375,
+        "h": 16
+      }
+    },
+    {
+      "n": 25,
+      "page": "/",
+      "action": "Next button (Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm jumping to the next button after the Views heading, which should be Create view.",
+      "screenshot": "shots/025.png",
+      "waitMs": 5002,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 26,
+      "page": "/",
+      "action": "Previous button (Shift+Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm jumping to the previous button to see if any button outside the memo box can hold focus.",
+      "screenshot": "shots/026.png",
+      "waitMs": 5001,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 27,
+      "page": "/",
+      "action": "ArrowDown",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm pressing the down arrow to get to the end of my note, in case Tab works from there.",
+      "screenshot": "shots/027.png",
+      "waitMs": 5011,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 28,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I press Tab and listen. I tried 27 things with the keyboard and could not finish what I came to do.",
+      "screenshot": "shots/028.png",
+      "waitMs": 5010,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    }
+  ],
+  "findings": [
+    {
+      "type": "focus_trap",
+      "step": 19,
+      "title": "Keyboard focus is trapped in a text box",
+      "evidence": "Keyboard focus could not leave the text box \"Any thoughts...\" (role textbox). Tab (153 presses), Shift+Tab (101 presses), ArrowDown (1 press) and Escape (1 press) left focus on it. No key moved focus before the run ended. Nothing was announced while focus was stuck.",
+      "screenshot": "shots/019.png"
+    }
+  ]
+}

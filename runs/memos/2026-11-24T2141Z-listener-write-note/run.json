@@ -1,0 +1,441 @@
+{
+  "formatVersion": 1,
+  "runId": "2026-11-24T2141Z-listener-write-note",
+  "ghost": "listener",
+  "mind": "scripted",
+  "mission": {
+    "id": "write-note",
+    "goal": "Sign in to Memos with the throwaway account (username ghost-test, password HauntTest123!), write the note \"Haunt was here 20261124-214137\" and save it",
+    "requirement": "MEMOS-1: WHEN a signed-in user types a note in the note editor and activates Save, THE Memos application SHALL add a new memo with that text at the top of the memo list. The new memo SHALL appear without the user leaving the page.",
+    "successCheck": "A saved memo card shows exactly the text \"Haunt was here 20261124-214137\", and the note editor does not count"
+  },
+  "site": {
+    "name": "Memos",
+    "url": "http://localhost:5230",
+    "commit": "7f267b2"
+  },
+  "startedAt": "2026-11-24T21:41:37Z",
+  "result": "gave_up",
+  "steps": [
+    {
+      "n": 1,
+      "page": "/auth",
+      "action": "Open http://localhost:5230",
+      "spoken": "Memos, document",
+      "thought": "I'm opening the page.",
+      "screenshot": "shots/001.png",
+      "waitMs": 447
+    },
+    {
+      "n": 2,
+      "page": "/auth",
+      "action": "Next heading",
+      "spoken": "Sign in, heading level 1",
+      "thought": "I've just arrived on 'Memos'. Before I look for anything, I'll jump to the next heading to hear where I am.",
+      "screenshot": "shots/002.png",
+      "waitMs": 307,
+      "focusBox": {
+        "x": 489,
+        "y": 280,
+        "w": 302,
+        "h": 28
+      }
+    },
+    {
+      "n": 3,
+      "page": "/auth",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Username, edit text, required",
+      "thought": "I need to sign in first, so I'm looking for the username field. I'm not on anything I can use yet, so I'll jump to the next form field.",
+      "screenshot": "shots/003.png",
+      "waitMs": 315,
+      "focusBox": {
+        "x": 501,
+        "y": 357,
+        "w": 278,
+        "h": 30
+      }
+    },
+    {
+      "n": 4,
+      "page": "/auth",
+      "action": "Type \"ghost-test\"",
+      "spoken": "ghost-test",
+      "thought": "I heard 'Username, edit text, required'. That's the field I want, so I'll type \"ghost-test\".",
+      "screenshot": "shots/004.png",
+      "waitMs": 312,
+      "focusBox": {
+        "x": 501,
+        "y": 357,
+        "w": 278,
+        "h": 30
+      }
+    },
+    {
+      "n": 5,
+      "page": "/auth",
+      "action": "Next form field (Tab ×1)",
+      "spoken": "Password, edit text, required",
+      "thought": "Now the password. I'm on 'Username, edit text, required', which isn't what I'm after, so I'll jump to the next form field.",
+      "screenshot": "shots/005.png",
+      "waitMs": 316,
+      "focusBox": {
+        "x": 501,
+        "y": 429,
+        "w": 254,
+        "h": 30
+      }
+    },
+    {
+      "n": 6,
+      "page": "/auth",
+      "action": "Type \"HauntTest123!\"",
+      "spoken": "HauntTest123!",
+      "thought": "I heard 'Password, edit text, required'. That's the field I want, so I'll type \"HauntTest123!\".",
+      "screenshot": "shots/006.png",
+      "waitMs": 313,
+      "focusBox": {
+        "x": 501,
+        "y": 429,
+        "w": 254,
+        "h": 30
+      }
+    },
+    {
+      "n": 7,
+      "page": "/auth",
+      "action": "Next button (Tab ×1)",
+      "spoken": "Show password, button",
+      "thought": "Everything is filled in, so I'm looking for the button that signs me in. I'm on 'Password, edit text, required', which isn't what I'm after, so I'll jump to the next button.",
+      "screenshot": "shots/007.png",
+      "waitMs": 432,
+      "focusBox": {
+        "x": 761,
+        "y": 434,
+        "w": 20,
+        "h": 20
+      }
+    },
+    {
+      "n": 8,
+      "page": "/auth",
+      "action": "Next button (Tab ×1)",
+      "spoken": "Sign in, button",
+      "thought": "I heard 'Show password, button'. That isn't what I'm looking for. I'll jump to the next button again.",
+      "screenshot": "shots/008.png",
+      "waitMs": 455,
+      "focusBox": {
+        "x": 489,
+        "y": 476,
+        "w": 302,
+        "h": 32
+      }
+    },
+    {
+      "n": 9,
+      "page": "/auth",
+      "action": "Enter",
+      "spoken": "Welcome to Memos, dialog. Next, button",
+      "thought": "I heard 'Sign in, button'. That's what I want, so I'll press Enter.",
+      "screenshot": "shots/009.png",
+      "waitMs": 5014,
+      "focusBox": {
+        "x": 776.75,
+        "y": 609,
+        "w": 54.25,
+        "h": 32
+      }
+    },
+    {
+      "n": 10,
+      "page": "/",
+      "action": "Next heading",
+      "spoken": "No next heading",
+      "thought": "The page has changed, so I'll jump to the next heading to hear where I am before I look for anything.",
+      "screenshot": "shots/010.png",
+      "waitMs": 5010
+    },
+    {
+      "n": 11,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Skip, button",
+      "thought": "I'm inside the 'Welcome to Memos' dialog on 'Next, button', which isn't what I'm after. I'll press Tab and listen to where I land.",
+      "screenshot": "shots/011.png",
+      "waitMs": 5002,
+      "focusBox": {
+        "x": 449,
+        "y": 613,
+        "w": 41.140625,
+        "h": 24
+      }
+    },
+    {
+      "n": 12,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Welcome to Memos, button",
+      "thought": "I heard 'Skip, button'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/012.png",
+      "waitMs": 5007,
+      "focusBox": {
+        "x": 612.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 13,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Write, button",
+      "thought": "I heard 'Welcome to Memos, button'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/013.png",
+      "waitMs": 5002,
+      "focusBox": {
+        "x": 624.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 14,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Keep, button",
+      "thought": "I heard 'Write, button'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/014.png",
+      "waitMs": 5018,
+      "focusBox": {
+        "x": 636.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 15,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Share, button",
+      "thought": "I heard 'Keep, button'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/015.png",
+      "waitMs": 5000,
+      "focusBox": {
+        "x": 648.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 16,
+      "page": "/",
+      "action": "Tab",
+      "spoken": "Next, button",
+      "thought": "I heard 'Share, button'. That isn't what I'm after. I'll press Tab again.",
+      "screenshot": "shots/016.png",
+      "waitMs": 5016,
+      "focusBox": {
+        "x": 776.75,
+        "y": 609,
+        "w": 54.25,
+        "h": 32
+      }
+    },
+    {
+      "n": 17,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Share, button",
+      "thought": "Tab has brought me back to 'Next, button', where I had already been, so I have been all the way round. I'll go the other way and press Shift+Tab.",
+      "screenshot": "shots/017.png",
+      "waitMs": 5014,
+      "focusBox": {
+        "x": 648.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 18,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Keep, button",
+      "thought": "I heard 'Share, button'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/018.png",
+      "waitMs": 5013,
+      "focusBox": {
+        "x": 636.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 19,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Write, button",
+      "thought": "I heard 'Keep, button'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/019.png",
+      "waitMs": 5000,
+      "focusBox": {
+        "x": 624.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 20,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Welcome to Memos, button",
+      "thought": "I heard 'Write, button'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/020.png",
+      "waitMs": 5005,
+      "focusBox": {
+        "x": 612.4375,
+        "y": 622,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "n": 21,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Skip, button",
+      "thought": "I heard 'Welcome to Memos, button'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/021.png",
+      "waitMs": 5008,
+      "focusBox": {
+        "x": 449,
+        "y": 613,
+        "w": 41.140625,
+        "h": 24
+      }
+    },
+    {
+      "n": 22,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Next, button",
+      "thought": "I heard 'Skip, button'. That isn't what I'm after. I'll press Shift+Tab again.",
+      "screenshot": "shots/022.png",
+      "waitMs": 5017,
+      "focusBox": {
+        "x": 776.75,
+        "y": 609,
+        "w": 54.25,
+        "h": 32
+      }
+    },
+    {
+      "n": 23,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Memos, document",
+      "thought": "Shift+Tab has brought me back to 'Next, button', where I had already been, so I have been all the way round. I'll press Escape once to see if the dialog closes.",
+      "screenshot": "shots/023.png",
+      "waitMs": 5012
+    },
+    {
+      "n": 24,
+      "page": "/",
+      "action": "Next form field (Tab ×43)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I'm signed in. I want to write a note, so I'm looking for the place to type it. I'm not on anything I can use yet, so I'll jump to the next form field.",
+      "screenshot": "shots/024.png",
+      "waitMs": 5001,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 25,
+      "page": "/",
+      "action": "Type \"Haunt was here 20261124-214137\"",
+      "spoken": "Haunt was here 20261124-214137",
+      "thought": "I heard 'Any thoughts..., edit text'. That's the field I want, so I'll type \"Haunt was here 20261124-214137\".",
+      "screenshot": "shots/025.png",
+      "waitMs": 5012,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 26,
+      "page": "/",
+      "action": "Next button (Tab ×50)",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "The note is written. Now I need the button that saves it. I'm on 'Any thoughts..., edit text', which isn't what I'm after, so I'll jump to the next button.",
+      "screenshot": "shots/026.png",
+      "waitMs": 5007,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 27,
+      "page": "/",
+      "action": "Shift+Tab",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "I pressed a key to move on, but I'm still on 'Any thoughts..., edit text', the same text box. I'll press Shift+Tab to go the other way.",
+      "screenshot": "shots/027.png",
+      "waitMs": 5005,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 28,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Any thoughts..., edit text",
+      "thought": "Shift+Tab didn't move me either. I'm still on 'Any thoughts..., edit text', the same text box. I'll press Escape to see if that lets me out.",
+      "screenshot": "shots/028.png",
+      "waitMs": 5006,
+      "focusBox": {
+        "x": 457,
+        "y": 37,
+        "w": 638,
+        "h": 24
+      }
+    },
+    {
+      "n": 29,
+      "page": "/",
+      "action": "Escape",
+      "spoken": "Memos, document",
+      "thought": "Escape did nothing the first time. I'm still on 'Any thoughts..., edit text', the same text box. I'll press Escape once more. I'm stuck in the text box \"Any thoughts...\". Tab and Shift+Tab do not move me out of it. I tried Shift+Tab, Escape and Escape. I can't get out with the keyboard, so I'm giving up.",
+      "screenshot": "shots/029.png",
+      "waitMs": 5014
+    }
+  ],
+  "findings": [
+    {
+      "type": "focus_trap",
+      "step": 29,
+      "title": "Keyboard focus is trapped in a text box",
+      "evidence": "Keyboard focus could not leave the text box \"Any thoughts...\" (role textbox). Tab (50 presses), Shift+Tab (1 press) and Escape (1 press) left focus on it. Tab and Shift+Tab never moved focus away. Escape pressed twice did free focus: it moved focus to another control. This exit is undocumented: no text on the page and no announcement says that Escape works. Nothing was announced while focus was stuck.",
+      "screenshot": "shots/029.png"
+    }
+  ]
+}
