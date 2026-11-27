@@ -5,7 +5,7 @@ import { afterCandidates, compareRuns } from '../model/exorcise';
 import { FINDING_LABELS, plainFindingType } from '../model/findingLabels';
 import { formatDate, formatLocalDateTime, formatSeconds } from '../model/format';
 import { GHOSTS, resultSentence } from '../model/ghosts';
-import { buildGraveyard } from '../model/graveyard';
+import { buildGraveyard, epitaph } from '../model/graveyard';
 import { groupHaunts, startHereTarget } from '../model/haunts';
 import { reproduceCommand, shellQuote } from '../model/reproduce';
 import { resultHeadline } from '../model/results';
@@ -13,7 +13,7 @@ import { MASK } from '../model/secrets';
 import { answer, answerText, questionLabel } from '../model/seance';
 import { displayGoal, displayName, plainAction, siteLabel } from '../model/sites';
 import { waveformBars } from '../model/waveform';
-import { FINDING_TYPES } from '../data/types';
+import { FINDING_TYPES, type Finding } from '../data/types';
 import { allRecordedRuns, bebeRun, listenerRun, mustRun, sampleRuns } from './fixtures/samples';
 import * as derived from './fixtures/derived';
 
@@ -98,6 +98,17 @@ describe('graveyard with the samples', () => {
     expect(buildGraveyard(sampleRuns(), { ghost: 'listener' })).toHaveLength(2);
     expect(buildGraveyard(sampleRuns(), { site: 'lantern-bills-demo' })).toHaveLength(3);
     expect(buildGraveyard(sampleRuns(), { site: 'elsewhere' })).toHaveLength(0);
+  });
+
+  it('puts Lantern Bills first and orders by step, with a plain epitaph (UI-23)', () => {
+    const stones = buildGraveyard(allRecordedRuns());
+    const siteOrder = stones.map((t) => siteLabel(t.run.site.name));
+    // Every Lantern Bills stone comes before every other site's.
+    const firstOther = siteOrder.findIndex((s) => s !== 'Lantern Bills');
+    if (firstOther >= 0) expect(siteOrder.slice(firstOther)).not.toContain('Lantern Bills');
+    const lantern = stones.filter((t) => siteLabel(t.run.site.name) === 'Lantern Bills');
+    expect(lantern.map((t) => t.finding.step)).toEqual([...lantern.map((t) => t.finding.step)].sort((a, b) => a - b));
+    expect(epitaph({ type: 'unlabeled_button' } as Finding)).toBe('Here lies a button with no name.');
   });
 });
 

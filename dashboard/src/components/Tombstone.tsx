@@ -2,7 +2,7 @@
 
 import { Link } from 'react-router-dom';
 import { GHOSTS, moodFor } from '../model/ghosts';
-import type { TombstoneData } from '../model/graveyard';
+import { epitaph, type TombstoneData } from '../model/graveyard';
 import { siteLabel } from '../model/sites';
 import { stepPath } from '../routes';
 import { GhostBadge } from './ghosts/Ghosts';
@@ -17,8 +17,13 @@ export function Tombstone({ data }: { data: TombstoneData }) {
       <h2 className={styles.label}>{label}</h2>
       <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} onBone />
       <SampleTag run={run} onBone />
-      <p className={styles.title}>{finding.title}</p>
-      <p className={styles.evidence}>{finding.evidence}</p>
+      <p className={styles.title}>{epitaph(finding)}</p>
+      <details className={styles.details}>
+        <summary>Full details</summary>
+        <p className={styles.evidence}>
+          <strong>{finding.title}.</strong> {finding.evidence}
+        </p>
+      </details>
       <p className={styles.meta}>
         Step {finding.step} · {siteLabel(run.site.name)}
       </p>

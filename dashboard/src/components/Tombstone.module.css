@@ -27,8 +27,16 @@
   margin: 0;
 }
 
+.details {
+  align-self: stretch;
+}
+.details summary {
+  min-height: 24px;
+  cursor: pointer;
+  font-weight: 700;
+}
 .evidence {
-  margin: 0;
+  margin: var(--space-2) 0 0;
 }
 
 /* The step line and the "Watch…" link sit together at the bottom of the stone, so they line up
