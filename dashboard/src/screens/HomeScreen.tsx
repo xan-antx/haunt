@@ -29,7 +29,7 @@ import { realWorldRuns, withoutRealWorld } from '../model/realWorld';
 import { PLANTED_SITE, plantedStory, type PlantedStory } from '../model/planted';
 import { repoFileUrl } from '../model/repo';
 import { exorcisePath, graveyardPath, realWorldPath, restlessPath, siteKey, stepPath } from '../routes';
-import { IndexErrorScreen, Loading } from './common';
+import { IndexErrorScreen } from './common';
 import styles from './HomeScreen.module.css';
 
 function HauntCard({ haunt }: { haunt: Haunt }) {
@@ -255,6 +255,25 @@ function Results({ haunt, first, story }: { haunt: Haunt; first: boolean; story:
 }
 
 /** How_It_Works_Strip (Req 20.7). */
+/** Three quiet cards where the result cards will be, the same height, so Home does not jump (UI-08). */
+function ResultsSkeleton() {
+  return (
+    <section aria-labelledby="results-skeleton-heading" className={styles.results} aria-busy="true">
+      <h2 id="results-skeleton-heading" className={styles.sectionTitle}>
+        What the ghosts found
+      </h2>
+      <p role="status" className="muted">
+        Summoning the runs…
+      </p>
+      <ul className={styles.resultCards} aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <li key={i} className={`${styles.resultCard} ${styles.skeletonCard}`} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function HowItWorks() {
   return (
     <section aria-labelledby="how-heading" className={styles.how}>
@@ -296,10 +315,12 @@ function RestlessFiles({ invalid }: { invalid: InvalidRun[] }) {
 export function HomeScreen() {
   const state = useAllRuns();
   const tour = useTour();
-  if (state.status === 'loading') return <Loading />;
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
-
-  const { runs, invalid } = state;
+  // While the runs load, the hero, the ghosts and How Haunt works are already on screen, and the
+  // result cards hold their place with a quiet skeleton, so nothing jumps when the runs arrive (UI-08).
+  const loading = state.status === 'loading';
+  const runs = state.status === 'ready' ? state.runs : [];
+  const invalid = state.status === 'ready' ? state.invalid : [];
   // Real-world runs (Memos) have their own screen, so the haunted sites and recent walks leave them out.
   const homeRuns = withoutRealWorld(runs);
   const hasRealWorld = realWorldRuns(runs).length > 0;
@@ -321,7 +342,11 @@ export function HomeScreen() {
               Haunt's ghost users try real tasks on your app, and this dashboard shows where each one got stuck.
             </ScreenIntro>
             <div className={styles.actions}>
-              {tourAvailable ? (
+              {loading ? (
+                <CandleButton id={TOUR_START_ID} lit={false} reason="The tour starts as soon as the runs have loaded.">
+                  Take the 60-second tour
+                </CandleButton>
+              ) : tourAvailable ? (
                 <CandleButton id={TOUR_START_ID} lit onClick={(event) => tour.start(runs, event.currentTarget)}>
                   Take the 60-second tour
                 </CandleButton>
@@ -343,6 +368,7 @@ export function HomeScreen() {
       </div>
 
       {/* Results first, right after the Hero (Req 7.28, 21.1). */}
+      {loading && <ResultsSkeleton />}
       {resultHaunts.map((haunt, i) => (
         <Results key={haunt.siteKey} haunt={haunt} first={i === 0} story={story} />
       ))}
@@ -351,16 +377,12 @@ export function HomeScreen() {
 
       {/* DOM order is reading and tab order: cards, then the side panel (Req 7.13, 18.1). */}
       <div className={styles.body}>
-        {haunts.length === 0 ? (
+        {loading ? null : haunts.length === 0 ? (
           <section className="panel" aria-labelledby="empty-heading">
             <h2 id="empty-heading">No ghosts have walked here yet</h2>
+            <p>This room is empty. Once a ghost has visited a site, what it found appears here.</p>
             <p>
-              Run files go in the <code>runs/</code> folder at the top of the project. Each run is a folder with a{' '}
-              <code>run.json</code> file and its screenshots, at any depth (for example{' '}
-              <code>runs/samples/listener-gave-up/run.json</code>).
-            </p>
-            <p>
-              Then run <code>npm run dev</code> in <code>dashboard/</code> again to collect them.
+              To send ghosts through a site of your own, read the <a href={repoFileUrl('README.md')}>README on GitHub</a>.
             </p>
           </section>
         ) : (

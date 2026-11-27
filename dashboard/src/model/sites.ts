@@ -86,6 +86,19 @@ export function displayGoal(mission: { id: string; goal: string }): string {
   return missionWords(mission.id).goal ?? mission.goal;
 }
 
+/** Where the fixed copy of Lantern Bills is published, by its run-file name (UI-22). */
+const FIXED_COPY_TRY: Readonly<Record<string, { label: string; href: string }>> = {
+  'Lantern Bills demo (exorcised)': {
+    label: 'Try the fixed copy',
+    href: 'https://xan-antx.github.io/haunt/lantern-bills-exorcised/',
+  },
+};
+
+/** A link to try a fixed copy yourself, or null when the site has no published fixed copy. */
+export function fixedCopyTryLink(siteName: string): { label: string; href: string } | null {
+  return Object.hasOwn(FIXED_COPY_TRY, siteName) ? FIXED_COPY_TRY[siteName]! : null;
+}
+
 /** The entry for a Haunt's `site.name`, or null when the site is not in the table. */
 export function siteAbout(siteName: string): SiteAbout | null {
   return Object.hasOwn(SITE_ABOUT, siteName) ? SITE_ABOUT[siteName]! : null;

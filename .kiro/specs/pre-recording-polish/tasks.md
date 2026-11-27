@@ -30,13 +30,13 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 3.3 UI-17 latest-run counts and the planted-problems line with true numbers (6 planted, 5 found, 5 exorcised; card errors never reached)
   - [x] 3.4 Amend haunt-dashboard 25.5 (and 7, 9, 13, 14)
 
-- [ ] 4. Phase 4: first load, deploy and safe delight
-  - [ ] 4.1 UI-08 Home skeleton and five menu items
-  - [ ] 4.2 UI-21 favicon, theme colour, og tags, `404.html`
-  - [ ] 4.3 UI-22 GitHub, fixed-copy and Memos links
-  - [ ] 4.4 UI-31 loader and public-site wording
-  - [ ] 4.5 Enhancements a, b and c, each only if safe
-  - [ ] 4.6 Amend haunt-dashboard 20.1
+- [ ] 4. Phase 4: first load, deploy and safe delight (4.5 is open)
+  - [x] 4.1 UI-08 Home skeleton and five menu items
+  - [x] 4.2 UI-21 favicon, theme colour, og tags, `404.html`
+  - [x] 4.3 UI-22 GitHub, fixed-copy and Memos links
+  - [x] 4.4 UI-31 loader and public-site wording
+  - [ ] 4.5 Enhancements a, b and c, each only if safe (a and c not started; b is partly there: the empty Home and the 404 page say "This room is empty" with a next step)
+  - [x] 4.6 Amend haunt-dashboard 20.1
 
 - [ ] 5. Phase 5: polish
   - [ ] 5.1 UI-16, UI-18, UI-19, UI-20

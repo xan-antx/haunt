@@ -27,7 +27,7 @@ import { byStartedAtDesc, formatDate, plural } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../model/origin';
 import { AI_MIND_LABEL, isAiRun } from '../model/mind';
-import { displayGoal, pageName } from '../model/sites';
+import { displayGoal, fixedCopyTryLink, pageName } from '../model/sites';
 import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './ExorciseScreen.module.css';
@@ -106,6 +106,8 @@ function StatusCell({ row }: { row: ExorciseRow }) {
 }
 
 function RunSummary({ run, heading }: { run: Run; heading: string }) {
+  // A run "after the fix" sits beside a link to the fixed copy, so a visitor can try it (UI-22).
+  const tryLink = isFixedCopyRun(run) ? fixedCopyTryLink(run.site.name) : null;
   return (
     <section className={styles.summary} aria-labelledby={`summary-${heading}`}>
       <h2 id={`summary-${heading}`}>{heading}</h2>
@@ -116,6 +118,12 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
       <p>
         {displayGoal(run.mission)} · {plural(run.findings.length, 'finding')} ·{' '}
         <Link to={stepPath(run.key, 1)}>Watch in the Ghost Cam</Link>
+        {tryLink && (
+          <>
+            {' '}
+            · <a href={tryLink.href}>{tryLink.label}</a>
+          </>
+        )}
       </p>
       <ProvenancePanel
         run={run}

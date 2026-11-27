@@ -5,6 +5,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAllRuns } from '../../data/hooks';
 import { NAV_ORDER, SCREENS, screenDestinations, screenOfRoute } from '../../model/screens';
+import { REPO_URL } from '../../model/repo';
 import { parseRoute } from '../../routes';
 import { HauntLogo } from '../HauntLogo';
 import { ScreenIcon } from '../ScreenIcon';
@@ -107,9 +108,23 @@ function Nav() {
         <ul>
           {NAV_ORDER.map((id) => {
             const to = destinations[id];
-            if (to === null) return null;
             const { name, description } = SCREENS[id];
             const isCurrent = current === id;
+            // Five items always (UI-08): before the runs load, or when there is no run to open, the
+            // Ghost Cam item is shown but not a link, so the menu never jumps from four to five.
+            if (to === null) {
+              return (
+                <li key={id}>
+                  <span className={styles.pending} aria-disabled="true">
+                    <ScreenIcon screen={id} className={styles.navIcon} />
+                    <span className={styles.navText}>
+                      <span className={styles.navLabel}>{name}</span>
+                      <span className={styles.navHint}>{description}</span>
+                    </span>
+                  </span>
+                </li>
+              );
+            }
             return (
               <li key={id}>
                 <Link
@@ -174,6 +189,9 @@ export function Layout() {
             <p>
               Haunt sends three ghost users through a sample site and shows where they got stuck. Ghosts only
               visit sites we built, or open-source sites we run as copies on our own computer.
+            </p>
+            <p>
+              <a href={REPO_URL}>View on GitHub</a>
             </p>
             <p className="muted">
               Fonts: IM Fell English and Atkinson Hyperlegible, both under the SIL Open Font License. Built for

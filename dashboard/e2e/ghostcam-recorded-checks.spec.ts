@@ -210,6 +210,39 @@ for (const [name, hash] of [
   }
 }
 
+// UI-08: layout shift on a cold load of Home is below 0.1, and the menu never shows four items.
+test('UI-08: Home loads with a layout shift below 0.1 and five menu items throughout', async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 864 });
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number; __navCounts: Set<number> };
+    w.__cls = 0;
+    w.__navCounts = new Set();
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
+        if (!entry.hadRecentInput) w.__cls += entry.value;
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
+    new MutationObserver(() => {
+      const items = document.querySelectorAll('nav[aria-label="Main"] li').length;
+      if (items > 0) w.__navCounts.add(items);
+    }).observe(document, { childList: true, subtree: true });
+  });
+  // A cold load: a throttled network, so the runs arrive after the first paint.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
+  await page.goto(`${BASE}#/`);
+  await expect(page.getByTestId('planted-line')).toBeVisible({ timeout: 60_000 });
+  await page.waitForTimeout(1500);
+  const { cls, counts } = await page.evaluate(() => {
+    const w = window as unknown as { __cls: number; __navCounts: Set<number> };
+    return { cls: w.__cls, counts: [...w.__navCounts] };
+  });
+  report.coldLoad = { cls, counts };
+  expect(cls, 'cumulative layout shift').toBeLessThan(0.1);
+  expect(counts, 'the menu always has five items').toEqual([5]);
+});
+
 test('UI-17: Home says 5 of 6 were found, on the real runs', async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 864 });
   await page.goto(`${BASE}#/`);

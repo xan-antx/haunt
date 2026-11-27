@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- Source of public/og-image.png (1200x630). Render it with: node scripts/render-og-image.mjs -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Haunt social image</title>
+    <style>
+      html, body { margin: 0; }
+      body { width: 1200px; height: 630px; background: #1a1816; color: #ece6dc; font-family: Georgia, 'Times New Roman', serif; position: relative; overflow: hidden; }
+      .glow { position: absolute; left: -100px; top: -120px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(242,168,59,0.28), rgba(26,24,22,0) 70%); }
+      h1 { position: absolute; left: 80px; top: 150px; margin: 0; font-size: 150px; font-weight: 400; font-style: italic; color: #f2a83b; }
+      p { position: absolute; left: 84px; top: 360px; margin: 0; width: 560px; font-family: system-ui, 'Segoe UI', sans-serif; font-size: 38px; line-height: 1.35; }
+      .tag { top: 540px; font-size: 26px; color: #b8ae9f; }
+      svg { position: absolute; right: 70px; top: 90px; }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <h1>Haunt</h1>
+    <p>Three ghost users try your website and show where they got stuck.</p>
+    <p class="tag">The Listener · The Phantom · Bebe</p>
+    <svg width="440" height="450" viewBox="0 0 130 160">
+      <path d="M20 150 V60 a45 45 0 0 1 90 0 V150 l-15 -12 l-15 12 l-15 -12 l-15 12 l-15 -12 Z" fill="#dcebff" stroke="#8fc8ff" stroke-width="4" />
+      <ellipse cx="50" cy="62" rx="6" ry="9" fill="#1a1816" />
+      <ellipse cx="80" cy="62" rx="6" ry="9" fill="#1a1816" />
+      <path d="M52 86 q13 12 26 0" fill="none" stroke="#1a1816" stroke-width="4" stroke-linecap="round" />
+      <path d="M14 70 a52 52 0 0 1 102 0" fill="none" stroke="#8fc8ff" stroke-width="9" stroke-linecap="round" />
+    </svg>
+  </body>
+</html>

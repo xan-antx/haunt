@@ -64,7 +64,12 @@
   min-width: 0;
 }
 
-.nav a {
+.nav .pending {
+  color: var(--text-muted);
+}
+
+.nav a,
+.nav .pending {
   display: flex;
   align-items: center;
   gap: var(--space-2);

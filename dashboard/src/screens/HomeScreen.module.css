@@ -137,6 +137,29 @@
   margin: 0 0 var(--space-2);
 }
 
+/* The placeholder for a result card while the runs load: as tall as a card, in the card colour. */
+.skeletonCard {
+  min-height: 17rem;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeletonCard {
+    animation: skeleton-glow 3.2s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-glow {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* The planted-problems line under the result cards: --text on --bg, with the global link style. */
 .plantedLine {
   max-width: 48rem;

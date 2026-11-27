@@ -38,6 +38,18 @@
 
 **Counts and the planted-problems line (UI-17).** `latestRuns` keeps each ghost's newest real run (else sample) on each site. The haunt card's finding count and the Graveyard's tombstones use it. `model/planted.ts` holds the explicit mapping: pay button with no name = `unlabeled_button`; "Protect your payment" dialog = `focus_trap` or `dark_pattern`; card errors never announced = `unannounced_error`; late banner = `slow_wait` or `misclick`; cut-off total = `cut_off_text`; missing Punjabi and Hindi text = `untranslated`. A problem is found when a latest Lantern Bills run has a finding of one of its types. It is exorcised when `compareRuns` marks such a finding "Exorcised" for a fair before and after pair on the fixed copy. True numbers from the recorded runs: 6 planted, 5 found, 5 exorcised. No run found the card errors that are never announced.
 
+## Phase 4: first load, deploy and safe delight
+
+**Home on first load (UI-08).** `HomeScreen` no longer returns early while loading. It draws the hero, the ghosts and "How Haunt works", and `ResultsSkeleton` holds three cards of `min-height: 17rem` where the result cards go (the pulse is inside `prefers-reduced-motion: no-preference`). The haunted-sites list and the empty state wait for the runs. The nav shows a disabled Ghost Cam item instead of dropping it. A Playwright check on the real runs with a throttled network measured a layout shift of 0.005 and five menu items throughout.
+
+**Head and 404 (UI-21).** `public/favicon.svg` is a candle. `index.html` has the theme colour and the Open Graph tags, with the image at its full live address. `scripts/og-image.html` is the source of `public/og-image.png` (1200 by 630, rendered by `scripts/render-og-image.mjs`). `public/404.html` and `public/404.css` use system fonts, no script, and link home with absolute `/haunt/` paths.
+
+**Links (UI-22).** The footer has "View on GitHub" (`model/repo.ts`). The After summary on Exorcise has "Try the fixed copy" for a fixed copy that is published (`fixedCopyTryLink`). The real-world page keeps its Memos link from Phase 1.
+
+**Loader and wording (UI-31).** `Loading` shows a still candle and ghost. The missing-index screen and the empty Home no longer name npm commands.
+
+**Not done in this phase.** Enhancements a (a ghost that guides the tour) and c ("Haunt your own site" with commands that were run) were not started. Enhancement b is partly there: the empty Home and the 404 page say "This room is empty" with a plain next step.
+
 ## Later phases
 
-Phases 4 and 5 add their design notes to this file when their chat begins, before any code.
+Phase 5 adds their design notes to this file when their chat begins, before any code.

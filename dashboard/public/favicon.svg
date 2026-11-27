@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Haunt: a candle</title>
+  <rect width="32" height="32" rx="6" fill="#1a1816"/>
+  <path d="M16 3 C11 10 12 15 16 17 C20 15 21 10 16 3 Z" fill="#f2a83b"/>
+  <rect x="12" y="17" width="8" height="11" rx="1.5" fill="#e6dcc6"/>
+  <rect x="9" y="28" width="14" height="2" rx="1" fill="#b8ae9f"/>
+</svg>
