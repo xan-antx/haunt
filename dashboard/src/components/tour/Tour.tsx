@@ -18,6 +18,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Run } from '../../data/types';
+import { useAllRuns } from '../../data/hooks';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { GHOSTS } from '../../model/ghosts';
 import { GhostCharacter } from '../ghosts/Ghosts';
@@ -59,6 +60,33 @@ interface TourApi {
   start: (runs: Run[], invoker: HTMLElement | null) => void;
 }
 
+const STOP_KEY = 'haunt-tour-stop';
+
+function rememberStop(index: number): void {
+  try {
+    window.sessionStorage.setItem(STOP_KEY, String(index));
+  } catch {
+    // Storage can be blocked. The tour then simply does not resume.
+  }
+}
+
+function forgetStop(): void {
+  try {
+    window.sessionStorage.removeItem(STOP_KEY);
+  } catch {
+    // See rememberStop.
+  }
+}
+
+function savedStop(): number | null {
+  try {
+    const value = Number(window.sessionStorage.getItem(STOP_KEY));
+    return Number.isInteger(value) && value >= 0 && window.sessionStorage.getItem(STOP_KEY) !== null ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 const TourContext = createContext<TourApi>({ open: false, start: () => {} });
 
 export function useTour(): TourApi {
@@ -79,7 +107,28 @@ export function TourProvider({ children }: { children: ReactNode }) {
     setStops(built);
   }, []);
 
-  const close = useCallback(() => setStops(null), []);
+  const close = useCallback(() => {
+    forgetStop();
+    setStops(null);
+  }, []);
+
+  // Refreshing the page during the tour brings the reader back to the stop they were on (UI-26).
+  // The stop is kept in sessionStorage only while the tour is open, so it never outlives the tab.
+  const all = useAllRuns();
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (resumed.current || all.status === 'loading') return;
+    resumed.current = true;
+    const saved = savedStop();
+    if (saved === null || all.status !== 'ready') return;
+    const built = buildTour(all.runs);
+    if (!built) return;
+    setIndex(Math.min(saved, built.length - 1));
+    setStops(built);
+  }, [all]);
+  useEffect(() => {
+    if (stops) rememberStop(index);
+  }, [stops, index]);
 
   // Focus goes back where the tour started, or to the screen's h1 (Req 22.8). The layer's
   // layout-effect cleanup has already cleared `inert` by the time this runs.

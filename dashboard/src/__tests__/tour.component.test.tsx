@@ -1,5 +1,5 @@
 import axe from 'axe-core';
-import { screen, waitFor, within } from '@testing-library/react';
+import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TOUR_UNAVAILABLE } from '../components/tour/Tour';
@@ -151,6 +151,23 @@ describe('the 60-second tour (Req 22)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Skip' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await waitFor(() => expect(button).toHaveFocus());
+  });
+
+  it('resumes on the same stop after a refresh, and not after the tour was closed (UI-26)', async () => {
+    const first = await startTour();
+    await next(first.user, 'What the page looked like');
+    // A refresh: the page is built again from nothing but sessionStorage.
+    first.unmount();
+    renderApp('/');
+    expect(await screen.findByRole('dialog', { name: 'What the page looked like' })).toBeInTheDocument();
+
+    // Skipping forgets the stop, so the next refresh opens no tour.
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Skip' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    cleanup();
+    renderApp('/');
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('scrolls instantly under Reduced_Motion and smoothly otherwise', async () => {

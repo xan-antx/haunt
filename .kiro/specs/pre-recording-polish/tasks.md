@@ -52,7 +52,7 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
 
 - [ ] 5. Phase 5: polish
   - [ ] 5.1 UI-16, UI-18, UI-19, UI-20 (UI-20 done early as a must-have: the Exorcise table wraps its text and has no scroll box; checked by axe at 320 px. UI-18 done: dates in UTC with a label, `models.test.ts`. UI-19 done: `forced-colors.spec.ts`. UI-16 open)
-  - [ ] 5.2 UI-23, UI-26, UI-27 (UI-27 done: `Expand.tsx` closes on Escape anywhere, an outside click and focus leaving; `realRuns.test.tsx`. UI-23 and UI-26 open)
+  - [ ] 5.2 UI-23, UI-26, UI-27 (UI-27 done: `Expand.tsx` closes on Escape anywhere, an outside click and focus leaving; `realRuns.test.tsx`. UI-23 done: epitaph, "Full details", site then step order. UI-26 done: the tour stop is kept in sessionStorage and resumes after a refresh)
   - [ ] 5.3 UI-28, UI-29, UI-32 (UI-28 and UI-29 done: stale comments corrected in the fixed copy's CSS, `diary/README.md` filled, the two roles explained in `structure.md`, `typescript` and `vite` in devDependencies with lock files refreshed, byte-order mark removed from `tech.md`, CI runs the unit tests of every package; the CI changes have not run on GitHub)
   - [ ] 5.4 Optional items
 
@@ -64,4 +64,4 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 6.5 No password, `''`, "couldn't sign", "Succeeded", bare localhost address or local Windows path on any screen; no TODO in the README
   - [x] 6.6 `git status` shows `runs/` untouched; `demo-site-exorcised` rebuilt with `npm run build`
   - [x] 6.7 README matches every changed screen, label and command
-  - [ ] 6.8 Re-run the dashboard unit tests, the Ghost Cam fit check and axe after the extras
+  - [x] 6.8 Re-run the dashboard unit tests (560), property tests (37), the Ghost Cam fit check (33 rows) and axe (64 states at each width) after the extras and Phase 5 up to UI-26; re-run again after UI-16 and UI-32

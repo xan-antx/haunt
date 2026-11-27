@@ -45,6 +45,8 @@ if (hasDom && typeof globalThis.ResizeObserver === 'undefined') {
 beforeEach(() => {
   if (!hasDom) return;
   window.location.hash = '';
+  // A tour left open by one test must not resume in the next (UI-26).
+  window.sessionStorage.clear();
   // Mirror index.html, which jsdom does not load.
   document.documentElement.lang = 'en';
   document.title = 'Haunt';
