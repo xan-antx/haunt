@@ -190,11 +190,11 @@ Ground rules for every task:
     - Add tests: `listenerMind.unnamedField.test.ts` (named element, once for each element, wrapped jump, not after typing), `listenerBody.test.ts` (`tabStayed` set, cleared, not set when Tab moved focus), `focusTrap.element.test.ts` (a named text box after a 50-press Tab jump, then Shift+Tab, Escape, Escape in separate Steps).
     - _Requirements: 3.1, 3.2, 3.4, 3.9, 4.1, 4.2_
 
-- [x] 6a. unannounced_error: ignore screen-reader-only text (fix after the first scripted Memos run)
-  - The run flagged "Content, attachment, or file required", which sits in `<span class="mu-visually-hidden">` and is never visible on screen.
-  - In `engine/src/detectors/unannouncedError.ts`, make the page script skip an element that is screen-reader-only (see design, "Unannounced error: screen-reader-only text"), and leave such descendants out of the text of the element around them.
-  - Add the case to `engine/test/unannouncedError.test.ts` with fixture helpers in `engine/test/fixtures/unannounced-error.html`: the Memos `mu-visually-hidden` span, one inside an element whose class says `error`, `clip-path`, a 1px box, an off-page position, a visible element with a hidden span inside, and the same text visible (still a finding). The existing Lantern-style silent error tests are unchanged.
-  - _Requirements: haunt-engine 10.5, 10.6_
+  - [x] 6.5 unannounced_error: ignore screen-reader-only text (fix after the first scripted Memos run)
+    - The run flagged "Content, attachment, or file required", which sits in `<span class="mu-visually-hidden">` and is never visible on screen.
+    - In `engine/src/detectors/unannouncedError.ts`, make the page script skip an element that is screen-reader-only (see design, "Unannounced error: screen-reader-only text"), and leave such descendants out of the text of the element around them.
+    - Add the case to `engine/test/unannouncedError.test.ts` with fixture helpers in `engine/test/fixtures/unannounced-error.html`: the Memos `mu-visually-hidden` span, one inside an element whose class says `error`, `clip-path`, a 1px box, an off-page position, a visible element with a hidden span inside, and the same text visible (still a finding). The existing Lantern-style silent error tests are unchanged.
+    - _Requirements: haunt-engine 10.5, 10.6_
 
   - [x]* 6.3 Write tests for the Mind changes
     - Create `engine/test/listenerMind.unnamedField.test.ts` with a fake `Heard` walk of `write-note`. Cover typing into the unnamed field as a last resort, then Shift+Tab, Escape, Escape when focus does not move, the normal search when focus does move, and a Mind without `unnamedField` deciding exactly as before.
@@ -255,7 +255,7 @@ Ground rules for every task:
   - Confirm that `engine/` tests did not write into the repository `runs/` folder.
   - _Requirements: 4.2, 4.5, 8.11, 9.9_
 
-- [ ] 9. Final run 1: The Listener on Memos with the scripted mind
+- [x] 9. Final run 1: The Listener on Memos with the scripted mind
   - Check that Memos answers. In `engine/`, run `node -e "fetch('http://localhost:5230').then(r=>console.log('reachable',r.status)).catch(()=>{console.log('UNREACHABLE');process.exit(1)})"`.
   - If the output is `UNREACHABLE`, stop here. Do not start Memos, do not write any file, and do not continue to task 10. Tell the user that Memos must be started at `http://localhost:5230` and that the local Throwaway_Account `ghost-test` must exist, and ask them to start it and continue.
   - If it is reachable, in `engine/` run `npm run haunt -- run --ghost listener --mission write-note --url http://localhost:5230 --mind scripted` with `--out` left at its default so the run folder is written under `runs/memos/`. Do not set `HAUNT_UNDER_TEST`.
@@ -266,7 +266,7 @@ Ground rules for every task:
   - Leave the saved notes in the local Memos instance and delete no other notes.
   - _Requirements: 3.4, 3.9, 6.10, 10.1, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 11.1, 11.2, 11.3, 11.5_
 
-- [ ] 10. Final run 2: The Listener on Memos with the AI mind
+- [x] 10. Final run 2: The Listener on Memos with the AI mind
   - Check that Memos answers with the same `node -e "fetch('http://localhost:5230')..."` command as task 9. If task 9 stopped because Memos was unreachable, or this check prints `UNREACHABLE`, stop here. Do not start Memos, do not write any file, and tell the user that Memos must be started at `http://localhost:5230` and ask them to start it and continue.
   - If it is reachable, in `engine/` run `npm run haunt -- run --ghost listener --mission write-note --url http://localhost:5230 --mind ai` with `--out` left at its default so the run folder is written under `runs/memos/`. Do not set `HAUNT_UNDER_TEST`. If the Kiro CLI cannot be found, report the CLI's help text and stop without writing a run.
   - Find the new folder under `runs/memos/` that has `mind` `ai` and check its `run.json` with `validateSchema`. Report if it fails.
@@ -275,6 +275,7 @@ Ground rules for every task:
   - If the run has no `focus_trap` finding for the editor, or no `unlabeled_field` finding for it, report the difference. Do not edit a detector or a test to produce the finding, and do not weaken or delete a finding that was recorded.
   - Leave the saved notes in the local Memos instance and delete no other notes.
   - _Requirements: 3.4, 3.9, 6.10, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 11.1, 11.2, 11.3, 11.5_
+  - Note: both runs (tasks 9 and 10) recorded `focus_trap` for the note editor. Neither recorded `unlabeled_field`, because Chromium computes the editor's name from its `aria-placeholder`.
 
 ## Notes
 
@@ -293,7 +294,7 @@ Ground rules for every task:
     { "id": 0, "tasks": ["1.1", "2.1", "2.3", "2.5", "3.1", "4.1", "7.1"] },
     { "id": 1, "tasks": ["1.2", "2.2", "2.4", "2.6", "3.2", "4.2", "4.3", "5.1", "6.1", "7.2", "7.4"] },
     { "id": 2, "tasks": ["2.7", "4.4", "4.5", "4.6", "5.2", "5.3", "5.4", "6.2", "7.3", "7.5", "7.6"] },
-    { "id": 3, "tasks": ["6.3", "7.7"] },
+    { "id": 3, "tasks": ["6.3", "6.4", "6.5", "7.7"] },
     { "id": 4, "tasks": ["8"] },
     { "id": 5, "tasks": ["9"] },
     { "id": 6, "tasks": ["10"] }
