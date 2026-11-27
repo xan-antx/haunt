@@ -9,6 +9,7 @@ import { buildRooms, coldSpotSize, type ColdSpot, type Room } from '../../model/
 import { formatSeconds } from '../../model/format';
 import { GHOSTS } from '../../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../../model/origin';
+import { displayName } from '../../model/sites';
 import { siteKey, stepPath } from '../../routes';
 import styles from './MapView.module.css';
 
@@ -110,9 +111,9 @@ export function MapView({ sites, filter }: { sites: SiteRooms[]; filter: GhostId
       {sites.map((site) => (
         <section key={site.key} aria-labelledby={`map-${site.key}`} className={styles.site}>
           <h2 id={`map-${site.key}`} className={styles.siteName}>
-            Map of {site.name}
+            Map of {displayName(site.name)}
           </h2>
-          <ul className={styles.plan} aria-label={`Rooms of ${site.name}`}>
+          <ul className={styles.plan} aria-label={`Rooms of ${displayName(site.name)}`}>
             {site.rooms.map((room) => (
               <RoomCard key={room.page} room={room} site={site.key} filter={filter} sampleRunKeys={site.sampleRunKeys} />
             ))}

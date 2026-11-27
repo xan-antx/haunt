@@ -23,7 +23,7 @@ import { outcomeLine } from '../model/outcome';
 import { originalSiteRuns } from '../model/fixedCopy';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
-import { displayGoal, siteAbout, siteLabel } from '../model/sites';
+import { displayGoal, displayName, siteAbout, siteLabel } from '../model/sites';
 import { buildTour } from '../model/tour';
 import { realWorldRuns, withoutRealWorld } from '../model/realWorld';
 import { PLANTED_SITE, plantedStory, type PlantedStory } from '../model/planted';
@@ -37,7 +37,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
     <li className={styles.card}>
       <article aria-labelledby={`haunt-${haunt.siteKey}`} className={styles.cardInner}>
         <h2 id={`haunt-${haunt.siteKey}`} className={styles.cardTitle}>
-          {haunt.siteName}
+          {displayName(haunt.siteName)}
         </h2>
         <p className={styles.meta}>
           <span>
@@ -93,7 +93,7 @@ function HauntCard({ haunt }: { haunt: Haunt }) {
         </ul>
         <p>
           <Link to={graveyardPath({ site: haunt.siteKey, view: 'map' })} className={styles.mapLink}>
-            Open the map of {haunt.siteName} in the Graveyard
+            Open the map of {displayName(haunt.siteName)} in the Graveyard
           </Link>
         </p>
       </article>
@@ -218,7 +218,15 @@ function PlantedLine({ story }: { story: PlantedStory }) {
       ) : (
         <>The fix has not been checked against any of them yet.</>
       )}
-      {missed.length > 0 && <> No ghost has reached {missed.join(' or ')}.</>}
+      {missed.length > 0 && (
+        <>
+          {' '}
+          No ghost has reached {missed.join(' or ')}.
+          {story.notFound.some((p) => p.id === 'card-errors') && (
+            <> The mission pays with a valid card, so no card error ever appears.</>
+          )}
+        </>
+      )}
     </p>
   );
 }

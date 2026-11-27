@@ -9,6 +9,7 @@ import { ScreenIcon } from '../components/ScreenIcon';
 import { Tombstone } from '../components/Tombstone';
 import { useAllRuns } from '../data/hooks';
 import { plural } from '../model/format';
+import { displayName } from '../model/sites';
 import { GHOSTS, GHOST_ORDER, isGhostId } from '../model/ghosts';
 import { buildGraveyard } from '../model/graveyard';
 import { graveyardPath, siteKey, type GraveyardView } from '../routes';
@@ -85,7 +86,7 @@ export function GraveyardScreen() {
             <option value="">All sites</option>
             {sites.map(([key, name]) => (
               <option key={key} value={key}>
-                {name}
+                {displayName(name)}
               </option>
             ))}
           </select>

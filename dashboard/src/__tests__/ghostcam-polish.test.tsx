@@ -7,7 +7,7 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { isBlankPixels, isPortrait, SLOW_LOAD_CAPTION } from '../model/blank';
+import { BLANK_CAPTION, isBlankPixels, isPortrait, SLOW_LOAD_CAPTION } from '../model/blank';
 import { preloadOrder } from '../model/preload';
 import { thoughtStrip } from '../model/transcript';
 import { isControl } from '../screens/GhostCamScreen';
@@ -310,6 +310,9 @@ describe('UI-14 and UI-20: the phone frame', () => {
     portraitImage(img);
     fireEvent.load(img);
     expect(screen.queryByTestId('slow-load-caption')).toBeNull();
+    // A later blank step says only that it was blank. It names no cause.
+    expect(screen.getByTestId('blank-caption')).toHaveTextContent(BLANK_CAPTION);
+    expect(BLANK_CAPTION).not.toMatch(/load|slow|3G|network|error/i);
     second.unmount();
 
     // Bebe, step 1: blank, but not a slow 3G walk.
@@ -317,5 +320,6 @@ describe('UI-14 and UI-20: the phone frame', () => {
     const bebeImg = document.querySelector<HTMLImageElement>('[data-cam-area="shot"] img')!;
     fireEvent.load(bebeImg);
     expect(screen.queryByTestId('slow-load-caption')).toBeNull();
+    expect(screen.getByTestId('blank-caption')).toHaveTextContent(BLANK_CAPTION);
   });
 });

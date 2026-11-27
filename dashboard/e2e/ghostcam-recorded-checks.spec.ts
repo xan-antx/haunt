@@ -247,11 +247,23 @@ test('UI-17: Home says 5 of 6 were found, on the real runs', async ({ page }) =>
   await page.setViewportSize({ width: 1536, height: 864 });
   await page.goto(`${BASE}#/`);
   await expect(page.getByTestId('planted-line')).toContainText('The ghosts found 5 of 6');
-  await expect(page.getByTestId('planted-line')).toContainText('No ghost has reached card errors that are never announced.');
+  await expect(page.getByTestId('planted-line')).toContainText(
+    'No ghost has reached card errors that are never announced. The mission pays with a valid card, so no card error ever appears.',
+  );
 });
 
 test('UI-14: the first Phantom step says why the screen is blank', async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 864 });
   await open(page, PHANTOM_RUNS[1]!.key, 1);
   await expect(page.getByTestId('slow-load-caption')).toHaveText('The page is still loading on slow 3G');
+});
+
+test('The 22 Nov Phantom run says only that steps 3 to 13 were blank', async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 864 });
+  const run = PHANTOM_RUNS.find((r) => r.key.includes('2026-11-22T1153Z'))!;
+  for (const step of [3, 6, 13]) {
+    await open(page, run.key, step);
+    await expect(page.getByTestId('blank-caption')).toHaveText('The screen was blank at this step.');
+    await expect(page.getByTestId('slow-load-caption')).toHaveCount(0);
+  }
 });

@@ -4,7 +4,7 @@
 import { screen, within } from '@testing-library/react';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { RunSource } from '../data/source';
 import { REPO_URL } from '../model/repo';
 import { fixedCopyTryLink } from '../model/sites';
@@ -52,6 +52,25 @@ describe('UI-08: first load', () => {
     expect(within(nav).getAllByRole('listitem')).toHaveLength(5);
     expect(within(nav).queryByRole('link', { name: /Ghost Cam/ })).toBeNull();
     expect(within(nav).getAllByRole('link')).toHaveLength(4);
+    // A screen reader hears why it is unavailable.
+    expect(within(nav).getByTestId('nav-unavailable')).toHaveTextContent(/Ghost Cam.*Unavailable because no ghost has run here yet\./);
+  });
+
+  it('says the Ghost Cam is unavailable while the runs load, and drops it on the published site when there are none', async () => {
+    const loading = renderApp('/', neverLoads());
+    await screen.findByRole('heading', { level: 1 });
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByTestId('nav-unavailable')).toHaveTextContent(
+      'Unavailable until the runs have loaded.',
+    );
+    loading.unmount();
+    vi.stubEnv('DEV', false);
+    try {
+      renderApp('/', memorySource([]));
+      await screen.findByText('No ghosts have walked here yet');
+      expect(screen.queryByTestId('nav-unavailable')).toBeNull();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('keeps five menu items with the recorded runs, all links', async () => {

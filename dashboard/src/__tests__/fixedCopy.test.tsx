@@ -174,7 +174,8 @@ describe('screens', () => {
     }
 
     const sites = within(screen.getByRole('region', { name: 'Haunted sites' }));
-    expect(sites.getByRole('heading', { name: 'Lantern Bills demo (exorcised)' })).toBeInTheDocument();
+    expect(sites.getByRole('heading', { name: 'Lantern Bills (fixed copy)' })).toBeInTheDocument();
+    expect(sites.queryByText(/\(exorcised\)/)).not.toBeInTheDocument();
     expect(sites.getByRole('heading', { name: 'Lantern Bills demo' })).toBeInTheDocument();
   });
 
@@ -245,6 +246,6 @@ describe('screens', () => {
     const names = within(site as HTMLElement)
       .getAllByRole('option')
       .map((o) => o.textContent);
-    expect(names).toEqual(expect.arrayContaining(['Lantern Bills demo', 'Lantern Bills demo (exorcised)']));
+    expect(names).toEqual(expect.arrayContaining(['Lantern Bills demo', 'Lantern Bills (fixed copy)']));
   });
 });

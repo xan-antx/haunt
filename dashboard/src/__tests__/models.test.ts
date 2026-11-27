@@ -11,7 +11,7 @@ import { reproduceCommand, shellQuote } from '../model/reproduce';
 import { resultHeadline } from '../model/results';
 import { MASK } from '../model/secrets';
 import { answer, answerText, questionLabel } from '../model/seance';
-import { displayGoal, plainAction, siteLabel } from '../model/sites';
+import { displayGoal, displayName, plainAction, siteLabel } from '../model/sites';
 import { waveformBars } from '../model/waveform';
 import { FINDING_TYPES } from '../data/types';
 import { allRecordedRuns, bebeRun, listenerRun, mustRun, sampleRuns } from './fixtures/samples';
@@ -186,6 +186,8 @@ describe('séance with the samples', () => {
     expect(plainAction('Lantern Bills demo', 'Open http://localhost:3000')).toBe('Open the bill page');
     expect(plainAction('Memos', 'Open http://localhost:5230/auth')).toBe('Open the sign-in page');
     expect(siteLabel('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
+    expect(displayName('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
+    expect(displayName('Lantern Bills demo')).toBe('Lantern Bills demo');
     expect(siteLabel('Memos')).toBe('Memos');
   });
 

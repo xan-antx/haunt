@@ -10,7 +10,7 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import { useRunSource } from '../data/hooks';
 import type { FocusBox, Run, Step } from '../data/types';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { isBlankPixels, isPortrait, SLOW_LOAD_CAPTION } from '../model/blank';
+import { BLANK_CAPTION, isBlankPixels, isPortrait, SLOW_LOAD_CAPTION } from '../model/blank';
 import { preloadOrder } from '../model/preload';
 import { pageName } from '../model/sites';
 import styles from './Screenshot.module.css';
@@ -128,8 +128,10 @@ export function Screenshot({ run, step }: { run: Run; step: Step }) {
   const portrait = showImage && display !== null && isPortrait(display.w, display.h);
   const reference = showImage ? (ready ? { w: shown.w, h: shown.h } : null) : PLACEHOLDER_SIZE;
   const scale = reference && width > 0 ? width / reference.w : 0;
-  // Only the opening step: later blank screens are shown as they are, with no claim about why.
+  // The opening step of a slow 3G walk is still loading (its wait is in the run). Any other blank
+  // screen gets a plain caption that names no cause, because the run files don't say why.
   const slowLoad = ready && shown.blank && run.ghost === 'phantom' && step.n === run.steps[0]?.n;
+  const otherBlank = ready && shown.blank && !slowLoad;
 
   const finish = (img: HTMLImageElement, forUrl: string) => {
     const done = () =>
@@ -185,6 +187,11 @@ export function Screenshot({ run, step }: { run: Run; step: Step }) {
           {slowLoad && (
             <p className={styles.slowCaption} data-testid="slow-load-caption">
               {SLOW_LOAD_CAPTION}
+            </p>
+          )}
+          {otherBlank && (
+            <p className={styles.slowCaption} data-testid="blank-caption">
+              {BLANK_CAPTION}
             </p>
           )}
           {step.focusBox && scale > 0 && <FocusGlow box={step.focusBox} scale={scale} />}

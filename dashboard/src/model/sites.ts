@@ -41,6 +41,14 @@ export function siteLabel(siteName: string): string {
   return original === null ? base : `${base} (fixed copy)`;
 }
 
+/**
+ * A site's name for cards, maps and menus: the fixed copy reads "Lantern Bills (fixed copy)" and
+ * every other name is shown as the run file wrote it. The run files are never changed.
+ */
+export function displayName(siteName: string): string {
+  return originalSiteName(siteName) === null ? siteName : siteLabel(siteName);
+}
+
 const LOCAL_ADDRESS = /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/[^\s"')]*)?/gi;
 
 /** A step's action in plain words: a local address becomes the page's name ("Open the bill page"). */

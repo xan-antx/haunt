@@ -38,6 +38,15 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [ ] 4.5 Enhancements a, b and c, each only if safe (a and c not started; b is partly there: the empty Home and the 404 page say "This room is empty" with a next step)
   - [x] 4.6 Amend haunt-dashboard 20.1
 
+- [x] 4b. Corrections after review (committed before the must-haves)
+  - [x] 4b.1 The fixed copy shows as "Lantern Bills (fixed copy)" on Home cards, the Graveyard map and its site filter, through `displayName`; run files unchanged
+  - [x] 4b.2 Blank screenshots: the opening Phantom step keeps its slow 3G caption; every other blank screen (steps 3 to 13 of the 22 Nov Phantom run) says "The screen was blank at this step." and names no cause
+  - [x] 4b.3 Memos design section 8 amended for the display goal and the masked password
+  - [x] 4b.4 `docs/media/hook-firing.png` does not exist, so the README says nothing about it
+  - [x] 4b.5 The Ghost Cam menu item, when unavailable, carries a visually hidden reason, and is not rendered on the published site once runs have loaded with none
+  - [x] 4b.6 UI-17 wording: the Home line adds why problem 3 was never reached; the README says 5 of 6
+  - [x] 4b.7 UI-13 amended: later runs on the same site may be offered as "After"; the fixed-copy run stays the default
+
 - [ ] 5. Phase 5: polish
   - [ ] 5.1 UI-16, UI-18, UI-19, UI-20
   - [ ] 5.2 UI-23, UI-26, UI-27

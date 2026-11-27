@@ -113,13 +113,23 @@ function Nav() {
             // Five items always (UI-08): before the runs load, or when there is no run to open, the
             // Ghost Cam item is shown but not a link, so the menu never jumps from four to five.
             if (to === null) {
+              // The published site always has runs, so once they have loaded this item is a link.
+              // Only a local copy with an empty runs folder, or the moment before loading ends,
+              // shows it as plain text. A screen reader hears why in the visually hidden reason,
+              // which stays when the visible hints are hidden on wide screens.
+              const loading = state.status !== 'ready';
+              if (!loading && !import.meta.env.DEV) return null;
+              const reason = loading
+                ? 'Unavailable until the runs have loaded.'
+                : 'Unavailable because no ghost has run here yet.';
               return (
                 <li key={id}>
-                  <span className={styles.pending} aria-disabled="true">
+                  <span className={styles.pending} data-testid="nav-unavailable">
                     <ScreenIcon screen={id} className={styles.navIcon} />
                     <span className={styles.navText}>
                       <span className={styles.navLabel}>{name}</span>
                       <span className={styles.navHint}>{description}</span>
+                      <span className="visually-hidden"> ({reason})</span>
                     </span>
                   </span>
                 </li>

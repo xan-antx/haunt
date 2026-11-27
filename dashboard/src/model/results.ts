@@ -6,10 +6,12 @@ import { FINDING_LABELS, POP_UP_BLOCKER } from './findingLabels';
 import { trapPlace } from './findingWords';
 import { plural } from './format';
 import { ghostName } from './ghosts';
-import { missionWords } from './sites';
+import { originalSiteName } from './fixedCopy';
+import { missionWords, siteLabel } from './sites';
 
 /** Site_Short_Name: drops one trailing "demo" or "(demo)" word, any case. */
 export function siteShortName(siteName: string): string {
+  if (originalSiteName(siteName) !== null) return siteLabel(siteName);
   const short = siteName.replace(/\s+\(?demo\)?\s*$/i, '').trim();
   return short === '' ? siteName.trim() : short;
 }

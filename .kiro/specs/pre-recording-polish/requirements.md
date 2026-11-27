@@ -37,7 +37,7 @@ An independent review of commit `38b72f4` found 32 problems (UI-01 to UI-32) bef
 ## Phase 3: data logic
 
 - **UI-03** Spec Coverage groups rows by site (Lantern Bills, Lantern Bills (fixed copy), Memos). A fixed-copy run is never Lantern Bills' latest. Each requirement has a plain title and the EARS text behind "Full requirement", with a link to its requirement file. Amends 25.5.
-- **UI-13** Exorcise offers as "After" only later runs by the same ghost and the same mind on the fixed copy. No Memos pair. The AI run's Reproduce command has `--mind ai`. The commit is labelled "Haunt commit". The result is announced when the comparison changes. Old different-ghost links keep working.
+- **UI-13** Exorcise offers as "After" only later runs by the same ghost, mission and mind, on the same site or on its fixed copy (decision: later runs on the same site may be offered). For a Lantern Bills run the fixed-copy run is still the default. No Memos pair. The AI run's Reproduce command has `--mind ai`. The commit is labelled "Haunt commit". The result is announced when the comparison changes. Old different-ghost links keep working.
 - **UI-17** Home and the Graveyard count only each ghost's latest run per site. One line on Home gives the planted-problems story from an explicit mapping of finding types to the six planted problems, with the true numbers and links to the evidence.
 
 ## Phase 4: first load, deploy and safe delight
