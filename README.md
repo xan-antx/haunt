@@ -59,8 +59,8 @@ There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requir
 
 | Screen | What it shows |
 |---|---|
-| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, a line that counts the six problems planted in Lantern Bills (with the recorded runs: 6 planted, 5 found, 5 exorcised, and a plain sentence on the one no ghost reached), and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
-| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
+| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, a line that counts the six problems planted in Lantern Bills (with the recorded runs: 6 planted, 5 found, 5 exorcised, and a plain sentence on the one no ghost reached), a "Haunt your own site" card with a block of commands you can copy, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
+| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. A blank screenshot says "The screen was blank at this step." and gives no cause, except the first Phantom step, which says the page is still loading on slow 3G. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
 | **Graveyard** | One tombstone per problem found, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
 | **Exorcise** | Compares a before run with a later run by the same ghost and the same mind (scripted or AI) on the same mission, on the same site or its fixed copy, and marks each finding as exorcised, still haunting, new, or not reached. |
 | **Spec Coverage** | Each mission is one requirement, shown by site (Lantern Bills, its fixed copy, Memos) with a plain title, the full requirement behind a button and a link to its file. Shows whether each ghost's latest run on that site completed it. |
@@ -290,7 +290,7 @@ Property tests use [fast-check](https://fast-check.dev). A property test is a `d
 | `haunt-engine` | `engine/`: `npm run test:properties` | 26 |
 | `listener-ai-mind` | `engine/`: `npx vitest run -t "Feature: listener-ai-mind, Property"` | 28 |
 | `memos-real-world-haunt` (engine half) | `engine/`: `npx vitest run -t "Feature: memos-real-world-haunt, Property"` | 24 |
-| `haunt-dashboard`, `exorcise-different-ghost-fix`, `memos-real-world-haunt` (dashboard half, 7 of the tests) | `dashboard/`: `npm run test:properties` | 36 |
+| `haunt-dashboard`, `exorcise-different-ghost-fix`, `memos-real-world-haunt` (dashboard half, 7 of the tests) | `dashboard/`: `npm run test:properties` | 37 |
 | `lantern-bills` | `demo-site/`: `npm run test:properties` | 20 |
 | `lantern-bills`, on the fixed copy | `demo-site-exorcised/`: `npm run test:properties` | 20 |
 | `exorcised-payment-a11y-fix` (bug condition and preservation) | `demo-site-exorcised/`: `npx vitest run src/__tests__/properties/payment-a11y` | 15 |
@@ -328,15 +328,16 @@ Counted by running each suite on the current code. Commands run in the folder na
 
 | Folder | Command | Tests |
 |---|---|---|
-| `engine/` | `npm test` | 1,069 in 75 files, all passed |
-| `dashboard/` | `npm test` | 490 in 42 files, all passed |
+| `engine/` | `npm test` | 1,071 in 76 files, all passed |
+| `dashboard/` | `npm test` | 551 in 47 files, all passed |
 | `demo-site/` | `npm test` | 123 in 18 files, all passed |
 | `demo-site-exorcised/` | `npm test` | 158 in 20 files, all passed |
 | `crew-app/` | `npm test` | 169 in 29 files, all passed |
-| `dashboard/` | `npm run test:e2e` (Playwright; run `npx playwright install chromium` once) | 151 in 8 files, counted with `npx playwright test --list`, not run for this README |
-| `engine/` | `npm run test:e2e` (all three ghosts against Lantern Bills, slow) | 22, counted with `npx vitest list --config vitest.e2e.config.ts`, not run for this README |
+| `dashboard/` | `npm run test:e2e` (Playwright; run `npx playwright install chromium` once) | 153 in 8 files, run with one worker. 152 passed on the first run. The 153rd, a layout test, timed out while the browser closed, and passed when run alone |
+| `dashboard/` | `npx playwright test --config playwright.recorded.config.ts` after `npm run build` (reads the real runs in `runs/`) | 25 in 3 files: the Ghost Cam fit for every run at three sizes, axe on 64 states at 1536 px and at 320 px, and a scan for text that must never show. All passed |
+| `engine/` | `npm run test:e2e` (all three ghosts against Lantern Bills, slow) | 23 in 5 files, run with one worker, all passed |
 
-The unit suites total 2,009 tests. Run one suite at a time. When we ran the engine and dashboard suites together, one dashboard test timed out, and later runs with several suites at once could not start some Vitest workers. The same suites passed when run alone. One crew-app test, `test/store.roundtrip.test.ts`, took 2.5 to 3.3 seconds alone this time, against Vitest's default 5-second timeout. It timed out in earlier runs on our Windows machine, so it can still fail on a slow or busy computer.
+The unit suites total 2,072 tests. Run one suite at a time. When we ran the engine and dashboard suites together, one dashboard test timed out, and later runs with several suites at once could not start some Vitest workers. The same suites passed when run alone. One crew-app test, `test/store.roundtrip.test.ts`, took 2.5 to 3.3 seconds alone this time, against Vitest's default 5-second timeout. It timed out in earlier runs on our Windows machine, so it can still fail on a slow or busy computer.
 
 ## Results
 

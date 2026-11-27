@@ -54,11 +54,12 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [ ] 5.3 UI-28, UI-29, UI-32
   - [ ] 5.4 Optional items
 
-- [ ] 6. Final check, run only when asked
-  - [ ] 6.1 Every package: unit, property, type-check, build; dashboard and engine end-to-end suites, one worker
-  - [ ] 6.2 Planted problems present in `demo-site/`, absent in `demo-site-exorcised/`
-  - [ ] 6.3 Ghost Cam fit for every recorded run at three sizes
-  - [ ] 6.4 axe 0 violations on every dashboard state at 1536 px and 320 px
-  - [ ] 6.5 No password, `''`, "couldn't sign", "Succeeded", bare localhost address or local Windows path on any screen; no TODO in the README
-  - [ ] 6.6 `git status` shows `runs/` untouched; `demo-site-exorcised` rebuilt with `npm run build`
-  - [ ] 6.7 README matches every changed screen, label and command
+- [x] 6. Final check (first pass, before the extras)
+  - [x] 6.1 Every package: unit, property, type-check, build; dashboard and engine end-to-end suites, one worker (dashboard e2e: 152 of 153 on the first run, the one timeout passed alone; engine e2e 23 of 23)
+  - [x] 6.2 Planted problems present in `demo-site/`, absent in `demo-site-exorcised/`
+  - [x] 6.3 Ghost Cam fit for every recorded run at three sizes (33 rows, all pass)
+  - [x] 6.4 axe 0 violations on every dashboard state at 1536 px and 320 px (`ghostcam-recorded-axe.spec.ts`, 64 states each)
+  - [x] 6.5 No password, `''`, "couldn't sign", "Succeeded", bare localhost address or local Windows path on any screen; no TODO in the README
+  - [x] 6.6 `git status` shows `runs/` untouched; `demo-site-exorcised` rebuilt with `npm run build`
+  - [x] 6.7 README matches every changed screen, label and command
+  - [ ] 6.8 Re-run the dashboard unit tests, the Ghost Cam fit check and axe after the extras
