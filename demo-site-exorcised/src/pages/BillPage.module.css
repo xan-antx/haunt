@@ -12,8 +12,8 @@
 }
 
 /*
- * Problem 4 (deliberate). This wrapper has no size, padding or background of its own, so before the
- * banner loads it takes no space and Pay this bill sits at its top-left corner.
+ * This wrapper has no size of its own. The late banner reserves its own space from the start, so
+ * nothing below it moves when it arrives.
  */
 .bannerWrap {
   position: relative;

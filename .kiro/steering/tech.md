@@ -1,4 +1,4 @@
-﻿# Haunt - Technology Stack
+# Haunt - Technology Stack
 
 ## Core Technologies
 

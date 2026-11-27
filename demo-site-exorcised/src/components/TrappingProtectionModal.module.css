@@ -1,4 +1,4 @@
-/* Keyboard behavior lives in the component. Still deliberate there: backdrop clicks do not close the dialog, and the add-on is pre-ticked. This file only styles it. */
+/* Keyboard behavior lives in the component. The component keeps backdrop clicks from closing the dialog, and its add-on starts unticked. This file only styles it. */
 .backdrop {
   position: fixed;
   inset: 0;

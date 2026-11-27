@@ -35,9 +35,9 @@ jobs:
         run: npm ci
         working-directory: demo-site
 
-      # Fails the deploy if any of the six planted problems disappears.
-      - name: Test demo-site planted problems
-        run: npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts
+      # Fails the deploy if any of the six planted problems disappears (they are part of the full suite).
+      - name: Test demo-site
+        run: npm test
         working-directory: demo-site
 
       - name: Build demo-site
@@ -72,9 +72,34 @@ jobs:
         run: npm ci
         working-directory: dashboard
 
+      - name: Test dashboard
+        run: npm test
+        working-directory: dashboard
+
       - name: Build dashboard
         run: npm run build
         working-directory: dashboard
+
+      # --- Engine and Haunt Patrol: unit tests only, nothing is deployed from them ---
+      - name: Install engine dependencies
+        run: npm ci
+        working-directory: engine
+
+      - name: Install Chromium for the engine tests
+        run: npx playwright install --with-deps chromium
+        working-directory: engine
+
+      - name: Test engine
+        run: npm test
+        working-directory: engine
+
+      - name: Install crew-app dependencies
+        run: npm ci
+        working-directory: crew-app
+
+      - name: Test crew-app
+        run: npm test
+        working-directory: crew-app
 
       - name: Copy dashboard into site root
         run: cp -r dashboard/dist/. _site/

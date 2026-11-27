@@ -2,6 +2,8 @@
 
 ## Folder Organization
 
+**Roles.** "Ghost Builder" and "House Builder" are the two work areas the project was split into, not people. Ghost Builder owns the side that runs the ghosts: the engine, the Listener agent, the MCP server and Haunt Patrol. House Builder owns the side that shows and hosts results: the demo sites, the dashboard and the sample runs. Each folder below names its owner so a change lands in the right area, and a shared folder needs both.
+
 **engine/**  
 Owner: Ghost Builder  
 Contains the accessibility testing engine that drives ghost personas through web applications.
