@@ -15,7 +15,7 @@ import { MindTag } from '../components/MindTag';
 import { SampleTag } from '../components/SampleTag';
 import { ScreenIcon } from '../components/ScreenIcon';
 import { Screenshot } from '../components/Screenshot';
-import { StuckNotice } from '../components/StuckNotice';
+import { runHasNotices, StuckNotice } from '../components/StuckNotice';
 import { useRun } from '../data/hooks';
 import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
@@ -27,7 +27,7 @@ import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId 
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import { AskPanel } from './ghostcam/AskPanel';
 import { Controls, Timeline } from './ghostcam/Controls';
-import { SpokenPanel, ThoughtPanel } from './ghostcam/Panels';
+import { SpokenPanel, ThoughtPanel, ThoughtsStrip } from './ghostcam/Panels';
 import styles from './ghostcam/GhostCam.module.css';
 
 export const PLAYBACK_INTERVAL_MS = 1500;
@@ -37,6 +37,16 @@ export const FULL_REQUIREMENT = 'Full requirement';
 export function RunRedirect() {
   const { runKey = '' } = useParams();
   return <Navigate to={stepPath(runKey, 1)} replace />;
+}
+
+/** True when a key press at `target` belongs to a field or a control, not to the page. */
+export function isControl(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  return (
+    target.closest(
+      'button, a[href], input, select, textarea, summary, [contenteditable], [role="button"], [role="tab"], [role="slider"], [tabindex]:not([tabindex="-1"])',
+    ) !== null
+  );
 }
 
 function VoiceToggle({ step }: { step: Step }) {
@@ -182,10 +192,42 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
     }
   };
 
+  // Keyboard shortcuts (UI-15): Left and Right step, Space plays and pauses. They work only when
+  // focus is not in a field or on another control, so they never take a key a control needs.
+  const stepBack = () => {
+    if (atFirst) return;
+    setPlaying(false);
+    goTo(run.steps[index - 1]!.n);
+  };
+  const stepForward = () => {
+    if (atLast) return;
+    setPlaying(false);
+    goTo(run.steps[index + 1]!.n);
+  };
+  const shortcut = useRef({ stepBack, stepForward, togglePlay });
+  shortcut.current = { stepBack, stepForward, togglePlay };
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== ' ') return;
+      if (isControl(event.target)) return;
+      event.preventDefault();
+      if (event.key === 'ArrowLeft') shortcut.current.stepBack();
+      else if (event.key === 'ArrowRight') shortcut.current.stepForward();
+      else shortcut.current.togglePlay();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
   // DOM order is the reading order at every size (Req 10.26). Each direct child of `.cam`
   // is one grid area: summary, shot, panel, notice, controls, timeline, rest.
   return (
-    <div className={styles.cam}>
+    <div
+      className={styles.cam}
+      data-notices={runHasNotices(run) ? 'some' : 'none'}
+      data-thoughts={run.ghost === 'listener' ? 'under' : 'none'}
+    >
       <div className={`${styles.header} ${styles.summary}`} data-cam-area="summary">
         <GhostCharacter
           ghost={run.ghost}
@@ -278,6 +320,8 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
 
       <div className={styles.left} data-cam-area="shot">
         <Screenshot run={run} step={step} />
+        {/* Under the screenshot, so the thought sits next to the page it is about (UI-01). */}
+        {run.ghost === 'listener' && <ThoughtsStrip key={step.n} run={run} step={step} />}
       </div>
 
       <div className={styles.right} data-cam-area="panel">
@@ -317,17 +361,15 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           atFirst={atFirst}
           atLast={atLast}
           onTogglePlay={togglePlay}
-          onBack={() => {
-            setPlaying(false);
-            goTo(run.steps[index - 1]!.n);
-          }}
-          onForward={() => {
-            setPlaying(false);
-            goTo(run.steps[index + 1]!.n);
-          }}
+          onBack={stepBack}
+          onForward={stepForward}
         />
 
         {run.ghost === 'listener' && <VoiceToggle step={step} />}
+
+        <p className={styles.shortcutHint} data-testid="shortcut-hint">
+          Keys: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Space</kbd> play or pause (when no button or field has focus).
+        </p>
       </div>
 
       <div className={styles.timelineArea} data-cam-area="timeline">

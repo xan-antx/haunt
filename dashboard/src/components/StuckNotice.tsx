@@ -12,8 +12,16 @@ import styles from './StuckNotice.module.css';
 
 export const FULL_DETAILS = 'Full details';
 
+/** True when any step of the run has a Stuck_Notice. Runs with none reserve no space for one. */
+export function runHasNotices(run: Run): boolean {
+  return run.steps.some((s) => stuckNotice(run, s) !== null);
+}
+
+export const NO_PROBLEM_LINE = 'No problem was recorded at this step.';
+
 export function StuckNotice({ run, step }: { run: Run; step: Step }) {
   const notice = stuckNotice(run, step);
+  const reserve = runHasNotices(run);
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const button = useRef<HTMLButtonElement>(null);
@@ -24,7 +32,13 @@ export function StuckNotice({ run, step }: { run: Run; step: Step }) {
   const hasDetails = notice !== null && notice.details.length > 0;
 
   return (
-    <div className={styles.slot} data-cam-area="notice" data-testid="stuck-notice-slot">
+    <div
+      className={`${styles.slot} ${reserve ? styles.reserved : ''}`}
+      data-cam-area="notice"
+      data-testid="stuck-notice-slot"
+      data-reserved={reserve}
+    >
+      {!notice && reserve && <p className={styles.quiet}>{NO_PROBLEM_LINE}</p>}
       {notice && (
         <div
           className={`${styles.notice} ${notice.tone === 'warning' ? styles.warning : ''}`}

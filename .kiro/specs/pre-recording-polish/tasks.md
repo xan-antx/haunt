@@ -15,14 +15,14 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 1.10 Amend haunt-dashboard 12.4, 12.6 and 25.8 and Memos design section 8
   - [x] 1.11 Phase check: dashboard unit tests and type-check, engine tests for the files touched, demo-site tests, fixed-copy build and tests
 
-- [ ] 2. Phase 2: the Ghost Cam
-  - [ ] 2.1 UI-01 thoughts strip
-  - [ ] 2.2 UI-04 one-row timeline, fit for every run at three sizes
-  - [ ] 2.3 UI-10 stuck notice grows
-  - [ ] 2.4 UI-15 Pause label and keyboard shortcuts
-  - [ ] 2.5 UI-09 screenshot preloading
-  - [ ] 2.6 UI-14 and UI-20 phone frame for The Phantom
-  - [ ] 2.7 Amend haunt-dashboard 7, 10, 10.7 and 10.24; Ghost Cam fit check
+- [x] 2. Phase 2: the Ghost Cam
+  - [x] 2.1 UI-01 thoughts strip
+  - [x] 2.2 UI-04 one-row timeline, fit for every run at three sizes
+  - [x] 2.3 UI-10 stuck notice grows
+  - [x] 2.4 UI-15 Pause label and keyboard shortcuts
+  - [x] 2.5 UI-09 screenshot preloading
+  - [x] 2.6 UI-14 and UI-20 phone frame for The Phantom
+  - [x] 2.7 Amend haunt-dashboard 10 (10.4, 10.7, 10.10, 10.24, 10.31, new 10.37) and its design; Ghost Cam fit check (haunt-dashboard 7 is amended in Phases 3 and 4)
 
 - [ ] 3. Phase 3: data logic
   - [ ] 3.1 UI-03 coverage by site, plain requirement titles, GitHub links

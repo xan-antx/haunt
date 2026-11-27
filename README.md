@@ -19,7 +19,7 @@ You need no account and no install to use the first three links and the real-wor
 ## Judge Quick Start
 
 1. Open the [dashboard](https://xan-antx.github.io/haunt/) and press **Take the 60-second tour** on Home. It stops at the results, the Ghost Cam, the Graveyard, Exorcise and Spec Coverage. Escape leaves it.
-2. Open the Ghost Cam on [The Listener's AI-mind run](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) and step to the end. The run has an **AI mind** label, and the agent wrote a thought on each step. Beside what The Listener heard, a strip headed "What the AI mind decided" shows that thought.
+2. Open the Ghost Cam on [The Listener's AI-mind run](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) and step to the end. The run has an **AI mind** label, and the agent wrote a thought on each step. Under the screenshot, a strip headed "What the AI mind decided" shows that thought.
 3. Open **Exorcise**. It compares a run on the haunted site with a run by the same ghost on the fixed copy.
 4. Now try [Lantern Bills](https://xan-antx.github.io/haunt/lantern-bills/) yourself. Pay the bill with only the keyboard: use card number `4111111111111111`, a future expiry date, CVV `123` and any name. Press Escape in the "Protect your payment" dialog and try to Tab to Continue. Add `?lang=pa` or `?lang=hi` to the address to see the untranslated button and error messages, and narrow the window to 640 px or less to see the cut-off total.
 5. Open the [fixed copy](https://xan-antx.github.io/haunt/lantern-bills-exorcised/) and do the same things. The problems are gone.
@@ -60,7 +60,7 @@ There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requir
 | Screen | What it shows |
 |---|---|
 | **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
-| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for an AI run, "What the AI mind decided"). An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
+| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
 | **Graveyard** | One tombstone per problem found, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
 | **Exorcise** | Compares a before run with an after run by the same ghost on the same mission, and marks each finding as exorcised, still haunting, new, or not reached. |
 | **Spec Coverage** | Each mission is one requirement. Shows whether each ghost's latest run completed it. |

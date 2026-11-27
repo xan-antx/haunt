@@ -182,6 +182,54 @@ for (const viewport of FIT_VIEWPORTS) {
   });
 }
 
+// UI-01, UI-04 and UI-10 on the fixture runs. The same checks run for every recorded run in
+// e2e/ghostcam-recorded-fit.spec.ts and e2e/ghostcam-recorded-checks.spec.ts.
+test.describe('Ghost Cam thoughts strip, timeline row and stuck notice', () => {
+  // The text-spacing test injects a style sheet, which the production CSP would block.
+  test.use({ viewport: { width: 1536, height: 864 }, bypassCSP: true });
+
+  test('The Listener: the thoughts strip is under the screenshot, in view, and the timeline is one row', async ({ page }) => {
+    await openCam(page, LISTENER.hash(LISTENER.findingStep));
+    const strip = page.getByTestId('thoughts-strip');
+    await expect(strip.getByRole('heading', { name: 'What The Listener was thinking' })).toBeVisible();
+    const shot = await boxOf(page, '[data-cam-area="shot"]');
+    const stripBox = await boxOf(page, '[data-testid="thoughts-strip"]');
+    expect(stripBox.top + stripBox.height, 'the strip ends inside the stage').toBeLessThanOrEqual(shot.top + shot.height + 1);
+    const image = await boxOf(page, '[data-cam-area="shot"] > div:first-child');
+    expect(stripBox.top, 'the strip is under the screenshot').toBeGreaterThanOrEqual(image.top + image.height - 1);
+    const tops = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('[data-cam-area="timeline"] button')).map((b) => Math.round(b.getBoundingClientRect().top)),
+    );
+    expect(new Set(tops).size, 'every timeline mark is on one row').toBe(1);
+    const smallest = await page.evaluate(() =>
+      Math.min(...Array.from(document.querySelectorAll('[data-cam-area="timeline"] button')).map((b) => b.getBoundingClientRect().width)),
+    );
+    expect(smallest, 'marks are at least 24 px').toBeGreaterThanOrEqual(24);
+  });
+
+  test('The Listener: the stuck notice keeps all three lines with WCAG text spacing', async ({ page }) => {
+    await openCam(page, LISTENER.hash(LISTENER.steps));
+    await page.addStyleTag({
+      content: '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }',
+    });
+    const result = await page.evaluate(() => {
+      const notice = document.querySelector<HTMLElement>('[data-testid="stuck-notice"]')!;
+      const rect = notice.getBoundingClientRect();
+      const lines = Array.from(notice.querySelectorAll<HTMLElement>('p'));
+      return {
+        count: lines.length,
+        clipped: lines.some((p) => p.scrollHeight > p.clientHeight + 1 || getComputedStyle(p).textOverflow === 'ellipsis'),
+        outside: lines.some((p) => p.getBoundingClientRect().bottom > rect.bottom + 1),
+        noticeClips: notice.scrollHeight > notice.clientHeight + 1,
+      };
+    });
+    expect(result.count).toBe(3);
+    expect(result.clipped).toBe(false);
+    expect(result.outside).toBe(false);
+    expect(result.noticeClips).toBe(false);
+  });
+});
+
 test.describe('Ghost Cam layout stability', () => {
   test.use({ viewport: { width: 1536, height: 864 } });
 

@@ -25,7 +25,8 @@ describe('Ghost Cam panels', () => {
     await openStep(LISTENER, 9);
     expect(screen.getByRole('heading', { name: 'What The Listener heard' })).toBeInTheDocument();
     expect(screen.getByText('Button, Confirm')).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /was thinking/ })).not.toBeInTheDocument();
+    // Under it, the thoughts strip (UI-01).
+    expect(screen.getByRole('heading', { name: 'What The Listener was thinking' })).toBeInTheDocument();
     expect(screen.getByTestId('waveform')).toHaveAttribute('aria-hidden', 'true');
   });
 
@@ -65,9 +66,11 @@ describe('Ghost Cam panels', () => {
     expect(screen.queryByRole('heading', { name: 'The Listener got trapped here.' })).not.toBeInTheDocument();
   });
 
-  it('keeps the empty Stuck_Notice slot on a step with no notice', async () => {
+  it('keeps the Stuck_Notice slot, with a plain line, on a step with no notice', async () => {
     await openStep(LISTENER, 1);
-    expect(screen.getByTestId('stuck-notice-slot')).toBeEmptyDOMElement();
+    const slot = screen.getByTestId('stuck-notice-slot');
+    expect(slot).toHaveTextContent('No problem was recorded at this step.');
+    expect(screen.queryByTestId('stuck-notice')).toBeNull();
   });
 
   it('shows the zero-sized focusBox warning for Bebe', async () => {
@@ -92,7 +95,8 @@ describe('Ghost Cam renders run text as plain text', () => {
 describe('Ghost Cam URLs', () => {
   it('opens a deep link to step 9 paused', async () => {
     const { router } = await openStep(LISTENER, 9);
-    expect(screen.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Pause' })).toBeNull();
     expect(currentStepButton()).toHaveAccessibleName('Step 9, finding: Keyboard trap');
     expect(router.state.location.pathname).toBe(`${LISTENER}/9`);
   });
@@ -128,7 +132,9 @@ describe('Ghost Cam controls', () => {
     const play = screen.getByRole('button', { name: 'Play' });
     play.focus();
     fireEvent.click(play);
-    expect(play).toHaveAttribute('aria-pressed', 'true');
+    // While playing, the button says what pressing it does (UI-15).
+    expect(play).toHaveAccessibleName('Pause');
+    expect(play).not.toHaveAttribute('aria-pressed');
 
     act(() => vi.advanceTimersByTime(1499));
     expect(router.state.location.pathname).toBe(`${LISTENER}/7`);
@@ -141,7 +147,7 @@ describe('Ghost Cam controls', () => {
 
     act(() => vi.advanceTimersByTime(1500));
     expect(router.state.location.pathname).toBe(`${LISTENER}/9`);
-    expect(play).toHaveAttribute('aria-pressed', 'false');
+    expect(play).toHaveAccessibleName('Play');
     act(() => vi.advanceTimersByTime(5000));
     expect(router.state.location.pathname).toBe(`${LISTENER}/9`);
   });
@@ -184,7 +190,7 @@ describe('Ghost Cam controls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Play' }));
     fireEvent.click(screen.getByRole('button', { name: 'Step 7, finding: Button with no name' }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`${LISTENER}/7`));
-    expect(screen.getByRole('button', { name: 'Play' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
     expect(currentStepButton()).toHaveAccessibleName('Step 7, finding: Button with no name');
     const timeline = screen.getByRole('region', { name: 'Timeline' });
     expect(within(timeline).getAllByRole('button')).toHaveLength(9);

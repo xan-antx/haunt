@@ -5,7 +5,7 @@ import type { Run, Step } from '../../data/types';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { scrollKeys, useScrollOverflow } from '../../hooks/useScrollOverflow';
 import { GHOSTS } from '../../model/ghosts';
-import { buildTranscript } from '../../model/transcript';
+import { buildTranscript, thoughtStrip } from '../../model/transcript';
 import { waveformBars } from '../../model/waveform';
 import styles from './GhostCam.module.css';
 
@@ -99,6 +99,36 @@ export function Transcript({ run, step }: { run: Run; step: Step }) {
         ))}
       </ol>
     </div>
+  );
+}
+
+/**
+ * The current step's thought, under what The Listener heard. It has a fixed height, so a long
+ * thought never moves the layout; the text scrolls inside the strip, which can take focus
+ * while it overflows. The parent keys it by step, so it starts at the top of each thought.
+ */
+export function ThoughtsStrip({ run, step }: { run: Run; step: Step }) {
+  const body = useRef<HTMLDivElement>(null);
+  const overflowing = useScrollOverflow(body, 'y');
+  const strip = thoughtStrip(run, step.n);
+  if (!strip) return null;
+  return (
+    <section className={styles.thoughtStrip} aria-labelledby="thoughts-strip-heading" data-testid="thoughts-strip">
+      <h2 id="thoughts-strip-heading" className={styles.stripHeading}>
+        {strip.heading}
+      </h2>
+      <div
+        ref={body}
+        className={styles.stripBody}
+        role="region"
+        aria-label={`${strip.heading}, step ${step.n}`}
+        tabIndex={overflowing ? 0 : undefined}
+        onKeyDown={scrollKeys('y')}
+        data-testid="thoughts-strip-text"
+      >
+        <p className={strip.empty ? styles.emptyText : undefined}>{strip.text}</p>
+      </div>
+    </section>
   );
 }
 

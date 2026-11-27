@@ -35,6 +35,29 @@ export function fadeLevel(distance: number): FadeLevel {
   return Math.floor(distance) as FadeLevel;
 }
 
+/**
+ * What The Listener was thinking at one step, for the thoughts strip under what it heard (UI-01).
+ * The heading names the AI mind on an AI run. Other ghosts have no strip: their thoughts are their
+ * transcript.
+ */
+export interface ThoughtStrip {
+  heading: string;
+  text: string;
+  empty: boolean;
+}
+
+export function thoughtStrip(run: Run, currentN: number): ThoughtStrip | null {
+  if (run.ghost !== 'listener') return null;
+  const step = run.steps.find((s) => s.n === currentN);
+  if (step === undefined) return null;
+  const empty = typeof step.thought !== 'string' || step.thought.trim() === '';
+  return {
+    heading: run.mind === 'ai' ? 'What the AI mind decided' : 'What The Listener was thinking',
+    text: empty ? nothingThought(run.ghost) : step.thought,
+    empty,
+  };
+}
+
 export function buildTranscript(run: Run, currentN: number): TranscriptLine[] {
   const lastIndex = run.steps.findIndex((step) => step.n === currentN);
   if (lastIndex < 0) return [];

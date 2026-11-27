@@ -1,9 +1,12 @@
-/* Fixed three-line slot (4.5rem = 3 x 1.5rem), so the notice never moves other elements.
-   The slot itself does not clip, so the "Full details" panel can open over the content above it;
-   the notice inside it clips its own lines. */
+/* The slot keeps the height of three lines (3 x 1.5rem) in a run that has any notice, so the notice
+   never moves other elements between steps. It grows when text spacing, zoom or a long sentence
+   needs more room, so every line stays whole (UI-10). In a run with no notice at all it takes no
+   room. The slot itself does not clip, so the "Full details" panel can open over the content above. */
 .slot {
   position: relative;
-  height: 4.5rem;
+}
+
+.reserved {
   min-height: 4.5rem;
 }
 
@@ -11,12 +14,23 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  height: 100%;
-  overflow: hidden;
+  min-height: 4.5rem;
   background: var(--surface);
   border-left: 6px solid var(--bone);
   border-radius: var(--radius);
   padding: 0 var(--space-4);
+}
+
+/* A step with no notice, in a run that has one elsewhere: the slot says so in plain words. */
+.quiet {
+  display: flex;
+  align-items: center;
+  min-height: 4.5rem;
+  margin: 0;
+  padding: 0 var(--space-4);
+  border-left: 6px solid var(--text-muted);
+  border-radius: var(--radius);
+  color: var(--text-muted);
 }
 
 .text {
@@ -24,16 +38,15 @@
   min-width: 0;
 }
 
+/* Lines wrap and are never cut off with an ellipsis. */
 .text p {
   margin: 0;
-  height: 1.5rem;
-  line-height: 1.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .more {
+  flex: none;
   line-height: 1.5rem;
 }
 

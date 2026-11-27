@@ -1,6 +1,7 @@
 // Playback controls and the timeline. Unavailable controls stay focusable (aria-disabled),
 // so keyboard focus is never lost when playback reaches an end.
 
+import { useLayoutEffect, useRef } from 'react';
 import type { Finding, Step } from '../../data/types';
 import { plainFindingType } from '../../model/findingLabels';
 import styles from './GhostCam.module.css';
@@ -39,9 +40,10 @@ export function Controls({ playing, atFirst, atLast, onTogglePlay, onBack, onFor
         <Icon name="back" />
         Step back
       </button>
-      <button type="button" className="button" aria-pressed={playing} onClick={onTogglePlay}>
+      {/* The label names what pressing the button does, so there is no separate pressed state. */}
+      <button type="button" className="button" onClick={onTogglePlay}>
         <Icon name={playing ? 'pause' : 'play'} />
-        Play
+        {playing ? 'Pause' : 'Play'}
       </button>
       <button
         type="button"
@@ -69,12 +71,26 @@ export function Timeline({
   current: number;
   onSelect: (n: number) => void;
 }) {
+  // One row for any run length. A row wider than its box scrolls inside itself, and the current
+  // step is brought into view by moving only this row, never the page.
+  const row = useRef<HTMLOListElement>(null);
+  useLayoutEffect(() => {
+    const list = row.current;
+    const mark = list?.querySelector<HTMLElement>('[aria-current="step"]');
+    if (!list || !mark) return;
+    const margin = 8;
+    const left = mark.offsetLeft; // the list is positioned, so this is relative to its content
+    const right = left + mark.offsetWidth;
+    if (left - margin < list.scrollLeft) list.scrollLeft = Math.max(0, left - margin);
+    else if (right + margin > list.scrollLeft + list.clientWidth) list.scrollLeft = right + margin - list.clientWidth;
+  }, [current]);
+
   return (
     <section aria-labelledby="timeline-heading" className={styles.timelineWrap}>
       <h2 id="timeline-heading" className={styles.sectionHeading}>
         Timeline
       </h2>
-      <ol className={styles.timeline}>
+      <ol className={styles.timeline} ref={row}>
         {steps.map((step) => {
           const stepFindings = findings.filter((f) => f.step === step.n);
           const labels = [...new Set(stepFindings.map((f) => plainFindingType(f.type)))];

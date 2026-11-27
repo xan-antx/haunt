@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
 // Make sure nothing else is listening on 3001 first: outside CI an existing server is reused.
 export default defineConfig({
   testDir: './e2e',
+  // The recorded-run checks read the real runs; they have their own config.
+  testIgnore: /-recorded-/,
   fullyParallel: true,
   // Three workers locally keeps the machine responsive; CI uses Playwright's default.
   workers: process.env.CI ? undefined : 3,

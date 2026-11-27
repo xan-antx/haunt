@@ -77,7 +77,7 @@ describe('Stuck_Notice', () => {
     await openCam(L.key, 1);
     const slot = screen.getByTestId('stuck-notice-slot');
     expect(slot).toBeInTheDocument();
-    expect(slot).toBeEmptyDOMElement();
+    expect(slot).toHaveTextContent('No problem was recorded at this step.');
     expect(screen.queryByTestId('stuck-notice')).toBeNull();
   });
 

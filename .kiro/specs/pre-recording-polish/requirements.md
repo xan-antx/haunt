@@ -27,7 +27,7 @@ An independent review of commit `38b72f4` found 32 problems (UI-01 to UI-32) bef
 
 ## Phase 2: the Ghost Cam
 
-- **UI-01** A strip shows the ghost's thoughts beside the spoken panel on Listener runs ("What The Listener was thinking", or "What the AI mind decided" on AI runs). On step 12 of `2026-11-23T1020Z-listener-pay-bill` at 1536x864 the sentence beginning "This button has no name, but it's right after the form fields" is visible without scrolling. Amends haunt-dashboard 7 and 10.
+- **UI-01** A strip shows the ghost's thoughts, under the screenshot, on Listener runs ("What The Listener was thinking", or "What the AI mind decided" on AI runs). On step 12 of `2026-11-23T1020Z-listener-pay-bill` at 1536x864 the sentence beginning "This button has no name, but it's right after the form fields" is visible without scrolling. Amends haunt-dashboard 7 and 10.
 - **UI-04** The timeline stays on one row for any run length, marks are at least 24 px, and the current step is always in view. The gap above the controls and the empty band under the screenshot are gone. The fit test covers every recorded run at the three sizes. Amends 10.24.
 - **UI-10** The stuck notice grows with text spacing and 400% zoom, keeps all three lines, and the step line is not cut with an ellipsis.
 - **UI-15** The play button reads "Pause" while playing. Left and Right arrows step, Space plays and pauses, only when focus is not in a field or on another control. A small hint shows the shortcuts. Amends 10.7.
