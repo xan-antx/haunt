@@ -1,7 +1,7 @@
 // The 60-second tour (Req 22): the one place its stops are defined, and where each callout goes.
 // Pure functions of the runs and of measured boxes, so both are easy to test.
 
-import type { Run } from '../data/types';
+import type { GhostId, Run } from '../data/types';
 import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath } from '../routes';
 import { originalSiteRuns } from './fixedCopy';
 import { groupHaunts } from './haunts';
@@ -18,7 +18,39 @@ export interface TourStop {
   title: string;
   /** One or two plain sentences (Req 22.2, 22.11). */
   body: string;
+  /** The ghost that guides this stop: its small drawing shows beside its one line. */
+  guide: GhostId;
+  /** One short line in the guide's voice. The plain explanation stays in `body`. */
+  voice: string;
 }
+
+/** One line per ghost and stop, each in the ghost's own voice and never at its expense. */
+const VOICES: Record<GhostId, Record<string, string>> = {
+  listener: {
+    results: "I'll tell you how each of us got on.",
+    panel: 'I listen to every line, so you can hear what I heard.',
+    notice: "I'll tell you where I got stuck, in plain words.",
+    timeline: 'Each mark is one step I took, one key press at a time.',
+  },
+  phantom: {
+    results: "Here's how the three of us did.",
+    panel: 'I write down what I think while the page loads.',
+    notice: "Slow pages can stop me. This is where I stopped.",
+    timeline: 'Each mark is one step of my slow walk.',
+  },
+  bebe: {
+    results: "Let's see how we all did.",
+    panel: 'I read slowly and think out loud, so you can follow.',
+    notice: 'If I got stuck, I will say where, and why.',
+    timeline: 'One mark for each step I took, at my own pace.',
+  },
+};
+const FIXED_VOICES: Record<string, { guide: GhostId; voice: string }> = {
+  shot: { guide: 'phantom', voice: 'This is the page as I saw it on my old phone.' },
+  graveyard: { guide: 'listener', voice: 'Every problem I found rests here.' },
+  exorcise: { guide: 'bebe', voice: 'Fix a problem, send us back, and we will tell you if it is gone.' },
+  coverage: { guide: 'phantom', voice: 'Now you know where to look. Go and explore.' },
+};
 
 /** The eight Tour_Stops, or null when there are no runs (the tour is then unavailable). */
 export function buildTour(allRuns: Run[]): TourStop[] | null {
@@ -33,7 +65,7 @@ export function buildTour(allRuns: Run[]): TourStop[] | null {
   const camPath = stepPath(cam.runKey, cam.step);
   const intro = '[data-screen-intro]';
 
-  return [
+  const stops: Omit<TourStop, 'guide' | 'voice'>[] = [
     {
       id: 'results',
       path: homePath(),
@@ -93,6 +125,12 @@ export function buildTour(allRuns: Run[]): TourStop[] | null {
       body: "Spec Coverage shows whether each ghost could complete each requirement. That's the tour, so explore on your own from here.",
     },
   ];
+  // The ghost whose run the tour opens guides the stops about that run; the other stops have a fixed guide.
+  return stops.map((stop) => {
+    const fixed = FIXED_VOICES[stop.id];
+    if (fixed) return { ...stop, ...fixed };
+    return { ...stop, guide: camRun.ghost, voice: VOICES[camRun.ghost][stop.id]! };
+  });
 }
 
 /** Sentences in a plain text: runs ending in ".", "!" or "?" followed by a space or the end. */

@@ -19,6 +19,8 @@ import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Run } from '../../data/types';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { GHOSTS } from '../../model/ghosts';
+import { GhostCharacter } from '../ghosts/Ghosts';
 import {
   CALLOUT_MARGIN,
   EDGE_SPACE,
@@ -551,6 +553,12 @@ function TourCallout({
         <h2 id={titleId} className={styles.title}>
           {stop.title}
         </h2>
+        <p className={styles.voice} data-testid="tour-voice">
+          <GhostCharacter ghost={stop.guide} size={40} mood="hopeful" className={styles.guide} />
+          <span>
+            <strong className={styles.guideName}>{GHOSTS[stop.guide].name}:</strong> {stop.voice}
+          </span>
+        </p>
         <p id={bodyId} className={styles.body}>
           {stop.body}
         </p>

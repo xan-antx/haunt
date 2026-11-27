@@ -144,6 +144,48 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
   });
 }
 
+// Narrow phones: the callout is a full-width card on the top or bottom edge, with its ghost and
+// one line, and still fits on screen without covering the highlight.
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 320, height: 640 },
+]) {
+  test(`at ${viewport.width}×${viewport.height}: every stop's callout, with its ghost, fits on screen`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto('/haunt/#/');
+    await expect(page.locator('main h1')).toBeVisible();
+    await page.getByRole('button', { name: 'Take the 60-second tour' }).click();
+    for (const [i, stop] of STOPS.entries()) {
+      const label = `${viewport.width}×${viewport.height} stop ${i + 1} (${stop.title})`;
+      const dialog = page.getByRole('dialog', { name: stop.title });
+      await expect(dialog, label).toBeVisible();
+      await expect(dialog.getByTestId('tour-voice'), `${label}: ghost line`).toBeVisible();
+      await expect(dialog, `${label}: finished scrolling`).toHaveAttribute('data-tour-scroll', 'idle');
+      const m = await settled(page);
+      const callout = m.dialog!;
+      expect(callout.top, `${label}: callout top`).toBeGreaterThanOrEqual(0);
+      expect(callout.left, `${label}: callout left`).toBeGreaterThanOrEqual(0);
+      expect(callout.bottom, `${label}: callout bottom`).toBeLessThanOrEqual(m.height);
+      expect(callout.right, `${label}: callout right`).toBeLessThanOrEqual(m.width);
+      // A highlight taller than the phone screen runs behind the callout; its top must still show.
+      // The highlight's outline may touch the callout's border (up to 4 px) after fonts load.
+      if (m.ring && overlaps(callout, { ...m.ring, bottom: m.ring.bottom - 4, top: m.ring.top + 4 })) {
+        expect(m.ring.top, `${label}: the top of a tall highlight shows above the callout`).toBeLessThan(callout.top - 40);
+        expect(m.ring.bottom - m.ring.top, `${label}: only a tall highlight runs behind the callout`).toBeGreaterThan(
+          m.height - (callout.bottom - callout.top) - 24,
+        );
+      }
+      // Every button in the callout can be reached without scrolling the page.
+      for (const name of ['Back', 'Skip', i === STOPS.length - 1 ? 'Finish' : 'Next']) {
+        const box = await dialog.getByRole('button', { name }).boundingBox();
+        expect(box, `${label}: ${name}`).not.toBeNull();
+        expect(box!.y + box!.height, `${label}: ${name} is on screen`).toBeLessThanOrEqual(m.height);
+      }
+      await page.keyboard.press('Enter');
+    }
+  });
+}
+
 test.describe('scrolling with reduced motion', () => {
   test.use({ reducedMotion: 'reduce', viewport: { width: 1366, height: 650 } });
 

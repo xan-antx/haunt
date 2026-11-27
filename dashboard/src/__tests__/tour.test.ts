@@ -60,6 +60,26 @@ describe('buildTour with the samples (Req 22.1, 22.2, 22.11)', () => {
   it('is unavailable with no runs', () => {
     expect(buildTour([])).toBeNull();
   });
+
+  it('gives every stop a guiding ghost and one short line, and keeps the plain explanation', () => {
+    for (const stop of [...stops, ...buildTour([bebeRun()])!]) {
+      expect(['listener', 'phantom', 'bebe'], stop.id).toContain(stop.guide);
+      expect(stop.voice.length, `${stop.id}: ${stop.voice}`).toBeGreaterThan(10);
+      expect(stop.voice.length, `${stop.id}: ${stop.voice}`).toBeLessThanOrEqual(80);
+      expect(sentenceCount(stop.voice), stop.id).toBeLessThanOrEqual(2);
+      expect(stop.body.length, stop.id).toBeGreaterThan(stop.voice.length);
+    }
+  });
+
+  it('lets the ghost whose run the tour opens guide the stops about that run', () => {
+    expect(stops.filter((s) => ['panel', 'notice', 'timeline', 'results'].includes(s.id)).map((s) => s.guide)).toEqual([
+      'listener',
+      'listener',
+      'listener',
+      'listener',
+    ]);
+    expect(buildTour([bebeRun()])!.find((s) => s.id === 'panel')!.guide).toBe('bebe');
+  });
 });
 
 describe('sentenceCount', () => {

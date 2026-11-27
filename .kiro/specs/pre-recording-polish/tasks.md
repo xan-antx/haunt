@@ -35,7 +35,8 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 4.2 UI-21 favicon, theme colour, og tags, `404.html`
   - [x] 4.3 UI-22 GitHub, fixed-copy and Memos links
   - [x] 4.4 UI-31 loader and public-site wording
-  - [ ] 4.5 Enhancements a, b and c, each only if safe (a not started; b is partly there: the empty Home and the 404 page say "This room is empty" with a next step)
+  - [ ] 4.5 Enhancements a, b and c, each only if safe (b is partly there: the empty Home and the 404 page say "This room is empty" with a next step)
+    - [x] 4.5a A ghost guides the tour: each of the 8 stops shows a ghost's small drawing and one line in its voice (`guide` and `voice` on `TourStop`), plain explanation kept; `tour.test.ts`, and `tour-scroll.spec.ts` at 390 and 320 px
     - [x] 4.5c "Haunt your own site": README section, Home card with a copyable block, `engine/missions/README.md` with a template; every command was run against local Lantern Bills with `--out` outside the repo; tests `ownSite.test.tsx` and `ownSiteDocs.test.ts`
   - [x] 4.6 Amend haunt-dashboard 20.1
 
