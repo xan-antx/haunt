@@ -49,7 +49,7 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 4b.7 UI-13 amended: later runs on the same site may be offered as "After"; the fixed-copy run stays the default
 
 - [ ] 5. Phase 5: polish
-  - [ ] 5.1 UI-16, UI-18, UI-19, UI-20
+  - [ ] 5.1 UI-16, UI-18, UI-19, UI-20 (UI-20 done early as a must-have: the Exorcise table wraps its text and has no scroll box; checked by axe at 320 px)
   - [ ] 5.2 UI-23, UI-26, UI-27
   - [ ] 5.3 UI-28, UI-29, UI-32
   - [ ] 5.4 Optional items

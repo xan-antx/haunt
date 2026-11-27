@@ -63,8 +63,15 @@
   font-weight: 700;
 }
 
-.tableWrap {
-  overflow-x: auto;
+/* UI-20: no scroll box. The table fits its container at 320 px because its text wraps, so there
+   is nothing to reach by keyboard and nothing that scrolls sideways. */
+.tableWrap table {
+  width: 100%;
+}
+
+.tableWrap th,
+.tableWrap td {
+  overflow-wrap: anywhere;
 }
 
 .status {
@@ -74,7 +81,6 @@
   padding: 0.1em 0.6em 0.1em 0.4em;
   border-radius: var(--radius);
   font-weight: 700;
-  white-space: nowrap;
 }
 
 .exorcisedBadge {

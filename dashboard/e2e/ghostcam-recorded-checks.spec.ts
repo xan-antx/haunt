@@ -187,17 +187,25 @@ for (const [name, hash] of [
   ['Exorcise', '#/exorcise'],
   ['Graveyard', '#/graveyard'],
 ] as const) {
-  // Exorcise at 320 px has a scrollable table wrapper with no keyboard stop: UI-20, planned for
-  // Phase 5 (5.1). Its 320 px check joins this list when that is fixed.
   for (const viewport of [
     { width: 1536, height: 864 },
-    ...(name === 'Exorcise' ? [] : [{ width: 320, height: 640 }]),
+    { width: 320, height: 640 },
   ]) {
     test(`Phase 3: ${name} has no axe violations at ${viewport.width} px`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto(`${BASE}${hash}`);
       await expect(page.locator('main h1')).toBeVisible();
       await expect(page.locator('main')).not.toContainText('Loading');
+      if (name === 'Exorcise') {
+        // UI-20: the findings table has no scroll box at any width, so there is nothing to reach by keyboard.
+        const scrolls = await page.evaluate(() =>
+          [...document.querySelectorAll('main *')].filter((e) => {
+            const o = getComputedStyle(e).overflowX;
+            return (o === 'auto' || o === 'scroll') && e.querySelector('table') !== null;
+          }).length,
+        );
+        expect(scrolls).toBe(0);
+      }
       if (name === 'Spec Coverage') await page.getByRole('button', { name: 'Full requirement' }).first().click();
       await page.addScriptTag({ path: axePath });
       const found = await page.evaluate(async () => {
