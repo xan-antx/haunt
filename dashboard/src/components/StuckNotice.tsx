@@ -73,7 +73,7 @@ export function StuckNotice({ run, step }: { run: Run; step: Step }) {
         </div>
       )}
       {notice && hasDetails && (
-        <ExpandPanel id={panelId} open={open} label={FULL_DETAILS} placement="above" onClose={close}>
+        <ExpandPanel id={panelId} open={open} label={FULL_DETAILS} placement="above" onClose={close} onDismiss={() => setOpen(false)}>
           {notice.details.map((detail, i) => (
             <div key={i} className={styles.detail}>
               <p>

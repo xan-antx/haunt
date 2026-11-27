@@ -66,7 +66,7 @@ There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requir
 | **Spec Coverage** | Each mission is one requirement, shown by site (Lantern Bills, its fixed copy, Memos) with a plain title, the full requirement behind a button and a link to its file. Shows whether each ghost's latest run on that site completed it. |
 | **Real-world haunt** | Opens from a link at the bottom of Home. Shows the newest Memos run for each mind (Scripted mind and AI mind), with its result, step count and findings, and a "Watch it happen" button. Memos runs stay off Home, the tour and the Ghost Cam link on Home. |
 
-A run made by the AI mind carries an **AI mind** label on Home, in the Ghost Cam and in Exorcise. Samples are labelled **Sample run**, and a ghost's samples are hidden once the ghost has a real run.
+Dates are shown in UTC and say so, which matches the run ids. The "Full requirement" and "Full details" panels close on Escape, on a click outside them and when focus moves away. A run made by the AI mind carries an **AI mind** label on Home, in the Ghost Cam and in Exorcise. Samples are labelled **Sample run**, and a ghost's samples are hidden once the ghost has a real run.
 
 ### The Exorcise loop
 

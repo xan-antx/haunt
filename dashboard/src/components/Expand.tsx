@@ -1,9 +1,9 @@
 // A disclosure for text that is cut to one line (Req 10.29, 10.36): a small text button with
 // aria-expanded, and a panel with the full text that opens over the content next to it, so
-// opening it moves nothing on the page. Escape on the button or in the panel closes it and puts
-// focus back on the button. Nothing traps focus.
+// opening it moves nothing on the page. Escape anywhere, a click outside it and focus moving away
+// close it (UI-27); Escape from inside it puts focus back on the button. Nothing traps focus.
 
-import { useRef, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import { useEffect, useRef, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import { scrollKeys, useScrollOverflow } from '../hooks/useScrollOverflow';
 import styles from './Expand.module.css';
 
@@ -55,6 +55,7 @@ export function ExpandPanel({
   label,
   placement,
   onClose,
+  onDismiss = onClose,
   children,
 }: {
   id: string;
@@ -64,9 +65,40 @@ export function ExpandPanel({
   /** Where the panel opens: under the line or over the content above it. */
   placement: 'below' | 'above';
   onClose: () => void;
+  /** Closes without moving focus: for a click outside, or focus that has already moved on. */
+  onDismiss?: () => void;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // While open, the panel also closes on Escape from anywhere on the page, on a click or tap
+  // outside it and its button, and when focus moves somewhere outside both (UI-27).
+  useEffect(() => {
+    if (!open) return;
+    const button = () => document.querySelector<HTMLElement>(`[aria-controls="${CSS.escape(id)}"]`);
+    const inside = (target: EventTarget | null) =>
+      target instanceof Node && (ref.current?.contains(target) === true || button()?.contains(target) === true);
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      // Focus goes back to the button only when it was inside the panel or nowhere in particular.
+      const back = inside(document.activeElement) || document.activeElement === document.body;
+      onClose();
+      if (back) button()?.focus();
+    };
+    const onPointer = (event: Event) => {
+      if (!inside(event.target)) onDismiss();
+    };
+    const onFocus = (event: FocusEvent) => {
+      if (!inside(event.target)) onDismiss();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('focusin', onFocus);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('focusin', onFocus);
+    };
+  }, [open, id, onClose, onDismiss]);
   // Focusable only while it scrolls, so a keyboard user can read all of it (Req 18.1).
   const scrolls = useScrollOverflow(ref, 'y');
   const arrows = scrollKeys('y');

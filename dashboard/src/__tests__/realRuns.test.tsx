@@ -1,5 +1,5 @@
 import axe from 'axe-core';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Run } from '../data/types';
@@ -235,6 +235,42 @@ describe('expanding the requirement and the notice (Req 10.29, 10.36)', () => {
     fireEvent.keyDown(region, { key: 'Escape' });
     expect(more).toHaveAttribute('aria-expanded', 'false');
     expect(more).toHaveFocus();
+  });
+
+  it('closes the full requirement on Escape from anywhere, on an outside click and when focus leaves (UI-27)', async () => {
+    const user = userEvent.setup();
+    renderWithReal(`/run/${REAL}/step/20`);
+    await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+    const more = screen.getAllByRole('button', { name: 'Full requirement' })[0]!;
+    const open = async () => {
+      if (more.getAttribute('aria-expanded') !== 'true') await user.click(more);
+      expect(more).toHaveAttribute('aria-expanded', 'true');
+    };
+
+    // Escape pressed on the page, with focus nowhere in particular.
+    await open();
+    (document.activeElement as HTMLElement | null)?.blur();
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    expect(more).toHaveFocus();
+
+    // A click outside the panel and its button.
+    await open();
+    fireEvent.pointerDown(screen.getByRole('heading', { level: 1 }));
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+
+    // Focus moving to another control.
+    await open();
+    const link = within(screen.getByRole('navigation', { name: 'Main' })).getAllByRole('link')[0]!;
+    act(() => link.focus());
+    expect(link).toHaveFocus();
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+
+    // A click on its own button still just toggles it.
+    await user.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    await user.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('keeps the notice to one sentence of evidence and opens the full details on demand', async () => {

@@ -6,14 +6,18 @@ export function formatSeconds(ms: number): string {
   return `${tenths.toFixed(1)} s`;
 }
 
-/** Date in the reader's time zone, for example "3 Nov 2026". */
+/** Date in UTC with its label, for example "3 Nov 2026 UTC". It matches the run ids and the README (UI-18). */
 export function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
+  const date = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(
+    new Date(iso),
+  );
+  return `${date} UTC`;
 }
 
-/** Date and time in the reader's time zone, for example "3 Nov 2026, 14:22". */
+/** Date and time in UTC with its label, for example "3 Nov 2026, 14:22 UTC". */
 export function formatLocalDateTime(iso: string): string {
-  return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  const text = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(iso));
+  return `${text} UTC`;
 }
 
 export function plural(count: number, one: string, many = `${one}s`): string {

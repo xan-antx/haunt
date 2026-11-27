@@ -81,7 +81,7 @@ export function ProvenancePanel({
           <dt>Recorded</dt>
           <dd>
             <time dateTime={run.startedAt}>{formatLocalDateTime(run.startedAt)}</time>{' '}
-            <span className="muted">(your time; original {run.startedAt})</span>
+            <span className="muted">(original {run.startedAt})</span>
           </dd>
         </div>
         <div>

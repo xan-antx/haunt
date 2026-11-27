@@ -3,7 +3,7 @@ import { buildRooms, coldSpotSize } from '../model/coldSpots';
 import { buildCoverage } from '../model/coverage';
 import { afterCandidates, compareRuns } from '../model/exorcise';
 import { FINDING_LABELS, plainFindingType } from '../model/findingLabels';
-import { formatSeconds } from '../model/format';
+import { formatDate, formatLocalDateTime, formatSeconds } from '../model/format';
 import { GHOSTS, resultSentence } from '../model/ghosts';
 import { buildGraveyard } from '../model/graveyard';
 import { groupHaunts, startHereTarget } from '../model/haunts';
@@ -188,6 +188,12 @@ describe('séance with the samples', () => {
     expect(siteLabel('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
     expect(displayName('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
     expect(displayName('Lantern Bills demo')).toBe('Lantern Bills demo');
+  });
+
+  it('shows dates in UTC with a label, whatever the time zone (UI-18)', () => {
+    // Late evening UTC is already the next day in India; the run id and the screen both say the 22nd.
+    expect(formatDate('2026-11-22T23:30:00Z')).toBe('22 Nov 2026 UTC');
+    expect(formatLocalDateTime('2026-11-22T23:30:00Z')).toBe('22 Nov 2026, 23:30 UTC');
     expect(siteLabel('Memos')).toBe('Memos');
   });
 

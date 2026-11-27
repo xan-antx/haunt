@@ -111,6 +111,19 @@
   font-weight: 700;
 }
 
+/* Forced colours replace every border colour with a system colour, so the transparent bars of the
+   other items would all show. Hide them with the page background and mark only the current page (UI-19). */
+@media (forced-colors: active) {
+  .nav a,
+  .nav .pending {
+    border-bottom-color: Canvas;
+  }
+
+  .nav a.active {
+    border-bottom-color: Highlight;
+  }
+}
+
 /* Shown only in the open narrow-screen menu. --text, not --text-muted: --text-muted is only about
    3.9:1 on the fog at its opacity ceiling. It wraps, so it is never cut off. */
 .navHint {

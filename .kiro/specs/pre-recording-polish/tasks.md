@@ -51,8 +51,8 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 4b.7 UI-13 amended: later runs on the same site may be offered as "After"; the fixed-copy run stays the default
 
 - [ ] 5. Phase 5: polish
-  - [ ] 5.1 UI-16, UI-18, UI-19, UI-20 (UI-20 done early as a must-have: the Exorcise table wraps its text and has no scroll box; checked by axe at 320 px)
-  - [ ] 5.2 UI-23, UI-26, UI-27
+  - [ ] 5.1 UI-16, UI-18, UI-19, UI-20 (UI-20 done early as a must-have: the Exorcise table wraps its text and has no scroll box; checked by axe at 320 px. UI-18 done: dates in UTC with a label, `models.test.ts`. UI-19 done: `forced-colors.spec.ts`. UI-16 open)
+  - [ ] 5.2 UI-23, UI-26, UI-27 (UI-27 done: `Expand.tsx` closes on Escape anywhere, an outside click and focus leaving; `realRuns.test.tsx`. UI-23 and UI-26 open)
   - [ ] 5.3 UI-28, UI-29, UI-32 (UI-28 and UI-29 done: stale comments corrected in the fixed copy's CSS, `diary/README.md` filled, the two roles explained in `structure.md`, `typescript` and `vite` in devDependencies with lock files refreshed, byte-order mark removed from `tech.md`, CI runs the unit tests of every package; the CI changes have not run on GitHub)
   - [ ] 5.4 Optional items
 

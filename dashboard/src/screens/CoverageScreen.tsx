@@ -68,7 +68,7 @@ function MissionCell({ mission }: { mission: MissionCoverage }) {
           </a>
         )}
       </span>
-      <ExpandPanel id={panelId} open={open} label={`Full requirement: ${mission.title}`} placement="below" onClose={close}>
+      <ExpandPanel id={panelId} open={open} label={`Full requirement: ${mission.title}`} placement="below" onClose={close} onDismiss={() => setOpen(false)}>
         <p>{mission.requirement}</p>
       </ExpandPanel>
       {mission.requirementChanged && (

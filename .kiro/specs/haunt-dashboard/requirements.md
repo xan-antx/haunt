@@ -170,7 +170,7 @@ Verification process: after each change, the House Builder runs `npm run build` 
 
 #### Acceptance Criteria
 
-1. WHEN the Dashboard shows a Run on any run-specific screen, THE Dashboard SHALL show the `startedAt` time in the reader's local time zone, with the original ISO timestamp available as text.
+1. WHEN the Dashboard shows a Run on any run-specific screen, THE Dashboard SHALL show the `startedAt` time in UTC with the label "UTC", with the original ISO timestamp available as text. (Amended by pre-recording-polish UI-18: dates match the run ids and the README, whatever the reader's time zone.)
 2. WHEN the Dashboard shows a Run, THE Dashboard SHALL show `site.commit` and `site.url`.
 3. (Revised) WHEN the Dashboard shows a Run, THE Dashboard SHALL show the Reproduce_Command: `git checkout <site.commit>` followed by `cd engine && npm run haunt -- run --ghost <ghost> --mission <mission.id> --url <site.url>`. It SHALL NOT use `npx haunt`, because an unrelated package called `haunt` is on the npm registry and npx downloads and runs it outside `engine/`.
 4. THE Dashboard SHALL generate the Reproduce_Command in exactly one function, so the template can change when the engine's command line is final.

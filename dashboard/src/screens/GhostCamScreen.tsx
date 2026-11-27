@@ -283,6 +283,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
               label={FULL_REQUIREMENT}
               placement="below"
               onClose={closeRequirement}
+              onDismiss={() => setRequirementOpen(false)}
             >
               <p>
                 <strong>Requirement:</strong> {run.mission.requirement}
