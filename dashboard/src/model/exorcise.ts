@@ -3,6 +3,8 @@
 
 import type { Finding, FindingType, Run } from '../data/types';
 import { byStartedAtDesc } from './format';
+import { isAfterTheFix } from './fixedCopy';
+import { isRealWorldRun } from './realWorld';
 
 export type ExorciseStatus = 'exorcised' | 'not_reached' | 'still_haunting' | 'new_haunting';
 
@@ -27,6 +29,28 @@ export function afterCandidates(before: Run, runs: Run[]): Run[] {
   return runs
     .filter((r) => r.key !== before.key && r.ghost === before.ghost && r.mission.id === before.mission.id)
     .sort(byStartedAtDesc);
+}
+
+/**
+ * True when `after` is a fair "after" for `before` (UI-13): the same ghost, mission and mind, a later
+ * run, on the same site or on its fixed copy, and neither run is a real-world run (Memos).
+ */
+export function isFairAfter(before: Run, after: Run): boolean {
+  return (
+    before.key !== after.key &&
+    before.ghost === after.ghost &&
+    before.mission.id === after.mission.id &&
+    before.mind === after.mind &&
+    !isRealWorldRun(before) &&
+    !isRealWorldRun(after) &&
+    Date.parse(after.startedAt) > Date.parse(before.startedAt) &&
+    (after.site.name === before.site.name || isAfterTheFix(before, after))
+  );
+}
+
+/** The runs the After picker offers for `before`, newest first. */
+export function afterOptions(before: Run, runs: Run[]): Run[] {
+  return runs.filter((r) => isFairAfter(before, r)).sort(byStartedAtDesc);
 }
 
 export function compareRuns(before: Run, after: Run): ExorciseResult {

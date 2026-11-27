@@ -15,6 +15,30 @@
   min-width: 12rem;
 }
 
+/* The full requirement opens in a panel laid over the rows below this cell. */
+.missionBox {
+  position: relative;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin-top: var(--space-1);
+  font-size: 0.95rem;
+}
+
+/* One heading row per site: Lantern Bills, its fixed copy, Memos. */
+.siteRow {
+  text-align: left;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.35rem;
+  padding-top: var(--space-4);
+  border-bottom: 2px solid var(--text-muted);
+}
+
 .requirement {
   display: block;
   font-weight: 700;

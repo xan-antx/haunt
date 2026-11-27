@@ -137,6 +137,14 @@
   margin: 0 0 var(--space-2);
 }
 
+/* The planted-problems line under the result cards: --text on --bg, with the global link style. */
+.plantedLine {
+  max-width: 48rem;
+  margin: var(--space-4) 0 0;
+  padding-left: var(--space-3);
+  border-left: 4px solid var(--bone);
+}
+
 .siteDescription {
   color: var(--text-muted);
 }

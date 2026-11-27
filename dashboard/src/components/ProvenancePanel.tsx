@@ -85,7 +85,7 @@ export function ProvenancePanel({
           </dd>
         </div>
         <div>
-          <dt>Site commit</dt>
+          <dt>Haunt commit</dt>
           <dd>
             <code>{run.site.commit}</code>
           </dd>

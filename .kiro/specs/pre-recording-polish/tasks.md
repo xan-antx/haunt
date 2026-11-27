@@ -24,11 +24,11 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 2.6 UI-14 and UI-20 phone frame for The Phantom
   - [x] 2.7 Amend haunt-dashboard 10 (10.4, 10.7, 10.10, 10.24, 10.31, new 10.37) and its design; Ghost Cam fit check (haunt-dashboard 7 is amended in Phases 3 and 4)
 
-- [ ] 3. Phase 3: data logic
-  - [ ] 3.1 UI-03 coverage by site, plain requirement titles, GitHub links
-  - [ ] 3.2 UI-13 Exorcise pairing, `--mind ai`, "Haunt commit", announcement
-  - [ ] 3.3 UI-17 latest-run counts and the planted-problems line with true numbers
-  - [ ] 3.4 Amend haunt-dashboard 25.5
+- [x] 3. Phase 3: data logic
+  - [x] 3.1 UI-03 coverage by site, plain requirement titles, GitHub links
+  - [x] 3.2 UI-13 Exorcise pairing, `--mind ai`, "Haunt commit", announcement
+  - [x] 3.3 UI-17 latest-run counts and the planted-problems line with true numbers (6 planted, 5 found, 5 exorcised; card errors never reached)
+  - [x] 3.4 Amend haunt-dashboard 25.5 (and 7, 9, 13, 14)
 
 - [ ] 4. Phase 4: first load, deploy and safe delight
   - [ ] 4.1 UI-08 Home skeleton and five menu items

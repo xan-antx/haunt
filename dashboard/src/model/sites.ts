@@ -56,11 +56,25 @@ export interface MissionWords {
   verbPhrase?: string;
   /** After "I finished at step 14 and", for example "paid the bill". */
   done?: string;
+  /** A plain title for the mission's requirement on Spec Coverage (UI-03). */
+  title?: string;
+  /** The file that holds the requirement, relative to the repository root. */
+  requirementFile?: string;
 }
 
 const MISSION_WORDS: Readonly<Record<string, MissionWords>> = {
-  'pay-bill': { done: 'paid the bill' },
-  'write-note': { goal: 'Write and save a note in Memos', verbPhrase: 'save the note', done: 'saved the note' },
+  'pay-bill': {
+    done: 'paid the bill',
+    title: 'Pay a bill with a valid card',
+    requirementFile: '.kiro/specs/lantern-bills/requirements.md',
+  },
+  'write-note': {
+    goal: 'Write and save a note in Memos',
+    verbPhrase: 'save the note',
+    done: 'saved the note',
+    title: 'Write and save a note',
+    requirementFile: '.kiro/specs/memos-real-world-haunt/requirements.md',
+  },
 };
 
 export function missionWords(missionId: string): MissionWords {

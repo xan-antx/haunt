@@ -180,6 +180,43 @@ for (const phantom of PHANTOM_RUNS) {
   }
 }
 
+// UI-03, UI-13, UI-17 on the real runs: no axe violations on the screens Phase 3 changed.
+for (const [name, hash] of [
+  ['Home', '#/'],
+  ['Spec Coverage', '#/coverage'],
+  ['Exorcise', '#/exorcise'],
+  ['Graveyard', '#/graveyard'],
+] as const) {
+  // Exorcise at 320 px has a scrollable table wrapper with no keyboard stop: UI-20, planned for
+  // Phase 5 (5.1). Its 320 px check joins this list when that is fixed.
+  for (const viewport of [
+    { width: 1536, height: 864 },
+    ...(name === 'Exorcise' ? [] : [{ width: 320, height: 640 }]),
+  ]) {
+    test(`Phase 3: ${name} has no axe violations at ${viewport.width} px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto(`${BASE}${hash}`);
+      await expect(page.locator('main h1')).toBeVisible();
+      await expect(page.locator('main')).not.toContainText('Loading');
+      if (name === 'Spec Coverage') await page.getByRole('button', { name: 'Full requirement' }).first().click();
+      await page.addScriptTag({ path: axePath });
+      const found = await page.evaluate(async () => {
+        const axe = (window as unknown as { axe: { run: (ctx: Document) => Promise<{ violations: { id: string; nodes: { target: string[] }[] }[] }> } }).axe;
+        const result = await axe.run(document);
+        return result.violations.map((v) => `${v.id}: ${v.nodes.map((node) => node.target.join(' ')).join(', ')}`);
+      });
+      expect(found, found.join('\n')).toEqual([]);
+    });
+  }
+}
+
+test('UI-17: Home says 5 of 6 were found, on the real runs', async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 864 });
+  await page.goto(`${BASE}#/`);
+  await expect(page.getByTestId('planted-line')).toContainText('The ghosts found 5 of 6');
+  await expect(page.getByTestId('planted-line')).toContainText('No ghost has reached card errors that are never announced.');
+});
+
 test('UI-14: the first Phantom step says why the screen is blank', async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 864 });
   await open(page, PHANTOM_RUNS[1]!.key, 1);

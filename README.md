@@ -59,11 +59,11 @@ There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requir
 
 | Screen | What it shows |
 |---|---|
-| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
+| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, a line that counts the six problems planted in Lantern Bills (how many the ghosts found and how many the fix exorcised), and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
 | **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
 | **Graveyard** | One tombstone per problem found, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
-| **Exorcise** | Compares a before run with an after run by the same ghost on the same mission, and marks each finding as exorcised, still haunting, new, or not reached. |
-| **Spec Coverage** | Each mission is one requirement. Shows whether each ghost's latest run completed it. |
+| **Exorcise** | Compares a before run with a later run by the same ghost and the same mind (scripted or AI) on the same mission, on the same site or its fixed copy, and marks each finding as exorcised, still haunting, new, or not reached. |
+| **Spec Coverage** | Each mission is one requirement, shown by site (Lantern Bills, its fixed copy, Memos) with a plain title, the full requirement behind a button and a link to its file. Shows whether each ghost's latest run on that site completed it. |
 | **Real-world haunt** | Opens from a link at the bottom of Home. Shows the newest Memos run for each mind (Scripted mind and AI mind), with its result, step count and findings, and a "Watch it happen" button. Memos runs stay off Home, the tour and the Ghost Cam link on Home. |
 
 A run made by the AI mind carries an **AI mind** label on Home, in the Ghost Cam and in Exorcise. Samples are labelled **Sample run**, and a ghost's samples are hidden once the ghost has a real run.

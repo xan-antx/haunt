@@ -1,6 +1,6 @@
 // Exorcise: compare a before run and an after run of the same mission to see which findings are gone.
 
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { GhostBadge } from '../components/ghosts/Ghosts';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
@@ -12,7 +12,16 @@ import { SampleTag } from '../components/SampleTag';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
 import { AFTER_THE_FIX_LABEL, isAfterTheFix, isFixedCopyRun } from '../model/fixedCopy';
-import { EXORCISE_LABELS, afterCandidates, compareRuns, type ExorciseRow, type ExorciseStatus } from '../model/exorcise';
+import {
+  EXORCISE_LABELS,
+  afterOptions as laterRuns,
+  compareRuns,
+  isFairAfter,
+  type ExorciseRow,
+  type ExorciseStatus,
+} from '../model/exorcise';
+import { isRealWorldRun } from '../model/realWorld';
+import { useAnnounce } from '../components/layout/LiveRegion';
 import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
@@ -37,7 +46,7 @@ function runLabel(run: Run, before?: Run): string {
  * Null if there is none.
  */
 export function defaultAfter(before: Run, runs: Run[]): Run | null {
-  const candidates = afterCandidates(before, runs);
+  const candidates = laterRuns(before, runs);
   return candidates.find((r) => isAfterTheFix(before, r)) ?? candidates[0] ?? null;
 }
 
@@ -50,13 +59,15 @@ export function defaultAfter(before: Run, runs: Run[]): Run | null {
  */
 export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
   const sorted = [...runs].sort(byStartedAtDesc);
+  // The before run is always an earlier run by the same ghost and mind, never a fixed copy's run.
+  const partner = (after: Run) => sorted.find((r) => !isFixedCopyRun(r) && isFairAfter(r, after));
   for (const after of sorted) {
     if (!isFixedCopyRun(after)) continue;
-    const before = afterCandidates(after, sorted).find((r) => isAfterTheFix(r, after));
+    const before = partner(after);
     if (before) return { before, after };
   }
   for (const after of sorted) {
-    const before = afterCandidates(after, sorted).find((r) => !isFixedCopyRun(r));
+    const before = partner(after);
     if (before) return { before, after };
   }
   return null;
@@ -68,7 +79,8 @@ export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
  * can show what is open.
  */
 export function beforeOptions(runs: Run[], current?: Run): Run[] {
-  return runs.filter((r) => !isFixedCopyRun(r) || r.key === current?.key);
+  // Real-world runs (Memos) have no fixed copy and no fair "after", so they are never offered (UI-13).
+  return runs.filter((r) => r.key === current?.key || (!isFixedCopyRun(r) && !isRealWorldRun(r)));
 }
 
 function StatusIcon({ status }: { status: ExorciseStatus }) {
@@ -114,7 +126,33 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
   );
 }
 
+/** One sentence for a screen reader when the comparison changes. */
+export function comparisonAnnouncement(before: Run, after: Run): string {
+  const result = compareRuns(before, after);
+  const name = GHOSTS[before.ghost].name;
+  if ('error' in result) {
+    return result.error === 'different_ghosts'
+      ? `Different ghosts: ${name} and ${GHOSTS[after.ghost].name} can't be compared.`
+      : "These runs follow different missions, so they can't be compared.";
+  }
+  if (result.rows.length === 0) return `Comparing ${name}: neither run found any problems.`;
+  const count = (status: ExorciseStatus) => result.rows.filter((r) => r.status === status).length;
+  const parts = (['exorcised', 'still_haunting', 'new_haunting', 'not_reached'] as const)
+    .filter((status) => count(status) > 0)
+    .map((status) => `${count(status)} ${EXORCISE_LABELS[status].toLowerCase()}`);
+  return `Comparing ${name}: ${parts.join(', ')}.`;
+}
+
 function Comparison({ before, after }: { before: Run; after: Run }) {
+  const announce = useAnnounce();
+  // Announced when the pair changes, not when the screen first opens.
+  const announced = useRef<string | null>(null);
+  useEffect(() => {
+    const id = `${before.key}|${after.key}`;
+    if (announced.current !== null && announced.current !== id) announce(comparisonAnnouncement(before, after));
+    announced.current = id;
+  }, [announce, before, after]);
+
   const result = compareRuns(before, after);
   if ('error' in result) {
     if (result.error === 'different_ghosts') {
@@ -243,7 +281,7 @@ export function ExorciseScreen() {
     );
   }
 
-  const afterOptions = afterCandidates(before, runs);
+  const afterOptions = laterRuns(before, runs);
   const ghostName = GHOSTS[before.ghost].name;
   // True while the dashboard shows only the sample runs from runs/samples/, as in this demo.
   const onlySamples = state.runs.every(isSample);
@@ -267,11 +305,7 @@ export function ExorciseScreen() {
             value={before.key}
             onChange={(e) => {
               const b = find(e.target.value)!;
-              const keepAfter =
-                after !== null &&
-                after.ghost === b.ghost &&
-                after.mission.id === b.mission.id &&
-                after.key !== b.key;
+              const keepAfter = after !== null && isFairAfter(b, after);
               choose(b, keepAfter ? after : null);
             }}
           >
@@ -287,8 +321,9 @@ export function ExorciseScreen() {
             <>
               <strong>After run (same ghost and mission)</strong>
               <p className={styles.notice}>
-                No after run yet for {ghostName}. Fix the problem in your app's code, then run {ghostName} on the
-                same mission again, and the new run shows up here as the after run.
+                No after run yet for {ghostName}. Fix the problem in your app's code, then run {ghostName}
+                {isAiRun(before) ? ' with the AI mind' : ''} on the same mission again, and the new run shows up
+                here as the after run.
                 {onlySamples && (
                   <>
                     {' '}

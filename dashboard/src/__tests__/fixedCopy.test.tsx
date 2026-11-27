@@ -119,10 +119,11 @@ describe('Exorcise offers the fixed copy as the after run', () => {
     expect(defaultAfter(listenerRun(), [listenerRun(), laterOriginal()])?.key).toBe('2026-11-08-listener-pay-bill');
   });
 
-  it('defaultPair puts the newest original run before and the fixed copy run after', () => {
+  it('defaultPair puts the newest original run that is older than the fixed copy run before it (UI-13)', () => {
     const pair = defaultPair([listenerRun(), laterOriginal(), fixedRun(), newestOriginal()]);
     expect(pair?.after.key).toBe(FIXED);
-    expect(pair?.before.key).toBe('2026-11-12-listener-pay-bill');
+    // The 12 Nov original is newer than the fixed copy's run, so it can't be the "before".
+    expect(pair?.before.key).toBe('2026-11-08-listener-pay-bill');
   });
 
   it('beforeOptions leaves out fixed copy runs unless the URL opened one as the before run', () => {
@@ -166,7 +167,11 @@ describe('screens', () => {
 
     // No result card links to the fixed copy's run.
     const cards = within(screen.getByRole('region', { name: 'What the ghosts found on Lantern Bills' }));
-    for (const link of cards.getAllByRole('link')) expect(link.getAttribute('href') ?? '').not.toContain(FIXED);
+    // The planted-problems line may link to the Exorcise pair as its evidence; the result cards may not.
+    for (const link of cards.getAllByRole('link')) {
+      if (link.closest('[data-testid="planted-line"]')) continue;
+      expect(link.getAttribute('href') ?? '').not.toContain(FIXED);
+    }
 
     const sites = within(screen.getByRole('region', { name: 'Haunted sites' }));
     expect(sites.getByRole('heading', { name: 'Lantern Bills demo (exorcised)' })).toBeInTheDocument();

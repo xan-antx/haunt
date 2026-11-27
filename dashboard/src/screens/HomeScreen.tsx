@@ -26,7 +26,9 @@ import { resultHeadline, resultsHeading, watchStep } from '../model/results';
 import { displayGoal, siteAbout, siteLabel } from '../model/sites';
 import { buildTour } from '../model/tour';
 import { realWorldRuns, withoutRealWorld } from '../model/realWorld';
-import { graveyardPath, realWorldPath, restlessPath, stepPath } from '../routes';
+import { PLANTED_SITE, plantedStory, type PlantedStory } from '../model/planted';
+import { repoFileUrl } from '../model/repo';
+import { exorcisePath, graveyardPath, realWorldPath, restlessPath, siteKey, stepPath } from '../routes';
 import { IndexErrorScreen, Loading } from './common';
 import styles from './HomeScreen.module.css';
 
@@ -193,7 +195,35 @@ function ResultCard({ run }: { run: Run }) {
 }
 
 /** Results_Section: one per Haunt, right after the Hero (Req 21.1, 21.2, 21.7). */
-function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
+/** The planted-problems story, in numbers that come from the run files (UI-17). */
+function PlantedLine({ story }: { story: PlantedStory }) {
+  const exorcisedEvidence = story.statuses.find((s) => s.exorcised)?.exorcised ?? null;
+  const missed = story.notFound.map((p) => p.title);
+  return (
+    <p className={styles.plantedLine} data-testid="planted-line">
+      <a href={repoFileUrl('.kiro/steering/demo-site.md')}>{story.planted} problems</a> were planted in Lantern Bills.
+      The ghosts found{' '}
+      <Link to={graveyardPath({ site: siteKey(PLANTED_SITE) })}>
+        {story.found} of {story.planted}
+      </Link>
+      .{' '}
+      {exorcisedEvidence ? (
+        <>
+          The fix exorcised{' '}
+          <Link to={exorcisePath(exorcisedEvidence.before.key, exorcisedEvidence.after.key)}>
+            {story.exorcised} of those {story.found}
+          </Link>
+          .
+        </>
+      ) : (
+        <>The fix has not been checked against any of them yet.</>
+      )}
+      {missed.length > 0 && <> No ghost has reached {missed.join(' or ')}.</>}
+    </p>
+  );
+}
+
+function Results({ haunt, first, story }: { haunt: Haunt; first: boolean; story: PlantedStory | null }) {
   const headingId = `results-${haunt.siteKey}`;
   const about = siteAbout(haunt.siteName);
   return (
@@ -219,6 +249,7 @@ function Results({ haunt, first }: { haunt: Haunt; first: boolean }) {
           <ResultCard key={summary.ghost} run={summary.latest} />
         ))}
       </ul>
+      {story && haunt.siteName === PLANTED_SITE && <PlantedLine story={story} />}
     </section>
   );
 }
@@ -276,6 +307,7 @@ export function HomeScreen() {
   // Results and their cards use only the original sites' runs. A fixed copy is its own site below.
   const resultHaunts = groupHaunts(originalSiteRuns(runs));
   const tourAvailable = buildTour(runs) !== null;
+  const story = plantedStory(runs);
 
   return (
     <>
@@ -312,7 +344,7 @@ export function HomeScreen() {
 
       {/* Results first, right after the Hero (Req 7.28, 21.1). */}
       {resultHaunts.map((haunt, i) => (
-        <Results key={haunt.siteKey} haunt={haunt} first={i === 0} />
+        <Results key={haunt.siteKey} haunt={haunt} first={i === 0} story={story} />
       ))}
 
       <HowItWorks />

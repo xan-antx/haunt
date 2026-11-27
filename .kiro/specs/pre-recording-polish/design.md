@@ -30,6 +30,14 @@
 
 **Checks.** `e2e/ghostcam-recorded-fit.spec.ts` and `e2e/ghostcam-recorded-checks.spec.ts` read the real runs (`playwright.recorded.config.ts`, after `npm run build`). `e2e/ghostcam-layout.spec.ts` keeps the fixture checks. `src/__tests__/ghostcam-polish.test.tsx` covers the words, keys and logic.
 
+## Phase 3: data logic
+
+**Spec Coverage (UI-03).** `buildCoverage` groups by `site.name` and `mission.id`, so a fixed copy has its own row and is never the original's latest. Sites sort as original, its fixed copy, then real-world sites. `missionWords` gains a plain `title` and the `requirementFile` on GitHub (`model/repo.ts` builds the link). The screen has one `tbody` per site and a "Full requirement" button on each row.
+
+**Exorcise (UI-13).** `isFairAfter(before, after)` is the one rule: same ghost, mission and mind, a later run, on the same site or its fixed copy, never a real-world run. `afterOptions` lists them, `defaultAfter` and `defaultPair` use it, and `beforeOptions` leaves Memos out. A URL that names any pair still opens it, so old links and the different-ghost refusal work. `comparisonAnnouncement` is spoken through the live region when the pair changes. `reproduceCommand` ends `--mind ai` for an AI run, and the provenance label is "Haunt commit".
+
+**Counts and the planted-problems line (UI-17).** `latestRuns` keeps each ghost's newest real run (else sample) on each site. The haunt card's finding count and the Graveyard's tombstones use it. `model/planted.ts` holds the explicit mapping: pay button with no name = `unlabeled_button`; "Protect your payment" dialog = `focus_trap` or `dark_pattern`; card errors never announced = `unannounced_error`; late banner = `slow_wait` or `misclick`; cut-off total = `cut_off_text`; missing Punjabi and Hindi text = `untranslated`. A problem is found when a latest Lantern Bills run has a finding of one of its types. It is exorcised when `compareRuns` marks such a finding "Exorcised" for a fair before and after pair on the fixed copy. True numbers from the recorded runs: 6 planted, 5 found, 5 exorcised. No run found the card errors that are never announced.
+
 ## Later phases
 
-Phases 3 to 5 add their design notes to this file when their chat begins, before any code.
+Phases 4 and 5 add their design notes to this file when their chat begins, before any code.

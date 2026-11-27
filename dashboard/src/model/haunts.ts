@@ -48,7 +48,8 @@ export function groupHaunts(runs: Run[]): Haunt[] {
       siteName,
       runs: sorted,
       ghosts,
-      findingCount: sorted.reduce((sum, r) => sum + r.findings.length, 0),
+      // Only each ghost's latest run counts, so a replaced run is not counted twice (UI-17).
+      findingCount: ghosts.reduce((sum, g) => sum + g.latest.findings.length, 0),
       latestStartedAt: sorted[0]!.startedAt,
     });
   }

@@ -1,12 +1,14 @@
 // Spec Coverage: each mission's requirement, and whether each ghost's latest run completed it.
 
+import { useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ExpandButton, ExpandPanel } from '../components/Expand';
 import { ScreenHeading } from '../components/layout/ScreenHeading';
 import { ScreenIntro } from '../components/layout/ScreenIntro';
 import { ResultBadge } from '../components/ResultBadge';
 import { useAllRuns } from '../data/hooks';
 import type { GhostId } from '../data/types';
-import { buildCoverage, type GhostCoverage } from '../model/coverage';
+import { buildCoverage, groupCoverageBySite, type GhostCoverage, type MissionCoverage } from '../model/coverage';
 import { formatDate } from '../model/format';
 import { GHOSTS, GHOST_ORDER } from '../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../model/origin';
@@ -44,11 +46,46 @@ function CoverageCell({ ghost, coverage }: { ghost: GhostId; coverage: GhostCove
   );
 }
 
+/** A requirement's plain title, with its full EARS text behind "Full requirement" and a link to its file. */
+function MissionCell({ mission }: { mission: MissionCoverage }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const button = useRef<HTMLButtonElement>(null);
+  const close = () => {
+    setOpen(false);
+    button.current?.focus();
+  };
+  return (
+    <div className={styles.missionBox}>
+      <span className={styles.requirement}>{mission.title}</span>
+      <span className={styles.links}>
+        <ExpandButton open={open} controls={panelId} onToggle={() => setOpen(!open)} onClose={close} buttonRef={button}>
+          Full requirement
+        </ExpandButton>
+        {mission.requirementLink && (
+          <a href={mission.requirementLink}>
+            Requirement file on GitHub<span className="visually-hidden"> for {mission.title}</span>
+          </a>
+        )}
+      </span>
+      <ExpandPanel id={panelId} open={open} label={`Full requirement: ${mission.title}`} placement="below" onClose={close}>
+        <p>{mission.requirement}</p>
+      </ExpandPanel>
+      {mission.requirementChanged && (
+        <span className={styles.changed}>
+          The requirement text changed between runs. This row shows the text from the most recent run.
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function CoverageScreen() {
   const state = useAllRuns();
   if (state.status === 'loading') return <Loading what="the missions" />;
   if (state.status === 'error') return <IndexErrorScreen message={state.message} />;
-  const missions = buildCoverage(state.runs);
+  const sites = groupCoverageBySite(buildCoverage(state.runs));
+  const missions = sites.flatMap((s) => s.rows);
 
   return (
     <>
@@ -72,29 +109,27 @@ export function CoverageScreen() {
               ))}
             </tr>
           </thead>
-          <tbody role="rowgroup">
-            {missions.map((m) => (
-              <tr key={m.missionId} role="row">
-                <th scope="row" role="rowheader" className={styles.mission}>
-                  <span className={styles.requirement}>{m.requirement}</span>
-                  <span className={styles.goal}>Goal: {m.goal}</span>
-                  <span className={styles.id}>
-                    Mission <code>{m.missionId}</code>
-                  </span>
-                  {m.requirementChanged && (
-                    <span className={styles.changed}>
-                      The requirement text changed between runs. This row shows the text from the most recent run.
-                    </span>
-                  )}
+          {sites.map((site) => (
+            <tbody role="rowgroup" key={site.siteName} data-site={site.site}>
+              <tr role="row">
+                <th scope="rowgroup" role="rowheader" colSpan={1 + GHOST_ORDER.length} className={styles.siteRow}>
+                  {site.site}
                 </th>
-                {GHOST_ORDER.map((g) => (
-                  <td key={g} role="cell" data-label={GHOSTS[g].name}>
-                    <CoverageCell ghost={g} coverage={m.perGhost[g]} />
-                  </td>
-                ))}
               </tr>
-            ))}
-          </tbody>
+              {site.rows.map((m) => (
+                <tr key={`${m.siteName}:${m.missionId}`} role="row">
+                  <th scope="row" role="rowheader" className={styles.mission}>
+                    <MissionCell mission={m} />
+                  </th>
+                  {GHOST_ORDER.map((g) => (
+                    <td key={g} role="cell" data-label={GHOSTS[g].name}>
+                      <CoverageCell ghost={g} coverage={m.perGhost[g]} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          ))}
         </table>
       )}
     </>

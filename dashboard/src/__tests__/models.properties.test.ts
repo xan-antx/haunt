@@ -1,7 +1,14 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { coldSpotSize } from '../model/coldSpots';
-import { afterCandidates, compareRuns, findingPage, type ExorciseRow } from '../model/exorcise';
+import {
+  afterCandidates,
+  afterOptions,
+  compareRuns,
+  findingPage,
+  isFairAfter,
+  type ExorciseRow,
+} from '../model/exorcise';
 import { FINDING_LABELS } from '../model/findingLabels';
 import { reproduceCommand } from '../model/reproduce';
 import { answer } from '../model/seance';
@@ -211,7 +218,28 @@ describe('Feature: exorcise-different-ghost-fix, Property 1: Exorcise only pairs
         for (let i = 1; i < options.length; i++) {
           expect(Date.parse(options[i - 1]!.startedAt)).toBeGreaterThanOrEqual(Date.parse(options[i]!.startedAt));
         }
-        expect(defaultAfter(before, runs)?.key ?? null).toBe(options[0]?.key ?? null);
+      }),
+      { numRuns: 300 },
+    );
+  });
+
+  // UI-13: the After picker offers only later runs by the same ghost and mind, on the same site or
+  // its fixed copy, and never a real-world run; the default is one of them.
+  it('fair after options are later, same ghost, mission and mind, and the default is one of them', () => {
+    fc.assert(
+      fc.property(runsArb, fc.nat(), (runs, pick) => {
+        const before = runs[pick % runs.length]!;
+        const fair = afterOptions(before, runs);
+        for (const r of fair) {
+          expect(isFairAfter(before, r)).toBe(true);
+          expect(r.ghost).toBe(before.ghost);
+          expect(r.mission.id).toBe(before.mission.id);
+          expect(r.mind).toBe(before.mind);
+          expect(Date.parse(r.startedAt)).toBeGreaterThan(Date.parse(before.startedAt));
+        }
+        const chosen = defaultAfter(before, runs);
+        expect(chosen === null).toBe(fair.length === 0);
+        if (chosen) expect(fair.map((r) => r.key)).toContain(chosen.key);
       }),
       { numRuns: 300 },
     );

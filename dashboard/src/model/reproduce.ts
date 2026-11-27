@@ -16,6 +16,8 @@ export function reproduceCommand(run: Run): string {
   return (
     `git checkout ${q(run.site.commit)} && ` +
     // The engine's npm script, run in engine/. Never `npx haunt`: an unrelated npm package has that name.
-    `cd engine && npm run haunt -- run --ghost ${q(run.ghost)} --mission ${q(run.mission.id)} --url ${q(run.site.url)}`
+    `cd engine && npm run haunt -- run --ghost ${q(run.ghost)} --mission ${q(run.mission.id)} --url ${q(run.site.url)}` +
+    // An AI run is only reproduced by the AI mind (UI-13).
+    (run.mind === 'ai' ? ' --mind ai' : '')
   );
 }
