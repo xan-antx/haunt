@@ -8,10 +8,13 @@ import { GHOSTS, resultSentence } from '../model/ghosts';
 import { buildGraveyard } from '../model/graveyard';
 import { groupHaunts, startHereTarget } from '../model/haunts';
 import { reproduceCommand, shellQuote } from '../model/reproduce';
-import { answer, answerText } from '../model/seance';
+import { resultHeadline } from '../model/results';
+import { MASK } from '../model/secrets';
+import { answer, answerText, questionLabel } from '../model/seance';
+import { displayGoal, plainAction, siteLabel } from '../model/sites';
 import { waveformBars } from '../model/waveform';
 import { FINDING_TYPES } from '../data/types';
-import { bebeRun, listenerRun, mustRun, sampleRuns } from './fixtures/samples';
+import { allRecordedRuns, bebeRun, listenerRun, mustRun, sampleRuns } from './fixtures/samples';
 import * as derived from './fixtures/derived';
 
 const meta = (key: string) => ({ key, folder: `test/${key}`, origin: 'runs' as const });
@@ -20,7 +23,7 @@ describe('ghosts and labels', () => {
   it('uses the names and descriptions from the design rules', () => {
     expect(GHOSTS.listener.name).toBe('The Listener');
     expect(GHOSTS.phantom.description).toBe('Browses on slow 3G and an old phone.');
-    expect(resultSentence('bebe', 'succeeded')).toBe('Bebe made it through');
+    expect(resultSentence('bebe', 'succeeded')).toBe('Bebe completed the task');
     expect(resultSentence('listener', 'gave_up')).toBe('The Listener gave up');
   });
 
@@ -103,14 +106,14 @@ describe('séance with the samples', () => {
     expect(answerText(answer(listenerRun(), 'why-give-up'))).toBe(
       [
         'I gave up at step 9 on the bill page.',
-        'At step 7, The pay button has no accessible name.',
-        'At step 9, Cannot escape the payment confirmation dialog.',
+        'At step 7, the pay button has no accessible name.',
+        'At step 9, cannot escape the payment confirmation dialog.',
       ].join('\n'),
     );
   });
 
   it('answers why Bebe did not give up', () => {
-    expect(answerText(answer(bebeRun(), 'why-give-up'))).toBe("I didn't give up. I finished at step 6: Payment received.");
+    expect(answerText(answer(bebeRun(), 'why-give-up'))).toBe("I didn't give up. I finished at step 6 and paid the bill.");
   });
 
   // Revised by Req 24.6: the findings at each stuck step, in plain words.
@@ -128,9 +131,67 @@ describe('séance with the samples', () => {
     expect(answerText(answer(errored, 'where-stuck'))).toBe('At step 3 a technical error stopped me on the bill page.');
   });
 
-  it('answers what Bebe heard and what would have helped', () => {
-    expect(answerText(answer(bebeRun(), 'what-heard')).split('\n')[0]).toBe("Step 1: 'Pay your bill'.");
+  it('answers what Bebe was thinking, from her thoughts, and what would have helped', () => {
+    const first = bebeRun().steps[0]!.thought.trim();
+    expect(answerText(answer(bebeRun(), 'what-heard')).split('\n')[0]).toBe(
+      `Step 1: ${/[.!?]$/.test(first) ? first : `${first}.`}`,
+    );
+    expect(questionLabel('bebe', 'what-heard')).toBe('What were you thinking?');
+    expect(questionLabel('phantom', 'what-heard')).toBe('What were you thinking?');
+    expect(questionLabel('listener', 'what-heard')).toBe('What did you hear?');
     expect(answerText(answer(bebeRun(), 'what-helped'))).toBe('At step 3: This text in my language.');
+  });
+
+  // UI-02: every question, for every recorded run, reads as plain sentences.
+  it('never gives an empty, repeated or broken answer for any recorded run', () => {
+    const runs = allRecordedRuns();
+    expect(runs).toHaveLength(11);
+    for (const run of runs) {
+      for (const q of ['why-give-up', 'where-stuck', 'what-heard', 'what-helped'] as const) {
+        const text = answerText(answer(run, q));
+        const where = `${run.key} / ${q}`;
+        expect(text, where).not.toContain("''");
+        expect(text, where).not.toMatch(/ : \./);
+        expect(text, where).not.toMatch(/: \./);
+        expect(text, where).not.toMatch(/(\b[\w' ]{10,}\b)(?:,| and) ?\1/);
+        const lines = text.split('\n');
+        expect(new Set(lines).size, `${where} repeats a line`).toBe(lines.length);
+      }
+    }
+  });
+
+  // UI-05: the Memos account's password never reaches a screen or a page title.
+  it('masks the throwaway password in every loaded run and shows a short goal for Memos', () => {
+    const memos = allRecordedRuns().filter((r) => r.mission.id === 'write-note');
+    expect(memos).toHaveLength(2);
+    for (const run of memos) {
+      expect(JSON.stringify(run), run.key).not.toContain('HauntTest123!');
+      expect(displayGoal(run.mission)).toBe('Write and save a note in Memos');
+      expect(run.steps.some((s) => s.spoken.includes(MASK) || s.action.includes(MASK))).toBe(true);
+    }
+    for (const run of allRecordedRuns()) expect(JSON.stringify(run), run.key).not.toContain('HauntTest123!');
+  });
+
+  // UI-06: both Memos cards end with what the ghost could not do, not with "sign".
+  it('ends the Memos headlines with "save the note" and never "sign"', () => {
+    for (const run of allRecordedRuns().filter((r) => r.mission.id === 'write-note')) {
+      const headline = resultHeadline(run);
+      expect(headline, run.key).toMatch(/couldn't save the note\.$/);
+      expect(headline).not.toMatch(/sign/);
+    }
+  });
+
+  // UI-24: no local address in a step's action.
+  it('names the page instead of a local address in a step action', () => {
+    expect(plainAction('Lantern Bills demo', 'Open http://localhost:3000')).toBe('Open the bill page');
+    expect(plainAction('Memos', 'Open http://localhost:5230/auth')).toBe('Open the sign-in page');
+    expect(siteLabel('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
+    expect(siteLabel('Memos')).toBe('Memos');
+  });
+
+  it('ends a completed run with a real sentence', () => {
+    const run = allRecordedRuns().find((r) => r.key === '2026-11-11T1744Z-bebe-pay-bill')!;
+    expect(answerText(answer(run, 'why-give-up'))).toBe("I didn't give up. I finished at step 14 and paid the bill.");
   });
 
   it('says a technical error stopped an error run', () => {

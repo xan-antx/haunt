@@ -6,7 +6,7 @@ Every command below is for Windows PowerShell 5.1 (the PowerShell that ships wit
 also works in PowerShell 7. Commands that call a web address use `curl.exe`, never plain `curl`,
 because in Windows PowerShell 5.1 `curl` is an alias for `Invoke-WebRequest`.
 
-The examples use `C:\Users\Lenovo\Projects\haunt` as the Haunt repository folder. Use the folder you
+The examples use `C:\Users\<you>\Projects\haunt` as the Haunt repository folder. Use the folder you
 cloned into instead.
 
 ## If you don't have Kiro Crew yet
@@ -28,8 +28,8 @@ cloned into instead.
    anything itself.
 
    ```powershell
-   git clone https://github.com/xan-antx/haunt.git C:\Users\Lenovo\Projects\haunt
-   Set-Location C:\Users\Lenovo\Projects\haunt\engine
+   git clone https://github.com/xan-antx/haunt.git C:\Users\<you>\Projects\haunt
+   Set-Location C:\Users\<you>\Projects\haunt\engine
    npm install
    npx playwright install chromium
    Set-Location ..\demo-site
@@ -48,7 +48,7 @@ Crew installs a copy of `crew-app` into `%USERPROFILE%\.kiro\crew\apps\haunt-pat
 `HAUNT_REPO_ROOT` environment variable. Set it once for your Windows user:
 
 ```powershell
-[Environment]::SetEnvironmentVariable('HAUNT_REPO_ROOT', 'C:\Users\Lenovo\Projects\haunt', 'User')
+[Environment]::SetEnvironmentVariable('HAUNT_REPO_ROOT', 'C:\Users\<you>\Projects\haunt', 'User')
 ```
 
 Programs only see a new variable when they start, so fully quit Kiro Crew now: right-click its icon
@@ -85,7 +85,7 @@ install the app. Use the dashboard:
 3. Enter the `crew-app` folder, the one that holds `app.json`:
 
    ```text
-   C:\Users\Lenovo\Projects\haunt\crew-app
+   C:\Users\<you>\Projects\haunt\crew-app
    ```
 
 4. Confirm the install. Crew checks `app.json`, copies the folder into

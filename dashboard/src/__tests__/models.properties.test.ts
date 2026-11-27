@@ -77,7 +77,7 @@ describe('Feature: haunt-dashboard, Property 3: coldSpotSize is monotonic and bo
 
 describe('Feature: haunt-dashboard, Property 4: Séance answers cite only real steps', () => {
   it('cites only steps in the run or referenced by a finding, and every step claim has a citation', () => {
-    const noStepLines = ['I never got stuck.', 'Nothing got in my way this time, so I have nothing to wish for.'];
+    const noStepLines = ['I never got stuck.', 'I have nothing to tell you about this visit.', 'Nothing got in my way this time, so I have nothing to wish for.'];
     fc.assert(
       fc.property(runArb('r'), fc.constantFrom(...QUESTION_IDS), (run, q) => {
         const allowed = new Set([...run.steps.map((s) => s.n), ...run.findings.map((f) => f.step)]);

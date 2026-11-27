@@ -11,7 +11,7 @@ export function outcomeLine(run: OutcomeRun): string {
   const { steps, findings, result } = run;
   if (steps.length === 0) return 'No steps in this run';
 
-  if (result === 'succeeded') return `Made it through in ${plural(steps.length, 'step')}`;
+  if (result === 'succeeded') return `Completed in ${plural(steps.length, 'step')}`;
 
   // Last step = the step with the highest n. Steps are sorted by n, but take the
   // maximum so the rule holds even if they are not.

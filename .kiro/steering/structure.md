@@ -10,9 +10,25 @@ Contains the accessibility testing engine that drives ghost personas through web
 Owner: House Builder  
 Contains the example web application used for testing and demonstrations.
 
+**demo-site-exorcised/**  
+Owner: House Builder  
+The fixed copy of Lantern Bills, with all six planted problems repaired through bugfix specs (`exorcised-payment-a11y-fix`, `exorcised-remaining-fixes`). Ghost runs on it are recorded with `--site-name "Lantern Bills demo (exorcised)"`, so the dashboard shows them as "after the fix". `demo-site/` never changes because of it.
+
 **dashboard/**  
 Owner: House Builder  
 Contains the dashboard for viewing and analyzing accessibility test results.
+
+**crew-app/**  
+Owner: Ghost Builder  
+Haunt Patrol, a Kiro Crew app: a nightly script cron that sends the three ghosts through Lantern Bills, a read-only backend, a page built with the Crew app SDK, the `patrol-guide` agent and the `reading-patrols` skill. It is also published as its own repository, `haunt-crew`. Its runs stay in its own data folder, not in `runs/`.
+
+**.kiro/agents/**  
+Owner: Ghost Builder  
+The custom Kiro agent `listener.json`, The Listener's AI mind. Its only tools come from the MCP server below.
+
+**engine/src/mcp/**  
+Owner: Ghost Builder  
+The `haunt-mcp` MCP server (started by `engine/bin/haunt-mcp.mjs`). It gives the Listener agent seven tools (`read_page`, `read_announcements`, `press_key`, `type_text`, `jump`, `think`, `finish`) and no way to create findings. Detectors in the engine decide every finding.
 
 **runs/**  
 Writer: Ghost Builder  
@@ -35,6 +51,6 @@ Contains project notes, decisions, and documentation from the hackathon.
 
 ## Data Flow
 
-1. Ghost Builder's engine runs tests and writes JSON files to `runs/`
+1. Ghost Builder's engine runs tests and writes JSON files to `runs/`. With `--mind ai` it starts the Kiro CLI with the Listener agent, which acts through the MCP server.
 2. House Builder's dashboard reads those JSON files and displays the results
 3. The `contract/` folder defines the exact format both sides must follow

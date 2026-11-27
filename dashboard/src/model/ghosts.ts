@@ -77,12 +77,12 @@ export const RESULT_LABELS: Record<RunResult, string> = {
   error: 'Errored',
 };
 
-/** A sentence about how the run ended, for example "Bebe made it through". */
+/** A sentence about how the run ended, for example "Bebe completed the task". */
 export function resultSentence(ghost: GhostId, result: RunResult): string {
   const name = ghostName(ghost);
   switch (result) {
     case 'succeeded':
-      return `${name} made it through`;
+      return `${name} completed the task`;
     case 'gave_up':
       return `${name} gave up`;
     case 'error':

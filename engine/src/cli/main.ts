@@ -62,7 +62,7 @@ Options:
   --ghost <name>      which ghost to send (required)
   --mission <id>      the mission to attempt, for example pay-bill (required)
   --url <url>         the page to open; only localhost, 127.0.0.1 and allowedDomains (required)
-  --out <dir>         where run folders go, resolved against the current folder (default: runs/)
+  --out <dir>         where run folders go, resolved against the current folder (default: the repository's runs/ folder)
   --site <key>        site key to use instead of the mission's own (must be in haunt.config.json)
   --site-name <text>  name written to the run's site.name (default: the site's name in haunt.config.json)
   --seed <int>        seed for the visual ghosts' timing jitter (default: random, printed)

@@ -6,7 +6,7 @@ import type { KeyboardEvent, RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import type { Run } from '../../data/types';
 import { GHOSTS } from '../../model/ghosts';
-import { QUESTIONS, answer } from '../../model/seance';
+import { answer, questionLabel } from '../../model/seance';
 import { QUESTION_IDS, askPath, type QuestionId } from '../../routes';
 import styles from './GhostCam.module.css';
 
@@ -39,7 +39,7 @@ export function AskPanel({ id, run, question, onAsk, onClose, firstQuestionRef }
         </button>
       </div>
       <p className={styles.askIntro}>
-        {ghost.name} answers from what it recorded. Each step it mentions is a link.
+        {ghost.name} answers from the recording of this visit. Each step mentioned is a link.
       </p>
       <div role="group" aria-label="Questions" className={styles.askQuestions}>
         {QUESTION_IDS.map((q, i) => (
@@ -51,13 +51,13 @@ export function AskPanel({ id, run, question, onAsk, onClose, firstQuestionRef }
             aria-pressed={question === q}
             onClick={() => onAsk(q)}
           >
-            {QUESTIONS[q]}
+            {questionLabel(run.ghost, q)}
           </button>
         ))}
       </div>
       <section className={styles.board} aria-live="polite" aria-labelledby="answer-heading">
         <h3 id="answer-heading" className={styles.boardHeading}>
-          {question ? `${ghost.name} answers: ${QUESTIONS[question]}` : `${ghost.name} is listening`}
+          {question ? `${ghost.name} answers: ${questionLabel(run.ghost, question)}` : `${ghost.name} is listening`}
         </h3>
         {question ? (
           answer(run, question).paragraphs.map((paragraph, i) => (

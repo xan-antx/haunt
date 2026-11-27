@@ -11,7 +11,7 @@ import { ResultBadge } from '../components/ResultBadge';
 import { useAllRuns } from '../data/hooks';
 import type { Run } from '../data/types';
 import { plainFindingType } from '../model/findingLabels';
-import { plural } from '../model/format';
+import { formatDate, plural } from '../model/format';
 import { ghostName, moodFor } from '../model/ghosts';
 import { latestPerMind } from '../model/realWorld';
 import { resultHeadline, watchStep } from '../model/results';
@@ -38,7 +38,9 @@ function RealWorldCard({ run }: { run: Run }) {
           <p className={styles.badges}>
             <ResultBadge result={run.result} /> <MindTag run={run} />
           </p>
-          <p className={styles.steps}>{plural(run.steps.length, 'step')} walked.</p>
+          <p className={styles.steps}>
+            {plural(run.steps.length, 'step')} walked on {formatDate(run.startedAt)}.
+          </p>
           {run.findings.length === 0 ? (
             <p>No problems were found.</p>
           ) : (
@@ -84,8 +86,13 @@ export function RealWorldScreen() {
         <h2 id="real-world-about">About Memos</h2>
         <p>
           {about?.description ??
-            'Memos is an open-source site that Haunt did not build. Haunt runs its own copy on this computer.'}
+            'Memos is an open-source site that Haunt did not build. Haunt runs its own copy on our own computer.'}
         </p>
+        {about?.sourceLink && (
+          <p>
+            <a href={about.sourceLink.href}>{about.sourceLink.label}</a>
+          </p>
+        )}
       </section>
       <section aria-labelledby="real-world-results" className={styles.results}>
         <h2 id="real-world-results">What The Listener found on Memos</h2>

@@ -19,7 +19,7 @@ Rules for every task:
 
 - [x] 1. Verify the Kiro CLI facts and record them in the design
   - [x] 1.1 Check the facts
-    - Find `kiro-cli`: run `kiro-cli --version`; if it is not on PATH, confirm with the file tools that `C:\Users\Lenovo\AppData\Local\Kiro-Cli\kiro-cli.exe` exists and run it by full path
+    - Find `kiro-cli`: run `kiro-cli --version`; if it is not on PATH, confirm with the file tools that `%LOCALAPPDATA%\Kiro-Cli\kiro-cli.exe` exists and run it by full path
     - Run `kiro-cli chat --help` and copy the exact flags for the agent (`--agent`), non-interactive mode (`--no-interactive`) and trusting tools (`--trust-tools`, `--trust-all-tools`), and the exact trust syntax for MCP tools
     - Read the Kiro CLI custom agent documentation (web search or fetch) and confirm the agent JSON keys: `name`, `description`, `prompt`, `mcpServers`, `tools`, `allowedTools`, `includeMcpJson`, and the form of an MCP tool reference such as `@haunt-mcp/*`
     - Confirm how environment variables reach MCP servers: the `env` key of the `mcpServers` entry, whether `${VAR}` substitution works there, and whether the child's own environment is inherited by the MCP process. If the child environment is not inherited, find the working alternative (for example a `${VAR}` reference in the agent's `env` block, or a temporary agent file written per run)
@@ -165,9 +165,9 @@ Rules for every task:
   - Ensure all tests pass, ask the user if questions arise
 
 - [x] 11. Self-check (manual, run by the agent executing the tasks)
-  - [ ] 11.1 Run the Listener with the AI mind on Lantern Bills and compare
+  - [x] 11.1 Run the Listener with the AI mind on Lantern Bills and compare (done: the AI run is saved as `runs/lantern-bills/2026-11-23T1020Z-listener-pay-bill`, commit `9a7a48b`. The engine checks every run against the schema before saving it. Its two findings, an unlabeled button and a focus trap, equal the baseline and the saved scripted run `2026-11-10T1822Z-listener-pay-bill`, so no `self-check.md` difference note was needed)
     - Ask the user to start Lantern Bills and give its URL. Do not start a dev server and do not run e2e tests
-    - From `engine/`, run `npm run haunt -- run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `C:\Users\Lenovo\AppData\Local\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
+    - From `engine/`, run `npm run haunt -- run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `%LOCALAPPDATA%\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
     - Validate the written `run.json` against `contract/run.schema.json` with the engine's existing validation (for example a short `npx tsx` script that calls `validate` from `src/contract`). Report the result
     - Compare the Findings with the Baseline_Findings (an unlabeled button and a focus trap) and with a scripted run: run `npm run haunt -- run --ghost listener --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/scripted/` and compare the finding types and the steps they point to
     - Report: run path, result, number of steps, the Findings of each run, schema result, and the Credits_Report line (or "unknown" with the reason)

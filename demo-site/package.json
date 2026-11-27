@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+  "serve:ghosts": "vite build --base / --outDir .ghost-build --emptyOutDir && vite preview --base / --outDir .ghost-build",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:properties": "vitest --run -t \"Feature: lantern-bills, Property\""

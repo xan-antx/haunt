@@ -18,7 +18,7 @@ import { byStartedAtDesc, formatDate, plural } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS } from '../model/ghosts';
 import { SAMPLE_LABEL, isSample } from '../model/origin';
 import { AI_MIND_LABEL, isAiRun } from '../model/mind';
-import { pageName } from '../model/sites';
+import { displayGoal, pageName } from '../model/sites';
 import { exorcisePath, stepPath } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
 import styles from './ExorciseScreen.module.css';
@@ -102,7 +102,7 @@ function RunSummary({ run, heading }: { run: Run; heading: string }) {
         <SampleTag run={run} /> <MindTag run={run} />
       </p>
       <p>
-        {run.mission.goal} · {plural(run.findings.length, 'finding')} ·{' '}
+        {displayGoal(run.mission)} · {plural(run.findings.length, 'finding')} ·{' '}
         <Link to={stepPath(run.key, 1)}>Watch in the Ghost Cam</Link>
       </p>
       <ProvenancePanel

@@ -3,7 +3,9 @@
 import { useId, useRef, useState } from 'react';
 import type { Run } from '../data/types';
 import { scrollKeys, useScrollOverflow } from '../hooks/useScrollOverflow';
+import { isFixedCopyRun } from '../model/fixedCopy';
 import { formatLocalDateTime } from '../model/format';
+import { isRealWorldRun } from '../model/realWorld';
 import { reproduceCommand } from '../model/reproduce';
 import { useAnnounce } from './layout/LiveRegion';
 import styles from './ProvenancePanel.module.css';
@@ -40,6 +42,8 @@ export function ProvenancePanel({
   const box = useRef<HTMLDivElement>(null);
   const overflowing = useScrollOverflow(box, 'x');
   const command = reproduceCommand(run);
+  // Only the haunted Lantern Bills is served by `npm run serve:ghosts`.
+  const usesLanternBuild = !isRealWorldRun(run) && !isFixedCopyRun(run);
 
   // Copies `command` from this render, never the DOM text, so layout can't add or remove characters.
   // The button is never disabled: on failure the text is selected so it can be copied by hand.
@@ -108,6 +112,12 @@ export function ProvenancePanel({
                 {command}
               </code>
             </div>
+            {usesLanternBuild && (
+              <p className="muted" data-testid="serve-ghosts-hint">
+                Serve Lantern Bills first with <code>npm run serve:ghosts</code> in <code>demo-site/</code>. The dev
+                server is too slow for The Phantom's slow-3G walk.
+              </p>
+            )}
             <button type="button" className="button" onClick={() => void copy()}>
               Copy command
             </button>

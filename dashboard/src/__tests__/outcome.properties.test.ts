@@ -22,7 +22,7 @@ function expectedOutcome(run: OracleRun): { text: string; number: number | null 
   // 7.14: N is the number of entries in steps, singular "step" when N is 1.
   if (run.result === 'succeeded') {
     const count = run.steps.length;
-    return { text: `Made it through in ${count} ${count === 1 ? 'step' : 'steps'}`, number: count };
+    return { text: `Completed in ${count} ${count === 1 ? 'step' : 'steps'}`, number: count };
   }
 
   // "Last step" is the step with the highest n.

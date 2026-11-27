@@ -60,7 +60,7 @@ describe('Ask_Panel in the Ghost Cam (Req 12)', () => {
     const board = within(panel).getByRole('region', { name: 'The Listener answers: Why did you give up?' });
     expect(board).toHaveAttribute('aria-live', 'polite');
     expect(board).toHaveTextContent('I gave up at step 9 on the bill page.');
-    expect(board).toHaveTextContent('At step 7, The pay button has no accessible name.');
+    expect(board).toHaveTextContent('At step 7, the pay button has no accessible name.');
   });
 
   it('follows a step citation with the panel still open on the same question', async () => {
@@ -88,7 +88,7 @@ describe('Ask_Panel in the Ghost Cam (Req 12)', () => {
     const panel = screen.getByRole('region', { name: 'Ask Bebe' });
     expect(panel).toHaveTextContent('At step 3: This text in my language.');
 
-    within(panel).getByRole('button', { name: 'What did you hear?' }).focus();
+    within(panel).getByRole('button', { name: 'What were you thinking?' }).focus();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(here(router)).toBe(`/run/${B}/step/3`));
     expect(screen.queryByRole('region', { name: 'Ask Bebe' })).not.toBeInTheDocument();

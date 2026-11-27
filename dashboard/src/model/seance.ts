@@ -1,12 +1,12 @@
 // Séance answers: first person, built only from run fields, with step citations.
 // No AI model or outside service is involved.
 
-import type { Run } from '../data/types';
+import type { Finding, GhostId, Run } from '../data/types';
 import type { QuestionId } from '../routes';
 import { runColdSpots } from './coldSpots';
 import { FINDING_LABELS } from './findingLabels';
 import { stuckPhrase } from './findingWords';
-import { pageName } from './sites';
+import { missionWords, pageName } from './sites';
 
 export type AnswerPart =
   | { kind: 'text'; text: string }
@@ -18,18 +18,47 @@ export interface Answer {
   paragraphs: AnswerPart[][];
 }
 
-export const QUESTIONS: Record<QuestionId, string> = {
-  'why-give-up': 'Why did you give up?',
-  'where-stuck': 'Where did you get stuck?',
-  'what-heard': 'What did you hear?',
-  'what-helped': 'What would have helped?',
-};
+/**
+ * The question as a ghost is asked it. Only The Listener hears the page; The Phantom and Bebe
+ * see it, so they are asked what they were thinking (UI-02).
+ */
+export function questionLabel(ghost: GhostId, question: QuestionId): string {
+  switch (question) {
+    case 'why-give-up':
+      return 'Why did you give up?';
+    case 'where-stuck':
+      return 'Where did you get stuck?';
+    case 'what-heard':
+      return ghost === 'listener' ? 'What did you hear?' : 'What were you thinking?';
+    case 'what-helped':
+      return 'What would have helped?';
+  }
+}
 
 const text = (t: string): AnswerPart => ({ kind: 'text', text: t });
 const cite = (step: number, capitalize = false): AnswerPart => ({ kind: 'cite', step, capitalize });
 
 function stripEnd(sentence: string): string {
   return sentence.trim().replace(/[.!?]+$/, '');
+}
+
+/** Lower-cases a title's first letter so it reads inside a sentence, but leaves "ARIA" and "OK" alone. */
+function inSentence(title: string): string {
+  const t = stripEnd(title);
+  return /^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t;
+}
+
+/** One finding for each step and type, in step order, so the same problem is never told twice. */
+function distinctFindings(findings: readonly Finding[]): Finding[] {
+  const seen = new Set<string>();
+  return [...findings]
+    .sort((a, b) => a.step - b.step)
+    .filter((f) => {
+      const key = `${f.step}:${f.type}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 }
 
 function whyGiveUp(run: Run): AnswerPart[][] {
@@ -39,12 +68,14 @@ function whyGiveUp(run: Run): AnswerPart[][] {
       const lines: AnswerPart[][] = [
         [text('I gave up at '), cite(last.n), text(` on ${pageName(run.site.name, last.page)}.`)],
       ];
-      const before = run.findings.filter((f) => f.step <= last.n).sort((a, b) => a.step - b.step);
-      for (const f of before) lines.push([text('At '), cite(f.step), text(`, ${stripEnd(f.title)}.`)]);
+      const before = distinctFindings(run.findings).filter((f) => f.step <= last.n);
+      for (const f of before) lines.push([text('At '), cite(f.step), text(`, ${inSentence(f.title)}.`)]);
       return lines;
     }
-    case 'succeeded':
-      return [[text("I didn't give up. I finished at "), cite(last.n), text(`: ${stripEnd(last.spoken)}.`)]];
+    case 'succeeded': {
+      const done = missionWords(run.mission.id).done;
+      return [[text("I didn't give up. I finished at "), cite(last.n), text(done ? ` and ${done}.` : '.')]];
+    }
     case 'error':
       return [[text('Something broke on the technical side at '), cite(last.n), text(', so I had to stop.')]];
   }
@@ -68,7 +99,8 @@ function whereStuck(run: Run): AnswerPart[][] {
   return spots.map((spot) => {
     const found = run.findings.filter((f) => f.step === spot.step);
     if (found.length > 0) {
-      return [text('At '), cite(spot.step), text(` I ${joinPhrases(found.map((f) => stuckPhrase(run, f)))}.`)];
+      const phrases = [...new Set(found.map((f) => stuckPhrase(run, f)))];
+      return [text('At '), cite(spot.step), text(` I ${joinPhrases(phrases)}.`)];
     }
     const page = pageName(run.site.name, pageOf.get(spot.step) ?? '');
     return spot.reason === 'error'
@@ -77,15 +109,31 @@ function whereStuck(run: Run): AnswerPart[][] {
   });
 }
 
+/**
+ * The Listener answers with what it heard, in quotes. The Phantom and Bebe have nothing spoken, so
+ * they answer with what they were thinking at each step. A step with nothing to say is left out.
+ */
 function whatHeard(run: Run): AnswerPart[][] {
-  return run.steps.map((step) => [cite(step.n, true), text(`: '${step.spoken}'.`)]);
+  const lines: AnswerPart[][] = [];
+  for (const step of run.steps) {
+    if (run.ghost === 'listener') {
+      const heard = step.spoken.trim();
+      if (heard !== '') lines.push([cite(step.n, true), text(`: '${heard}'.`)]);
+    } else {
+      const thought = step.thought.trim();
+      if (thought !== '') lines.push([cite(step.n, true), text(`: ${/[.!?]$/.test(thought) ? thought : `${thought}.`}`)]);
+    }
+  }
+  return lines.length > 0 ? lines : [[text('I have nothing to tell you about this visit.')]];
 }
 
 function whatHelped(run: Run): AnswerPart[][] {
   if (run.findings.length === 0) return [[text('Nothing got in my way this time, so I have nothing to wish for.')]];
-  return [...run.findings]
-    .sort((a, b) => a.step - b.step)
-    .map((f) => [text('At '), cite(f.step), text(`: ${FINDING_LABELS[f.type].helped}`)]);
+  return distinctFindings(run.findings).map((f) => [
+    text('At '),
+    cite(f.step),
+    text(`: ${FINDING_LABELS[f.type].helped}`),
+  ]);
 }
 
 export function answer(run: Run, question: QuestionId): Answer {

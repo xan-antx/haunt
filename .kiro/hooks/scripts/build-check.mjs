@@ -3,7 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
-const candidates = ['engine', 'demo-site', 'dashboard'];
+const candidates = ['engine', 'demo-site', 'demo-site-exorcised', 'dashboard', 'crew-app'];
 const status = spawnSync('git status --porcelain', { shell: true, encoding: 'utf8' }).stdout ?? '';
 const changed = candidates.filter(dir => status.split('\n').some(line => line.slice(3).replace(/\\/g, '/').startsWith(`${dir}/`)));
 

@@ -270,10 +270,10 @@ unlabeled_field: {
 **Element trap words (`model/findingWords.ts`, `model/results.ts`).**
 
 - A new `ELEMENT_TRAP` pattern reads the first sentence of an element-trap evidence: `Keyboard focus could not leave (the text box "<name>"|a text box with no name)`.
-- `trapPlace(run, finding)` checks `ELEMENT_TRAP` first. A named element gives `the 'Search' text box`. An unnamed one gives `siteAbout(run.site.name)?.unnamedTextbox ?? 'a text box with no name'`. The dialog patterns run after, so dialog findings are unchanged (7.5).
-- `results.ts` `blocker()` returns `got trapped in <place>` for an element trap, so the headline says "The Listener got trapped in the note editor and couldn't write." It does not say pop-up (7.4). `blockingFindings` already treats every `focus_trap` as blocking (7.7), so it needs no change.
+- `trapPlace(run, finding)` checks `ELEMENT_TRAP` first. A named element gives `the 'Search' text box`. An unnamed one gives `a text box with no name`. (Amended by pre-recording-polish UI-06: the unused `unnamedTextbox` site-table entry was removed.) The dialog patterns run after, so dialog findings are unchanged (7.5).
+- `results.ts` `blocker()` returns `got trapped in <place>` for an element trap, so the headline says "The Listener got trapped in the 'Any thoughts...' text box and couldn't save the note." It does not say pop-up (7.4). (Amended by pre-recording-polish UI-06: the ending comes from a per-mission verb phrase in `model/sites.ts`, `save the note` for `write-note`, because the first word of the goal, "Sign", gave "couldn't sign".) `blockingFindings` already treats every `focus_trap` as blocking (7.7), so it needs no change.
 
-**Site table (`model/sites.ts`).** `SiteAbout` gets an optional `unnamedTextbox?: string`. The entry for `'Memos'`:
+**Site table (`model/sites.ts`).** (Amended by pre-recording-polish UI-05 and UI-06: `SiteAbout` has an optional `sourceLink`, a mission table gives each mission a short display goal, "Write and save a note in Memos", and the dashboard replaces the password named in a mission goal with dots in every loaded run, so the throwaway password never reaches a screen or a page title. The run files are not changed.) The entry for `'Memos'`:
 
 ```ts
 Memos: {

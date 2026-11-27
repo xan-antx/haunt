@@ -26,7 +26,7 @@ The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev`
 
 Needs `npm install` in `dashboard/`, `demo-site/` and `engine/`, and `npx playwright install chromium` in `engine/`.
 
-With `npm run dev`, the button on Home starts Lantern Bills on port 3000 if nothing is there (built into `dashboard/.live/`), runs The Listener on the `pay-bill` mission through the engine's CLI (scripted mind; the same as `npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000` in `engine/`), writes the run into `runs/`, adds it to the dashboard, and stops the site again if it started it. Progress shows on Home. If Lantern Bills is already running on port 3000, it is used and left running; anything else on that port stops the job.
+With `npm run dev`, the button on Home starts Lantern Bills on port 3000 if nothing is there (built into `dashboard/.live/`), runs The Listener on the `pay-bill` mission through the engine's CLI (Scripted mind; the same as `npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000` in `engine/`), writes the run into `runs/`, adds it to the dashboard, and stops the site again if it started it. Progress shows on Home. If Lantern Bills is already running on port 3000, it is used and left running; anything else on that port stops the job.
 
 Only requests from your own computer are accepted (loopback address, local host name, this page's origin, and an `x-haunt-summon` header). The ghost, mission and address are fixed in `scripts/liveGhost.ts`. `npm run build` and the published site have no such endpoint, so there the button explains that live ghosts run on your own computer and shows `cd dashboard` and `npm run dev`.
 
@@ -63,14 +63,14 @@ The dashboard has five screens: Home, Ghost Cam, Graveyard, Exorcise and Spec Co
 | Exorcise | `#/exorcise` and `#/exorcise/<beforeKey>/<afterKey>` |
 | Spec Coverage | `#/coverage` |
 
-`<runKey>` is the run's `runId`. `<siteKey>` is the site name in lowercase with other characters replaced by `-`. The questions are `why-give-up`, `where-stuck`, `what-heard` and `what-helped`.
+`<runKey>` is the run's `runId`. `<siteKey>` is the site name in lowercase with other characters replaced by `-`. The questions are `why-give-up`, `where-stuck`, `what-heard` and `what-helped`. The `what-heard` question is "What did you hear?" for The Listener and "What were you thinking?" for The Phantom and Bebe, who see the page and hear nothing.
 
 Old links still work. Each one replaces itself with the place that holds its content now:
 
 | Old link | Opens |
 |---|---|
 | `#/haunt/<siteKey>/map?ghost=<ghost>` | `#/graveyard?site=<siteKey>&ghost=<ghost>&view=map` |
-| `#/seance` | The Ghost Cam's default step (The Listener's newest real run at its keyboard trap, step 20 today) with `?ask=open` |
+| `#/seance` | The Ghost Cam's default step (The Listener's newest real run at its keyboard trap, step 26 today) with `?ask=open` |
 | `#/seance/<runKey>/<question>` | That run's key step (where the ghost was blocked, else its last step, or for a run that made it through, its first problem) with `?ask=<question>` |
 
 Example links:

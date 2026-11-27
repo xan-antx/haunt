@@ -93,7 +93,7 @@ describe('Home screen', () => {
     const bebe = rows.find((row) => within(row).queryByText('Bebe', { selector: 'p' }))!;
     expect(within(listener).getByText('Hit a keyboard trap at step 9')).toBeInTheDocument();
     expect(within(listener).getByText('Gave up')).toBeInTheDocument();
-    expect(within(bebe).getByText('Made it through in 6 steps')).toBeInTheDocument();
+    expect(within(bebe).getByText('Completed in 6 steps')).toBeInTheDocument();
     expect(within(bebe).getByText('Completed')).toBeInTheDocument();
   });
 

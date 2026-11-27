@@ -21,6 +21,7 @@ import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
 import { formatSeconds } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS, resultSentence } from '../model/ghosts';
+import { displayGoal, pageName, plainAction, siteLabel } from '../model/sites';
 import { nothingAnnounced } from '../model/transcript';
 import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
@@ -199,10 +200,10 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           <ScreenHeading
             title={`Step ${step.n} of ${run.steps.length} · ${ghost.name} · Ghost Cam`}
             className={styles.summaryRow}
-            tooltip={`${ghost.name}: ${run.mission.goal}`}
+            tooltip={`${ghost.name}: ${displayGoal(run.mission)}`}
           >
             <span className="visually-hidden">Ghost Cam: </span>
-            {ghost.name}: <span>{run.mission.goal}</span>
+            {ghost.name}: <span>{displayGoal(run.mission)}</span>
           </ScreenHeading>
           {/* Screen_Intro (Req 20.13, 20.14): one plain sentence, never ellipsised. */}
           <ScreenIntro className={styles.camIntro}>
@@ -248,7 +249,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
           </div>
           {/* Stacked mode only. */}
           <p className={styles.ghostDescription}>{ghost.description}</p>
-          <p className={styles.siteLine}>Site: {run.site.name}</p>
+          <p className={styles.siteLine}>Site: {siteLabel(run.site.name)}</p>
         </div>
         <button
           ref={askButton}
@@ -298,9 +299,9 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
             Step {step.n} of {run.steps.length}
           </strong>
           <span aria-hidden="true"> · </span>
-          <span>{step.page}</span>
+          <span>{pageName(run.site.name, step.page).replace(/^the /, 'The ')}</span>
           <span aria-hidden="true"> · </span>
-          <span>{step.action}</span>
+          <span>{plainAction(run.site.name, step.action)}</span>
           <span aria-hidden="true"> · </span>
           <span>waited {formatSeconds(step.waitMs)}</span>
           {playing && (

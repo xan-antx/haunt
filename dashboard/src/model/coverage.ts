@@ -3,6 +3,7 @@
 import type { GhostId, Run } from '../data/types';
 import { byStartedAtDesc } from './format';
 import { byRealThenNewest } from './origin';
+import { displayGoal } from './sites';
 
 export interface GhostCoverage {
   /** Newest real run of this mission by this ghost, else its newest sample. */
@@ -40,7 +41,7 @@ export function buildCoverage(runs: Run[]): MissionCoverage[] {
       };
       return {
         missionId,
-        goal: latest.mission.goal,
+        goal: displayGoal(latest.mission),
         requirement: latest.mission.requirement,
         requirementChanged: new Set(sorted.map((r) => r.mission.requirement)).size > 1,
         perGhost: { listener: forGhost('listener'), phantom: forGhost('phantom'), bebe: forGhost('bebe') },

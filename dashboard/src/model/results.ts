@@ -6,6 +6,7 @@ import { FINDING_LABELS, POP_UP_BLOCKER } from './findingLabels';
 import { trapPlace } from './findingWords';
 import { plural } from './format';
 import { ghostName } from './ghosts';
+import { missionWords } from './sites';
 
 /** Site_Short_Name: drops one trailing "demo" or "(demo)" word, any case. */
 export function siteShortName(siteName: string): string {
@@ -58,7 +59,9 @@ export function resultHeadline(run: Run): string {
   const name = ghostName(run.ghost);
   if (run.steps.length === 0) return `${name} recorded no steps.`;
 
-  const verb = missionVerb(run.mission.goal);
+  // A mission with plain words of its own wins, so "Sign in to Memos ... and save it" ends
+  // "couldn't save the note" and not "couldn't sign".
+  const verb = missionWords(run.mission.id).verbPhrase ?? missionVerb(run.mission.goal);
   const couldnt = verb ? `couldn't ${verb}` : "couldn't finish the task";
   const managed = verb ? `managed to ${verb}` : 'made it through';
   const lastN = lastStepN(run);

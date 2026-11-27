@@ -3,6 +3,7 @@
 import { Link } from 'react-router-dom';
 import { GHOSTS, moodFor } from '../model/ghosts';
 import type { TombstoneData } from '../model/graveyard';
+import { siteLabel } from '../model/sites';
 import { stepPath } from '../routes';
 import { GhostBadge } from './ghosts/Ghosts';
 import { SampleTag } from './SampleTag';
@@ -19,7 +20,7 @@ export function Tombstone({ data }: { data: TombstoneData }) {
       <p className={styles.title}>{finding.title}</p>
       <p className={styles.evidence}>{finding.evidence}</p>
       <p className={styles.meta}>
-        Step {finding.step} · {run.site.name}
+        Step {finding.step} · {siteLabel(run.site.name)}
       </p>
       <Link className={styles.link} to={stepPath(run.key, finding.step)}>
         Watch {ghost.name} at step {finding.step}

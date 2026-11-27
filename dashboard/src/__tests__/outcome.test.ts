@@ -31,7 +31,7 @@ function outcomeOf(result: RunResult, stepCount: number, findings: Finding[] = [
 describe('outcomeLine', () => {
   it('gives the sample values', () => {
     expect(outcomeLine(listenerRun())).toBe('Hit a keyboard trap at step 9');
-    expect(outcomeLine(bebeRun())).toBe('Made it through in 6 steps');
+    expect(outcomeLine(bebeRun())).toBe('Completed in 6 steps');
   });
 
   it('says the run has no steps for an empty steps array, whatever the result', () => {
@@ -41,8 +41,8 @@ describe('outcomeLine', () => {
   });
 
   it('counts the steps of a succeeded run, singular for one step, ignoring findings', () => {
-    expect(outcomeOf('succeeded', 6, [makeFinding('focus_trap', 6)])).toBe('Made it through in 6 steps');
-    expect(outcomeOf('succeeded', 1)).toBe('Made it through in 1 step');
+    expect(outcomeOf('succeeded', 6, [makeFinding('focus_trap', 6)])).toBe('Completed in 6 steps');
+    expect(outcomeOf('succeeded', 1)).toBe('Completed in 1 step');
   });
 
   it('names the last step of an errored run, ignoring findings', () => {

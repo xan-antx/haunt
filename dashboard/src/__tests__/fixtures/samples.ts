@@ -46,6 +46,17 @@ export function bebeRun(): Run {
   return mustRun(bebeSample(), BEBE_META);
 }
 
+const RECORDED = import.meta.glob('../../../../runs/**/run.json', { eager: true, import: 'default' });
+
+/** Every run file under runs/ (recorded runs and samples), read in place and never edited. */
+export function allRecordedRuns(): Run[] {
+  return Object.entries(RECORDED).map(([path, json]) => {
+    const folder = path.replace(/^.*\/runs\//, '').replace(/\/run\.json$/, '');
+    const key = folder.split('/').pop()!;
+    return mustRun(json, { key, folder, origin: folder.startsWith('samples/') ? 'samples' : 'runs' });
+  });
+}
+
 export function sampleRuns(): Run[] {
   return [listenerRun(), bebeRun()];
 }

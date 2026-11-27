@@ -11,8 +11,8 @@ export interface SiteAbout {
   tryLink?: { label: string; href: string };
   /** Plain page names for paths whose name can't be read from the path, such as "/". */
   pageNames?: Readonly<Record<string, string>>;
-  /** Plain words for the site's text box that Haunt found stuck, for example "the note editor". */
-  unnamedTextbox?: string;
+  /** Where to read the source of a site we did not build. */
+  sourceLink?: { label: string; href: string };
 }
 
 const SITE_ABOUT: Readonly<Record<string, SiteAbout>> = {
@@ -25,11 +25,52 @@ const SITE_ABOUT: Readonly<Record<string, SiteAbout>> = {
   },
   Memos: {
     description:
-      'Memos is an open-source note-taking site that we did not build. Haunt runs its own copy on this computer and sends The Listener in to write a note.',
+      'Memos is an open-source note-taking site that we did not build. Haunt runs its own copy on our own computer and sends The Listener in to write a note.',
+    sourceLink: { label: 'Memos on GitHub', href: 'https://github.com/usememos/memos' },
     pageNames: { '/': 'the notes page', '/auth': 'the sign-in page' },
-    unnamedTextbox: 'the note editor',
   },
 };
+
+/**
+ * A site's name as shown to readers: "Lantern Bills demo" is "Lantern Bills" and its fixed copy
+ * "Lantern Bills demo (exorcised)" is "Lantern Bills (fixed copy)" (UI-24).
+ */
+export function siteLabel(siteName: string): string {
+  const original = originalSiteName(siteName);
+  const base = (original ?? siteName).replace(/\s+\(?demo\)?\s*$/i, '').trim() || (original ?? siteName);
+  return original === null ? base : `${base} (fixed copy)`;
+}
+
+const LOCAL_ADDRESS = /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/[^\s"')]*)?/gi;
+
+/** A step's action in plain words: a local address becomes the page's name ("Open the bill page"). */
+export function plainAction(siteName: string, action: string): string {
+  return action.replace(LOCAL_ADDRESS, (_all, path: string | undefined) => pageName(siteName, path ?? '/'));
+}
+
+/** Plain words for a mission, keyed by the run file's `mission.id` (UI-05, UI-06). */
+export interface MissionWords {
+  /** Short task for headings and titles, instead of the engine's long goal. */
+  goal?: string;
+  /** After "couldn't" or "managed to", for example "save the note". */
+  verbPhrase?: string;
+  /** After "I finished at step 14 and", for example "paid the bill". */
+  done?: string;
+}
+
+const MISSION_WORDS: Readonly<Record<string, MissionWords>> = {
+  'pay-bill': { done: 'paid the bill' },
+  'write-note': { goal: 'Write and save a note in Memos', verbPhrase: 'save the note', done: 'saved the note' },
+};
+
+export function missionWords(missionId: string): MissionWords {
+  return Object.hasOwn(MISSION_WORDS, missionId) ? MISSION_WORDS[missionId]! : {};
+}
+
+/** The goal as shown on screen: the mission's short task when it has one, else the run's own goal. */
+export function displayGoal(mission: { id: string; goal: string }): string {
+  return missionWords(mission.id).goal ?? mission.goal;
+}
 
 /** The entry for a Haunt's `site.name`, or null when the site is not in the table. */
 export function siteAbout(siteName: string): SiteAbout | null {

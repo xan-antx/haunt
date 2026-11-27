@@ -103,8 +103,8 @@ describe('install help', () => {
 
 describe('resolveKiroCli and parseTimeoutMs', () => {
   it('finds kiro-cli.exe through the Path variable on Windows', () => {
-    const exe = 'C:\\Users\\Lenovo\\AppData\\Local\\Kiro-Cli\\kiro-cli.exe';
-    const result = resolveKiroCli({ Path: 'C:\\Windows;C:\\Users\\Lenovo\\AppData\\Local\\Kiro-Cli' }, (p) => p === exe, 'win32');
+    const exe = 'C:\\Users\\someone\\AppData\\Local\\Kiro-Cli\\kiro-cli.exe';
+    const result = resolveKiroCli({ Path: 'C:\\Windows;C:\\Users\\someone\\AppData\\Local\\Kiro-Cli' }, (p) => p === exe, 'win32');
     expect(result).toEqual({ ok: true, path: exe });
   });
 

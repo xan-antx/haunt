@@ -172,8 +172,8 @@ export function Layout() {
           </main>
           <footer className={styles.footer}>
             <p>
-              Haunt sends three ghost users through our own sites and shows where they got stuck. Ghosts only
-              visit sites we own or local copies we run ourselves.
+              Haunt sends three ghost users through a sample site and shows where they got stuck. Ghosts only
+              visit sites we built, or open-source sites we run as copies on our own computer.
             </p>
             <p className="muted">
               Fonts: IM Fell English and Atkinson Hyperlegible, both under the SIL Open Font License. Built for

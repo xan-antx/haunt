@@ -1,6 +1,7 @@
 // Hand-written validator for run files. Shared by the Collect_Step and the Data_Module.
 // It never throws: every problem becomes a ValidationIssue in plain words.
 
+import { maskRunSecrets } from '../model/secrets';
 import { isSafeScreenshotPath } from './screenshots';
 import {
   FINDING_TYPES,
@@ -261,7 +262,7 @@ function validateUnsafe(input: unknown, meta: RunMeta): LoadedRun {
   }
   return {
     ok: true,
-    run: {
+    run: maskRunSecrets({
       key: meta.key,
       folder: meta.folder,
       origin: meta.origin,
@@ -276,7 +277,7 @@ function validateUnsafe(input: unknown, meta: RunMeta): LoadedRun {
       steps,
       findings,
       warnings: c.warnings,
-    },
+    }),
   };
 }
 

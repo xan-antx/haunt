@@ -52,3 +52,6 @@ crew-app/node_modules/
 # files in ui/dist/data/ are runtime output and stay ignored.
 !crew-app/ui/dist/
 crew-app/ui/dist/data/
+
+# Production build that `npm run serve:ghosts` serves for ghost runs
+.ghost-build/

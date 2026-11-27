@@ -23,7 +23,7 @@ import { outcomeLine } from '../model/outcome';
 import { originalSiteRuns } from '../model/fixedCopy';
 import { groupHaunts, recentRuns, type Haunt } from '../model/haunts';
 import { resultHeadline, resultsHeading, watchStep } from '../model/results';
-import { siteAbout } from '../model/sites';
+import { displayGoal, siteAbout, siteLabel } from '../model/sites';
 import { buildTour } from '../model/tour';
 import { realWorldRuns, withoutRealWorld } from '../model/realWorld';
 import { graveyardPath, realWorldPath, restlessPath, stepPath } from '../routes';
@@ -116,7 +116,7 @@ function RecentWalks({ runs }: { runs: Run[] }) {
                 <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} /> <SampleTag run={run} /> <MindTag run={run} />
               </p>
               <p className={styles.meta}>
-                <span>{run.site.name}</span>
+                <span>{siteLabel(run.site.name)}</span>
                 <span aria-hidden="true"> · </span>
                 <time dateTime={run.startedAt}>{date}</time>
               </p>
@@ -126,7 +126,7 @@ function RecentWalks({ runs }: { runs: Run[] }) {
                   Watch {name} in the Ghost Cam
                   <span className="visually-hidden">
                     {' '}
-                    ({run.site.name}, {date}
+                    ({siteLabel(run.site.name)}, {date}
                     {isSample(run) && `, ${SAMPLE_LABEL}`})
                   </span>
                 </Link>
@@ -172,7 +172,7 @@ function ResultCard({ run }: { run: Run }) {
           <h3 id={headingId} className={styles.resultName}>
             {ghost.name}
           </h3>
-          <p className={styles.resultTask}>Task: {run.mission.goal}</p>
+          <p className={styles.resultTask}>Task: {displayGoal(run.mission)}</p>
           <p className={styles.resultHeadline}>{resultHeadline(run)}</p>
           <p className={styles.resultBadge}>
             <ResultBadge result={run.result} /> <SampleTag run={run} /> <MindTag run={run} />

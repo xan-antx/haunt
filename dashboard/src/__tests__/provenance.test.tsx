@@ -139,6 +139,15 @@ describe('Provenance_Panel disclosure on the Ghost Cam', () => {
   });
 });
 
+describe('Provenance_Panel serve hint (UI-11)', () => {
+  it('says to serve Lantern Bills with npm run serve:ghosts, and why', async () => {
+    await openGhostCam(listenerRun().key);
+    const hint = screen.getByTestId('serve-ghosts-hint');
+    expect(hint).toHaveTextContent('npm run serve:ghosts');
+    expect(hint).toHaveTextContent("too slow for The Phantom's slow-3G walk");
+  });
+});
+
 describe('Provenance_Panel command box', () => {
   it('is a region named "Reproduce command" on the Ghost Cam', async () => {
     await openGhostCam(listenerRun().key);
