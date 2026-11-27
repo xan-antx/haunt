@@ -22,7 +22,7 @@ export function RestlessScreen() {
         <>
           <ScreenHeading title="Restless file">This file is not restless</ScreenHeading>
           <p>
-            This run file is valid. <Link to={stepPath(state.run.key, 1)}>Watch it in the Ghost Cam</Link>.
+            This run file is valid, so nothing here is restless. <Link to={stepPath(state.run.key, 1)}>Watch it in the Ghost Cam</Link>.
           </p>
         </>
       );

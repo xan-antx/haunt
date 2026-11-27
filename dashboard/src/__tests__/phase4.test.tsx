@@ -80,6 +80,29 @@ describe('UI-08: first load', () => {
   });
 });
 
+describe('enhancement b: playful empty and unknown-address states keep a plain next step', () => {
+  it('an unknown address is playful and says what to do', async () => {
+    renderApp('/no-such-room', memorySource([]));
+    expect(await screen.findByRole('heading', { level: 1, name: 'This room is empty' })).toBeInTheDocument();
+    expect(screen.getByText(/Even the ghosts left/)).toBeInTheDocument();
+    expect(screen.getByText(/Check the address for a typing mistake/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Go back to Home' })).toBeInTheDocument();
+  });
+
+  it('an unknown run says what to check and offers Home', async () => {
+    renderApp('/run/nobody/step/1', memorySource(recorded()));
+    expect(await screen.findByRole('heading', { name: 'No ghost by that name has walked here' })).toBeInTheDocument();
+    expect(screen.getByText(/Check the address, or choose a run from Home/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Go back to Home' })).toBeInTheDocument();
+  });
+
+  it('an error that needs action stays plain, with no joke', async () => {
+    renderApp('/', failingSource());
+    const message = await screen.findByText(/Try reloading the page in a moment/);
+    expect(message.closest('.panel')?.textContent ?? '').not.toMatch(/ghost left|boo|spooky/i);
+  });
+});
+
 describe('UI-21: page head and 404', () => {
   it('has a favicon, a theme colour and the Open Graph tags with a full live address', () => {
     const html = read('index.html');

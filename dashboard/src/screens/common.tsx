@@ -51,6 +51,7 @@ export function UnknownRunScreen() {
   return (
     <>
       <ScreenHeading title="Unknown run">No ghost by that name has walked here</ScreenHeading>
+      <p>The run in this address is not in the graveyard. Check the address, or choose a run from Home.</p>
       <p>
         <Link to={homePath()}>Go back to Home</Link>
       </p>
