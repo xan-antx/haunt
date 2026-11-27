@@ -11,6 +11,7 @@ import { ResultBadge } from '../components/ResultBadge';
 import { SummonGhost } from '../components/SummonGhost';
 import { runFilePath } from '../components/RunErrorPanel';
 import { MindTag } from '../components/MindTag';
+import { OwnSiteCard } from '../components/OwnSiteCard';
 import { AI_MIND_LABEL, isAiRun } from '../model/mind';
 import { SampleTag } from '../components/SampleTag';
 import { TOUR_START_ID, TOUR_UNAVAILABLE, useTour } from '../components/tour/Tour';
@@ -382,6 +383,8 @@ export function HomeScreen() {
       ))}
 
       <HowItWorks />
+
+      <OwnSiteCard />
 
       {/* DOM order is reading and tab order: cards, then the side panel (Req 7.13, 18.1). */}
       <div className={styles.body}>

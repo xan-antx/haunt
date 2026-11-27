@@ -193,6 +193,36 @@ npm run haunt -- run --ghost bebe --mission pay-bill --url http://localhost:3002
 
 To use the AI mind, add `--mind ai` to a Listener run. This needs the Kiro CLI and a Kiro account (see below). See [engine/README.md](engine/README.md) for every option and exit code, and [dashboard/README.md](dashboard/README.md) for how run files get into the dashboard.
 
+## Haunt your own site
+
+You can send a ghost through a site of your own. You need two small files, kept in a folder of your own (here `my-haunt/`, next to `engine/`), and your site running on this computer. Only run ghosts on sites you own, or on local copies of open-source sites.
+
+1. Make `my-haunt/haunt.config.json`. It lists your site. The `allowedDomains` list stays empty for a site on `localhost`; add a host name there only for a domain you own.
+
+   ```json
+   {
+     "allowedDomains": [],
+     "sites": {
+       "my-site": { "name": "My site", "allowedTerms": ["My site"] }
+     }
+   }
+   ```
+
+2. Make `my-haunt/missions/my-mission.json`: one task, written as a few steps. Copy the template in [engine/missions/README.md](engine/missions/README.md) and change the button and field names to the ones on your site.
+
+3. Start your site, then run a ghost. This example expects your site on `http://localhost:3000`:
+
+   ```
+   cd engine
+   npm install
+   npx playwright install chromium
+   npm run haunt -- run --ghost listener --mission my-mission --url http://localhost:3000 --site my-site --config ../my-haunt/haunt.config.json --missions ../my-haunt/missions --out ../my-haunt/runs
+   ```
+
+The last line printed is the path of the saved `run.json`. `--ghost` can also be `phantom` or `bebe`. If a ghost cannot find a button or field named in your mission, it gives up at that step and the run says where. The dashboard reads the `runs/` folder at the repository root, so to see the run there, copy its folder (`my-haunt/runs/my-site/<run id>`) into `runs/my-site/`, or leave out `--out`, which saves into `runs/` directly.
+
+Every command above was run against a local copy of Lantern Bills, standing in for "your site", with the output folder outside the repository.
+
 ## What needs a Kiro account
 
 Only two things do:

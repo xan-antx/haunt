@@ -1,0 +1,31 @@
+.card {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 2px solid var(--surface);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.title {
+  margin-top: 0;
+  font-size: 1.75rem;
+}
+
+/* The commands wrap instead of scrolling, so there is no scroll box to reach by keyboard. */
+.block {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
