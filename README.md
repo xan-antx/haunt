@@ -292,8 +292,6 @@ That is 629 records. Three more specs, `haunt-patrol`, `listener-ai-mind` and `m
 - **A bugfix spec overrode a requirement.** The [`exorcise-different-ghost-fix` bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md) replaces criterion 13.8 of the dashboard requirements. The dashboard used to warn when the two runs were by different ghosts. Now it refuses to compare them.
 - **Kiro Crew refused command crons on Windows.** [`haunt-patrol` task 10](.kiro/specs/haunt-patrol/tasks.md) moved the nightly patrol to a script cron, `cron/nightly_patrol.py`.
 
-No screenshot of a hook firing is in the repository, so none is shown here.
-
 ## Tests
 
 Counted by running each suite on the current code. Commands run in the folder named in the first column.

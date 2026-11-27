@@ -166,6 +166,7 @@ Rules for every task:
 
 - [x] 11. Self-check (manual, run by the agent executing the tasks)
   - [x] 11.1 Run the Listener with the AI mind on Lantern Bills and compare (done: the AI run is saved as `runs/lantern-bills/2026-11-23T1020Z-listener-pay-bill`, commit `9a7a48b`. The engine checks every run against the schema before saving it. Its two findings, an unlabeled button and a focus trap, equal the baseline and the saved scripted run `2026-11-10T1822Z-listener-pay-bill`, so no `self-check.md` difference note was needed)
+    - Note: no `self-check.md` was produced. The task requires one only when the findings differ from the baseline, and in the saved AI run (commit `9a7a48b`) they do not differ.
     - Ask the user to start Lantern Bills and give its URL. Do not start a dev server and do not run e2e tests
     - From `engine/`, run `npm run haunt -- run --ghost listener --mind ai --mission pay-bill --url <Lantern Bills URL> --out test-output/ai-runs/` (use the option names `--help` prints). Set `KIRO_CLI_PATH` to `%LOCALAPPDATA%\Kiro-Cli\kiro-cli.exe` if `kiro-cli` is not on PATH. Allow up to the 10 minute timeout
     - Validate the written `run.json` against `contract/run.schema.json` with the engine's existing validation (for example a short `npx tsx` script that calls `validate` from `src/contract`). Report the result
