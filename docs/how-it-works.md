@@ -64,7 +64,7 @@ All three ghosts ran again on the fixed copy, recorded with `--site-name "Lanter
 **Ghost Cam.**
 
 - It shows the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking. For The Listener the thought is a strip under the screenshot; for an AI run the strip is headed "What the AI mind decided".
-- The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses.
+- The Play button reads "Pause" while playing. The Left and Right arrow keys step while focus is anywhere in the Ghost Cam, except in a text box, a select, the thought strip or an open panel, so they still work after a mouse click on a Ghost Cam button. Space plays or pauses when no button has focus; on a focused button it presses that button.
 - A Phantom screenshot is shown whole in a phone frame. A blank screenshot says "The picture for this step came out blank." and gives no cause, except the first Phantom step, which says the page is still loading on slow 3G.
 - **Ask this ghost** answers four questions about the run from the run file. The Listener is asked what it heard. The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud with the browser's built-in voice.
 

@@ -76,6 +76,28 @@ describe('useScrollOverflow', () => {
     expect(region).not.toHaveAttribute('tabindex');
   });
 
+  // Text spacing makes the lines taller without changing the box, so the box's own size never reports.
+  it('also observes the content, so taller lines inside a box of the same size make it focusable', () => {
+    function WithChild() {
+      const ref = useRef<HTMLDivElement>(null);
+      const overflowing = useScrollOverflow(ref, 'y');
+      return (
+        <div ref={ref} role="region" aria-label="Scroller" tabIndex={overflowing ? 0 : undefined}>
+          <p>content</p>
+        </div>
+      );
+    }
+    render(<WithChild />);
+    const region = screen.getByRole('region');
+    const observed = new Set<Element>();
+    const instances = (globalThis.ResizeObserver as unknown as { instances: Set<{ targets: Set<Element> }> }).instances;
+    for (const observer of instances) for (const target of observer.targets) observed.add(target);
+    expect(observed.has(region.firstElementChild!)).toBe(true);
+    stubSizes(region, { scrollHeight: 300, clientHeight: 100 });
+    triggerResizeObservers();
+    expect(region).toHaveAttribute('tabindex', '0');
+  });
+
   it('works without ResizeObserver', () => {
     const original = globalThis.ResizeObserver;
     // @ts-expect-error simulate a browser without ResizeObserver

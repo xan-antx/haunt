@@ -18,6 +18,11 @@ export function Tombstone({ data }: { data: TombstoneData }) {
       <GhostBadge ghost={run.ghost} mood={moodFor(run.result)} onBone />
       <SampleTag run={run} onBone />
       <p className={styles.title}>{epitaph(finding)}</p>
+      {data.detail && (
+        <p className={styles.detail} data-testid="tombstone-detail">
+          {data.detail}
+        </p>
+      )}
       <details className={styles.details}>
         <summary>Full details</summary>
         <p className={styles.evidence}>

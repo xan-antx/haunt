@@ -479,9 +479,11 @@
   }
 
   /* The room under the screenshot for the Listener's thoughts strip: its heading, three lines
-     of thought, its border and padding, and the gap above it. */
+     of thought, its border and padding, and the gap above it. The three lines still fit whole
+     with WCAG text spacing (line-height 1.5, so about 26 px a line) at 1920 px; a longer thought,
+     or a narrower screen, scrolls inside the strip instead of being cut off (R2-04). */
   .cam[data-thoughts='under'] {
-    --cam-under-h: 6.25rem;
+    --cam-under-h: 7.1rem;
   }
 
   /* One-row timeline in fit mode: smaller marks (still over 24 px), and a fixed height so a run

@@ -36,6 +36,9 @@ export function useScrollOverflow(ref: RefObject<HTMLElement | null>, axis: Scro
       setOverflowing(isOverflowing(element, axis));
     });
     observer.observe(element);
+    // The content also changes size without the box changing: text spacing, a font arriving, or a
+    // reader's style sheet makes the lines taller inside a box of the same size (WCAG 1.4.12).
+    for (const child of Array.from(element.children)) observer.observe(child);
     return () => observer.disconnect();
   }, [ref, axis]);
 

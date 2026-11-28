@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import type { Run } from '../data/types';
+import { defaultPair } from '../model/exorcise';
 import { MAX_REPLANS, buildTour, placeCallout, sentenceCount, settleDecision, targetInView } from '../model/tour';
-import { bebeRun, sampleRuns } from './fixtures/samples';
+import { allRecordedRuns, bebeRun, sampleRuns } from './fixtures/samples';
 
 const L = '2026-11-03-listener-pay-bill';
 const B = '2026-11-03-bebe-pay-bill';
@@ -79,6 +81,76 @@ describe('buildTour with the samples (Req 22.1, 22.2, 22.11)', () => {
       'listener',
     ]);
     expect(buildTour([bebeRun()])!.find((s) => s.id === 'panel')!.guide).toBe('bebe');
+  });
+});
+
+// R2-02: the ghost and the line of every stop match the run and screen the stop shows.
+describe('each stop is guided by the ghost of the run on screen (R2-02)', () => {
+  const recorded = allRecordedRuns();
+  const GHOST_WORDS = /phone|screen reader|heard|headphone|zoom|slow|3G|Punjabi|Hindi/i;
+  const sets: [string, Run[]][] = [
+    ['every recorded run', recorded],
+    ['the samples', sampleRuns()],
+    ['Bebe alone', [bebeRun()]],
+    ...(['listener', 'phantom', 'bebe'] as const).map((g): [string, Run[]] => [`${g} runs only`, recorded.filter((r) => r.ghost === g)]),
+  ];
+
+  it.each(sets)('%s: a stop that shows one run is guided by that run\'s ghost', (_name, runs) => {
+    if (runs.length === 0) return;
+    const stops = buildTour(runs);
+    if (!stops) return;
+    for (const stop of stops) {
+      if (stop.runKey === null) continue;
+      const shown = runs.find((r) => r.key === stop.runKey);
+      expect(shown, `${stop.id} names a run that exists`).toBeDefined();
+      expect(stop.guide, `${stop.id} (${stop.voice}) is on ${stop.runKey}`).toBe(shown!.ghost);
+    }
+  });
+
+  it.each(sets)('%s: the stops on the Ghost Cam all show the run the tour opens', (_name, runs) => {
+    const stops = buildTour(runs);
+    if (!stops) return;
+    const onCam = stops.filter((s) => s.path.startsWith('/run/'));
+    expect(onCam.map((s) => s.id)).toEqual(['shot', 'panel', 'notice', 'timeline']);
+    for (const stop of onCam) expect(stop.path).toContain(`/run/${stop.runKey}/`);
+  });
+
+  it.each(sets)('%s: the Exorcise stop is guided by the ghost of the pair it opens on', (_name, runs) => {
+    const stops = buildTour(runs);
+    if (!stops) return;
+    const stop = stops.find((s) => s.id === 'exorcise')!;
+    const pair = defaultPair(runs);
+    if (pair) {
+      expect(stop.runKey).toBe(pair.before.key);
+      expect(stop.guide).toBe(pair.before.ghost);
+      expect(pair.after.ghost).toBe(pair.before.ghost);
+    }
+  });
+
+  it.each(sets)('%s: a stop on a screen of many runs says nothing only one ghost could say', (_name, runs) => {
+    const stops = buildTour(runs);
+    if (!stops) return;
+    for (const stop of stops.filter((s) => ['results', 'graveyard', 'exorcise', 'coverage'].includes(s.id))) {
+      expect(stop.voice, stop.id).not.toMatch(GHOST_WORDS);
+      expect(stop.voice, stop.id).not.toMatch(/\bI (found|saw|heard)\b/);
+    }
+  });
+
+  it('the screenshot line only mentions a phone for The Phantom', () => {
+    for (const [name, runs] of sets) {
+      const stops = buildTour(runs);
+      if (!stops) continue;
+      const shot = stops.find((s) => s.id === 'shot')!;
+      const run = runs.find((r) => r.key === shot.runKey)!;
+      expect(/phone/i.test(shot.voice), `${name}: ${shot.voice}`).toBe(run.ghost === 'phantom');
+    }
+  });
+
+  it('The Listener opens the tour with its own line over its own screenshot', () => {
+    const stops = buildTour(sampleRuns())!;
+    const shot = stops.find((s) => s.id === 'shot')!;
+    expect(shot.guide).toBe('listener');
+    expect(shot.voice).not.toContain('old phone');
   });
 });
 

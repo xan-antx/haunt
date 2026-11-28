@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildRooms, coldSpotSize } from '../model/coldSpots';
 import { buildCoverage } from '../model/coverage';
-import { afterCandidates, compareRuns } from '../model/exorcise';
+import { afterCandidates, compareRuns, rowDetails } from '../model/exorcise';
+import { tellApart } from '../model/findingWords';
 import { FINDING_LABELS, plainFindingType } from '../model/findingLabels';
 import { formatDate, formatLocalDateTime, formatSeconds } from '../model/format';
 import { GHOSTS, resultSentence } from '../model/ghosts';
@@ -109,6 +110,76 @@ describe('graveyard with the samples', () => {
     const lantern = stones.filter((t) => siteLabel(t.run.site.name) === 'Lantern Bills');
     expect(lantern.map((t) => t.finding.step)).toEqual([...lantern.map((t) => t.finding.step)].sort((a, b) => a - b));
     expect(epitaph({ type: 'unlabeled_button' } as Finding)).toBe('Here lies a button with no name.');
+  });
+});
+
+// R2-03: findings that look the same are told apart with words from the run file, and nothing is merged.
+describe('findings that look the same (R2-03)', () => {
+  const recorded = allRecordedRuns();
+
+  it("tells Bebe's two step 13 Tricky choice stones apart with their own titles, and keeps every stone", () => {
+    const stones = buildGraveyard(recorded);
+    const latest = stones.filter((t) => t.run.ghost === 'bebe' && t.finding.type === 'dark_pattern' && t.finding.step === 13);
+    expect(latest).toHaveLength(2);
+    expect(latest.map((t) => t.detail).sort()).toEqual(['A paid option was ticked in advance', 'The total is higher than the bill']);
+    // The detail is the finding's own title, from the run file.
+    for (const t of latest) expect(t.detail).toBe(t.finding.title);
+  });
+
+  it('gives a detail only to stones that share a type and step with another, and never merges or drops one', () => {
+    const stones = buildGraveyard(recorded);
+    for (const t of stones) {
+      const twins = stones.filter((o) => o.run.key === t.run.key && o.finding.type === t.finding.type && o.finding.step === t.finding.step);
+      if (twins.length === 1) expect(t.detail, `${t.run.key} ${t.finding.type} step ${t.finding.step}`).toBeNull();
+      else expect(t.detail, `${t.run.key} ${t.finding.type} step ${t.finding.step}`).not.toBeNull();
+    }
+    // No two stones of one run, type and step read the same.
+    const seen = new Set<string>();
+    for (const t of stones) {
+      const key = [t.run.key, t.finding.type, t.finding.step, t.detail ?? ''].join('|');
+      expect(seen.has(key), key).toBe(false);
+      seen.add(key);
+    }
+  });
+
+  it('counts the same findings as the run files', () => {
+    const runs = allRecordedRuns();
+    const total = buildGraveyard(runs).length;
+    const latestFindings = new Set(buildGraveyard(runs).map((t) => t.run.key));
+    const expected = [...latestFindings].reduce((n, key) => n + runs.find((r) => r.key === key)!.findings.length, 0);
+    expect(total).toBe(expected);
+  });
+
+  it('shows the step on The Phantom\'s two "Clicked the wrong thing" rows, and not on rows that already differ', () => {
+    const before = recorded.find((r) => r.key === '2026-11-11T1744Z-phantom-pay-bill')!;
+    const after = recorded.find((r) => r.key === '2026-11-22T1153Z-phantom-pay-bill')!;
+    const result = compareRuns(before, after);
+    if (!('rows' in result)) throw new Error('expected rows');
+    const misclicks = result.rows.filter((r) => r.type === 'misclick');
+    expect(misclicks).toHaveLength(2);
+    const details = rowDetails(result.rows);
+    expect(misclicks.map((r) => details.get(r.key))).toEqual(['Step 3', 'Step 5']);
+    // Every row is still there, with its own status.
+    expect(result.rows).toHaveLength(before.findings.length + after.findings.length - result.rows.filter((r) => r.status === 'still_haunting').length);
+  });
+
+  it("leaves rows alone when their titles already differ, as Bebe's Tricky choice rows do", () => {
+    const run = recorded.find((r) => r.key === '2026-11-11T1744Z-bebe-pay-bill')!;
+    const result = compareRuns(run, run);
+    if (!('rows' in result)) throw new Error('expected rows');
+    expect(result.rows.filter((r) => r.type === 'dark_pattern').length).toBeGreaterThan(1);
+    expect(rowDetails(result.rows).size).toBe(0);
+  });
+
+  it('tellApart uses the title, then the step, then a plain first sentence, and says nothing when nothing differs', () => {
+    const f = (title: string, step: number, evidence = 'Evidence one. More.'): Finding => ({ type: 'misclick', step, title, evidence, screenshot: 'shots/001.png' });
+    expect(tellApart([f('A', 1)])).toEqual([null]);
+    expect(tellApart([f('A', 3), f('B', 3)])).toEqual(['A', 'B']);
+    expect(tellApart([f('Same', 3), f('Same', 5)])).toEqual(['Step 3', 'Step 5']);
+    expect(tellApart([f('Same', 3, 'The first button.'), f('Same', 3, 'The second button.')])).toEqual(['The first button.', 'The second button.']);
+    expect(tellApart([f('Same', 3, 'Same.'), f('Same', 3, 'Same.')])).toEqual([null, null]);
+    // Evidence that is not plain words (a path) is not shown.
+    expect(tellApart([f('Same', 3, 'On /bill it moved.'), f('Same', 3, 'On /pay it moved.')])).toEqual([null, null]);
   });
 });
 

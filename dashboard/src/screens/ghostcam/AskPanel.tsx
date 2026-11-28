@@ -29,7 +29,7 @@ export function AskPanel({ id, run, question, onAsk, onClose, firstQuestionRef }
   };
 
   return (
-    <section id={id} className={styles.askPanel} aria-labelledby="ask-heading" onKeyDown={onKeyDown} data-ask-panel="">
+    <section id={id} className={styles.askPanel} aria-labelledby="ask-heading" onKeyDown={onKeyDown} data-ask-panel="" data-keys="own">
       <div className={styles.askHead}>
         <h2 id="ask-heading" className={styles.askHeading}>
           Ask {ghost.name}

@@ -3,6 +3,7 @@
 
 import type { GhostId, Run } from '../data/types';
 import { coveragePath, exorcisePath, graveyardPath, homePath, stepPath } from '../routes';
+import { beforeOptions, defaultPair } from './exorcise';
 import { originalSiteRuns } from './fixedCopy';
 import { groupHaunts } from './haunts';
 import { ghostName } from './ghosts';
@@ -13,6 +14,11 @@ export interface TourStop {
   id: string;
   /** Router path of the screen this stop is on. */
   path: string;
+  /**
+   * The one run whose picture or text this stop shows, or null when the screen shows many runs.
+   * When it is set, `guide` is always that run's ghost, so the line matches what is on screen.
+   */
+  runKey: string | null;
   /** CSS selectors inside #main-content; the first that matches is the target. */
   targets: string[];
   title: string;
@@ -45,11 +51,17 @@ const VOICES: Record<GhostId, Record<string, string>> = {
     timeline: 'One mark for each step I took, at my own pace.',
   },
 };
-const FIXED_VOICES: Record<string, { guide: GhostId; voice: string }> = {
-  shot: { guide: 'phantom', voice: 'This is the page as I saw it on my old phone.' },
-  graveyard: { guide: 'listener', voice: 'Every problem I found rests here.' },
-  exorcise: { guide: 'bebe', voice: 'Fix a problem, send us back, and we will tell you if it is gone.' },
-  coverage: { guide: 'phantom', voice: 'Now you know where to look. Go and explore.' },
+/** The screenshot stop: each line describes what that ghost's own picture really is. */
+const SHOT_VOICES: Record<GhostId, string> = {
+  listener: 'This is the page I was on, though I only heard it.',
+  phantom: 'This is the page as I saw it on my old phone.',
+  bebe: 'This is the page as it looked when I was there.',
+};
+/** Stops on screens that show every ghost's runs: the line speaks for all of us, never for one ghost. */
+const SHARED_VOICES: Record<string, string> = {
+  graveyard: 'Every problem any of us found rests here.',
+  exorcise: 'Fix a problem, send us back, and we will tell you if it is gone.',
+  coverage: 'Now you know where to look. Go and explore.',
 };
 
 /** The eight Tour_Stops, or null when there are no runs (the tour is then unavailable). */
@@ -65,7 +77,10 @@ export function buildTour(allRuns: Run[]): TourStop[] | null {
   const camPath = stepPath(cam.runKey, cam.step);
   const intro = '[data-screen-intro]';
 
-  const stops: Omit<TourStop, 'guide' | 'voice'>[] = [
+  // The Exorcise stop opens on the default pair, whose runs share one ghost.
+  const exorciseRun = (defaultPair(allRuns) ?? { before: beforeOptions(allRuns)[0] }).before ?? null;
+
+  const stops: Omit<TourStop, 'guide' | 'voice' | 'runKey'>[] = [
     {
       id: 'results',
       path: homePath(),
@@ -125,11 +140,23 @@ export function buildTour(allRuns: Run[]): TourStop[] | null {
       body: "Spec Coverage shows whether each ghost could complete each requirement. That's the tour, so explore on your own from here.",
     },
   ];
-  // The ghost whose run the tour opens guides the stops about that run; the other stops have a fixed guide.
-  return stops.map((stop) => {
-    const fixed = FIXED_VOICES[stop.id];
-    if (fixed) return { ...stop, ...fixed };
-    return { ...stop, guide: camRun.ghost, voice: VOICES[camRun.ghost][stop.id]! };
+  // A stop that shows one run is guided by that run's ghost, in a line that is true of that ghost.
+  // A stop on a screen of many runs keeps the opening run's ghost, with a line that speaks for all.
+  return stops.map((stop): TourStop => {
+    if (stop.id === 'shot') return { ...stop, runKey: camRun.key, guide: camRun.ghost, voice: SHOT_VOICES[camRun.ghost] };
+    if (stop.id === 'exorcise') {
+      const guide = exorciseRun?.ghost ?? camRun.ghost;
+      return { ...stop, runKey: exorciseRun?.key ?? null, guide, voice: SHARED_VOICES.exorcise! };
+    }
+    const shared = SHARED_VOICES[stop.id];
+    if (shared) return { ...stop, runKey: null, guide: camRun.ghost, voice: shared };
+    const onRun = stop.path.startsWith('/run/');
+    return {
+      ...stop,
+      runKey: onRun ? camRun.key : null,
+      guide: camRun.ghost,
+      voice: VOICES[camRun.ghost][stop.id]!,
+    };
   });
 }
 

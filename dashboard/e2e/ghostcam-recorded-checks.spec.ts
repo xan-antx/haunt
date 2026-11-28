@@ -99,6 +99,80 @@ test.describe('UI-01 at 1536x864', () => {
 const TEXT_SPACING = `* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
 p { margin-bottom: 2em !important; }`;
 
+// R2-04: the thoughts strip never clips a line with text spacing. It may scroll, and then a keyboard
+// can reach every line.
+for (const [key, n] of [
+  [AI_RUN, 12],
+  [AI_RUN, 26],
+  [LONGEST_RUN, 20],
+] as const) {
+  test(`R2-04: the thoughts strip keeps every line reachable with text spacing (${key.slice(0, 10)} step ${n})`, async ({ page }) => {
+    await page.setViewportSize({ width: 1536, height: 864 });
+    await open(page, key, n);
+    await page.addStyleTag({ content: TEXT_SPACING });
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    const body = page.getByTestId('thoughts-strip-text');
+    const overflows = await body.evaluate((el) => el.scrollHeight > el.clientHeight + 1);
+    if (overflows) await expect(body, 'a strip that scrolls takes focus').toHaveAttribute('tabindex', '0');
+    const measure = () =>
+      page.evaluate(() => {
+        const strip = document.querySelector<HTMLElement>('[data-testid="thoughts-strip"]')!;
+        const shot = document.querySelector('[data-cam-area="shot"]')!.getBoundingClientRect();
+        const heading = strip.querySelector('h2')!.getBoundingClientRect();
+        const box = document.querySelector<HTMLElement>('[data-testid="thoughts-strip-text"]')!;
+        const bodyRect = box.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(box.querySelector('p')!);
+        const lines = Array.from(range.getClientRects());
+        const last = lines[lines.length - 1]!;
+        const first = lines[0]!;
+        const stripRect = strip.getBoundingClientRect();
+        return {
+          stripInsideStage: stripRect.bottom <= shot.bottom + 1,
+          headingInsideStrip: heading.top >= stripRect.top - 1 && heading.bottom <= stripRect.bottom + 1,
+          firstLineTop: first.top - bodyRect.top,
+          lastLineBottom: last.bottom - bodyRect.bottom,
+          scrollTop: box.scrollTop,
+          scrollY: window.scrollY,
+        };
+      });
+    const atTop = await measure();
+    expect(atTop.stripInsideStage, 'the strip stays inside the stage').toBe(true);
+    expect(atTop.headingInsideStrip, 'the heading is whole').toBe(true);
+    expect(atTop.firstLineTop, 'the first line starts inside the box').toBeGreaterThanOrEqual(-1);
+    expect(atTop.scrollY).toBe(0);
+    if (overflows) {
+      // From the keyboard, down to the end: the last line is whole.
+      await body.focus();
+      for (let i = 0; i < 30; i++) await page.keyboard.press('ArrowDown');
+      const atEnd = await measure();
+      expect(atEnd.scrollTop).toBeGreaterThan(0);
+      expect(atEnd.lastLineBottom, 'the last line ends inside the box').toBeLessThanOrEqual(1);
+      expect(atEnd.scrollY, 'the page did not scroll').toBe(0);
+    } else {
+      expect(atTop.lastLineBottom, 'the last line ends inside the box').toBeLessThanOrEqual(1);
+    }
+  });
+}
+
+test('R2-04: at 1920x1080 the AI run step 26 thought is whole with text spacing, without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await open(page, AI_RUN, 26);
+  await page.addStyleTag({ content: TEXT_SPACING });
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  const result = await page.evaluate(() => {
+    const box = document.querySelector<HTMLElement>('[data-testid="thoughts-strip-text"]')!;
+    const range = document.createRange();
+    range.selectNodeContents(box.querySelector('p')!);
+    const lines = Array.from(range.getClientRects());
+    const bodyRect = box.getBoundingClientRect();
+    return { scrollTop: box.scrollTop, lines: lines.length, lastBottom: lines[lines.length - 1]!.bottom - bodyRect.bottom, firstTop: lines[0]!.top - bodyRect.top };
+  });
+  expect(result.scrollTop).toBe(0);
+  expect(result.firstTop).toBeGreaterThanOrEqual(-1);
+  expect(result.lastBottom, `${result.lines} lines, the last ends inside the box`).toBeLessThanOrEqual(1);
+});
+
 const NOTICE_VIEWPORTS = [
   { name: '100% zoom', width: 1536, height: 864 },
   { name: '400% zoom', width: 480, height: 270 },

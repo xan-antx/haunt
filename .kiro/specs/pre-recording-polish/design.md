@@ -50,6 +50,18 @@
 
 **Not done in this phase.** Enhancements a (a ghost that guides the tour) and c ("Haunt your own site" with commands that were run) were not started. Enhancement b is partly there: the empty Home and the 404 page say "This room is empty" with a plain next step.
 
+## Phase 7: second-review fixes
+
+**Tour guide (R2-02).** `TourStop.runKey` names the one run a stop shows, or `null` for a screen of many runs. `buildTour` sets `guide` to that run's ghost whenever `runKey` is set. The screenshot line comes from `SHOT_VOICES`, one line per ghost, and only The Phantom's mentions a phone. The Graveyard, Exorcise and Coverage lines are in `SHARED_VOICES` and speak for all of the ghosts. The Exorcise stop opens on the default pair, so its guide is that pair's ghost. `defaultPair` and `beforeOptions` moved from `ExorciseScreen.tsx` into `model/exorcise.ts` (the screen re-exports them) so the tour can use them.
+
+**Findings that look alike (R2-03).** `tellApart(group)` in `model/findingWords.ts` returns, for findings of one type that a reader could mix up, the first of these that differs for every finding: the run file's own title, `Step n`, or the first plain sentence of the evidence. The Graveyard groups a run's findings by type and step and shows the result as `TombstoneData.detail`. Exorcise groups rows by type and calls `rowDetails`, which asks only when the titles are not already different. No finding is merged or dropped.
+
+**Text spacing (R2-04).** The strip stays a fixed-height region (so a long thought moves nothing). Its room under the screenshot grew from 6.25 rem to 7.1 rem so three lines fit whole with line-height 1.5. `useScrollOverflow` also observes the content, so a region whose lines grow inside a box of the same size still joins the Tab order.
+
+**Keys (R2-06).** `arrowsStep(target)` in `GhostCamScreen.tsx`: true for the page body, or for anything inside `[data-ghost-cam]` that is not a text field, a select, a content-editable element or inside `[data-keys="own"]`. The thought strip, the Ask panel, every `ExpandPanel` and the Reproduce command box carry `data-keys="own"`. Space still uses `isControl`.
+
+**Switching runs (R2-05).** `useRun` stores the key its state was loaded for and returns "loading" for any other key, so the first render after a hash change no longer holds the previous run. `GhostCamScreen` remembers the run it last showed and passes `announceOnOpen` to the new `GhostCam`, which announces its first step.
+
 ## Later phases
 
 Phase 5 adds their design notes to this file when their chat begins, before any code.

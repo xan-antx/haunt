@@ -49,6 +49,27 @@ export function isControl(target: EventTarget | null): boolean {
   );
 }
 
+/**
+ * Things that use the arrow keys themselves: a text field, a select, and the regions marked
+ * `data-keys="own"` (the scrolling thought strip, the Ask panel, an open "Full requirement" panel and
+ * the Reproduce command box). The button of an open panel (`aria-expanded="true"`, which is where focus
+ * stays after a mouse click opens the panel) belongs to that panel until it is closed.
+ */
+const OWN_ARROWS =
+  'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]:not([contenteditable="false"]), [data-keys="own"], [aria-expanded="true"]';
+
+/**
+ * True when Left or Right at `target` should step the run (R2-06). That is when nothing has focus,
+ * or focus is anywhere inside the Ghost Cam, including on its buttons and timeline marks (a mouse
+ * click leaves focus on the button it clicked), except in something that uses the arrow keys itself.
+ */
+export function arrowsStep(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return true;
+  if (target === document.body || target === document.documentElement) return true;
+  if (!target.closest('[data-ghost-cam]')) return false;
+  return target.closest(OWN_ARROWS) === null;
+}
+
 function VoiceToggle({ step }: { step: Step }) {
   const voice = useApproximateVoice();
   const [enabled, setEnabled] = useState(false);
@@ -88,7 +109,7 @@ function VoiceToggle({ step }: { step: Step }) {
   );
 }
 
-function GhostCam({ run, n }: { run: Run; n: number }) {
+function GhostCam({ run, n, announceOnOpen }: { run: Run; n: number; announceOnOpen: boolean }) {
   const navigate = useNavigate();
   const announce = useAnnounce();
   const [playing, setPlaying] = useState(false);
@@ -168,9 +189,11 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
 
   // Announce step changes politely, without moving focus.
   const announcedFor = useRef<string | null>(null);
+  const openedBySwitch = useRef(announceOnOpen);
   useEffect(() => {
     const id = `${run.key}:${step.n}`;
-    if (announcedFor.current !== null && announcedFor.current !== id) {
+    const first = announcedFor.current === null;
+    if (announcedFor.current !== id && (!first || openedBySwitch.current)) {
       // Only the new step; Earlier_Lines in the Transcript are never re-announced.
       const listener = run.ghost === 'listener';
       const text = listener ? step.spoken : step.thought;
@@ -192,8 +215,10 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
     }
   };
 
-  // Keyboard shortcuts (UI-15): Left and Right step, Space plays and pauses. They work only when
-  // focus is not in a field or on another control, so they never take a key a control needs.
+  // Keyboard shortcuts (UI-15, R2-06). Left and Right step wherever focus is inside the Ghost Cam,
+  // so they still work after a mouse click on one of its buttons, except in a text field, a select,
+  // the scrolling thought strip or an open panel. Space plays and pauses only when focus is not on
+  // a control, so a focused button keeps its own Space.
   const stepBack = () => {
     if (atFirst) return;
     setPlaying(false);
@@ -210,7 +235,8 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
     const onKey = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== ' ') return;
-      if (isControl(event.target)) return;
+      const arrow = event.key !== ' ';
+      if (arrow ? !arrowsStep(event.target) : isControl(event.target)) return;
       event.preventDefault();
       if (event.key === 'ArrowLeft') shortcut.current.stepBack();
       else if (event.key === 'ArrowRight') shortcut.current.stepForward();
@@ -225,6 +251,7 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
   return (
     <div
       className={styles.cam}
+      data-ghost-cam=""
       data-notices={runHasNotices(run) ? 'some' : 'none'}
       data-thoughts={run.ghost === 'listener' ? 'under' : 'none'}
     >
@@ -369,7 +396,8 @@ function GhostCam({ run, n }: { run: Run; n: number }) {
         {run.ghost === 'listener' && <VoiceToggle step={step} />}
 
         <p className={styles.shortcutHint} data-testid="shortcut-hint">
-          Keys: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Space</kbd> play or pause (when no button or field has focus).
+          Keys: <kbd>←</kbd> <kbd>→</kbd> step (not in a text box or an open panel). <kbd>Space</kbd> plays or pauses when no
+          button has focus.
         </p>
       </div>
 
@@ -429,6 +457,14 @@ export function GhostCamScreen() {
   const state = useRun(runKey);
   const n = parseStepParam(nParam);
 
+  // The run this screen last showed. The screen stays mounted when the address changes from one
+  // run to another, so this tells a switch from a first visit.
+  const switchedFrom = useRef<string | null>(null);
+  const shownKey = state.status === 'ready' && state.run.key === runKey ? state.run.key : null;
+  useEffect(() => {
+    if (shownKey !== null) switchedFrom.current = shownKey;
+  }, [shownKey]);
+
   switch (state.status) {
     case 'loading':
       return <Loading what="the ghost" />;
@@ -449,7 +485,8 @@ export function GhostCamScreen() {
     case 'ready': {
       const { run } = state;
       if (!run.steps.some((s) => s.n === n)) return <StepOutOfRange run={run} />;
-      return <GhostCam key={run.key} run={run} n={n} />;
+      // A run the Ghost Cam opens after showing another one announces its first step (R2-05).
+      return <GhostCam key={run.key} run={run} n={n} announceOnOpen={switchedFrom.current !== null && switchedFrom.current !== run.key} />;
     }
   }
 }

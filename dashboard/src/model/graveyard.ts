@@ -3,6 +3,7 @@
 import type { Finding, Run } from '../data/types';
 import { siteKey } from '../routes';
 import { FINDING_LABELS, plainFindingType } from './findingLabels';
+import { tellApart } from './findingWords';
 import { byStartedAtDesc } from './format';
 import { latestRuns } from './latest';
 import { siteLabel } from './sites';
@@ -11,6 +12,11 @@ export interface TombstoneData {
   run: Run;
   finding: Finding;
   label: string;
+  /**
+   * What tells this stone from another with the same type, step and ghost, in words from the run
+   * file (for example "The total is higher than the bill"). Null when no other stone looks the same.
+   */
+  detail: string | null;
 }
 
 export interface GraveyardFilter {
@@ -32,13 +38,32 @@ export function epitaph(finding: Finding): string {
   return `Here lies ${FINDING_LABELS[finding.type].thing}.`;
 }
 
+/** A run's stones. Findings of one type at one step share a stone's words, so each gets its own detail. */
+function withDetails(run: Run): TombstoneData[] {
+  const groups = new Map<string, Finding[]>();
+  for (const finding of run.findings) {
+    const key = `${finding.type}|${finding.step}`;
+    groups.set(key, [...(groups.get(key) ?? []), finding]);
+  }
+  const details = new Map<Finding, string | null>();
+  for (const group of groups.values()) {
+    tellApart(group).forEach((detail, i) => details.set(group[i]!, detail));
+  }
+  return run.findings.map((finding) => ({
+    run,
+    finding,
+    label: plainFindingType(finding.type),
+    detail: details.get(finding) ?? null,
+  }));
+}
+
 /** By site (Lantern Bills first), then by step, then the newest run first. */
 export function buildGraveyard(runs: Run[], filter: GraveyardFilter = {}): TombstoneData[] {
   // Only each ghost's latest run on each site, so a run a newer run replaced is not counted twice (UI-17).
   return latestRuns(runs)
     .filter((run) => !filter.site || siteKey(run.site.name) === filter.site)
     .filter((run) => !filter.ghost || run.ghost === filter.ghost)
-    .flatMap((run) => run.findings.map((finding) => ({ run, finding, label: plainFindingType(finding.type) })))
+    .flatMap((run) => withDetails(run))
     .sort((a, b) => {
       const [ar, an] = siteRank(a.run);
       const [br, bn] = siteRank(b.run);

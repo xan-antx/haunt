@@ -51,3 +51,13 @@ An independent review of commit `38b72f4` found 32 problems (UI-01 to UI-32) bef
 ## Phase 5: polish
 
 UI-16 map filter and legend. UI-18 UTC dates. UI-19 forced-colours current page. UI-20 keyboard-reachable Exorcise table. UI-23 tombstone epitaphs. UI-26 tour resumes on refresh. UI-27 "Full requirement" overlay closes properly. UI-28 stale comments removed. UI-29 repo tidy. UI-32 WebP in the build copy step only. Optional: Home's "Recent ghost walks" folded into the site panels, and a before-and-after slider.
+
+## Phase 7: second-review fixes
+
+From the second independent review (`REPORT-2.md`, branch commit `70100dd`). Each has a test.
+
+- **R2-02** Each tour stop's ghost and line match the run and screen the stop shows. A stop on one run is guided by that run's ghost, and the screenshot line only mentions a phone for The Phantom. A stop on a screen of many runs speaks for all ghosts. Amends 4.5a.
+- **R2-03** Where two findings share a type, step and ghost, the Graveyard stone shows what tells them apart in plain words from the run file (the finding's own title). On Exorcise, rows of one type with the same title show their step. Findings are not merged and no count changes.
+- **R2-04** The thought strip clips nothing with WCAG text spacing: three lines fit whole at 1920 px, and a longer thought or a narrower screen scrolls inside the strip, which a keyboard can reach. Amends UI-01 and UI-10.
+- **R2-06** Left and Right step wherever focus is inside the Ghost Cam, except in a text field, a select, the thought strip or an open panel. Space keeps its normal meaning on a focused button. The hint says so. Amends UI-15 and haunt-dashboard 10.7.
+- **R2-05** Switching from one run to another inside the Ghost Cam announces only the new run's first step, never the previous run's text.

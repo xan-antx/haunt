@@ -124,6 +124,7 @@ export function ThoughtsStrip({ run, step }: { run: Run; step: Step }) {
         aria-label={`${strip.heading}, step ${step.n}`}
         tabIndex={overflowing ? 0 : undefined}
         onKeyDown={scrollKeys('y')}
+        data-keys="own"
         data-testid="thoughts-strip-text"
       >
         <p className={strip.empty ? styles.emptyText : undefined}>{strip.text}</p>

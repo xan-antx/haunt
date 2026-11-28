@@ -230,6 +230,78 @@ test.describe('Ghost Cam thoughts strip, timeline row and stuck notice', () => {
   });
 });
 
+// R2-06: a mouse click leaves focus on the button it clicked, and the arrow keys must keep working.
+test.describe('Ghost Cam keys after a mouse click', () => {
+  test.use({ viewport: { width: 1536, height: 864 } });
+
+  const stepText = async (page: Page) => (await page.locator('[data-cam-area="controls"] strong').first().textContent())?.trim();
+
+  test('Left and Right step while a Ghost Cam button has focus, and Space stays with the button', async ({ page }) => {
+    await openCam(page, LISTENER.hash(5));
+    await page.getByRole('button', { name: 'Step forward' }).click();
+    await expect(page.getByRole('button', { name: 'Step forward' })).toBeFocused();
+    expect(await stepText(page)).toBe('Step 6 of 20');
+
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => stepText(page)).toBe('Step 7 of 20');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => stepText(page)).toBe('Step 6 of 20');
+
+    // A timeline mark, clicked with the mouse, keeps focus too.
+    await page.locator('[data-cam-area="timeline"] button', { hasText: /^10$/ }).click();
+    await expect.poll(() => stepText(page)).toBe('Step 10 of 20');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => stepText(page)).toBe('Step 9 of 20');
+
+    // Space on a focused button presses that button (here: Step forward), and does not play or pause.
+    await page.getByRole('button', { name: 'Step forward' }).focus();
+    await page.keyboard.press('Space');
+    await expect.poll(() => stepText(page)).toBe('Step 10 of 20');
+    await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
+  });
+
+  test('Space plays and pauses only when focus is not on a control', async ({ page }) => {
+    await openCam(page, LISTENER.hash(5));
+    await page.locator('#main-content').click({ position: { x: 2, y: 2 } });
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
+  });
+
+  test('the arrows are left alone in the thought strip, the Ask panel and an open "Full requirement" panel', async ({ page }) => {
+    await openCam(page, LISTENER.hash(LISTENER.findingStep));
+    const here = await stepText(page);
+    // The Ask panel is an open panel: focus moves into it and the arrows do not step the run.
+    await page.getByRole('button', { name: 'Ask this ghost' }).click();
+    await expect(page.getByRole('button', { name: 'Close' })).toBeVisible();
+    await page.keyboard.press('ArrowRight');
+    expect(await stepText(page)).toBe(here);
+    await page.keyboard.press('Escape');
+
+    // Opened with the mouse, focus stays on the panel's button: the open panel still keeps the arrows.
+    await page.getByRole('button', { name: 'Full requirement' }).click();
+    await page.keyboard.press('ArrowRight');
+    expect(await stepText(page)).toBe(here);
+    await page.keyboard.press('Escape');
+    // Closed, the same button no longer holds them.
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => stepText(page)).not.toBe(here);
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => stepText(page)).toBe(here);
+
+    // A focused, scrollable thought strip keeps the arrows.
+    const strip = page.getByTestId('thoughts-strip-text');
+    await strip.evaluate((el) => {
+      el.setAttribute('tabindex', '0');
+      el.focus();
+    });
+    await page.keyboard.press('ArrowRight');
+    expect(await stepText(page)).toBe(here);
+  });
+});
+
 test.describe('Ghost Cam layout stability', () => {
   test.use({ viewport: { width: 1536, height: 864 } });
 

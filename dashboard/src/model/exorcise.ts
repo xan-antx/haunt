@@ -2,8 +2,9 @@
 // Findings match by (type, page of the finding's step). Matching is a multiset.
 
 import type { Finding, FindingType, Run } from '../data/types';
+import { tellApart } from './findingWords';
 import { byStartedAtDesc } from './format';
-import { isAfterTheFix } from './fixedCopy';
+import { isAfterTheFix, isFixedCopyRun } from './fixedCopy';
 import { isRealWorldRun } from './realWorld';
 
 export type ExorciseStatus = 'exorcised' | 'not_reached' | 'still_haunting' | 'new_haunting';
@@ -53,6 +54,39 @@ export function afterOptions(before: Run, runs: Run[]): Run[] {
   return runs.filter((r) => isFairAfter(before, r)).sort(byStartedAtDesc);
 }
 
+/**
+ * A default pair. When a fixed copy has runs, the newest of them is "after" and the newest run
+ * of the original site by the same ghost and mission is "before". Otherwise the newest run that
+ * has a same-ghost, same-mission partner on an original site is "after", and its newest such
+ * partner is "before". The before run is never a fixed copy's run.
+ * Null when no run has such a partner.
+ */
+export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
+  const sorted = [...runs].sort(byStartedAtDesc);
+  // The before run is always an earlier run by the same ghost and mind, never a fixed copy's run.
+  const partner = (after: Run) => sorted.find((r) => !isFixedCopyRun(r) && isFairAfter(r, after));
+  for (const after of sorted) {
+    if (!isFixedCopyRun(after)) continue;
+    const before = partner(after);
+    if (before) return { before, after };
+  }
+  for (const after of sorted) {
+    const before = partner(after);
+    if (before) return { before, after };
+  }
+  return null;
+}
+
+/**
+ * The Before picker's runs: only runs on an original site, never a fixed copy's "after the fix"
+ * runs. A fixed copy run that the URL names as the before run stays in the list, so the picker
+ * can show what is open.
+ */
+export function beforeOptions(runs: Run[], current?: Run): Run[] {
+  // Real-world runs (Memos) have no fixed copy and no fair "after", so they are never offered (UI-13).
+  return runs.filter((r) => r.key === current?.key || (!isFixedCopyRun(r) && !isRealWorldRun(r)));
+}
+
 export function compareRuns(before: Run, after: Run): ExorciseResult {
   if (before.mission.id !== after.mission.id) return { error: 'different_missions' };
   if (before.ghost !== after.ghost) return { error: 'different_ghosts' };
@@ -76,6 +110,26 @@ export function compareRuns(before: Run, after: Run): ExorciseResult {
     rows.push({ status: 'new_haunting', type: a.finding.type, page: a.page, after: a.finding, key: `a${a.i}` });
   }
   return { rows };
+}
+
+/**
+ * Rows that read the same: of one type, with the same title. Each gets a detail from the run file
+ * (its step, or the first sentence of its evidence) so a reader can tell them apart (R2-03). Rows
+ * whose titles already differ need none, and rows that nothing in the run file separates get none.
+ * The result maps a row's key to its detail.
+ */
+export function rowDetails(rows: ExorciseRow[]): Map<string, string> {
+  const byType = new Map<string, ExorciseRow[]>();
+  for (const row of rows) byType.set(row.type, [...(byType.get(row.type) ?? []), row]);
+  const details = new Map<string, string>();
+  for (const group of byType.values()) {
+    const findings = group.map((row) => (row.before ?? row.after)!);
+    if (group.length < 2 || new Set(findings.map((f) => f.title.trim())).size === group.length) continue;
+    tellApart(findings).forEach((detail, i) => {
+      if (detail) details.set(group[i]!.key, detail);
+    });
+  }
+  return details;
 }
 
 export const EXORCISE_LABELS: Record<ExorciseStatus, string> = {

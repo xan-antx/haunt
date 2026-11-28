@@ -15,12 +15,14 @@ import { AFTER_THE_FIX_LABEL, isAfterTheFix, isFixedCopyRun } from '../model/fix
 import {
   EXORCISE_LABELS,
   afterOptions as laterRuns,
+  beforeOptions,
   compareRuns,
+  defaultPair,
+  rowDetails,
   isFairAfter,
   type ExorciseRow,
   type ExorciseStatus,
 } from '../model/exorcise';
-import { isRealWorldRun } from '../model/realWorld';
 import { useAnnounce } from '../components/layout/LiveRegion';
 import { plainFindingType } from '../model/findingLabels';
 import { byStartedAtDesc, formatDate, plural } from '../model/format';
@@ -50,38 +52,7 @@ export function defaultAfter(before: Run, runs: Run[]): Run | null {
   return candidates.find((r) => isAfterTheFix(before, r)) ?? candidates[0] ?? null;
 }
 
-/**
- * A default pair. When a fixed copy has runs, the newest of them is "after" and the newest run
- * of the original site by the same ghost and mission is "before". Otherwise the newest run that
- * has a same-ghost, same-mission partner on an original site is "after", and its newest such
- * partner is "before". The before run is never a fixed copy's run.
- * Null when no run has such a partner.
- */
-export function defaultPair(runs: Run[]): { before: Run; after: Run } | null {
-  const sorted = [...runs].sort(byStartedAtDesc);
-  // The before run is always an earlier run by the same ghost and mind, never a fixed copy's run.
-  const partner = (after: Run) => sorted.find((r) => !isFixedCopyRun(r) && isFairAfter(r, after));
-  for (const after of sorted) {
-    if (!isFixedCopyRun(after)) continue;
-    const before = partner(after);
-    if (before) return { before, after };
-  }
-  for (const after of sorted) {
-    const before = partner(after);
-    if (before) return { before, after };
-  }
-  return null;
-}
-
-/**
- * The Before picker's runs: only runs on an original site, never a fixed copy's "after the fix"
- * runs. A fixed copy run that the URL names as the before run stays in the list, so the picker
- * can show what is open.
- */
-export function beforeOptions(runs: Run[], current?: Run): Run[] {
-  // Real-world runs (Memos) have no fixed copy and no fair "after", so they are never offered (UI-13).
-  return runs.filter((r) => r.key === current?.key || (!isFixedCopyRun(r) && !isRealWorldRun(r)));
-}
+export { beforeOptions, defaultPair };
 
 function StatusIcon({ status }: { status: ExorciseStatus }) {
   return (
@@ -162,6 +133,7 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
   }, [announce, before, after]);
 
   const result = compareRuns(before, after);
+  const details = 'rows' in result ? rowDetails(result.rows) : new Map<string, string>();
   if ('error' in result) {
     if (result.error === 'different_ghosts') {
       const beforeName = GHOSTS[before.ghost].name;
@@ -210,6 +182,14 @@ function Comparison({ before, after }: { before: Run; after: Run }) {
                       <strong>{plainFindingType(row.type)}</strong>
                       <br />
                       {finding.title}
+                      {details.has(row.key) && (
+                        <>
+                          <br />
+                          <span className={styles.rowDetail} data-testid="row-detail">
+                            {details.get(row.key)}
+                          </span>
+                        </>
+                      )}
                     </td>
                     <td>{pageName((row.before ? before : after).site.name, row.page)}</td>
                     <td>

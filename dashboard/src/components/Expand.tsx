@@ -117,6 +117,7 @@ export function ExpandPanel({
       role="region"
       aria-label={label}
       hidden={!open}
+      data-keys="own"
       tabIndex={open && scrolls ? 0 : undefined}
       className={`${styles.panel} ${placement === 'above' ? styles.above : styles.below}`}
       onKeyDown={onKeyDown}

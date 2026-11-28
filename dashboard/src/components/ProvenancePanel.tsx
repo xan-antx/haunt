@@ -106,6 +106,7 @@ export function ProvenancePanel({
               role="region"
               aria-label={commandLabel}
               tabIndex={overflowing ? 0 : undefined}
+              data-keys="own"
               onKeyDown={scrollKeys('x')}
             >
               <code ref={commandRef} className={styles.code}>

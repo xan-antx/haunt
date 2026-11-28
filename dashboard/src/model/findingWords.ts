@@ -81,6 +81,26 @@ export function stuckPhrase(run: Run, finding: Finding): string {
   return FINDING_LABELS[finding.type].stuck;
 }
 
+/**
+ * Plain words that tell apart findings which would otherwise read the same (R2-03). `group` holds
+ * findings of one type that a reader could mix up. Each entry is the first of these that is
+ * different for every finding in the group, all taken from the run file: the finding's own title,
+ * its step, or the first sentence of its evidence. An entry is null when the group has one finding,
+ * or when nothing in the run file tells them apart (the findings are then left as they are).
+ */
+export function tellApart(group: Finding[]): (string | null)[] {
+  if (group.length < 2) return group.map(() => null);
+  const distinct = (values: string[]) => values.every((v) => v !== '') && new Set(values).size === values.length;
+  const titles = group.map((f) => f.title.trim());
+  if (distinct(titles)) return titles;
+  const steps = group.map((f) => `Step ${f.step}`);
+  if (distinct(steps)) return steps;
+  const sentences = group.map((f) => firstSentence(f.evidence.trim()));
+  const plain = sentences.every((s) => s.length <= EVIDENCE_SENTENCE_MAX && !NOT_PLAIN.test(s));
+  if (plain && distinct(sentences)) return sentences;
+  return group.map(() => null);
+}
+
 /** Longest Evidence_Sentence, in characters, before the table sentence is used instead. */
 export const EVIDENCE_SENTENCE_MAX = 140;
 

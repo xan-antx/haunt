@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BLANK_CAPTION, isBlankPixels, isPortrait, SLOW_LOAD_CAPTION } from '../model/blank';
 import { preloadOrder } from '../model/preload';
 import { thoughtStrip } from '../model/transcript';
-import { isControl } from '../screens/GhostCamScreen';
+import { arrowsStep, isControl } from '../screens/GhostCamScreen';
 import { REAL_LISTENER_META, realListenerRun, realListenerSample } from './fixtures/real';
 import { BEBE_META, bebeRun, bebeSample, listenerRun } from './fixtures/samples';
 import { memorySource, realAndSampleFiles, renderApp } from './helpers';
@@ -106,7 +106,9 @@ describe('UI-15: Pause label and keyboard shortcuts', () => {
 
   it('shows a hint for the keys', async () => {
     await openStep(REAL, 5);
-    expect(screen.getByTestId('shortcut-hint')).toHaveTextContent('Space play or pause');
+    const hint = screen.getByTestId('shortcut-hint');
+    expect(hint).toHaveTextContent('step (not in a text box or an open panel)');
+    expect(hint).toHaveTextContent('Space plays or pauses when no button has focus');
   });
 
   it('steps with the arrow keys and plays and pauses with Space when focus is on the page', async () => {
@@ -125,21 +127,82 @@ describe('UI-15: Pause label and keyboard shortcuts', () => {
     expect(router.state.location.pathname).toBe(`${REAL}/5`);
   });
 
-  it('does not take the keys when a button or a field has focus', async () => {
+  // R2-06: a mouse click leaves focus on the button it clicked, and the arrows must still step.
+  it('steps with the arrows while a Ghost Cam button, a timeline mark or a link has focus, but Space stays with the button', async () => {
     const { router } = await openStep(REAL, 5);
+    const play = screen.getByRole('button', { name: 'Play' });
+    play.focus();
+    fireEvent.keyDown(play, { key: 'ArrowRight' });
+    await waitFor(() => expect(router.state.location.pathname).toBe(`${REAL}/6`));
+
+    const mark = screen.getByRole('button', { name: /^Step 6/ });
+    mark.focus();
+    fireEvent.keyDown(mark, { key: 'ArrowLeft' });
+    await waitFor(() => expect(router.state.location.pathname).toBe(`${REAL}/5`));
+
     const stepBack = screen.getByRole('button', { name: 'Step back' });
     stepBack.focus();
-    fireEvent.keyDown(stepBack, { key: 'ArrowRight' });
     fireEvent.keyDown(stepBack, { key: ' ' });
     expect(router.state.location.pathname).toBe(`${REAL}/5`);
     expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
+  });
 
-    const field = document.createElement('input');
-    document.body.appendChild(field);
-    field.focus();
-    fireEvent.keyDown(field, { key: 'ArrowRight' });
+  it('leaves the arrows to a text field, a select, the thought strip, an open panel and anything outside the Ghost Cam', async () => {
+    const { router } = await openStep(REAL, 5);
+    const cam = document.querySelector('[data-ghost-cam]')!;
+    const inCam = (markup: string) => {
+      const host = document.createElement('div');
+      host.innerHTML = markup;
+      const el = host.firstElementChild as HTMLElement;
+      cam.appendChild(el);
+      return el;
+    };
+    for (const markup of ['<input type="text" />', '<textarea></textarea>', '<select><option>a</option></select>', '<div contenteditable="true">x</div>']) {
+      const el = inCam(markup);
+      fireEvent.keyDown(el, { key: 'ArrowRight' });
+      el.remove();
+    }
+    fireEvent.keyDown(screen.getByTestId('thoughts-strip-text'), { key: 'ArrowRight' });
+    // The key is not taken: the page stays on step 5.
     expect(router.state.location.pathname).toBe(`${REAL}/5`);
-    field.remove();
+
+    // The Ask panel is an open panel; a link outside the Ghost Cam (the menu) is not the Ghost Cam's.
+    fireEvent.click(screen.getByRole('button', { name: 'Ask this ghost' }));
+    const ask = await screen.findByRole('button', { name: 'Close' });
+    fireEvent.keyDown(ask, { key: 'ArrowRight' });
+    expect(router.state.location.pathname).toContain(`${REAL}/5`);
+    fireEvent.keyDown(screen.getAllByRole('link')[0]!, { key: 'ArrowRight' });
+    expect(router.state.location.pathname).toContain(`${REAL}/5`);
+  });
+
+  it('opens a "Full requirement" panel that keeps the arrows', async () => {
+    const { router } = await openStep(REAL, 5);
+    fireEvent.click(screen.getByRole('button', { name: 'Full requirement' }));
+    const panel = screen.getByRole('region', { name: 'Full requirement' });
+    expect(panel).toHaveAttribute('data-keys', 'own');
+    fireEvent.keyDown(panel, { key: 'ArrowRight' });
+    expect(router.state.location.pathname).toBe(`${REAL}/5`);
+  });
+
+  it('arrowsStep says where the arrows step', () => {
+    const html = (markup: string, inside = true) => {
+      const host = document.createElement('div');
+      host.innerHTML = inside ? `<div data-ghost-cam>${markup}</div>` : markup;
+      document.body.appendChild(host);
+      return host.querySelector<HTMLElement>('[data-t]')!;
+    };
+    expect(arrowsStep(html('<button data-t>x</button>'))).toBe(true);
+    expect(arrowsStep(html('<p data-t>x</p>'))).toBe(true);
+    expect(arrowsStep(html('<input data-t type="checkbox" />'))).toBe(true);
+    expect(arrowsStep(html('<input data-t type="text" />'))).toBe(false);
+    expect(arrowsStep(html('<select data-t></select>'))).toBe(false);
+    expect(arrowsStep(html('<section data-keys="own"><button data-t>x</button></section>'))).toBe(false);
+    // The button of an open panel belongs to that panel; a closed one does not.
+    expect(arrowsStep(html('<button data-t aria-expanded="true">x</button>'))).toBe(false);
+    expect(arrowsStep(html('<button data-t aria-expanded="false">x</button>'))).toBe(true);
+    expect(arrowsStep(html('<button data-t>x</button>', false))).toBe(false);
+    expect(arrowsStep(document.body)).toBe(true);
+    expect(arrowsStep(null)).toBe(true);
   });
 
   it('leaves keys with a modifier alone', async () => {
@@ -163,6 +226,62 @@ describe('UI-15: Pause label and keyboard shortcuts', () => {
     expect(isControl(html('<p>x</p>'))).toBe(false);
     expect(isControl(document.body)).toBe(false);
     expect(isControl(null)).toBe(false);
+  });
+});
+
+// R2-05: switching from one run to another inside the Ghost Cam announces only the new run's step.
+describe('R2-05: switching runs announces only the new run', () => {
+  /** Every non-empty text the live region shows from now on. */
+  function watchAnnouncements() {
+    const region = screen.getByTestId('live-region');
+    const seen: string[] = [];
+    const observer = new MutationObserver(() => {
+      if (region.textContent) seen.push(region.textContent);
+    });
+    observer.observe(region, { childList: true, characterData: true, subtree: true });
+    return { seen, stop: () => observer.disconnect() };
+  }
+
+  it('announces the new run\'s step, never the previous run\'s text under the new step', async () => {
+    // A source that is slow once the first run is open, as a network is: the new run arrives after
+    // the live region's 50 ms delay, so a stale announcement would be heard.
+    const inner = memorySource(realAndSampleFiles());
+    let slow = false;
+    const source = { ...inner, loadRun: async (entry: Parameters<typeof inner.loadRun>[0]) => {
+      if (slow) await new Promise((resolve) => setTimeout(resolve, 200));
+      return inner.loadRun(entry);
+    } };
+    const { router } = await openStep(BEBE, 3, source);
+    slow = true;
+    const bebe = bebeRun();
+    const real = realListenerRun();
+    const watch = watchAnnouncements();
+    await act(async () => {
+      await router.navigate(`${REAL}/5`);
+    });
+    const expected = `Step 5: ${real.steps.find((s) => s.n === 5)!.spoken}`;
+    await waitFor(() => expect(screen.getByTestId('live-region')).toHaveTextContent(expected));
+    watch.stop();
+    expect(watch.seen).toEqual([expected]);
+    for (const step of bebe.steps) {
+      if (step.thought && step.thought !== real.steps.find((s) => s.n === 5)!.spoken) {
+        expect(watch.seen.join(' ')).not.toContain(step.thought);
+      }
+    }
+  });
+
+  it('announces nothing on the first visit, and one line per step after that', async () => {
+    const view = await openStep(REAL, 5);
+    const watch = watchAnnouncements();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+    });
+    expect(watch.seen).toEqual([]);
+    fireEvent.keyDown(document.body, { key: 'ArrowRight' });
+    await waitFor(() => expect(screen.getByTestId('live-region')).toHaveTextContent(/^Step 6:/));
+    watch.stop();
+    expect(watch.seen).toHaveLength(1);
+    view.unmount();
   });
 });
 

@@ -145,3 +145,8 @@
   margin: var(--space-2) 0 0;
   color: var(--text-muted);
 }
+
+/* What tells one finding from another that reads the same: its step, from the run file. */
+.rowDetail {
+  color: var(--text-muted);
+}

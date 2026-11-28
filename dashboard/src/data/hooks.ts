@@ -97,7 +97,11 @@ export type RunState =
 /** Loads one run by Run_Key. */
 export function useRun(key: string | undefined): RunState {
   const source = useRunSource();
-  const [state, setState] = useState<RunState>({ status: 'loading' });
+  // The state is stored with the key it was loaded for. When the key changes, the first render
+  // would otherwise still hold the previous run, and a screen would show it under the new address
+  // (R2-05: the Ghost Cam announced the previous run's text for the new step).
+  const [loaded, setLoaded] = useState<{ key: string | undefined; state: RunState }>({ key, state: { status: 'loading' } });
+  const setState = (state: RunState) => setLoaded({ key, state });
   const refreshed = useRefreshCount(source);
   useEffect(() => {
     let live = true;
@@ -121,5 +125,7 @@ export function useRun(key: string | undefined): RunState {
       live = false;
     };
   }, [source, key, refreshed]);
-  return state;
+  return loaded.key === key ? loaded.state : LOADING;
 }
+
+const LOADING: RunState = { status: 'loading' };
