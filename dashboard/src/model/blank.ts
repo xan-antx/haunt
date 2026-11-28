@@ -19,5 +19,8 @@ export function isPortrait(w: number, h: number): boolean {
 
 export const SLOW_LOAD_CAPTION = 'The page is still loading on slow 3G';
 
-/** For any other blank screenshot: says what is seen and gives no cause the run files don't show. */
-export const BLANK_CAPTION = 'The screen was blank at this step.';
+/**
+ * For any other blank screenshot. The ghost completed these steps, so the screen itself was not
+ * blank: the saved picture is. The caption says only that and gives no cause.
+ */
+export const BLANK_CAPTION = 'The picture for this step came out blank.';

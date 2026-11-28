@@ -198,7 +198,8 @@ describe('séance with the samples', () => {
     expect(plainAction('Memos', 'Open http://localhost:5230/auth')).toBe('Open the sign-in page');
     expect(siteLabel('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
     expect(displayName('Lantern Bills demo (exorcised)')).toBe('Lantern Bills (fixed copy)');
-    expect(displayName('Lantern Bills demo')).toBe('Lantern Bills demo');
+    expect(displayName('Lantern Bills demo')).toBe('Lantern Bills');
+    expect(displayName('Memos')).toBe('Memos');
   });
 
   it('shows dates in UTC with a label, whatever the time zone (UI-18)', () => {

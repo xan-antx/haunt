@@ -21,9 +21,9 @@ describe('Graveyard Map_View (Req 8, 9.7–9.9)', () => {
     );
     expect(screen.getByText('The bigger the circle, the longer the ghost waited there.')).toBeInTheDocument();
 
-    const map = screen.getByRole('region', { name: 'Map of Lantern Bills demo' });
-    expect(within(map).getByRole('heading', { level: 2, name: 'Map of Lantern Bills demo' })).toBeInTheDocument();
-    const rooms = within(map).getByRole('list', { name: 'Rooms of Lantern Bills demo' });
+    const map = screen.getByRole('region', { name: 'Map of Lantern Bills' });
+    expect(within(map).getByRole('heading', { level: 2, name: 'Map of Lantern Bills' })).toBeInTheDocument();
+    const rooms = within(map).getByRole('list', { name: 'Rooms of Lantern Bills' });
     expect(within(rooms).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['/', '/bill']);
 
     const spots = within(map).getAllByRole('link', { name: /open in Ghost Cam$/ });
@@ -69,7 +69,7 @@ describe('Graveyard Map_View (Req 8, 9.7–9.9)', () => {
     expect(router.state.historyAction).toBe('REPLACE');
     expect(map).toBeChecked();
     expect(map).toHaveFocus();
-    expect(screen.getByRole('region', { name: 'Map of Lantern Bills demo' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Map of Lantern Bills' })).toBeInTheDocument();
 
     await user.click(within(views).getByRole('radio', { name: 'Tombstones' }));
     await waitFor(() => expect(router.state.location.search).toBe('?ghost=listener'));
@@ -81,6 +81,6 @@ describe('Graveyard Map_View (Req 8, 9.7–9.9)', () => {
     const { router } = await renderGraveyard('/graveyard?view=map');
     await user.selectOptions(screen.getByRole('combobox', { name: 'Site' }), 'lantern-bills-demo');
     await waitFor(() => expect(router.state.location.search).toBe('?site=lantern-bills-demo&view=map'));
-    expect(screen.getByRole('region', { name: 'Map of Lantern Bills demo' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Map of Lantern Bills' })).toBeInTheDocument();
   });
 });

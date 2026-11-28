@@ -60,7 +60,7 @@ There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requir
 | Screen | What it shows |
 |---|---|
 | **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, a line that counts the six problems planted in Lantern Bills (with the recorded runs: 6 planted, 5 found, 5 exorcised, and a plain sentence on the one no ghost reached), a "Haunt your own site" card with a block of commands you can copy, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
-| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. A blank screenshot says "The screen was blank at this step." and gives no cause, except the first Phantom step, which says the page is still loading on slow 3G. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
+| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. A blank screenshot says "The picture for this step came out blank." and gives no cause, except the first Phantom step, which says the page is still loading on slow 3G. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
 | **Graveyard** | One tombstone per problem found, led by a plain line such as "Here lies a button with no name." with the engine's evidence behind "Full details", ordered by site (Lantern Bills first) and then by step, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
 | **Exorcise** | Compares a before run with a later run by the same ghost and the same mind (scripted or AI) on the same mission, on the same site or its fixed copy, and marks each finding as exorcised, still haunting, new, or not reached. |
 | **Spec Coverage** | Each mission is one requirement, shown by site (Lantern Bills, its fixed copy, Memos) with a plain title, the full requirement behind a button and a link to its file. Shows whether each ghost's latest run on that site completed it. |
@@ -314,6 +314,16 @@ Kiro writes a `tasks.meta.json` file next to a spec's tasks each time it execute
 | [`exorcise-different-ghost-fix`](.kiro/specs/exorcise-different-ghost-fix/tasks.meta.json) | 50 | 1 |
 
 That is 629 records. Three more specs, `haunt-patrol`, `listener-ai-mind` and `memos-real-world-haunt`, are fast-task specs: a short plan of tasks with the details written inside each task. They have no `tasks.meta.json`. MCP is wired through the custom agent: [`.kiro/agents/listener.json`](.kiro/agents/listener.json) registers the haunt-mcp server and allows only its tools, and the engine starts that agent with the Kiro CLI.
+
+<figure>
+  <img src="docs/media/hook-firing.png" alt="Three entries in a Kiro session, each reading Run Command Hook with the label Contract guard." width="437">
+  <figcaption>The contract guard hook (Pre Tool Use) checking each file write during a real Kiro session.</figcaption>
+</figure>
+
+<figure>
+  <img src="docs/media/hook-config.png" alt="The contract-guard.json hook settings in Kiro: enabled, trigger Pre Tool Use, tool names fs_write, str_replace, fs_append, delete_file and smart_relocate, action Run Command, command node .kiro/hooks/scripts/contract-guard.mjs." width="520">
+  <figcaption>How the contract guard is configured.</figcaption>
+</figure>
 
 ### Where Kiro surprised us
 

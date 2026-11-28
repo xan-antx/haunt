@@ -1,0 +1,42 @@
+name: CI
+
+# Runs every package's unit tests on each push and pull request, on any branch.
+# It is separate from the Pages workflow, so a red test here never blocks a deploy.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [demo-site, demo-site-exorcised, dashboard, engine, crew-app]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        if: matrix.package == 'engine'
+        run: npx playwright install --with-deps chromium
+
+      - name: Unit tests
+        run: npm test

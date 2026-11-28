@@ -42,11 +42,11 @@ export function siteLabel(siteName: string): string {
 }
 
 /**
- * A site's name for cards, maps and menus: the fixed copy reads "Lantern Bills (fixed copy)" and
- * every other name is shown as the run file wrote it. The run files are never changed.
+ * A site's name for cards, maps and menus: "Lantern Bills", "Lantern Bills (fixed copy)" or
+ * "Memos". The run files are never changed; only what is shown differs.
  */
 export function displayName(siteName: string): string {
-  return originalSiteName(siteName) === null ? siteName : siteLabel(siteName);
+  return siteLabel(siteName);
 }
 
 const LOCAL_ADDRESS = /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/[^\s"')]*)?/gi;

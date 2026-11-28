@@ -271,7 +271,7 @@ test('The 22 Nov Phantom run says only that steps 3 to 13 were blank', async ({ 
   const run = PHANTOM_RUNS.find((r) => r.key.includes('2026-11-22T1153Z'))!;
   for (const step of [3, 6, 13]) {
     await open(page, run.key, step);
-    await expect(page.getByTestId('blank-caption')).toHaveText('The screen was blank at this step.');
+    await expect(page.getByTestId('blank-caption')).toHaveText('The picture for this step came out blank.');
     await expect(page.getByTestId('slow-load-caption')).toHaveCount(0);
   }
 });

@@ -176,7 +176,8 @@ describe('screens', () => {
     const sites = within(screen.getByRole('region', { name: 'Haunted sites' }));
     expect(sites.getByRole('heading', { name: 'Lantern Bills (fixed copy)' })).toBeInTheDocument();
     expect(sites.queryByText(/\(exorcised\)/)).not.toBeInTheDocument();
-    expect(sites.getByRole('heading', { name: 'Lantern Bills demo' })).toBeInTheDocument();
+    expect(sites.getByRole('heading', { name: 'Lantern Bills' })).toBeInTheDocument();
+    expect(sites.queryByText(/Lantern Bills demo/)).not.toBeInTheDocument();
   });
 
   it('Home result cards show the original Listener run, not the newer fixed copy run', async () => {
@@ -246,6 +247,6 @@ describe('screens', () => {
     const names = within(site as HTMLElement)
       .getAllByRole('option')
       .map((o) => o.textContent);
-    expect(names).toEqual(expect.arrayContaining(['Lantern Bills demo', 'Lantern Bills (fixed copy)']));
+    expect(names).toEqual(expect.arrayContaining(['Lantern Bills', 'Lantern Bills (fixed copy)']));
   });
 });

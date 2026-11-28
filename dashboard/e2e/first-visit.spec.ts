@@ -239,7 +239,7 @@ test.describe('old links open the right place', () => {
   test('the Haunted Map opens the Graveyard Map view with the same fog', async ({ page }) => {
     await open(page, '#/haunt/lantern-bills-demo/map?ghost=phantom');
     await expect(page).toHaveURL(url('#/graveyard?site=lantern-bills-demo&ghost=phantom&view=map'));
-    await expect(page.getByRole('region', { name: 'Map of Lantern Bills demo' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Map of Lantern Bills' })).toBeVisible();
     await expect(page.getByText('The Phantom never entered this room')).toHaveCount(2);
     await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Graveyard' })).toHaveAttribute(
       'aria-current',
