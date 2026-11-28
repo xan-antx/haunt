@@ -42,7 +42,9 @@ npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:
 | `--missions <dir>` | Read missions from this folder instead of `engine/missions`. |
 | `-h`, `--help` | Show the usage text. |
 
-For The Phantom's timing to match the recorded runs, serve Lantern Bills as a production build, not the dev server. The dev server is too slow for The Phantom's slow-3G walk, and it gives up at step 1. In `demo-site/` run `npm run serve:ghosts`; it builds the site and serves it on port 3000.
+For The Phantom's timing to match the recorded runs, serve Lantern Bills as a production build, not the dev server. The dev server is too slow for The Phantom's slow-3G walk, and it gives up at step 1. In `demo-site/` run `npm run serve:ghosts`; it builds the site and serves it on port 3000. For the fixed copy, run the same script in `demo-site-exorcised/`; it serves on port 3002.
+
+By default a run is saved into `runs/`, the folder of recorded evidence. The dashboard's data tests read it, so a trial run there can make some of them fail. For trial runs, add `--out` with a folder outside the repository, for example `--out ../../haunt-trials`.
 
 The last line printed on standard output is the absolute path of the saved `run.json`. (npm prints a short header first; add `--silent` before `--` to hide it, as in `npm run --silent haunt -- run ...`.)
 

@@ -128,6 +128,15 @@ describe('UI-13: Exorcise pairs only a fair before and after', () => {
     expect(pair.before.key).toBe(PHANTOM);
   });
 
+  it("adds the recorded --site-name to a fixed-copy run's Reproduce command, and to no other", () => {
+    expect(reproduceCommand(byKey(FIXED_PHANTOM))).toMatch(
+      /--url \S+ --site-name 'Lantern Bills demo \(exorcised\)'$/,
+    );
+    expect(reproduceCommand(byKey(FIXED_LISTENER))).toContain("--site-name 'Lantern Bills demo (exorcised)'");
+    expect(reproduceCommand(byKey(PHANTOM))).not.toContain('--site-name');
+    expect(reproduceCommand(byKey(MEMOS_AI))).not.toContain('--site-name');
+  });
+
   it("adds --mind ai to the AI run's Reproduce command, and to no other", () => {
     expect(reproduceCommand(byKey(AI_RUN))).toMatch(/--mission pay-bill --url \S+ --mind ai$/);
     expect(reproduceCommand(byKey(SCRIPTED_LISTENER))).not.toContain('--mind');

@@ -18,6 +18,9 @@ export function reproduceCommand(run: Run): string {
     // The engine's npm script, run in engine/. Never `npx haunt`: an unrelated npm package has that name.
     `cd engine && npm run haunt -- run --ghost ${q(run.ghost)} --mission ${q(run.mission.id)} --url ${q(run.site.url)}` +
     // An AI run is only reproduced by the AI mind (UI-13).
-    (run.mind === 'ai' ? ' --mind ai' : '')
+    (run.mind === 'ai' ? ' --mind ai' : '') +
+    // A fixed-copy run is only paired with the original when its recorded site name ends in " (exorcised)",
+    // so the command must pass that name on (DOC-15).
+    (run.site.name.endsWith(' (exorcised)') ? ` --site-name ${q(run.site.name)}` : '')
   );
 }

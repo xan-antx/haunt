@@ -1,7 +1,7 @@
 {
   "name": "demo-site",
   "version": "1.0.0",
-  "description": "**Owner:** House Builder",
+  "description": "Lantern Bills: a demo electricity bill-payment site with six problems planted on purpose, for the Haunt ghosts to find.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@fontsource/mukta": "^5.3.0",

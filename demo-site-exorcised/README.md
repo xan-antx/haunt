@@ -1,8 +1,8 @@
-# Demo Site
+# Lantern Bills (fixed copy)
 
 **Owner:** House Builder
 
-This folder contains the example web application used for testing and demonstrations.
+This folder is the fixed copy of Lantern Bills, the "exorcised" site. The haunted original is in `demo-site/`.
 
 ## Look and feel
 
@@ -28,3 +28,5 @@ trap) and `exorcised-remaining-fixes` (card errors, the late banner, the cut-off
 add-on and the Punjabi and Hindi text). `demo-site/` stays unchanged.
 
 `npm run dev` serves it on port 3002 and `npm run build` builds it under `/haunt/lantern-bills-exorcised/`.
+
+To run a ghost on it, use `npm run serve:ghosts`. It builds the site at base `/` into `.ghost-build/` (so the normal `dist/` build for the published site is not touched) and serves that build on http://localhost:3002. Use it instead of `npm run dev`: the dev server is too slow for The Phantom's slow-3G walk, and The Phantom gives up at step 1 on it. Stop a server with Ctrl+C in the terminal that started it.

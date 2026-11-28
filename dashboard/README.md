@@ -20,7 +20,9 @@ Run these in `dashboard/`:
 | `npm run build:e2e` / `npm run preview:e2e` | Build and serve only `fixtures/runs/`, into `.e2e/` (used by `test:e2e`; `dist/` and `public/runs/` are untouched) |
 | `npm run collect-runs` | Only the collect step |
 
-The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev` and `preview` stop with an error instead of picking another port.
+The port is fixed at **3001** (the demo site uses 3000). If 3001 is taken, `dev` and `preview` stop with an error instead of picking another port. Stop a server with Ctrl+C in the terminal that started it; on Windows, closing the terminal can leave the server holding its port.
+
+`npm run dev` prints a long warning about `configLoader: 'native'`. It is about import paths in the Vite config and does not affect anything; set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` in the environment to hide it.
 
 ## Summon a live ghost
 
@@ -43,7 +45,7 @@ It only reads `runs/` and never writes there. A file that fails validation is li
 
 Real runs win over samples. Once a ghost has a real run (anywhere under `runs/` except `runs/samples/`), its samples are left out of every list; a link that names one still opens it. Samples of ghosts with no real run yet stay, labelled **Sample run**.
 
-The tests never read the real runs, so adding a run doesn't change them. Unit tests import `runs/samples/` and `fixtures/runs/`; the Playwright suite builds and serves only `fixtures/runs/` (see its README).
+Some tests read the recorded runs. The data-logic tests (`datalogic.test.tsx`, `phase4.test.tsx` and the shared `fixtures/samples.ts`) load every `run.json` under `runs/`, so a new run in `runs/` changes which run counts as "latest" and makes some of them fail. If you record trial runs, use `--out` with a folder outside `runs/` (see the root README), or move them out before you run `npm test`. The Playwright suite (`npm run test:e2e`) builds and serves only `fixtures/runs/` (see its README). A later task will point the data-logic tests at a frozen copy of the recorded runs.
 
 The built site needs a static file host such as `npm run preview` or GitHub Pages. Opening `dist/index.html` from `file://` does not work, because browsers block module scripts and `fetch` there.
 
@@ -51,7 +53,7 @@ The built site needs a static file host such as `npm run preview` or GitHub Page
 
 URLs use the hash, so they work on any static host:
 
-The dashboard has five screens: Home, Ghost Cam, Graveyard, Exorcise and Spec Coverage. The Séance is the Ghost Cam's "Ask this ghost" panel, and the Haunted Map is the Graveyard's "Map" view.
+The dashboard has six screens. Five are in the menu: Home, Ghost Cam, Graveyard, Exorcise and Spec Coverage. The sixth, "A real-world haunt", opens from a link at the bottom of Home. "Ask this ghost" is a panel in the Ghost Cam, and "Map" is a view of the Graveyard.
 
 | Screen or view | URL |
 |---|---|

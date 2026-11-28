@@ -26,6 +26,7 @@ Then, from `tools/media`:
 npm run capture     # screenshots, then videos
 npm run shots       # screenshots only
 npm run videos      # videos only
+npx tsx capture.ts --hero   # only the README picture, docs/media/hero-ghostcam-trap.png (1600x900)
 npm run typecheck
 ```
 

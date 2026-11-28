@@ -55,6 +55,8 @@ What each part means:
 - `doneWhen` says how the ghost knows the step worked. It is `"success"` (the success check matches), `{ "fieldValue": true }` (the field now holds text) or `{ "present": { ... } }` (something with that name has appeared). `present` also accepts `"kind": "any"`.
 - `thought` is the sentence the dashboard shows for that step. Write it as the ghost would say it.
 - `{{runStamp}}` in a `value` or in `successCheck` becomes a unique time stamp for each run.
+- `{{futureExpiry}}` in a `value` becomes a card expiry date two years after the month of the run, as `MM/YY` (for example `11/28` for a run in November 2026), so a saved mission never expires. `pay-bill.json` uses it.
+- In your config file, `allowedTerms` lists words that Bebe's check for untranslated text should leave out, such as your brand name.
 
 A ghost that cannot find a target on your site gives up at that step. That is a result, not an error: the run is saved and the dashboard shows where it stopped. Check a mission by running it and reading the run, never by loosening a pattern until the ghost passes.
 

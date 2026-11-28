@@ -1,8 +1,8 @@
-# Demo Site
+# Lantern Bills (the haunted demo site)
 
 **Owner:** House Builder
 
-This folder contains the example web application used for testing and demonstrations.
+This folder is Lantern Bills, the example web application the ghosts visit. It keeps six deliberate problems. The fixed copy is in `demo-site-exorcised/`.
 
 ## Look and feel
 

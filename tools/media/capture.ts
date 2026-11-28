@@ -4,6 +4,7 @@
 //   npx tsx capture.ts            everything
 //   npx tsx capture.ts --videos   videos only
 //   npx tsx capture.ts --shots    screenshots only
+//   npx tsx capture.ts --hero     only the README picture, docs/media/hero-ghostcam-trap.png
 
 import { mkdir, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -15,6 +16,13 @@ const LANTERN = withSlash(process.env.LANTERN_URL ?? 'http://localhost:3000/');
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'media');
 const VIDEO_TMP = join(OUT, '.tmp-video');
 const SIZE = { width: 1920, height: 1080 };
+/** The README picture: The Listener's AI-mind run on Lantern Bills at its keyboard trap, at 1600x900. */
+const HERO = {
+  file: resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'docs', 'media', 'hero-ghostcam-trap.png'),
+  runKey: '2026-11-23T1020Z-listener-pay-bill',
+  step: 26,
+  size: { width: 1600, height: 900 },
+};
 /** Ghost Cam advances one step every 1500 ms; give each step a little slack. */
 const STEP_MS = 1500;
 /** Lantern Bills shows its banner 1500 ms after render; wait past it. */
@@ -211,8 +219,32 @@ async function shots(browser: Browser, runs: Record<GhostId, PickedRun>): Promis
   await context.close();
 }
 
+/** The README's hero picture. It reads the run it names, so it does not depend on which run is newest. */
+async function hero(browser: Browser): Promise<void> {
+  console.log('Hero picture');
+  const context = await browser.newContext({ viewport: HERO.size, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.goto(stepUrl(HERO.runKey, HERO.step));
+  await settleDashboard(page);
+  // settleDashboard parks the mouse at the corner of the 1920x1080 window; park it at this window's corner.
+  await page.mouse.move(HERO.size.width - 1, HERO.size.height - 1);
+  await mkdir(dirname(HERO.file), { recursive: true });
+  await page.screenshot({ path: HERO.file, animations: 'disabled', caret: 'hide' });
+  console.log(`  shot   ${HERO.file}`);
+  await context.close();
+}
+
 async function main(): Promise<void> {
   const args = new Set(process.argv.slice(2));
+  if (args.has('--hero')) {
+    const browser = await chromium.launch();
+    try {
+      await hero(browser);
+    } finally {
+      await browser.close();
+    }
+    return;
+  }
   const all = !args.has('--videos') && !args.has('--shots');
   await mkdir(OUT, { recursive: true });
   const runs = await pickRuns();

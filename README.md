@@ -2,202 +2,209 @@
 
 **Haunt your app before your users do.**
 
-Haunt sends three synthetic "ghost" users into a website to finish a task, then shows on a candlelit dashboard where each ghost got stuck. Built for the Kiroween 2026 hackathon, Costume Contest category.
+Haunt sends three ghost users into your website, each standing for people with a real access need, and shows you on a candlelit dashboard exactly where each one got stuck: the step, the screenshot, what it heard, and why.
 
-## Live links
+It is for web developers and small teams who want to find keyboard traps, unnamed buttons, slow-network misclicks and missing translations before real people do, without an accessibility lab.
 
-| What | Link |
-|---|---|
-| Dashboard | https://xan-antx.github.io/haunt/ |
-| Lantern Bills (the haunted demo site) | https://xan-antx.github.io/haunt/lantern-bills/ |
-| Lantern Bills, fixed copy (the "exorcised" site) | https://xan-antx.github.io/haunt/lantern-bills-exorcised/ |
-| Real-world haunt (Memos results page in the dashboard) | https://xan-antx.github.io/haunt/#/real-world |
-| Haunt Patrol (Kiro Crew app), own repository | https://github.com/xan-antx/haunt-crew |
+**[▶ Open the live dashboard](https://xan-antx.github.io/haunt/)** · **[Try the haunted demo site](https://xan-antx.github.io/haunt/lantern-bills/)** · **[See the fixed copy](https://xan-antx.github.io/haunt/lantern-bills-exorcised/)** · No account, no install.
 
-You need no account and no install to use the first three links and the real-world page.
+<img src="docs/media/hero-ghostcam-trap.png" alt="The Haunt dashboard's Ghost Cam at step 26 of The Listener's AI-mind run: the payment dialog screenshot, what the screen reader announced, the strip 'What the AI mind decided', and a Keyboard trap mark on the timeline." width="800">
 
-## Judge Quick Start
+*The Ghost Cam at the step where The Listener, driven by a Kiro custom agent (the "AI mind"), is trapped in the "Protect your payment" dialog.*
 
-1. Open the [dashboard](https://xan-antx.github.io/haunt/) and press **Take the 60-second tour** on Home. It stops at the results, the Ghost Cam, the Graveyard, Exorcise and Spec Coverage. Escape leaves it.
-2. Open the Ghost Cam on [The Listener's AI-mind run](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) and step to the end. The run has an **AI mind** label, and the agent wrote a thought on each step. Under the screenshot, a strip headed "What the AI mind decided" shows that thought.
-3. Open **Exorcise**. It compares a run on the haunted site with a run by the same ghost on the fixed copy.
-4. Now try [Lantern Bills](https://xan-antx.github.io/haunt/lantern-bills/) yourself. Pay the bill with only the keyboard: use card number `4111111111111111`, a future expiry date, CVV `123` and any name. Press Escape in the "Protect your payment" dialog and try to Tab to Continue. Add `?lang=pa` or `?lang=hi` to the address to see the untranslated button and error messages, and narrow the window to 640 px or less to see the cut-off total.
-5. Open the [fixed copy](https://xan-antx.github.io/haunt/lantern-bills-exorcised/) and do the same things. The problems are gone.
-6. Open the [real-world haunt](https://xan-antx.github.io/haunt/#/real-world). It shows The Listener's two runs on Memos, a site we did not build. Press **Watch it happen** on a card to see where the ghost got stuck in the note editor.
+Built with **Kiro** (specs, steering, hooks, a custom agent, an MCP server, the Kiro CLI and Kiro Crew) for Kiroween 2026, Costume Contest category. [See how we built it with Kiro ↓](#how-we-built-this-with-kiro)
 
-## What each part is
+## Meet the ghosts
 
-### The three ghosts
-
-- **The Listener** moves through a page with only the keyboard and listens to what a screen reader would announce.
-- **The Phantom** browses on slow 3G and an old phone.
-- **Bebe** reads at 200% zoom, prefers Punjabi or Hindi, and watches out for tricky wording.
+| Ghost | Stands for people who… | What it catches on our demo site |
+|---|---|---|
+| **The Listener** | use a screen reader and only the keyboard | a pay button with no name, a dialog that traps keyboard focus |
+| **The Phantom** | browse on slow 3G and an old phone | a late banner that pushes the page down, so a tap lands on the wrong thing |
+| **Bebe** | read at 200% zoom, prefer Punjabi or Hindi, and are wary of tricky wording | text cut off at large zoom, an English button on a Punjabi page, a paid add-on ticked by default |
 
 Each ghost stands for real people with real needs. A ghost that gets stuck points to a real barrier, so we never weaken a test to make a ghost pass.
 
-The engine (`engine/`) drives a ghost through one mission in a real Chromium browser with Playwright. It writes a `run.json` folder (steps, screenshots, findings) in the format defined in [`contract/run-format.md`](contract/run-format.md), and checks it against the schema before saving. Deterministic detectors decide every finding. A finding has one of nine types: `unlabeled_button`, `unlabeled_field`, `focus_trap`, `unannounced_error`, `slow_wait`, `misclick`, `cut_off_text`, `untranslated` and `dark_pattern`. Two of them cover keyboard and naming problems on any page:
+## Try it in 60 seconds
 
-- `focus_trap` finds focus that cannot leave a dialog, and also focus that cannot leave a single element outside a dialog (an element trap). An element trap is a text box where Tab and Shift+Tab leave focus in place. The finding is recorded even when pressing Escape twice later frees focus, and its evidence says whether that exit is documented anywhere on the page.
-- `unlabeled_field` finds a form field or textbox whose accessible name, as Chromium computes it, is empty. A `placeholder` or `aria-placeholder` does not count as a name unless Chromium uses it as one.
+1. Open the [dashboard](https://xan-antx.github.io/haunt/) and press **Take the 60-second tour**. Escape or Skip leaves it.
+2. Watch [The Listener's AI-mind run](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) in the **Ghost Cam**. A Kiro custom agent chose every key press, and the strip "What the AI mind decided" shows its thought at each step. It is trapped at step 26.
+3. Open **Exorcise** to compare a run on the haunted site with the same ghost's run on the fixed copy.
+4. Then try to get stuck yourself. On [Lantern Bills](https://xan-antx.github.io/haunt/lantern-bills/), pay with only the keyboard (card `4111111111111111`, any future expiry, CVV `123`, any name), press Escape in the "Protect your payment" dialog, and try to Tab out. Add `?lang=pa` or `?lang=hi` to the address for the untranslated text. Do the same on the [fixed copy](https://xan-antx.github.io/haunt/lantern-bills-exorcised/).
 
-There are two missions. `pay-bill` runs on Lantern Bills and is tied to a requirement in the `lantern-bills` spec. `write-note` runs on Memos (see below) and is tied to `MEMOS-1` in the `memos-real-world-haunt` spec.
+## How it works
 
-### Lantern Bills
+1. **A ghost tries a real task on your site.** The engine drives a real Chromium browser with Playwright, as that ghost: keyboard only and listening to what a screen reader would announce, or slow 3G on a small slow phone, or 200% zoom in Punjabi or Hindi.
+2. **It records everything it sees and hears.** Each step saves a screenshot, what a screen reader would announce, and the ghost's one-line thought, into a `run.json` checked against a shared [schema](contract/run.schema.json).
+3. **Detectors decide the findings, not the AI.** Rules in the engine report nine kinds of barrier, such as Keyboard trap (`focus_trap`) or Text not translated (`untranslated`), each tied to a step and a screenshot.
+4. **You fix your code, and the next run shows if the problem is gone.** Exorcise pairs a before run and an after run by the same ghost and marks each finding Exorcised, Still haunting, New haunting or Not reached.
 
-`demo-site/` is a fictional electricity bill-payment site in English, Punjabi and Hindi. It has six deliberate problems for the ghosts to find. They stay in on purpose, and tests guard them.
+The nine finding types, the detectors and the missions are in [docs/how-it-works.md](docs/how-it-works.md).
 
-1. An icon-only pay button with no accessible name.
-2. A "Protect your payment" dialog that traps keyboard focus, ignores Escape and has a paid add-on ticked by default.
-3. Card errors that are visible but never announced.
-4. A banner that loads late and pushes the page down.
-5. A payment total that is cut off at narrow widths and large zoom.
-6. Missing Punjabi and Hindi text for the pay button and the card errors.
+## What we found
 
-### The dashboard
+**On Lantern Bills**, our demo bill-payment site with six problems planted on purpose:
 
-`dashboard/` is a static React and Vite site. It only reads run files.
+| # | Planted problem | Found by | Fixed copy |
+|---|---|---|---|
+| 1 | Icon-only pay button: Button with no name (`unlabeled_button`) | The Listener | Exorcised |
+| 2 | "Protect your payment" dialog: Keyboard trap (`focus_trap`), ignores Escape, paid add-on ticked | The Listener (trap), Bebe (Tricky choice, `dark_pattern`) | Exorcised |
+| 3 | Card errors that are visible but never announced: Error nobody announced (`unannounced_error`) | **No ghost.** The mission pays with a valid card, so no error appears | Fixed; proven by the fixed copy's tests |
+| 4 | A banner that loads late and pushes the page down: Clicked the wrong thing (`misclick`) | The Phantom (two misclicks) | Exorcised |
+| 5 | A payment total cut off at narrow widths and large zoom: Text cut off (`cut_off_text`) | Bebe | Exorcised |
+| 6 | Missing Punjabi and Hindi text: Text not translated (`untranslated`) | Bebe | Exorcised |
+
+**6 planted, 5 found, 5 exorcised.** On the fixed copy, all three ghosts finished the task with no findings. These are single recorded runs, listed in [Recorded runs](#recorded-runs). The end-to-end tests run each ghost 10 times with different seeds and require its findings in at least 9 of the 10 runs. They pass.
+
+**On a site we did not build.** We ran [Memos](https://github.com/usememos/memos), an open-source notes app, on our own computer, with a throwaway account, and sent The Listener to write a note. Both its scripted mind and its AI mind got trapped in the note editor: Tab and Shift+Tab cannot leave it. The scripted run found that pressing Escape twice gets out, and that nothing on the page says so. The AI run pressed Escape once, but the exit needs two presses. Neither run saved a note. [See the real-world haunt](https://xan-antx.github.io/haunt/#/real-world) and [the details](docs/how-it-works.md#real-world-haunt-memos).
+
+## The dashboard
 
 | Screen | What it shows |
 |---|---|
-| **Home** | The latest result for each ghost, with a "Watch it happen" button on each card, a line that counts the six problems planted in Lantern Bills (with the recorded runs: 6 planted, 5 found, 5 exorcised, and a plain sentence on the one no ghost reached), a "Haunt your own site" card with a block of commands you can copy, and the 60-second tour. Run files that cannot be read are listed as "Restless files" with the reasons. |
-| **Ghost Cam** | A step-by-step replay of one run: the screenshot, where the ghost's focus was, what The Listener heard, and what the ghost was thinking (for The Listener, a strip under the screenshot; for an AI run, "What the AI mind decided"). The Play button reads "Pause" while playing. When no button or field has focus, the Left and Right arrow keys step and Space plays or pauses. A Phantom screenshot is shown whole in a phone frame. A blank screenshot says "The picture for this step came out blank." and gives no cause, except the first Phantom step, which says the page is still loading on slow 3G. An ask panel answers four questions about the run from the run file; The Listener is asked what it heard, and The Phantom and Bebe are asked what they were thinking. The Listener's spoken lines can be read aloud. |
-| **Graveyard** | One tombstone per problem found, led by a plain line such as "Here lies a button with no name." with the engine's evidence behind "Full details", ordered by site (Lantern Bills first) and then by step, filterable by site and ghost, with a map view that shows one room per page and a cold spot where a ghost got stuck. |
-| **Exorcise** | Compares a before run with a later run by the same ghost and the same mind (scripted or AI) on the same mission, on the same site or its fixed copy, and marks each finding as exorcised, still haunting, new, or not reached. |
-| **Spec Coverage** | Each mission is one requirement, shown by site (Lantern Bills, its fixed copy, Memos) with a plain title, the full requirement behind a button and a link to its file. Shows whether each ghost's latest run on that site completed it. |
-| **Real-world haunt** | Opens from a link at the bottom of Home. Shows the newest Memos run for each mind (Scripted mind and AI mind), with its result, step count and findings, and a "Watch it happen" button. Memos runs stay off Home, the tour and the Ghost Cam link on Home. |
+| **Home** | The latest result for each ghost with **Watch it happen**, the planted-problem count, a **Haunt your own site** card and the tour |
+| **Ghost Cam** | A step-by-step replay: screenshot, what The Listener heard, what the ghost was thinking, and the **Ask this ghost** panel |
+| **Graveyard** | One tombstone per problem found, with a **Map** view of rooms and cold spots |
+| **Exorcise** | Before and after runs by the same ghost, each finding marked Exorcised, Still haunting, New haunting or Not reached |
+| **Spec Coverage** | Each mission as a Kiro spec requirement, and whether each ghost's latest run completed it |
+| **A real-world haunt** | The Memos runs, linked from the bottom of Home |
 
-Dates are shown in UTC and say so, which matches the run ids. The "Full requirement" and "Full details" panels close on Escape, on a click outside them and when focus moves away. A run made by the AI mind carries an **AI mind** label on Home, in the Ghost Cam and in Exorcise. Samples are labelled **Sample run**, and a ghost's samples are hidden once the ghost has a real run.
+Details of each screen are in [docs/how-it-works.md](docs/how-it-works.md#the-dashboard-in-detail).
 
-### The Exorcise loop
+### Accessibility of Haunt itself
 
-`demo-site-exorcised/` is a copy of Lantern Bills where the six problems are fixed. Every fix went through a Kiro bugfix spec, and the tests that asserted the planted behavior were updated to assert the fixed behavior, not deleted.
+Haunt is built to be used by the people its ghosts stand for.
 
-- `exorcised-payment-a11y-fix` fixes the pay button's name and the dialog's keyboard trap (Tab order, Escape, focus return).
-- `exorcised-remaining-fixes` fixes the silent card errors, the late banner, the cut-off total, the pre-ticked add-on and the missing Punjabi and Hindi text.
-- `exorcise-different-ghost-fix` fixes the dashboard: Exorcise now compares only runs by the same ghost, because a ghost can only confirm the fix of a problem it can detect.
+- The colors have measured contrast ratios, written down in the [design steering](.kiro/steering/dashboard-design.md) and checked by a test.
+- axe-core reports no violations on 64 recorded dashboard states, at 1536 px and at 320 px (`dashboard/e2e/ghostcam-recorded-axe.spec.ts`).
+- A forced-colors test (`dashboard/e2e/forced-colors.spec.ts`) marks only the current page in the menu.
+- Animation runs only when your system allows motion.
+- On the five menu screens, the `keyboard` test in [`dashboard/e2e/haunt.spec.ts`](dashboard/e2e/haunt.spec.ts) tabs through every stop. It checks that each has a visible focus ring and that Tab never gets stuck.
 
-All three ghosts ran again on the fixed copy (recorded with `--site-name "Lantern Bills demo (exorcised)"`). Each one completed the task with no findings. The dashboard calls the site "Lantern Bills (fixed copy)", marks those runs "after the fix" and pairs each with the same ghost's run on the haunted site.
+## How we built this with Kiro
 
-### The AI mind for The Listener
+We did not use Kiro on the side. Every part started as a Kiro spec, steering kept the ghosts honest, hooks guarded the planted problems, and The Listener's AI mind *is* a Kiro custom agent talking to our own MCP server through the Kiro CLI.
 
-By default The Listener follows a scripted walk. With `--mind ai`, a Kiro custom agent chooses each keyboard action instead.
+**Our approach.** We wrote a requirements-first spec for each part (requirements, design, tasks) and let Kiro run the tasks, with property-based tests named after the spec they prove. Bug fixes went through bugfix specs, which first wrote a test that failed on the unfixed code. Steering files loaded only in the folder they govern, so the haunted demo site was never "helpfully" fixed. Hooks ran the build after each task and re-ran the planted-problem tests whenever the demo site changed.
 
-- The agent is [`.kiro/agents/listener.json`](.kiro/agents/listener.json). The engine starts it with `kiro-cli chat --agent listener --no-interactive`.
-- The agent's only tools come from **haunt-mcp**, an MCP server in [`engine/src/mcp/server.ts`](engine/src/mcp/server.ts). It has seven tools: `read_page`, `read_announcements`, `press_key`, `type_text`, `jump`, `think` and `finish`. Each call goes over loopback, with a token, to a bridge inside the engine that holds the browser.
-- The agent only chooses actions and writes the one-sentence thought for each step. It cannot create findings. The same detectors as the scripted walk decide them, and the run passes the same schema check.
-- Only The Listener has an AI mind. The Phantom and Bebe are scripted.
+### Specs
 
-The saved AI run ([2026-11-23T1020Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1), 26 steps) gave up at the dialog trap with the same two findings as the scripted run: an unlabeled button and a focus trap.
+All 10 live in [`.kiro/specs/`](.kiro/specs). Each has its own folder of requirements (or `bugfix.md`), design and tasks.
 
-### Live mode
+| Spec | Kind | What it covers |
+|---|---|---|
+| [`lantern-bills`](.kiro/specs/lantern-bills/) | Feature | The demo site and its six planted problems |
+| [`haunt-engine`](.kiro/specs/haunt-engine/) | Feature | The engine and the three ghosts |
+| [`haunt-dashboard`](.kiro/specs/haunt-dashboard/) | Feature | The dashboard and its screens |
+| [`listener-ai-mind`](.kiro/specs/listener-ai-mind/) | Feature, fast-task | The AI mind: haunt-mcp, the bridge, the custom agent, `--mind ai` |
+| [`haunt-patrol`](.kiro/specs/haunt-patrol/) | Feature, fast-task | The Haunt Patrol Crew app |
+| [`memos-real-world-haunt`](.kiro/specs/memos-real-world-haunt/) | Feature, fast-task | The `write-note` mission, element-trap detection, Field with no name, the real-world page |
+| [`exorcised-payment-a11y-fix`](.kiro/specs/exorcised-payment-a11y-fix/) | Bugfix | Fixed copy: the pay button's name and the dialog's keyboard trap |
+| [`exorcised-remaining-fixes`](.kiro/specs/exorcised-remaining-fixes/) | Bugfix | Fixed copy: card errors, banner, total, pre-ticked add-on, translations |
+| [`exorcise-different-ghost-fix`](.kiro/specs/exorcise-different-ghost-fix/) | Bugfix | Exorcise must not compare runs by different ghosts |
+| [`pre-recording-polish`](.kiro/specs/pre-recording-polish/) | Feature, from an outside review | 32 findings from an independent review, fixed in phases; some items are deferred |
 
-When you run the dashboard yourself with `npm run dev` in `dashboard/`, the **Summon a live ghost** button on Home starts Lantern Bills, runs The Listener (Scripted mind) through the engine, adds the new run to the dashboard and stops the site. It accepts requests only from your own computer. On the published site the button explains this and shows the commands to run.
+`pre-recording-polish` did not start from our own idea. An independent review of the dashboard produced a list of problems, which became its [brief](.kiro/specs/pre-recording-polish/brief.md) and spec. Its [tasks](.kiro/specs/pre-recording-polish/tasks.md) say which items are deferred until after the hackathon.
 
-### Haunt Patrol (Kiro Crew app)
+### Steering, hooks, agent, MCP, CLI and Crew
 
-Haunt Patrol is a [Kiro Crew](https://kiro.dev/docs/crew/installation/) app. Every night at midnight IST a script cron builds Lantern Bills, sends the three ghosts (scripted minds, no model call) through the pay-bill mission, and stops the site. It writes a record and a plain-text summary that compares the night with the one before. The Crew page shows the summary and each ghost's result and findings, and has one link to the live dashboard. A second agent, `patrol-guide`, explains the results in plain language and can only read.
+| Feature | Where | How we used it |
+|---|---|---|
+| **Steering, always included** | [product.md](.kiro/steering/product.md), [structure.md](.kiro/steering/structure.md), [tech.md](.kiro/steering/tech.md) | The ghosts, the ethics rules, who owns each folder, the stack |
+| **Steering, `fileMatch`** | [demo-site.md](.kiro/steering/demo-site.md) (`demo-site/**/*`) | Never fix the planted problems unless a bugfix spec names them |
+| **Steering, `fileMatch`** | [demo-site-exorcised.md](.kiro/steering/demo-site-exorcised.md) (`demo-site-exorcised/**`) | Fix only what a bugfix spec names; update tests, never weaken them |
+| **Steering, `fileMatch`** | [dashboard-design.md](.kiro/steering/dashboard-design.md) (`dashboard/**/*`) | Colors with contrast ratios, fonts, ghost designs, motion limits |
+| **Hook, `PostTaskExec`, command** | [Build check](.kiro/hooks/build-check.json) | Builds each project folder a finished spec task changed |
+| **Hook, `PreToolUse`, command** | [Contract guard](.kiro/hooks/contract-guard.json) | Asks before any file write, move or delete in `contract/` |
+| **Hook, `Stop`, command** | [Planted problems guard](.kiro/hooks/planted-problems-guard.json) | If `demo-site/src/` changed, proves the six problems remain; failures go back to the agent |
+| **Hook, `Manual`, agent action** | [Translation keeper](.kiro/hooks/translation-keeper.json) | Adds missing Punjabi and Hindi keys, except the four that must stay untranslated |
+| **Custom agent** | [`.kiro/agents/listener.json`](.kiro/agents/listener.json) | The Listener's AI mind. Its only tools are haunt-mcp's seven |
+| **MCP server** | [`engine/src/mcp/server.ts`](engine/src/mcp/server.ts) | `read_page`, `read_announcements`, `press_key`, `type_text`, `jump`, `think`, `finish`. No tool creates a finding |
+| **Kiro CLI** | [`engine/src/mind/ai/kiro.ts`](engine/src/mind/ai/kiro.ts) | `--mind ai` runs `kiro-cli chat --agent listener --no-interactive` and prints the credits used |
+| **Kiro Crew** | [`crew-app/`](crew-app) ([own repo](https://github.com/xan-antx/haunt-crew)) | Haunt Patrol: a nightly script cron, a page, a read-only `patrol-guide` agent, a `reading-patrols` skill |
 
-The app is in [`crew-app/`](crew-app) here and in its own repository, https://github.com/xan-antx/haunt-crew. Patrol runs stay in the app's own data folder, so the dashboard does not list them. See [crew-app/README.md](crew-app/README.md) and, for Windows, [crew-app/INSTALL-WINDOWS.md](crew-app/INSTALL-WINDOWS.md).
+### Proof Kiro ran the tasks
 
-## Real-world haunt: Memos
+Kiro keeps a `tasks.meta.json` next to a spec's tasks. Four of them hold **629 task-execution records**. A task can log several records in one run.
 
-[Memos](https://github.com/usememos/memos) is a popular open-source notes app under the MIT license. Haunt did not build it. We run it only on our own computer, at `http://localhost:5230`, with a throwaway account made for Haunt, and we never visit anyone else's Memos server. The Memos account is a throwaway on a local copy: it holds nothing real, and the dashboard shows its password as dots.
+| Spec | Task-execution records | Kiro chat sessions |
+|---|---|---|
+| [`haunt-engine`](.kiro/specs/haunt-engine/tasks.meta.json) | 328 | 8 |
+| [`haunt-dashboard`](.kiro/specs/haunt-dashboard/tasks.meta.json) | 185 | 2 |
+| [`lantern-bills`](.kiro/specs/lantern-bills/tasks.meta.json) | 66 | 1 |
+| [`exorcise-different-ghost-fix`](.kiro/specs/exorcise-different-ghost-fix/tasks.meta.json) | 50 | 1 |
 
-The mission is `write-note`. The Listener signs in, types a note and saves it. The mission is tied to `MEMOS-1` in [`memos-behavior.md`](.kiro/specs/memos-real-world-haunt/memos-behavior.md): a signed-in user types a note, activates Save, and the new memo appears at the top of the list.
+The fast-task specs and the later bugfix specs keep no such file. MCP is wired through the custom agent: `listener.json` registers haunt-mcp and allows only its tools.
 
-Both The Listener's scripted mind and its AI mind got stuck in the note editor on their own. In the editor, Tab and Shift+Tab cannot move focus out. Pressing Escape twice does get out, and nothing on the page or in the announcements says so. Both runs gave up and recorded a `focus_trap` finding for the editor.
+<img src="docs/media/hook-firing.png" alt="Three entries in a Kiro session, each reading Run Command Hook with the label Contract guard." width="437">
 
-| Run | Mind | Result | Steps | Findings |
-|---|---|---|---|---|
-| [2026-11-24T2141Z-listener-write-note](https://xan-antx.github.io/haunt/#/run/2026-11-24T2141Z-listener-write-note/step/29) | Scripted mind | Gave up | 29 | focus trap in the note editor (step 29) |
-| [2026-11-26T2026Z-listener-write-note](https://xan-antx.github.io/haunt/#/run/2026-11-26T2026Z-listener-write-note/step/19) | **AI mind** | Gave up | 28 | focus trap in the note editor (step 19) |
+*The contract guard hook firing on each file write in a real Kiro session.*
 
-What the runs show, and what they do not:
+<img src="docs/media/hook-config.png" alt="The contract-guard.json hook settings in Kiro: enabled, trigger Pre Tool Use, tool names fs_write, str_replace, fs_append, delete_file and smart_relocate, action Run Command, command node .kiro/hooks/scripts/contract-guard.mjs." width="520">
 
-- The scripted run pressed Tab 50 times, then Shift+Tab, then Escape twice. The second Escape freed focus, so its evidence says the exit is undocumented. The AI run pressed Tab 153 times and Shift+Tab 101 times and gave up without finding the Escape exit.
-- Neither run recorded an `unlabeled_field` finding on Memos. The editor was announced as "Any thoughts..., edit text", so Chromium gave it a name. The detector exists and is tested, and it has not found anything on Memos so far.
-- Neither run saved a note, so neither completed the mission.
-- The first scripted run showed two weaknesses in our own engine. A `focus_trap` was missed because the editor had a name, and the `unannounced_error` detector flagged text that only a screen reader can reach. We fixed the engine in both places and ran again. The Lantern Bills findings did not change.
+*How the contract guard is configured.*
 
-To repeat the run, start your own Memos at `http://localhost:5230`, create the account named in [`engine/missions/write-note.json`](engine/missions/write-note.json), and from `engine/` run:
+### Where Kiro surprised us
 
-```
-npm run haunt -- run --ghost listener --mission write-note --url http://localhost:5230
-```
+- **Our own AI ghost caught our detector lying.** On its first run, the Kiro agent opened a "Learn more" disclosure, and our Error nobody announced detector (`unannounced_error`) called the explanation an error at step 22. We fixed it in [`22844b7`](https://github.com/xan-antx/haunt/commit/22844b7) with regression tests that use the exact text from that run.
+- **A real site exposed two engine weaknesses.** The first Memos run missed a trap because the editor had a name, and read screen-reader-only text as an error. They became tasks 6.4 and 6.5 of the [Memos spec](.kiro/specs/memos-real-world-haunt/tasks.md), fixed in [`7f267b2`](https://github.com/xan-antx/haunt/commit/7f267b2). The Lantern Bills findings did not change.
+- **A bugfix spec overrode one of our requirements.** The [`exorcise-different-ghost-fix` bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md) replaces criterion 13.8 of the dashboard requirements. Exorcise used to warn when two runs were by different ghosts. Now it refuses to compare them.
+- **Kiro Crew refused command crons on Windows.** [`haunt-patrol` task 10](.kiro/specs/haunt-patrol/tasks.md) moved the nightly patrol to a script cron, `cron/nightly_patrol.py`.
+- **The bugfix workflow proved the bug before fixing it.** For `exorcise-different-ghost-fix`, Kiro first wrote tests that failed on the unfixed dashboard. Its [`tasks.meta.json`](.kiro/specs/exorcise-different-ghost-fix/tasks.meta.json) records "Exploration tests failed on unfixed code as expected, confirming the bug."
 
-Add `--mind ai` for the AI mind. Haunt never starts Memos itself.
+### What was not Kiro
 
-## Real runs
+We used Claude Code for the media capture script ([`tools/media/`](tools/media)), for copying the Crew app into its own repository, for a one-off accessibility pre-check of Memos, and for two independent read-only reviews before recording (a product review and a review of this README). Claude also helped draft the brief that became the `pre-recording-polish` spec. Kiro made every fix through that spec.
 
-These seven Lantern Bills runs are in [`runs/lantern-bills/`](runs/lantern-bills) and are shown in the live dashboard. They are single runs, not statistics.
+## Built with
 
-| Run | Site | Mind | Result | Findings |
-|---|---|---|---|---|
-| [2026-11-10T1822Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-10T1822Z-listener-pay-bill/step/1) | Lantern Bills | Scripted mind | Gave up | focus trap, unlabeled button |
-| [2026-11-11T1744Z-phantom-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-phantom-pay-bill/step/1) | Lantern Bills | Scripted mind | Gave up | 2 misclicks |
-| [2026-11-11T1744Z-bebe-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-bebe-pay-bill/step/1) | Lantern Bills | Scripted mind | Completed | untranslated text, cut-off text, 3 dark patterns |
-| [2026-11-23T1020Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) | Lantern Bills | **AI mind** | Gave up | focus trap, unlabeled button |
-| [2026-11-22T1148Z-listener-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1148Z-listener-pay-bill/step/1) | Lantern Bills (fixed copy) | Scripted mind | Completed | none |
-| [2026-11-22T1153Z-phantom-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1153Z-phantom-pay-bill/step/1) | Lantern Bills (fixed copy) | Scripted mind | Completed | none |
-| [2026-11-22T1149Z-bebe-pay-bill](https://xan-antx.github.io/haunt/#/run/2026-11-22T1149Z-bebe-pay-bill/step/1) | Lantern Bills (fixed copy) | Scripted mind | Completed | none |
-
-Two hand-made sample runs (`runs/samples/`) are also in the repo.
+Kiro (specs, steering, hooks, custom agent, Kiro CLI, Kiro Crew) · Model Context Protocol (`@modelcontextprotocol/sdk`) · TypeScript · Node.js 24 · Playwright and Chromium · React 18 · Vite · React Router · i18next · Vitest · fast-check · axe-core · Zod and Ajv · Python (the Crew cron script) · GitHub Pages and GitHub Actions
 
 ## Run it locally
 
-You need Node.js 24 or newer. There is no root `package.json`, so install and run each app in its own folder.
+You need Node.js 24 or newer and Git. Each app installs and runs in its own folder; there is no root `package.json`. Ports are fixed, and a server stops with an error if its port is taken. Stop a server with Ctrl+C in the terminal that started it.
 
-```
-cd demo-site
-npm install
-npm run dev        # Lantern Bills, http://localhost:3000
-```
+| Part | Commands (from the repo root) | Address |
+|---|---|---|
+| Lantern Bills | `cd demo-site`, `npm install`, `npm run dev` | http://localhost:3000 |
+| Dashboard | `cd dashboard`, `npm install`, `npm run dev` | http://localhost:3001 |
+| Fixed copy | `cd demo-site-exorcised`, `npm install`, `npm run dev` | http://localhost:3002 |
 
-```
-cd dashboard
-npm install
-npm run dev        # dashboard, http://localhost:3001
-```
-
-```
-cd demo-site-exorcised
-npm install
-npm run dev        # fixed copy, http://localhost:3002
-```
-
-Ports are fixed. If one is taken, the server stops with an error.
+The dashboard's `npm run dev` prints a long Vite warning about `configLoader`. It is harmless. With the dashboard running, **Summon a live ghost** on Home runs The Listener through Lantern Bills on your computer and adds the run. It needs `npm install` in `demo-site/` and `engine/`, and `npx playwright install chromium` in `engine/`.
 
 ### Run a ghost
 
-Serve Lantern Bills as a production build, then run the ghost in another terminal. Use the production build, not `npm run dev`: the dev server is too slow for The Phantom's slow-3G walk, and The Phantom gives up at step 1 on it instead of finding the misclicks at steps 3 and 5.
+Serve Lantern Bills as a production build, because The Phantom gives up at step 1 on the slower dev server. Then run a ghost in a second terminal:
 
-```
+```powershell
 cd demo-site
-npm run serve:ghosts    # builds Lantern Bills and serves it on http://localhost:3000
+npm install
+npm run serve:ghosts
 ```
 
-```
+```powershell
 cd engine
 npm install
 npx playwright install chromium
-npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000
+npm run haunt -- run --ghost listener --mission pay-bill --url http://localhost:3000 --out ../../haunt-trials
 ```
 
-Use `npm run haunt --` inside `engine/`, not `npx haunt`. An unrelated package called `haunt` is on the npm registry, and outside `engine/` npx downloads and runs that one. `--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. By default runs go into `runs/` at the repository root, and the dashboard picks them up the next time you start `npm run dev` or `npm run build` there.
+`--ghost` is `listener`, `phantom` or `bebe`. The last line printed is the path of the saved `run.json`. Use `npm run haunt --` inside `engine/`, never `npx haunt`, which can download an unrelated npm package.
 
-The engine refuses any address other than `localhost`, `127.0.0.1` and domains in its config. To run a ghost on the fixed copy and have the dashboard pair the run with the original, use the fixed copy's address and name (the run file keeps the name "Lantern Bills demo", and the dashboard shows it as "Lantern Bills", or "Lantern Bills (fixed copy)" with the suffix below):
+**Use `--out` for trial runs.** Without it, runs are saved in `runs/`, the recorded evidence. The dashboard's data tests read `runs/`, so an extra run there can make some of them fail. To see a trial run on the dashboard, copy its folder into `runs/<site>/` and remove it before running `npm test` in `dashboard/`.
 
+To record a run on the fixed copy that Exorcise pairs with the original, serve it with `npm run serve:ghosts` in `demo-site-exorcised/` (port 3002) and add the site name:
+
+```powershell
+npm run haunt -- run --ghost phantom --mission pay-bill --url http://localhost:3002 --site-name "Lantern Bills demo (exorcised)" --out ../../haunt-trials
 ```
-npm run haunt -- run --ghost bebe --mission pay-bill --url http://localhost:3002 --site-name "Lantern Bills demo (exorcised)"
-```
 
-To use the AI mind, add `--mind ai` to a Listener run. This needs the Kiro CLI and a Kiro account (see below). See [engine/README.md](engine/README.md) for every option and exit code, and [dashboard/README.md](dashboard/README.md) for how run files get into the dashboard.
+Every option and exit code is in [engine/README.md](engine/README.md).
 
 ## Haunt your own site
 
-You can send a ghost through a site of your own. You need two small files, kept in a folder of your own (here `my-haunt/`, next to `engine/`), and your site running on this computer. Only run ghosts on sites you own, or on local copies of open-source sites.
+Only send ghosts to sites you own, or to local copies of open-source sites. The engine refuses any address other than `localhost`, `127.0.0.1` and domains you list.
 
-1. Make `my-haunt/haunt.config.json`. It lists your site. The `allowedDomains` list stays empty for a site on `localhost`; add a host name there only for a domain you own.
+1. Make a folder next to `engine/`, for example `my-haunt/`, with `my-haunt/haunt.config.json`:
 
    ```json
    {
@@ -208,184 +215,86 @@ You can send a ghost through a site of your own. You need two small files, kept 
    }
    ```
 
-2. Make `my-haunt/missions/my-mission.json`: one task, written as a few steps. Copy the template in [engine/missions/README.md](engine/missions/README.md) and change the button and field names to the ones on your site.
+   `allowedTerms` are words Bebe should not report as untranslated, such as your brand name.
 
+2. Write one task as `my-haunt/missions/my-mission.json`, starting from the template in [engine/missions/README.md](engine/missions/README.md). Name buttons and fields by their accessible names.
 3. Start your site, then run a ghost. This example expects your site on `http://localhost:3000`:
 
-   ```
+   ```powershell
    cd engine
    npm install
    npx playwright install chromium
    npm run haunt -- run --ghost listener --mission my-mission --url http://localhost:3000 --site my-site --config ../my-haunt/haunt.config.json --missions ../my-haunt/missions --out ../my-haunt/runs
    ```
 
-The last line printed is the path of the saved `run.json`. `--ghost` can also be `phantom` or `bebe`. If a ghost cannot find a button or field named in your mission, it gives up at that step and the run says where. The dashboard reads the `runs/` folder at the repository root, so to see the run there, copy its folder (`my-haunt/runs/my-site/<run id>`) into `runs/my-site/`, or leave out `--out`, which saves into `runs/` directly.
-
-Every command above was run against a local copy of Lantern Bills, standing in for "your site", with the output folder outside the repository.
+A ghost that cannot find a button or field gives up at that step, and the run says where. To see the run in the dashboard, copy its folder (`my-haunt/runs/my-site/<run id>`) into `runs/my-site/`. We ran every command above against a local copy of Lantern Bills.
 
 ## What needs a Kiro account
 
-Only two things do:
+Only two things: the **AI mind** (`--mind ai`, which needs the [Kiro CLI](https://kiro.dev/docs/cli/) signed in and uses Kiro credits) and **Haunt Patrol** (which runs inside the [Kiro Crew](https://kiro.dev/docs/crew/installation/) desktop app). The live dashboard, both sites, scripted ghosts, live mode and every test work without one. The two saved AI runs stay viewable in the dashboard.
 
-- **The AI mind** (`--mind ai`). It runs the Kiro CLI, which must be installed ([kiro.dev/docs/cli](https://kiro.dev/docs/cli/)) and signed in. Each AI run uses Kiro credits, and the engine prints the credits a run used when Kiro reports them.
-- **The Haunt Patrol Crew app.** It runs inside the Kiro Crew desktop app, which needs a Kiro sign-in.
+## Recorded runs
 
-Everything else works without an account: the live dashboard, both sites, scripted ghosts, live mode, and all tests.
+Single runs, not statistics. The Lantern Bills runs are in [`runs/lantern-bills/`](runs/lantern-bills), the Memos runs in [`runs/memos/`](runs/memos).
 
-Our hackathon credits expire on December 31. After that, new AI runs need your own Kiro credits. The two AI runs already saved in `runs/` (Lantern Bills and Memos) stay viewable in the dashboard.
+| Run | Site | Mind | Result | Findings |
+|---|---|---|---|---|
+| [Listener, 10 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-10T1822Z-listener-pay-bill/step/1) | Lantern Bills | Scripted | Gave up (step 20) | Keyboard trap, Button with no name |
+| [Phantom, 11 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-phantom-pay-bill/step/1) | Lantern Bills | Scripted | Gave up (step 5) | 2 × Clicked the wrong thing |
+| [Bebe, 11 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-11T1744Z-bebe-pay-bill/step/1) | Lantern Bills | Scripted | Completed | Text cut off, Text not translated, 3 × Tricky choice |
+| [Listener, 23 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-23T1020Z-listener-pay-bill/step/1) | Lantern Bills | **AI** | Gave up (step 26) | Keyboard trap, Button with no name |
+| [Listener, 22 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-22T1148Z-listener-pay-bill/step/1) | Fixed copy | Scripted | Completed | none |
+| [Phantom, 22 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-22T1153Z-phantom-pay-bill/step/1) | Fixed copy | Scripted | Completed | none |
+| [Bebe, 22 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-22T1149Z-bebe-pay-bill/step/1) | Fixed copy | Scripted | Completed | none |
+| [Listener, 24 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-24T2141Z-listener-write-note/step/29) | Memos | Scripted | Gave up (29 steps) | Keyboard trap in the note editor (step 29) |
+| [Listener, 26 Nov](https://xan-antx.github.io/haunt/#/run/2026-11-26T2026Z-listener-write-note/step/19) | Memos | **AI** | Gave up (28 steps) | Keyboard trap in the note editor (step 19) |
 
-## How we used Kiro
-
-Every row points to a file in this repo.
-
-### Specs (`.kiro/specs/`)
-
-| Spec | Kind | What it covers | Files |
-|---|---|---|---|
-| `lantern-bills` | Feature | The demo site and its six planted problems | [requirements](.kiro/specs/lantern-bills/requirements.md), [design](.kiro/specs/lantern-bills/design.md), [tasks](.kiro/specs/lantern-bills/tasks.md) |
-| `haunt-dashboard` | Feature | The dashboard and its screens | [requirements](.kiro/specs/haunt-dashboard/requirements.md), [design](.kiro/specs/haunt-dashboard/design.md), [tasks](.kiro/specs/haunt-dashboard/tasks.md) |
-| `haunt-engine` | Feature | The engine and the three ghosts | [requirements](.kiro/specs/haunt-engine/requirements.md), [design](.kiro/specs/haunt-engine/design.md), [tasks](.kiro/specs/haunt-engine/tasks.md) |
-| `listener-ai-mind` | Feature | The AI mind: haunt-mcp, the bridge, the custom agent, `--mind ai` | [requirements](.kiro/specs/listener-ai-mind/requirements.md), [design](.kiro/specs/listener-ai-mind/design.md), [tasks](.kiro/specs/listener-ai-mind/tasks.md) |
-| `haunt-patrol` | Feature | The Haunt Patrol Crew app | [requirements](.kiro/specs/haunt-patrol/requirements.md), [design](.kiro/specs/haunt-patrol/design.md), [tasks](.kiro/specs/haunt-patrol/tasks.md) |
-| `memos-real-world-haunt` | Feature | The `write-note` mission on Memos, element-trap detection, the `unlabeled_field` finding, and the real-world dashboard page | [requirements](.kiro/specs/memos-real-world-haunt/requirements.md), [design](.kiro/specs/memos-real-world-haunt/design.md), [tasks](.kiro/specs/memos-real-world-haunt/tasks.md), [expected Memos behavior](.kiro/specs/memos-real-world-haunt/memos-behavior.md) |
-| `exorcise-different-ghost-fix` | Bugfix | Exorcise must not compare runs by different ghosts | [bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md), [design](.kiro/specs/exorcise-different-ghost-fix/design.md), [tasks](.kiro/specs/exorcise-different-ghost-fix/tasks.md) |
-| `exorcised-payment-a11y-fix` | Bugfix | Fixed copy: pay button name, dialog keyboard trap | [bugfix](.kiro/specs/exorcised-payment-a11y-fix/bugfix.md), [design](.kiro/specs/exorcised-payment-a11y-fix/design.md), [tasks](.kiro/specs/exorcised-payment-a11y-fix/tasks.md) |
-| `exorcised-remaining-fixes` | Bugfix | Fixed copy: card errors, banner, total, pre-ticked add-on, translations | [bugfix](.kiro/specs/exorcised-remaining-fixes/bugfix.md), [design](.kiro/specs/exorcised-remaining-fixes/design.md), [tasks](.kiro/specs/exorcised-remaining-fixes/tasks.md) |
-
-### Steering (`.kiro/steering/`)
-
-| File | Loads | What it does |
-|---|---|---|
-| [product.md](.kiro/steering/product.md) | Always | The three ghosts, ethics rules (own sites only, respectful personas, never weaken a test) |
-| [structure.md](.kiro/steering/structure.md) | Always | Who owns each folder and how data flows from `runs/` to the dashboard |
-| [tech.md](.kiro/steering/tech.md) | Always | TypeScript, Node LTS, Playwright, React with Vite, and file-editing rules |
-| [demo-site.md](.kiro/steering/demo-site.md) | In `demo-site/` | Keeps the six planted problems in place unless a bugfix spec names them |
-| [demo-site-exorcised.md](.kiro/steering/demo-site-exorcised.md) | In `demo-site-exorcised/` | Problems get fixed only when a bugfix spec names them, `demo-site/` stays unchanged, and tests are updated, never weakened |
-| [dashboard-design.md](.kiro/steering/dashboard-design.md) | In `dashboard/` | Colors with measured contrast ratios, fonts, ghost designs, what each spooky element means, motion limits |
-
-### Hooks (`.kiro/hooks/`)
-
-| Hook | Trigger | What it does |
-|---|---|---|
-| [Build check](.kiro/hooks/build-check.json) | After a spec task finishes | Runs `npm run build` in each changed project folder: `engine`, `demo-site`, `demo-site-exorcised`, `dashboard` and `crew-app` ([script](.kiro/hooks/scripts/build-check.mjs)) |
-| [Contract guard](.kiro/hooks/contract-guard.json) | Before a file write, move or delete | Asks for confirmation before anything in `contract/` changes ([script](.kiro/hooks/scripts/contract-guard.mjs)) |
-| [Planted problems guard](.kiro/hooks/planted-problems-guard.json) | When the agent finishes a turn | If anything in `demo-site/src/` differs from `HEAD`, runs the tests proving the six planted problems still exist, and sends a failure back to the agent ([script](.kiro/hooks/scripts/planted-problems-guard.mjs)) |
-| [Translation keeper](.kiro/hooks/translation-keeper.json) | Manual | After English strings change, adds missing keys to the Punjabi and Hindi files and lists them for review. It skips the keys that are deliberately untranslated |
-
-### Custom agent, MCP server, Kiro CLI and Kiro Crew
-
-| Piece | Where | How we used it |
-|---|---|---|
-| Custom agent | [`.kiro/agents/listener.json`](.kiro/agents/listener.json) | The Listener's AI mind. Its only tools are haunt-mcp's seven |
-| MCP server | [`engine/src/mcp/server.ts`](engine/src/mcp/server.ts), started by [`engine/bin/haunt-mcp.mjs`](engine/bin/haunt-mcp.mjs) | Gives the agent the Listener's abilities and nothing else. No tool reads or writes findings |
-| Kiro CLI | [`engine/src/mind/ai/kiro.ts`](engine/src/mind/ai/kiro.ts) | The engine starts `kiro-cli chat --agent listener --no-interactive`, relaunches it up to 5 times if it ends before the run does, keeps each run's Kiro log, and prints the credits used |
-| Kiro Crew | [`crew-app/`](crew-app), [haunt-crew](https://github.com/xan-antx/haunt-crew) | The Haunt Patrol app: a script cron, a read-only backend, a page built with the Crew app SDK, the `patrol-guide` agent and the `reading-patrols` skill |
-
-### Property tests
-
-Property tests use [fast-check](https://fast-check.dev). A property test is a `describe` whose name starts with `Feature: <spec name>, Property`. Each command below runs only those tests, in the folder named.
-
-| Spec | Folder and command | Tests |
-|---|---|---|
-| `haunt-engine` | `engine/`: `npm run test:properties` | 26 |
-| `listener-ai-mind` | `engine/`: `npx vitest run -t "Feature: listener-ai-mind, Property"` | 28 |
-| `memos-real-world-haunt` (engine half) | `engine/`: `npx vitest run -t "Feature: memos-real-world-haunt, Property"` | 24 |
-| `haunt-dashboard`, `exorcise-different-ghost-fix`, `memos-real-world-haunt` (dashboard half, 7 of the tests) | `dashboard/`: `npm run test:properties` | 37 |
-| `lantern-bills` | `demo-site/`: `npm run test:properties` | 20 |
-| `lantern-bills`, on the fixed copy | `demo-site-exorcised/`: `npm run test:properties` | 20 |
-| `exorcised-payment-a11y-fix` (bug condition and preservation) | `demo-site-exorcised/`: `npx vitest run src/__tests__/properties/payment-a11y` | 15 |
-| `haunt-patrol` | `crew-app/`: `npx vitest run -t "Feature: haunt-patrol, Property"` | 53, see the note under Tests |
-
-The dashboard runner ([dashboard/scripts/test-properties.ts](dashboard/scripts/test-properties.ts)) fails if no test matches the pattern. The planted-problems tests that the hook runs are `npx vitest --run src/components/__tests__ src/__tests__/translations.test.ts` in `demo-site/`.
-
-### Shared contract
-
-[contract/run-format.md](contract/run-format.md) defines the run file that the engine writes and the dashboard reads. [contract/example-run.json](contract/example-run.json) is an example, and [contract/run.schema.json](contract/run.schema.json) is the schema. Both sides check every run against it.
-
-### Proof Kiro did the work
-
-Kiro writes a `tasks.meta.json` file next to a spec's tasks each time it executes a task. Four specs have one. The counts are execution records, one for each time Kiro ran a task, counted from the files:
-
-| Spec | Execution records | Kiro chat sessions |
-|---|---|---|
-| [`haunt-engine`](.kiro/specs/haunt-engine/tasks.meta.json) | 328 | 8 |
-| [`haunt-dashboard`](.kiro/specs/haunt-dashboard/tasks.meta.json) | 185 | 2 |
-| [`lantern-bills`](.kiro/specs/lantern-bills/tasks.meta.json) | 66 | 1 |
-| [`exorcise-different-ghost-fix`](.kiro/specs/exorcise-different-ghost-fix/tasks.meta.json) | 50 | 1 |
-
-That is 629 records. Three more specs, `haunt-patrol`, `listener-ai-mind` and `memos-real-world-haunt`, are fast-task specs: a short plan of tasks with the details written inside each task. They have no `tasks.meta.json`. MCP is wired through the custom agent: [`.kiro/agents/listener.json`](.kiro/agents/listener.json) registers the haunt-mcp server and allows only its tools, and the engine starts that agent with the Kiro CLI.
-
-<figure>
-  <img src="docs/media/hook-firing.png" alt="Three entries in a Kiro session, each reading Run Command Hook with the label Contract guard." width="437">
-  <figcaption>The contract guard hook (Pre Tool Use) checking each file write during a real Kiro session.</figcaption>
-</figure>
-
-<figure>
-  <img src="docs/media/hook-config.png" alt="The contract-guard.json hook settings in Kiro: enabled, trigger Pre Tool Use, tool names fs_write, str_replace, fs_append, delete_file and smart_relocate, action Run Command, command node .kiro/hooks/scripts/contract-guard.mjs." width="520">
-  <figcaption>How the contract guard is configured.</figcaption>
-</figure>
-
-### Where Kiro surprised us
-
-- **The AI mind's first run raised a false `unannounced_error` at step 22.** The agent opened a "Learn more" disclosure, and the detector read the explanation as an error. We fixed it in [`22844b7`](https://github.com/xan-antx/haunt/commit/22844b7), with regression tests that use the exact text from that run.
-- **The first scripted Memos run exposed two weaknesses in our engine.** A named editor was never reported as a trap, and screen-reader-only text was read as an error. They became tasks 6.4 and 6.5 of the [`memos-real-world-haunt` tasks](.kiro/specs/memos-real-world-haunt/tasks.md), and the fix is in [`7f267b2`](https://github.com/xan-antx/haunt/commit/7f267b2).
-- **A bugfix spec overrode a requirement.** The [`exorcise-different-ghost-fix` bugfix](.kiro/specs/exorcise-different-ghost-fix/bugfix.md) replaces criterion 13.8 of the dashboard requirements. The dashboard used to warn when the two runs were by different ghosts. Now it refuses to compare them.
-- **Kiro Crew refused command crons on Windows.** [`haunt-patrol` task 10](.kiro/specs/haunt-patrol/tasks.md) moved the nightly patrol to a script cron, `cron/nightly_patrol.py`.
+To repeat the Memos run, start your own Memos at `http://localhost:5230`, create the account named in [`engine/missions/write-note.json`](engine/missions/write-note.json), and run `npm run haunt -- run --ghost listener --mission write-note --url http://localhost:5230` in `engine/`. Haunt never starts Memos itself.
 
 ## Tests
 
-Counted by running each suite on the current code. Commands run in the folder named in the first column.
+Each folder runs `npm test` (Vitest). Counts are from our latest run on this branch, and all pass. Run one suite at a time.
 
-| Folder | Command | Tests |
-|---|---|---|
-| `engine/` | `npm test` | 1,071 in 76 files, all passed |
-| `dashboard/` | `npm test` | 551 in 47 files, all passed |
-| `demo-site/` | `npm test` | 123 in 18 files, all passed |
-| `demo-site-exorcised/` | `npm test` | 158 in 20 files, all passed |
-| `crew-app/` | `npm test` | 169 in 29 files, all passed |
-| `dashboard/` | `npm run test:e2e` (Playwright; run `npx playwright install chromium` once) | 153 in 8 files, run with one worker. 152 passed on the first run. The 153rd, a layout test, timed out while the browser closed, and passed when run alone |
-| `dashboard/` | `npx playwright test --config playwright.recorded.config.ts` after `npm run build` (reads the real runs in `runs/`) | 25 in 3 files: the Ghost Cam fit for every run at three sizes, axe on 64 states at 1536 px and at 320 px, and a scan for text that must never show. All passed |
-| `engine/` | `npm run test:e2e` (all three ghosts against Lantern Bills, slow) | 23 in 5 files, run with one worker, all passed |
-
-The unit suites total 2,072 tests. Run one suite at a time. When we ran the engine and dashboard suites together, one dashboard test timed out, and later runs with several suites at once could not start some Vitest workers. The same suites passed when run alone. One crew-app test, `test/store.roundtrip.test.ts`, took 2.5 to 3.3 seconds alone this time, against Vitest's default 5-second timeout. It timed out in earlier runs on our Windows machine, so it can still fail on a slow or busy computer.
-
-## Results
-
-Each ghost reproduced its findings in **10 of 10** end-to-end runs on Lantern Bills. The end-to-end tests run the real command line 10 times per ghost and require at least 9 of 10.
-
-| Ghost | What a run has to find |
+| Folder | Unit and property tests |
 |---|---|
-| The Listener | Result "gave up", with an unlabeled button and a focus trap |
-| The Phantom | A misclick (seeds 1 to 10) |
-| Bebe | Cut-off text, untranslated text and a dark pattern (seeds 1 to 10) |
+| `engine/` | 1,071 |
+| `dashboard/` | 561 |
+| `demo-site/` | 123 |
+| `demo-site-exorcised/` | 158 |
+| `crew-app/` | 169 |
 
-On the fixed copy, all three ghosts complete the task with no findings. The AI mind's saved run found the same two findings as the scripted Listener.
+They also pass on a fresh clone on Windows with Git's default line-ending setting; a `.gitattributes` keeps every file on LF. The dashboard's data tests read the recorded runs in `runs/`, so record your own runs with `--out`.
+
+Property tests use [fast-check](https://fast-check.dev) and are named `Feature: <spec name>, Property …` after the Kiro spec they prove. The end-to-end suites are `npm run test:e2e` in `engine/` (all three ghosts, 10 runs each, slow) and in `dashboard/` (Playwright). Per-suite counts, commands and timing notes are in [docs/testing.md](docs/testing.md).
 
 ## Honest limitations
 
-- **Ghosts do not replace people.** They find barriers a script or an agent can reach. They do not replace testing with disabled people, and a clean ghost run does not mean a site is accessible.
-- **The read-aloud voice is an approximation.** It uses the browser's built-in speech voice. It is not real screen reader output, and the dashboard says so next to the button.
-- **The Listener cannot use a screen reader's browse mode.** It moves by keyboard and listens to what would be announced, so it is stricter than a real screen reader user on some traps. A real user might get around a barrier that stops The Listener.
-- **Two sites and two missions so far.** The `pay-bill` mission runs on Lantern Bills and its fixed copy, which we built ourselves with six known problems. The `write-note` mission runs only on a local copy of Memos, and only The Listener has visited it. We have one scripted run and one AI run there, and neither finished the mission. Results on other sites are unknown.
-- **The ghosts found 5 of the 6 planted problems.** No recorded run reached problem 3, the card errors that are never announced. The `pay-bill` mission pays with a valid card, so no card error ever appears. The fix to that problem is covered by the fixed copy's tests, not by a ghost run.
-- **Some of The Phantom's pictures are blank.** On the 22 Nov run on the fixed copy, its pictures for steps 3 to 13 came out blank, because its screenshot capture under slow 3G and a slowed CPU doesn't wait for the page to paint. The ghost still read and completed those steps, and the findings don't depend on the pictures. The Ghost Cam says "The picture for this step came out blank." on them.
-- **The detectors are heuristics.** They read the page and apply rules, so they can be wrong in both directions. The AI mind showed this. In its first run, at step 22, The Listener opened the "Learn more" disclosure in the payment protection dialog, and the `unannounced_error` detector reported the explanation ("If your payment fails due to a system error, you'll receive a full refund...") as an error, because the text contains words such as "fails" and "error". It was a false positive. We fixed the detector in two ways: text revealed by a disclosure the user opened (an `aria-expanded="true"` target or an open `<details>`) is never error text, and a sentence that opens with a condition ("if", "when", "unless") is a description, not an error about the user's input. The regression tests use the exact text from that run ([`engine/test/unannouncedError.test.ts`](engine/test/unannouncedError.test.ts) and [`engine/test/errorWords.test.ts`](engine/test/errorWords.test.ts)), and one of them checks that a real silent error next to an open disclosure is still reported. Other false positives and misses may remain.
-- **AI runs vary.** The agent may take a different path each time. Only two AI runs are saved (one on Lantern Bills, one on Memos), and the end-to-end tests cover only the scripted minds. The AI mind covers only The Listener.
-- **Haunt Patrol is small.** Its ghosts use scripted minds, it checks only Lantern Bills, and its runs are not shown in the dashboard. It runs only while the Crew gateway is up and the machine is awake at midnight IST, with no catch-up run.
-- **Ghosts only visit our own sites,** or local copies of open-source sites. We do not test third-party production sites.
+- **Ghosts do not replace people.** They find barriers a script or an agent can reach. A clean run does not mean a site is accessible, and it is no substitute for testing with disabled people.
+- **The Listener is not a real screen reader.** It moves by keyboard and listens to the accessibility tree; it cannot use browse mode, so it can be stricter than a real user. The read-aloud voice in the Ghost Cam is the browser's built-in voice, an approximation.
+- **The detectors are heuristics** and can be wrong both ways. Our AI ghost exposed one false positive, which we fixed; others may remain.
+- **Small evidence base.** Two sites and two missions so far. No ghost reached problem 3. Only The Listener has an AI mind, only two AI runs are saved, and AI runs vary.
+- **Some Phantom pictures are blank.** On the 22 Nov fixed-copy run, steps 3 to 13 have blank screenshots because capture under slow 3G does not wait for paint. The steps and findings do not depend on them, and the Ghost Cam says so.
+- **Haunt Patrol is small.** Scripted minds only, Lantern Bills only, and no catch-up if the machine is asleep at midnight IST.
+
+## What's next
+
+These items are deferred in the [`pre-recording-polish` tasks](.kiro/specs/pre-recording-polish/tasks.md) until after the hackathon:
+
+- Point the dashboard's data tests at a frozen copy of the recorded runs.
+- Fix The Phantom's screenshot capture and re-record the 22 Nov fixed-copy run.
+- Find out why two engine tests need to be skipped on the Linux CI runner.
+- Map legend and dimming, WebP screenshots, and a before-and-after slider on Exorcise.
 
 ## Related work
 
-- **UXAgent** ([paper](https://arxiv.org/abs/2504.09407), [code](https://github.com/neuhai/UXAgent)) generates thousands of LLM-driven personas that test a web design, so UX researchers can refine a study before running it with people.
-- **AgentA/B** ([paper](https://arxiv.org/html/2504.09723)) runs LLM agents on live websites to carry out A/B tests, then analyzes the logged behavior for the experiment owner.
-- **persona-lab** ([code](https://github.com/gobika21/persona-lab)) has AI agents test websites the way disabled people use them, with an eval suite that checks whether the agents can be trusted.
+[UXAgent](https://arxiv.org/abs/2504.09407) and [AgentA/B](https://arxiv.org/html/2504.09723) use many LLM personas for UX research and A/B tests. [persona-lab](https://github.com/gobika21/persona-lab) has AI agents test sites the way disabled people use them. Haunt differs: three fixed personas each built around one access need, missions tied to spec requirements, detectors (not the AI) deciding every finding, and before and after runs by the same ghost.
 
-Haunt differs in these ways. It uses three fixed personas, each built around one access need: keyboard and screen reader, slow network and old phone, large text and another language. Each mission is tied to a requirement in a Kiro spec. Detectors, not the AI, decide the findings. The output is a list of specific barriers, each tied to a step, a screenshot and a mission, and Exorcise compares before and after runs by the same ghost.
+## Contributing
 
-## How it was built
+Issues and pull requests are welcome. The three rules are in [CONTRIBUTING.md](CONTRIBUTING.md): keep the planted problems in `demo-site/` planted, never weaken a test to make a ghost pass, and only point ghosts at sites you own. The specs in [`.kiro/specs/`](.kiro/specs) explain every decision.
 
-We used Claude Code for three things: the media capture helper script ([`tools/media/`](tools/media)), copying the Crew app into its own repository, and a one-off accessibility pre-check of Memos. Everything else was built in Kiro with specs, hooks and steering.
+## Credits and licence
 
-## License
+Made by Anant Agrawal for Kiroween 2026. Fonts: IM Fell English and Atkinson Hyperlegible (dashboard), Mukta and Mukta Mahee (Lantern Bills), all under the SIL Open Font License. Memos is by its own authors under the MIT licence; we ran it only as a local copy.
 
 [MIT](LICENSE). Copyright (c) 2026 Anant Agrawal.

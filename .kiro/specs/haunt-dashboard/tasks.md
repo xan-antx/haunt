@@ -528,7 +528,7 @@ These tasks implement the fourth amendment (design sections "Amendment: equal si
 - [x] 50. Update the spec
   - `requirements.md`, `design.md` and this file describe the fourth amendment; the bugfix spec `exorcise-different-ghost-fix` is unchanged, because "No after run yet for {ghost}" is unchanged
 
-- [ ] 51. Final end-to-end run (left for the House Builder to run when the computer is free)
+- [x] 51. Final end-to-end run (done on 28 Nov 2026 on branch `pre-recording-fixes`: `npm run build`, then `npm run test:e2e -- --workers=1`, 156 passed in 6.3 minutes with nothing on port 3001; the recorded-run suite then passed 25 of 25)
   - Confirm nothing is listening on port 3001, run `npm run build`, then run the whole suite once with `npm run test:e2e`. Fix real failures in the dashboard code; never weaken or delete tests
   - Pay attention to `home.spec.ts` (Hero_Ghosts right of the h1 from 900 px, wide layout), `first-visit.spec.ts` (Map_View fog text, results heading inside 864 px), `ghostcam-layout.spec.ts` (fit at 1536×864) and the real-browser axe scans, which check the new Site_About contrast
   - _Requirements: 7.29, 7.30, 9.10, 9.11, 10.24, 18.5, 18.8, 18.10, 21.9, 21.10_

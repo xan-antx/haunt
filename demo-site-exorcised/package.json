@@ -1,19 +1,20 @@
 {
   "name": "demo-site-exorcised",
   "version": "1.0.0",
-  "description": "**Owner:** House Builder",
+  "description": "Lantern Bills (fixed copy): the demo bill-payment site with its six problems repaired, so ghosts can confirm the fix.",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "serve:ghosts": "vite build --base / --outDir .ghost-build --emptyOutDir && vite preview --base / --outDir .ghost-build",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:properties": "vitest --run -t \"Feature: lantern-bills, Property\""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@fontsource/mukta": "^5.3.0",
