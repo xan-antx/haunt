@@ -74,7 +74,7 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
   - [x] 7.9 DOC-14, DOC-15, DOC-16, DOC-17, DOC-25: `allowedTerms` line and `{{futureExpiry}}`; Reproduce command carries `--site-name` for a fixed-copy run (test); `engine/.vitest` untracked and ignored; licence and descriptions in both demo sites and the fixed copy's title; Ctrl+C line. The Vite warning is not a one-line fix (eight imports lack file extensions), so the READMEs name `VITE_CONFIG_NATIVE_IGNORE_WARNING` instead
   - [ ] 7.10 DOC-07: the live site is one version behind this branch; redeploying is the owner's decision after the merge (not done here; the owner decides after the merge)
   - [ ] 7.11 Deferred until after the hackathon: point the dashboard's data tests (`datalogic.test.tsx` and the other tests that read `runs/`) at a frozen copy of the recorded runs, so recording a run no longer changes them
-  - [ ] 7.12 Phase check: unit tests for every package touched, demo-site tests, dashboard end-to-end suite with one worker, recorded fit check and axe; commit, push, CI green
+  - [x] 7.12 Phase check: unit tests for every package touched (dashboard 561, demo-site 123, fixed copy 158; engine 1,071 and crew-app 169 on a fresh clone), dashboard end-to-end suite with one worker (156 passed), recorded fit check and axe (25 passed); committed in `05e0e67`, pushed, CI#4 green on GitHub Actions
 
 - [x] 6. Final check (first pass, before the extras)
   - [x] 6.1 Every package: unit, property, type-check, build; dashboard and engine end-to-end suites, one worker (dashboard e2e: 152 of 153 on the first run, the one timeout passed alone; engine e2e 23 of 23)
