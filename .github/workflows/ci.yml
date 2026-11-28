@@ -50,4 +50,5 @@ jobs:
       #   listenerBody.test.ts   "moves no focus with the mouse or touch: the page sees no pointer input"
       - name: Unit tests (engine, two Linux-only skips)
         if: matrix.package == 'engine'
-        run: npx vitest run --testNamePattern '^(?!.*(never sends a pointer, mouse, touch or wheel event|moves no focus with the mouse or touch: the page sees no pointer input)).*$'
+        run: |
+          npx vitest run --testNamePattern '^(?!.*(never sends a pointer, mouse, touch or wheel event|moves no focus with the mouse or touch: the page sees no pointer input)).*$'
