@@ -42,6 +42,10 @@ describe('Ghost Cam panels', () => {
     await openStep(LISTENER, 9);
     expect(screen.getByText('Step 9 of 9')).toBeInTheDocument();
     expect(screen.getByText("Pay this month's electricity bill")).toBeInTheDocument();
+    // The header shows the plain title; the EARS text opens behind "Full requirement".
+    expect(screen.getByText('Pay a bill with a valid card')).toBeInTheDocument();
+    expect(screen.queryByText(/WHEN the user submits a valid payment/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Full requirement' }));
     expect(screen.getByText(/WHEN the user submits a valid payment/)).toBeInTheDocument();
     expect(screen.getByText('def5678')).toBeInTheDocument();
     expect(screen.getByText(/git checkout def5678 && cd engine && npm run haunt -- run --ghost listener/)).toBeInTheDocument();

@@ -21,7 +21,7 @@ import type { Run, Step } from '../data/types';
 import { useApproximateVoice } from '../hooks/useApproximateVoice';
 import { formatSeconds } from '../model/format';
 import { GHOSTS, moodFor, RESULT_LABELS, resultSentence } from '../model/ghosts';
-import { displayGoal, pageName, plainAction, siteLabel } from '../model/sites';
+import { displayGoal, pageName, plainAction, requirementTitle, siteLabel } from '../model/sites';
 import { nothingAnnounced } from '../model/transcript';
 import { askPath, homePath, parseAsk, parseStepParam, stepPath, type QuestionId } from '../routes';
 import { IndexErrorScreen, Loading, UnknownRunScreen } from './common';
@@ -285,10 +285,10 @@ function GhostCam({ run, n, announceOnOpen }: { run: Run; n: number; announceOnO
           <div className={styles.requirementWrap}>
             <p
               className={`${styles.summaryRow} ${styles.requirementRow}`}
-              title={`Requirement: ${run.mission.requirement} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`}
+              title={`Requirement: ${requirementTitle(run.mission)} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`}
             >
               <span className={styles.requirementText}>
-                Requirement: <span>{run.mission.requirement}</span>
+                Requirement: <span>{requirementTitle(run.mission)}</span>
               </span>{' '}
               <ExpandButton
                 open={requirementOpen}

@@ -94,6 +94,11 @@ export function displayGoal(mission: { id: string; goal: string }): string {
   return missionWords(mission.id).goal ?? mission.goal;
 }
 
+/** A requirement's plain title, such as "Pay a bill with a valid card". Spec Coverage and the Ghost Cam both use it. */
+export function requirementTitle(mission: { id: string; goal: string }): string {
+  return missionWords(mission.id).title ?? displayGoal(mission);
+}
+
 /** Where the fixed copy of Lantern Bills is published, by its run-file name (UI-22). */
 const FIXED_COPY_TRY: Readonly<Record<string, { label: string; href: string }>> = {
   'Lantern Bills demo (exorcised)': {

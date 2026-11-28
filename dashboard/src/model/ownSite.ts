@@ -10,3 +10,11 @@ export const OWN_SITE_COMMANDS: readonly string[] = [
 ];
 
 export const OWN_SITE_BLOCK = OWN_SITE_COMMANDS.join('\n');
+
+/**
+ * A command split before each flag (a space followed by "--" and a letter), so a flag and its value
+ * stay together. Joining the parts with one space gives the command back.
+ */
+export function splitAtFlags(command: string): string[] {
+  return command.split(/ (?=--[A-Za-z])/);
+}

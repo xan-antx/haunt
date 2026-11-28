@@ -185,10 +185,10 @@ describe('UI-17: the planted-problems line on Home', () => {
     await screen.findByRole('heading', { level: 1 });
     const line = await screen.findByTestId('planted-line');
     expect(line).toHaveTextContent(
-      '6 problems were planted in Lantern Bills. The ghosts found 5 of 6. The fix exorcised 5 of those 5. No ghost has reached card errors that are never announced. The mission pays with a valid card, so no card error ever appears.',
+      '6 problems were planted in Lantern Bills. The ghosts found 5 of 6. The fix exorcised all 5. No ghost has reached card errors that are never announced. The mission pays with a valid card, so no card error ever appears.',
     );
     expect(within(line).getByRole('link', { name: '5 of 6' })).toHaveAttribute('href', expect.stringContaining('/graveyard?site=lantern-bills-demo'));
-    expect(within(line).getByRole('link', { name: '5 of those 5' }).getAttribute('href')).toContain('/exorcise/');
+    expect(within(line).getByRole('link', { name: 'all 5' }).getAttribute('href')).toContain('/exorcise/');
     expect(within(line).getByRole('link', { name: '6 problems' })).toHaveAttribute(
       'href',
       'https://github.com/xan-antx/haunt/blob/main/.kiro/steering/demo-site.md',

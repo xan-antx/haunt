@@ -5,6 +5,7 @@ import axe from 'axe-core';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RESULT_LABELS, resultSentence } from '../model/ghosts';
+import { requirementTitle } from '../model/sites';
 import * as derived from './fixtures/derived';
 import { bebeRun, listenerRun } from './fixtures/samples';
 import { memorySource, renderApp, sampleFiles } from './helpers';
@@ -101,10 +102,19 @@ describe('Run_Summary', () => {
     const row2 = document.querySelector<HTMLElement>('p[title^="Requirement:"]')!;
     expect(row2).not.toBeNull();
     expect(row2.getAttribute('title')).toBe(
-      `Requirement: ${run.mission.requirement} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`,
+      `Requirement: ${requirementTitle(run.mission)} ${RESULT_LABELS[run.result]} ${resultSentence(run.ghost, run.result)}.`,
     );
-    expect(row2).toHaveTextContent(`Requirement: ${run.mission.requirement}`);
+    expect(row2).toHaveTextContent(`Requirement: ${requirementTitle(run.mission)}`);
     expect(row2).toHaveTextContent(RESULT_LABELS[run.result]);
+  });
+
+  it.each(SAMPLES)('shows the plain title, not the EARS text, with the EARS text behind "Full requirement" for $label', async ({ run }) => {
+    await openCam(run.key, 1);
+    const row2 = document.querySelector<HTMLElement>('p[title^="Requirement:"]')!;
+    expect(row2).toHaveTextContent('Requirement: Pay a bill with a valid card');
+    expect(row2.textContent).not.toContain(run.mission.requirement);
+    fireEvent.click(within(row2).getByRole('button', { name: 'Full requirement' }));
+    expect(screen.getByRole('region', { name: 'Full requirement' })).toHaveTextContent(run.mission.requirement);
   });
 });
 

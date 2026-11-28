@@ -212,7 +212,9 @@ function PlantedLine({ story }: { story: PlantedStory }) {
         <>
           The fix exorcised{' '}
           <Link to={exorcisePath(exorcisedEvidence.before.key, exorcisedEvidence.after.key)}>
-            {story.exorcised} of those {story.found}
+            {story.found > 1 && story.exorcised === story.found
+              ? `all ${story.found}`
+              : `${story.exorcised} of those ${story.found}`}
           </Link>
           .
         </>

@@ -42,8 +42,10 @@ export function ProvenancePanel({
   const box = useRef<HTMLDivElement>(null);
   const overflowing = useScrollOverflow(box, 'x');
   const command = reproduceCommand(run);
-  // Only the haunted Lantern Bills is served by `npm run serve:ghosts`.
-  const usesLanternBuild = !isRealWorldRun(run) && !isFixedCopyRun(run);
+  // Lantern Bills and its fixed copy are each served by `npm run serve:ghosts`, from their own folders.
+  const fixedCopy = isFixedCopyRun(run);
+  const servesLantern = !isRealWorldRun(run);
+  const serveFolder = fixedCopy ? 'demo-site-exorcised/' : 'demo-site/';
 
   // Copies `command` from this render, never the DOM text, so layout can't add or remove characters.
   // The button is never disabled: on failure the text is selected so it can be copied by hand.
@@ -113,10 +115,11 @@ export function ProvenancePanel({
                 {command}
               </code>
             </div>
-            {usesLanternBuild && (
+            {servesLantern && (
               <p className="muted" data-testid="serve-ghosts-hint">
-                Serve Lantern Bills first with <code>npm run serve:ghosts</code> in <code>demo-site/</code>. The dev
-                server is too slow for The Phantom's slow-3G walk.
+                Serve {fixedCopy ? 'the fixed copy of Lantern Bills' : 'Lantern Bills'} first with{' '}
+                <code>npm run serve:ghosts</code> in <code>{serveFolder}</code>. The dev server is too slow for The
+                Phantom's slow-3G walk.
               </p>
             )}
             <button type="button" className="button" onClick={() => void copy()}>

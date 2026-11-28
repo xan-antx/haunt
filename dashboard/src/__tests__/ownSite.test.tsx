@@ -4,7 +4,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { OWN_SITE_BLOCK, OWN_SITE_COMMANDS } from '../model/ownSite';
+import { OWN_SITE_BLOCK, OWN_SITE_COMMANDS, splitAtFlags } from '../model/ownSite';
 import { memorySource, renderApp } from './helpers';
 
 afterEach(() => {
@@ -39,6 +39,27 @@ describe('Haunt your own site', () => {
     fireEvent.click(button);
     await waitFor(() => expect(screen.getByTestId('live-region')).toHaveTextContent(/Couldn't copy/));
     expect(button).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('keeps each flag with its value, so a line can only break between flags', async () => {
+    renderApp('/', memorySource([]));
+    const card = await screen.findByTestId('own-site-card');
+    const parts = splitAtFlags(OWN_SITE_COMMANDS[3]!);
+    expect(parts).toEqual([
+      'npm run haunt -- run',
+      '--ghost listener',
+      '--mission my-mission',
+      '--url http://localhost:3000',
+      '--site my-site',
+      '--config ../my-haunt/haunt.config.json',
+      '--missions ../my-haunt/missions',
+      '--out ../my-haunt/runs',
+    ]);
+    expect(parts.join(' ')).toBe(OWN_SITE_COMMANDS[3]);
+    // On screen each part is one unbreakable span, and the text of the block is the copied text.
+    const spans = [...card.querySelectorAll('pre code span')].map((s) => s.textContent);
+    for (const part of parts) expect(spans).toContain(part);
+    expect(card.querySelector('pre code')!.textContent).toBe(OWN_SITE_BLOCK);
   });
 
   it('uses the same command lines as the README', () => {

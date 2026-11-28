@@ -145,6 +145,21 @@ describe('Provenance_Panel serve hint (UI-11)', () => {
     const hint = screen.getByTestId('serve-ghosts-hint');
     expect(hint).toHaveTextContent('npm run serve:ghosts');
     expect(hint).toHaveTextContent("too slow for The Phantom's slow-3G walk");
+    expect(hint).toHaveTextContent('in demo-site/');
+  });
+
+  it('shows the hint for a fixed-copy run too, naming demo-site-exorcised/', async () => {
+    const fixed = { key: '2026-11-09-listener-pay-bill', folder: 'test/fixed', origin: 'runs' as const };
+    renderApp(
+      `/run/${fixed.key}/step/1`,
+      memorySource([...sampleFiles(), { json: derived.listenerOnFixedCopy(), meta: fixed }]),
+    );
+    await screen.findByRole('heading', { level: 1, name: /Ghost Cam/ });
+    fireEvent.click(screen.getByRole('button', { name: /Where this run came from/ }));
+    const hint = screen.getByTestId('serve-ghosts-hint');
+    expect(hint).toHaveTextContent('npm run serve:ghosts');
+    expect(hint).toHaveTextContent('in demo-site-exorcised/');
+    expect(hint).not.toHaveTextContent('in demo-site/');
   });
 });
 

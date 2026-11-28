@@ -7,7 +7,7 @@ import { byStartedAtDesc } from './format';
 import { byRealThenNewest } from './origin';
 import { isRealWorldRun } from './realWorld';
 import { repoFileUrl } from './repo';
-import { displayGoal, missionWords, siteLabel } from './sites';
+import { displayGoal, missionWords, requirementTitle, siteLabel } from './sites';
 
 export interface GhostCoverage {
   /** Newest real run of this mission by this ghost on this site, else its newest sample. */
@@ -69,7 +69,7 @@ export function buildCoverage(runs: Run[]): MissionCoverage[] {
         site: siteLabel(siteName),
         missionId,
         goal: displayGoal(latest.mission),
-        title: words.title ?? displayGoal(latest.mission),
+        title: requirementTitle(latest.mission),
         requirement: latest.mission.requirement,
         requirementChanged: new Set(sorted.map((r) => r.mission.requirement)).size > 1,
         requirementLink: words.requirementFile ? repoFileUrl(words.requirementFile) : null,

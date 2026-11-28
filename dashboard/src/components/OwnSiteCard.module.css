@@ -11,7 +11,8 @@
   font-size: 1.75rem;
 }
 
-/* The commands wrap instead of scrolling, so there is no scroll box to reach by keyboard. */
+/* Lines break only between flags (each flag and its value is one .flag). A flag wider than the card
+   scrolls sideways instead of breaking. */
 .block {
   margin: var(--space-3) 0;
   padding: var(--space-3);
@@ -19,7 +20,18 @@
   background: var(--bg);
   color: var(--text);
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  overflow-x: auto;
+}
+
+.block:focus-visible {
+  outline: var(--focus-width) solid var(--spectral);
+  outline-offset: var(--focus-offset);
+}
+
+.flag {
+  white-space: nowrap;
 }
 
 .actions {
