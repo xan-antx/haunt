@@ -1,0 +1,16 @@
+# Keep line endings the same on every machine. Some tests read source files
+# and match text that assumes LF, so a Windows clone must not convert to CRLF.
+* text=auto eol=lf
+
+# Binary files: never touch their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary

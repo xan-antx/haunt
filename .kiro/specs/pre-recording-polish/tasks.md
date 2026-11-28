@@ -62,6 +62,20 @@ One commit per phase on the branch `pre-recording-fixes`. A task is ticked only 
     - [ ] Fold Home's "Recent ghost walks" into the site panels: Deferred until after the hackathon. It risks the tour's stops, and nothing on the demo path needs it.
     - [ ] Before-and-after screenshot slider on Exorcise: Deferred until after the hackathon. The Exorcise table already shows the comparison, and the slider is not on the demo path.
 
+- [ ] 7. Phase 6: README and docs (from the independent README review, DOC-01 to DOC-25)
+  - [ ] 7.1 DOC-01, DOC-02, DOC-03: new first screen (who it is for, why, hero image, Kiro named), Kiro section in the first 40% of the file, a "Built with" list
+  - [ ] 7.2 DOC-09, DOC-10, DOC-11, DOC-19: all 10 specs listed (pre-recording-polish came from an outside review and has deferred items), each steering file's inclusion mode and each hook's trigger and action type, "629 task-execution records", and the full "What was not Kiro" list
+  - [ ] 7.3 DOC-12: dashboard names for findings, screens and panels, with the code name once in brackets; same fix in `dashboard/README.md` (screen count, "Séance", "Haunted Map")
+  - [ ] 7.4 DOC-13, DOC-21, DOC-24, DOC-20: README cut down, detector details, per-suite test tables, property-test table and timing notes moved to `docs/how-it-works.md` and `docs/testing.md`; no table cell over about 150 characters; every code block tagged; plain `img` tags with italic captions
+  - [ ] 7.5 DOC-22, DOC-23: Accessibility of Haunt itself, Contributing (with `CONTRIBUTING.md`), Credits and What's next; the Memos AI run pressed Escape once, and the exit needs two presses
+  - [ ] 7.6 DOC-04: `.gitattributes` (`* text=auto eol=lf`, binary rules), `git add --renormalize .` changes no file contents; a fresh clone with `core.autocrlf=true` passes `npm test` in `engine/` and `crew-app/`
+  - [ ] 7.7 DOC-05, DOC-06, DOC-18: the dashboard's data tests check the recorded runs, so trial runs use `--out` outside `runs/` (both READMEs, the "Run a ghost" example, and the false sentence in `dashboard/README.md`); current test counts
+  - [ ] 7.8 DOC-08: `serve:ghosts` in `demo-site-exorcised/package.json` (port 3002, base `/`), documented; The Phantom completes on it with 0 findings
+  - [ ] 7.9 DOC-14, DOC-15, DOC-16, DOC-17, DOC-25: `allowedTerms` line and `{{futureExpiry}}`; Reproduce command carries `--site-name` for a fixed-copy run (test); `engine/.vitest` untracked and ignored; licence and descriptions in both demo sites and the fixed copy's title; Ctrl+C line and the Vite warning
+  - [ ] 7.10 DOC-07: the live site is one version behind this branch; redeploying is the owner's decision after the merge (not done here)
+  - [ ] 7.11 Deferred until after the hackathon: point the dashboard's data tests (`datalogic.test.tsx` and the other tests that read `runs/`) at a frozen copy of the recorded runs, so recording a run no longer changes them
+  - [ ] 7.12 Phase check: unit tests for every package touched, demo-site tests, dashboard end-to-end suite with one worker, recorded fit check and axe; commit, push, CI green
+
 - [x] 6. Final check (first pass, before the extras)
   - [x] 6.1 Every package: unit, property, type-check, build; dashboard and engine end-to-end suites, one worker (dashboard e2e: 152 of 153 on the first run, the one timeout passed alone; engine e2e 23 of 23)
   - [x] 6.2 Planted problems present in `demo-site/`, absent in `demo-site-exorcised/`

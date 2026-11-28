@@ -27,6 +27,7 @@ out/
 
 # Testing
 coverage/
+.vitest/
 
 # OS files
 .DS_Store
